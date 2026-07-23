@@ -1,9 +1,9 @@
-# Save/load systems (Godot 4.7+) — building with godot-mcp
+# Save/load systems — building with godot-mcp
 
 The unifying reference for persistence. Four other docs cover a *slice* of saving from their
 genre's angle — this one owns the shared architecture and the format decisions. **Verify exact
 APIs against the live engine** (`engine class-info --class FileAccess`) before writing — the
-serializer flags below were confirmed on 4.7, but signatures evolve.
+serializer flags below were confirmed against the live engine, but signatures evolve.
 
 Where to jump instead of reading here:
 - **`gdscript-architecture.md`** — big game, bulk mutable state: the *two-tier save* (small

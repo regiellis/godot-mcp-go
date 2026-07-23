@@ -1,7 +1,7 @@
-# Mobile & touch input (Godot 4.7+) — building with godot-mcp
+# Mobile & touch input — building with godot-mcp
 
 Touch, multitouch, gestures, on-screen controls, and safe areas the Godot way. Every class and
-setting below was introspected against the live 4.7 build — **re-verify with `engine class-info`
+setting below was introspected against the live build — **re-verify with `engine class-info`
 / `project settings`**; touch API and the built-in `VirtualJoystick` are newer than most
 training data. General display/window settings live in `menus-settings.md`; this file owns the
 *input* side and the mobile-specific display knobs.
@@ -57,7 +57,7 @@ project set-setting --setting input_devices/pointing/emulate_touch_from_mouse --
 - **`Control` buttons** (`Button`, `TextureButton`) work under touch via
   `emulate_mouse_from_touch`, but fire on **release** and don't multi-touch — fine for menus,
   wrong for twitch controls.
-- **`VirtualJoystick`** — a `Control` node **in this 4.7 build's ClassDB** (engine-level, newer
+- **`VirtualJoystick`** — a `Control` node **in the running build's ClassDB** (engine-level, newer
   than most training data; builds can differ — confirm with
   `engine class-info --class VirtualJoystick`. If absent, roll a small Control stick: track one
   finger's `ScreenDrag` by `index` in `_gui_input`, as in the multitouch section above, and feed

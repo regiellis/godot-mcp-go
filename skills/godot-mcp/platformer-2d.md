@@ -1,8 +1,8 @@
-# 2D platformer construction (Godot 4.7+) — the component-actor way
+# 2D platformer construction — the component-actor way
 
 How to assemble a 2D platformer character, its animation, and its level the Godot way:
 composition over inheritance, physics as the single source of truth, and almost no glue code.
-Distilled from a studied production demo and verified live against 4.7. Jump *feel* (coyote
+Distilled from a studied production demo and verified live. Jump *feel* (coyote
 time, buffering, midair jump) lives in `game-patterns.md`; this file is the architecture.
 
 ## The actor is a composition, not a class hierarchy

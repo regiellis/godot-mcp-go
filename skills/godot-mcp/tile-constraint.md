@@ -11,7 +11,7 @@ There are **two families** of procedural generation, and they solve different pr
 
 This file is the buildable playbook for the **second** family — the technique from Oscar Stålberg's "How One Guy FIXED Procedural Generation". The first family lives in `level-design.md`/`environment-art.md`.
 
-Every recipe below was driven against the live 4.7 editor. Set up a GridMap first (`node add --type GridMap --parent . --name Grid`); paint with item ids, then assign a real MeshLibrary (`gridmap meshlibrary_from_scene` → `node set mesh_library`) once the logic works.
+Every recipe below was driven against a live editor. Set up a GridMap first (`node add --type GridMap --parent . --name Grid`); paint with item ids, then assign a real MeshLibrary (`gridmap meshlibrary_from_scene` → `node set mesh_library`) once the logic works.
 
 ---
 

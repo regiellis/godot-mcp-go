@@ -1,8 +1,8 @@
-# Large-scale GDScript architecture (Godot 4)
+# Large-scale GDScript architecture
 
 How to structure the *runtime* of a big GDScript game so it stays decoupled and
 navigable — the layer above `project-structure.md`'s folder layout. Distilled from a
-shipped commercial Godot 4 narrative game (real GDScript source: ~800 scripts, ~1000
+shipped commercial Godot narrative game (real GDScript source: ~800 scripts, ~1000
 scenes, 22 autoloads, 8 locales, console releases). Patterns are durable and map straight
 to the CLI (`project.add_autoload`, `script.create`, `node.add`). For any exact API,
 confirm against the live engine with `engine class-info`/`engine search`.

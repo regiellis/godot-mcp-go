@@ -4,7 +4,7 @@ From the workflow-design talk *"Gyms, Zoos, and Museums: your documentation shou
 
 **For a solo or small team this matters more, not less.** The "game of telephone" the talk describes (asking a teammate, who points to Slack, which points to Confluence…) is, for you, a game of telephone *with your future self*. Three months on you've forgotten your own jump distance, your asset scales, your system rules. In-game docs become a single source of truth you maintain **for free while building**, not a separate chore you'll abandon.
 
-The `doc` command group builds all four patterns. Every recipe below was driven against the live 4.7 editor. They need a **3D scene** open (`scene create … --root-type Node3D` then `scene open …`).
+The `doc` command group builds all four patterns. Every recipe below was driven against a live editor. They need a **3D scene** open (`scene create … --root-type Node3D` then `scene open …`).
 
 ---
 

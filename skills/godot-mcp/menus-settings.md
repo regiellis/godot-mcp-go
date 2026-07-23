@@ -1,9 +1,9 @@
-# Menus & settings screens (Godot 4.7+) — structure and the meta-game the Godot way
+# Menus & settings screens — structure and the meta-game the Godot way
 
 How to build the screens *around* the game — title, pause, settings, remap, dialogs — with the CLI.
 This doc owns **structure and the widget family**; `ui-polish-2d.md` owns the *look* (Design tokens,
 drawn controls, juice, transitions) — build the skeleton here, polish there. Every widget, signal, and
-enum below was verified against the live 4.7.1 build. A menu only tells the truth when you **play it**
+enum below was verified against the live build. A menu only tells the truth when you **play it**
 (`scene play` → `input click` / drive focus with a gamepad action → read back); ground anything
 unfamiliar with `engine class-info --class OptionButton` before wiring it.
 
@@ -95,7 +95,7 @@ func _ready() -> void:
 func _on_music(value: float) -> void:                 # HSlider (linear) → audio bus (dB)
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Music"), linear_to_db(value))
 ```
-`linear_to_db(0)` is `-inf` (silence), which is correct. 4.7 also has
+`linear_to_db(0)` is `-inf` (silence), which is correct. Godot also has
 `AudioServer.set_bus_volume_linear(idx, value)` to skip the conversion. Reach for `MenuBar` only for a
 desktop-app top strip; each child `PopupMenu` is one menu, wired via `get_menu_popup(i).id_pressed`,
 and a `MenuButton`'s dropdown is `get_popup().id_pressed`.
@@ -258,7 +258,7 @@ $Intro.play()                                          # set autoplay + loop for
 
 ## VirtualJoystick — on-screen touch stick
 
-`VirtualJoystick` is a `Control` **in this 4.7 build's ClassDB** (it's engine-level, not a project
+`VirtualJoystick` is a `Control` **in the running build's ClassDB** (it's engine-level, not a project
 addon — verified: no plugin registers it here). It's newer than most training data and builds can
 differ, so confirm with `engine class-info --class VirtualJoystick` before relying on it; if absent,
 fall back to the Control-stick pattern in `mobile-touch.md`. It drives four InputMap actions, so

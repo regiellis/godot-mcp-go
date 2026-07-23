@@ -1,9 +1,9 @@
-# Comp-faithful 2D UI (Godot 4.7+) — tokens, drawn controls, juice, and screen builders
+# Comp-faithful 2D UI — tokens, drawn controls, juice, and screen builders
 
 How to take a visual design (HTML/CSS comps, Figma frames) to a polished Godot UI that
 actually matches it — and how to build those screens programmatically without the editor
 fighting you. Distilled from a shipped-quality game built *with godot-mcp itself* against
-pixel comps; every gotcha here was hit for real. Core kit validated headless against 4.7.
+pixel comps; every gotcha here was hit for real. Core kit validated headless against the live engine.
 
 ## Design tokens: one class, transcribed from the comps
 

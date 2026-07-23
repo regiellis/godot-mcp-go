@@ -1,9 +1,9 @@
-# Audio & music (Godot 4.7+) — buses, SFX, interactive scores
+# Audio & music — buses, SFX, interactive scores
 
 Building a game's sound the Godot way, mapped to the CLI. Audio is a resource pipeline:
 `AudioStream` resources feed `AudioStreamPlayer` nodes routed through `AudioServer`
 buses. **Verify every class against the live engine** (`engine class-info --class
-AudioStreamInteractive`) — the names below were confirmed on 4.7.1, but signatures evolve.
+AudioStreamInteractive`) — the names below were confirmed against the live engine, but signatures evolve.
 
 Two rules thread through everything here:
 - **The multi-clip stream resources (`Interactive`, `Synchronized`, `Playlist`,

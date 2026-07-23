@@ -1,8 +1,8 @@
-# Narrative / visual-novel architecture (Godot 4)
+# Narrative / visual-novel architecture
 
 The systems a story-driven game needs: branching script, on-screen dialogue, scripted
 commands woven into prose, choices, chapter flow, and data-driven in-world content (a fake
-phone/social-media OS). Reverse-engineered from a shipped commercial Godot 4 narrative game
+phone/social-media OS). Reverse-engineered from a shipped commercial Godot narrative game
 (real GDScript source), plus a studied graph-dialogue addon for the node-graph family and
 the VN quality-of-life layer. Patterns are durable and language-agnostic in spirit; build
 them via the CLI (`script.create`, `scene.*`, `project.add_autoload`). Read
@@ -140,7 +140,7 @@ sub-story to a container** so the same dialogue machinery drives small in-world 
 
 The alternative to Ink: dialogue as a **JSON node graph** — typed nodes keyed by id, each
 carrying `next` (or a `branches` map), interpreted by a walker. Same two seams as above, just
-wearing different clothes. Distilled from a studied dialogue addon; core verified against 4.7.
+wearing different clothes. Distilled from a studied dialogue addon; core verified against the live engine.
 
 **The graph is data; the interpreter is a `match`.** Flow control ships as *node types*, not
 code: `show_message` (text per language: `{"ENG": ...}`, optional `choices`),
@@ -238,7 +238,7 @@ Content authors add posts/emails by editing JSON, not code.
 
 ## The product shell (everything around the story)
 
-Mined from a VN engine's starter game; the save/settings core validated on 4.7. The shell —
+Mined from a VN engine's starter game; the save/settings core validated against the live engine. The shell —
 boot, title, saves, settings, extras — is where "demo" and "shippable" diverge, and it
 generalizes far beyond VNs. The organizing idea: **the shell is data-driven from manifests**,
 so re-skinning the product never touches code.

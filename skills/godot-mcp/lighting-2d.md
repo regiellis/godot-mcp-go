@@ -1,7 +1,7 @@
-# 2D lighting (Godot 4.7+) — darkness, lights, shadows, and the escape hatches
+# 2D lighting — darkness, lights, shadows, and the escape hatches
 
 The complete 2D lighting stack: the darkness/light/shadow triad, what must be *exempted* from
-it, normal-mapped sprites, glow, and the SDF layer. Every recipe driven live against 4.7.1.rc
+it, normal-mapped sprites, glow, and the SDF layer. Every recipe driven live
 with the `lighting` commands (screenshot-verified light pool, emissive, and CanvasTexture
 shading). Day/night color cycling lives in `topdown-2d.md`; this file is the machinery.
 
@@ -12,7 +12,7 @@ shading). Day/night color cycling lives in `topdown-2d.md`; this file is the mac
 black erases everything). One per canvas — `lighting canvas-modulate --color '#26264d'`
 creates or updates it. Tint it for mood, not just night: a dusk orange or cave blue is the
 same node. **What escapes it**: children of a `CanvasLayer` (HUD), and *nothing else* —
-including `Parallax2D`, which IS affected in 4.x. To keep a parallax background out of the
+including `Parallax2D`, which IS affected. To keep a parallax background out of the
 darkness (the Tropical Freeze look), wrap it in a `CanvasLayer` with a negative `layer`.
 
 **2. `PointLight2D` burns holes in it.** A point light renders **nothing without a texture** —

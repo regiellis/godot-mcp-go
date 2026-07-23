@@ -1,4 +1,4 @@
-# Environment art pass (Godot 4.7+) — greybox → final, driven from the editor
+# Environment art pass — greybox → final, driven from the editor
 
 The pass *after* the level is proven. `level-design.md` says "beautify last" — this is the last:
 you run it only once the blockout, game feel, and encounters hold up. It's the **Art Pass** in
@@ -73,13 +73,13 @@ strategy; keep the **gameplay read** (bright = go) living *under* the mood.
 
 ## WorldEnvironment & post — restraint
 
-`Environment` post (all verified on 4.7): `tonemap_mode`, `glow_enabled`, `ssao_enabled`,
+`Environment` post (all verified live): `tonemap_mode`, `glow_enabled`, `ssao_enabled`,
 `ssil_enabled`, `ssr_enabled`, `fog_enabled`, `volumetric_fog_enabled`, `adjustment_*`.
 ```
 node add-resource --node-path Env --property environment --resource-type Environment \
   --resource-properties '{"tonemap_mode":4,"glow_enabled":true,"ssao_enabled":true,"fog_enabled":true}'
 ```
-(`tonemap_mode` 3 = ACES, 4 = AgX in 4.x — confirm with `engine class-info --class Environment`.)
+(`tonemap_mode` 3 = ACES, 4 = AgX — confirm with `engine class-info --class Environment`.)
 **Add effects one at a time and screenshot.** Post is seasoning, not a meal — bloom hides nothing,
 it reveals over-bright mistakes. If a screenshot reads worse with an effect on, cut it.
 
@@ -89,15 +89,15 @@ it reveals over-bright mistakes. If a screenshot reads worse with an effect on, 
 projected AO, puddles — stamped onto existing geometry without new meshes. `FogVolume` for localized
 fog/light shafts. A little of each sells the fantasy far past its cost.
 
-**Particles interact with the world via dedicated nodes** (verified on 4.7): attractors
+**Particles interact with the world via dedicated nodes** (verified live): attractors
 (`GPUParticlesAttractorSphere3D/Box/VectorField` — `strength` pulls, negative pushes) and
 colliders (`GPUParticlesCollisionBox3D/Sphere/SDF/HeightField` — SDF bakes level geometry so
 sparks bounce off walls). Two opt-ins bite silently: the `ParticleProcessMaterial` must set
-`collision_mode` (and `attractor_interaction_enabled`) or the nodes do nothing. 4.7 also adds
+`collision_mode` (and `attractor_interaction_enabled`) or the nodes do nothing. Godot also adds
 **`AreaLight3D`** — a real rectangle emitter (`area_size`, optional `area_texture`) for soft
 window/panel light where an OmniLight reads pointy.
 
-**Particle trails** (verified on 4.7): set `trail_enabled` + `trail_lifetime` on the
+**Particle trails** (verified live): set `trail_enabled` + `trail_lifetime` on the
 `GPUParticles3D`, then make `draw_pass_1` a trail mesh — `RibbonTrailMesh` (flat streak:
 `shape`, `size`, `sections`, `section_length`, `section_segments`) or `TubeTrailMesh`
 (volumetric: `radius`, `radial_steps`, `sections`, `section_rings`, `cap_top/bottom`). Both
@@ -156,7 +156,7 @@ on the parallax layers (`Parallax2D` / `CanvasLayer`). Add 2D **normal maps** + 
 `DirectionalLight2D` for lit sprites, and `CanvasModulate` for a global tint / time-of-day. The
 value-hierarchy and grayscale rules from `level-design.md` apply unchanged.
 
-**Parallax2D recipe** (one node per depth layer, sprites as children; APIs verified on 4.7):
+**Parallax2D recipe** (one node per depth layer, sprites as children; APIs verified live):
 `scroll_scale` is the depth — `(0.2, 1.0)` drifts slowly (far), `>1` moves faster than the
 camera (foreground); `repeat_size` + `repeat_times` tile the art infinitely along an axis;
 `autoscroll` drifts it with no camera motion (clouds, the shmup intro loop). It *is* affected
@@ -170,7 +170,7 @@ count would drown the canvas renderer.
 
 ### Pixel-art projects: the setup that keeps them crisp
 
-Four project settings decide whether pixel art reads sharp or smeared (keys verified on 4.7;
+Four project settings decide whether pixel art reads sharp or smeared (keys verified live;
 set via `project set-setting`):
 - `rendering/textures/canvas_textures/default_texture_filter` → **Nearest** (0). Any linear
   filter softens every pixel edge project-wide.
@@ -194,7 +194,7 @@ hard nearest-neighbor everything.
 
 A shipped commercial Godot VN gets its signature look by putting flat 2D art on **textured quads
 in true 3D space** and shooting it with a real `Camera3D` — parallax, DoF, and camera moves come
-free from the perspective projection, while the art stays hand-drawn. Pattern (validated on 4.7):
+free from the perspective projection, while the art stays hand-drawn. Pattern (validated live):
 
 - A `Paper3D` node (`MeshInstance3D` + `@tool`) builds a 4-vert `ArrayMesh` quad sized
   `texture_size * pixel_size`, with exports for centered/offset/flip/modulate/emission. Like

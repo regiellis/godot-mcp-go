@@ -1,7 +1,7 @@
 version: "3"
 
 # Godot MCP (Go) task runner. Run `task` to list available tasks.
-# GODOT points at the 4.7 shim; override with `task editor GODOT=godot-dev`.
+# GODOT selects the Godot binary; override with `task editor GODOT=/path/to/godot`.
 
 vars:
   BIN: bin/godot-mcp.exe
@@ -54,7 +54,7 @@ tasks:
       - task: test
 
   editor:
-    desc: Open the test project in the Godot 4.7 editor (starts the addon server)
+    desc: Open the test project in the Godot editor (starts the addon server)
     cmds:
       - "{{.GODOT}} --path {{.PROJECT}} --editor"
 
@@ -64,7 +64,7 @@ tasks:
       - "{{.GODOT}} --path {{.PROJECT}}"
 
   godot:version:
-    desc: Print the Godot dev build version (should be 4.7.x)
+    desc: Print the Godot version the GODOT var resolves to
     cmds:
       - "{{.GODOT}} --version"
 

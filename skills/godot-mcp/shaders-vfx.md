@@ -1,10 +1,10 @@
-# Shaders for VFX (Godot 4.7+) — writing gdshader code and wiring it with the CLI
+# Shaders for VFX — writing gdshader code and wiring it with the CLI
 
 Authoring `.gdshader` code and wiring it to nodes for game VFX. `game-patterns.md` holds the
 **combat-VFX grammar** (the aesthetic recipe — lifetime curves, LUT recolor, erosion, polar remaps);
 this file is the **machinery under it**: shader types, the wiring path agents get wrong, uniforms, a
 tested 2D VFX kit, and how to *verify shader code compiles* (which `script validate` cannot). Every
-snippet was compiled live on 4.7.1.rc via the orphan-`Shader` probe in the last section. `lighting-2d.md`
+snippet was compiled live via the orphan-`Shader` probe in the last section. `lighting-2d.md`
 owns `texture_sdf`/emissive/glow; `environment-art.md` owns decals, fog, and trails.
 
 ## The shader types
@@ -27,7 +27,7 @@ res://fx/x.gdshader --shader-type <type>` writes a stub for any of them (default
   sprite: muzzle flashes, lasers, energy. (2D real bloom needs `hdr_2d` — see `lighting-2d.md`.)
 - `cull_disabled` (spatial) — draw back faces too, for flat/thin geometry (grass cards, capes).
   `blend_mix` (default), `blend_sub`, `blend_mul`, and `depth_prepass_alpha` (spatial) round out
-  the common set (all compile-verified on 4.7).
+  the common set (all compile-verified live).
 
 ## Wiring a shader with the CLI (the part agents get wrong)
 
@@ -68,12 +68,12 @@ parameter, then tween.
 
 - **`uniform`** — a per-material knob, set from CLI/code/inspector. Hints shape it: `uniform float x
   : hint_range(0.0, 1.0) = 0.2;` (a slider), `uniform vec4 c : source_color;` (a color picker — the
-  4.x name for the old `hint_color`), `uniform sampler2D t : filter_nearest, repeat_enable;`. Always
+  current name for the old `hint_color`), `uniform sampler2D t : filter_nearest, repeat_enable;`. Always
   give a default — an unset uniform reads as zero.
 - **`instance uniform`** — per-*node* variation on **one shared material**, no duplication. `instance
   uniform vec4 tint : source_color = vec4(1.0);`, then set it per node via the node's own method:
   `set_instance_shader_parameter("tint", …)` — a method on **both** `GeometryInstance3D` (3D) and
-  `CanvasItem` (2D), so instance uniforms are *not* spatial-only in 4.7 (verified); unavailable in
+  `CanvasItem` (2D), so instance uniforms are *not* spatial-only (verified live); unavailable in
   `particles`/`sky`/`fog`. Reach the setter with `editor run-script`; they don't enumerate in
   `get_shader_uniform_list`.
 - **`global uniform`** — one value shared by every shader project-wide (wind, time-of-day, player
@@ -204,7 +204,7 @@ can't express the math.
 
 ## Screen-space effects
 
-Read the rendered frame with a **screen-texture sampler** — the 4.x replacement for the removed
+Read the rendered frame with a **screen-texture sampler** — the replacement for the removed
 `SCREEN_TEXTURE`. Hint a sampler `hint_screen_texture` and sample it at `SCREEN_UV` (verified in `canvas_item`):
 
 ```glsl

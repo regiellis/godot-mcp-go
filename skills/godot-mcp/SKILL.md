@@ -1,11 +1,11 @@
 ---
 name: godot-mcp
-description: Drive a running Godot editor (4.7+) from the command line via the godot-mcp CLI — build/edit scenes and nodes, write GDScript, run and playtest the game (inspect the live tree, simulate input, screenshot), and introspect the engine's real API. Use when the task involves creating or modifying a Godot project, testing game behavior, or answering "does Godot/this node support X" against the actual engine.
+description: Drive a running Godot editor from the command line via the godot-mcp CLI — build/edit scenes and nodes, write GDScript, run and playtest the game (inspect the live tree, simulate input, screenshot), and introspect the engine's real API. Use when the task involves creating or modifying a Godot project, testing game behavior, or answering "does Godot/this node support X" against the actual engine.
 ---
 
 # Godot MCP (godot-mcp)
 
-`godot-mcp` is a CLI that drives a **running Godot editor (4.7+)** over a WebSocket the editor's MCP addon hosts. You create scenes, add nodes, write scripts, play the game, simulate input, and inspect both the editor and the running game — without the user leaving the conversation. Every editor mutation goes through Godot's UndoRedo, so the user can Ctrl+Z anything.
+`godot-mcp` is a CLI that drives a **running Godot editor** over a WebSocket the editor's MCP addon hosts. You create scenes, add nodes, write scripts, play the game, simulate input, and inspect both the editor and the running game — without the user leaving the conversation. Every editor mutation goes through Godot's UndoRedo, so the user can Ctrl+Z anything.
 
 ## Prerequisites (check first)
 
@@ -32,9 +32,9 @@ godot-mcp engine commands [--group node]              # the MCP's own tool surfa
 godot-mcp node set --help                             # a command's param table (name/type/required/desc)
 ```
 
-`class-info` defaults to a class's **own** members — exactly where version-new API (like 4.7's `offset_transform_*`) lives; add `--inherited` for the full set. Lead with these whenever you're unsure, then act.
+`class-info` defaults to a class's **own** members — exactly where version-new API (like `offset_transform_*`) lives; add `--inherited` for the full set. Lead with these whenever you're unsure, then act.
 
-**Version numbers in this skill and its craft references are floors and provenance, never expiry dates.** This guidance was verified against Godot 4.7 and applies to newer builds; a `4.7` marks when something was checked or when a feature landed, not a version the skill stops working past. When any statement in these docs and the live engine disagree, **the live engine wins** — `engine version` and `engine class-info` are the ground truth.
+**These docs record what was verified against a live engine, not a version the guidance expires past.** When any statement here and the running engine disagree, **the live engine wins** — `engine version` and `engine class-info` are the ground truth.
 
 **Universal fallback:** even if no typed command wraps a feature, you can always reach it:
 - `node.set` / `node.get` work on **any** property name the live node exposes.
@@ -105,7 +105,7 @@ Most-used:
   - **Point-scatter** (`pcg`, `scatter`): "put N things over a surface." `pcg sample|scatter` is one pipeline: domain (`--on`/`--region`/`--along`) → distribution (`--poisson`/`--grid`/`--count`) → filters (`--max_slope`/`--noise_threshold`/…) → emitter (`--emit multimesh|scene`), **seeded**. `sample` previews (returns cull stats); `scatter` emits. `pcg relax` Laplacian-smooths a point graph. `scatter populate` is the simpler raycast-seated MultiMesh.
   - **Constraint tile-assembly** (`wfc`, `gridmap`): "assemble handmade modules so neighbours fit" (Townscaper/Bad North). Author a small kit → MeshLibrary, then: `wfc case_table` (the 6 dual-grid tiles) + `set_corner` + `solve_dual` paint a per-corner type field and pick each cell's module+rotation; **or** `wfc rules_from_example` + `collapse` run Wave Function Collapse over a region (constraint propagation, seeded, respects fixed/painted cells); `wfc match_pattern` swaps multi-cell special pieces; `gridmap set_cell_variant` de-repeats; `wfc stalberg_grid` makes an organic all-quad grid.
 - `mesh info|deform_lattice` — geometry ops `node.set` can't reach: `deform_lattice` free-form-warps a mesh from 8 corner handles (conform a square module to an irregular cell).
-- `lighting add|bake|set_gi|set_sdfgi` — 3D GI nodes; `bake` works for **VoxelGI** (the only script-bakeable GI in 4.7). `lighting add_2d|occluder_2d|canvas_modulate` — **2D lighting**: a PointLight2D renders nothing without a texture, so `add_2d` generates a radial one for you; `occluder_2d` builds the OccluderPolygon2D shadows need; `canvas_modulate` sets the scene-wide ambient darkness the lights lift. `path create|sample|add_follow` — splines (sampling feeds `pcg`). `camera set_attributes|make_current` — DOF/exposure + activation.
+- `lighting add|bake|set_gi|set_sdfgi` — 3D GI nodes; `bake` works for **VoxelGI** (the only script-bakeable GI type). `lighting add_2d|occluder_2d|canvas_modulate` — **2D lighting**: a PointLight2D renders nothing without a texture, so `add_2d` generates a radial one for you; `occluder_2d` builds the OccluderPolygon2D shadows need; `canvas_modulate` sets the scene-wide ambient darkness the lights lift. `path create|sample|add_follow` — splines (sampling feeds `pcg`). `camera set_attributes|make_current` — DOF/exposure + activation.
 - `scene2d add_sprite|add_camera|add_body` — 2D scene assembly (the canvas counterpart to `scene3d`). `add_body` wires a physics body + `CollisionShape2D` + shape (rectangle/circle/capsule) in **one** call. Its 3D twin is `scene3d add_body` (box/sphere/capsule primitives, or a trimesh/convex collider built from a MeshInstance3D via `--from-mesh` — the "make this imported geometry collidable" need).
 - `ui add_container|add_control|set_sizing` (layout + size_flags) · `skeleton`, `multiplayer`, `localization`, `import` for rigging / networking / i18n / asset-import config.
 - `doc note|metric|gym|zoo|museum` — **in-game documentation** (Gyms/Zoos/Museums): `gym` scaffolds a colour-graded character-metrics test level; `zoo` lays out a folder of assets in a labeled grid with scale refs + lighting ("Generate Zoo"); `museum` builds labeled exhibit pads with API-doc links; `note --action add|list|resolve` leaves spatial notes (metadata-bearing markers) in the level. Document the game *in* the game — for a solo dev, a single source of truth your future self won't lose. See `in-game-docs.md`.

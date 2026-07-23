@@ -1,4 +1,4 @@
-# Level design & spatial communication (Godot 4.7+) — building blockouts with godot-mcp
+# Level design & spatial communication — building blockouts with godot-mcp
 
 How to lay out a *space* that teaches the player what to do without a word of text — and how
 to **build it** as a playable blockout with the CLI. Distilled from level-design talks aimed at
@@ -252,7 +252,7 @@ feed straight back into `node set --property global_position`):
   spatial place_on --node-path Crate --samples 3 --conform
   #   -> hits/misses (misses>0 ⇒ part hangs off an edge), unevenness (0=flat), avg_normal;
   #      --conform also tilts the prop to match the slope's normal. Needs use_collision.
-  # Tier 3 — exact corner/edge alignment (the scriptable 4.7 vertex-snap analog; no collider):
+  # Tier 3 — exact corner/edge alignment (the scriptable vertex-snap analog; no collider):
   spatial snap --node-path Bolt --to Beam --mode vertex   # mover's anchor -> nearest real vertex
   spatial snap --node-path Decal --to Wall --mode face --axes yz   # nearest point on nearest face
   # one-off exact ray hit + normal (orient a prop to a ramp), when you don't want to move it:

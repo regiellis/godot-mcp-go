@@ -3,7 +3,7 @@
 The architecture of a narrative decision game: a deck of authored event cards, a handful of
 pillar stats, binary decisions with consequences, chains, and characters. Mined from a
 production Godot rewrite of a shipped commercial title (a 2,400-line Unity monolith decomposed
-into signal-connected nodes); the selection/condition core validated headless against 4.7.
+into signal-connected nodes); the selection/condition core validated headless against the live engine.
 `deckbuilder-patterns.md` covers combat card games; this is its narrative sibling.
 
 ## Decompose the rules into a pipeline of peers

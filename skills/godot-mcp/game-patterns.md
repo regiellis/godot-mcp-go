@@ -1,4 +1,4 @@
-# Godot game patterns (Godot 4.7+) — building with godot-mcp
+# Godot game patterns — building with godot-mcp
 
 How to build games the Godot way, mapped to the CLI. Read `gdscript-style.md` for
 language idioms. **Verify exact APIs against the live engine** (`engine class-info
@@ -99,7 +99,7 @@ feel is mostly *game feel* (control); Medium/Small are mostly *juice*. (See `lev
 
 ### Game feel — make the control feel good (movement code)
 
-Augment the platformer above; all verified against 4.7.
+Augment the platformer above; all verified against the live engine.
 
 **Weight via acceleration** (instant velocity feels robotic):
 ```gdscript
@@ -294,7 +294,7 @@ Every number here is an `@export`.
 
 For complex behavior, go node-based: a `StateMachine` node with a child `Node` per state;
 the machine calls `enter()/update()/exit()` and switches `current` — full pattern with the
-`transition` signal contract in `topdown-2d.md`. (Godot 4.7 also has `AnimationTree` state
+`transition` signal contract in `topdown-2d.md`. (Godot also has `AnimationTree` state
 machines for *animation* — use `anim_tree.*`; expression-driven recipe in `platformer-2d.md`.)
 
 ### Turn-based match loop + CPU personalities
@@ -333,7 +333,7 @@ player's rapid-fire stream, not the boss's occasional volley. **Hitscan vs proje
 choice**: an instant raycast reads as "a real gun" (miniguns, rifles); a travelling node reads
 as energy/arcing shots.
 
-**Offscreen lifecycle** (APIs verified on 4.7): give every projectile/pickup a
+**Offscreen lifecycle** (APIs verified live): give every projectile/pickup a
 `VisibleOnScreenNotifier2D` child and `queue_free()` on its `screen_exited` signal — the
 standard leak-proof despawn, no manual bounds math. For persistent world objects that should
 *sleep* offscreen (patrolling enemies, animated props), `VisibleOnScreenEnabler2D` pauses the
@@ -398,7 +398,7 @@ func bind(hp: HealthComponent) -> void:
     hp.health_changed.connect(func(cur, mx): bar.value = float(cur) / mx * 100.0)
 ```
 Lay out with anchors (`node set-anchor --preset ...`), style with `theme.*`. For UI motion
-that containers would otherwise stomp, Godot 4.7 has `offset_transform_*` on `Control`
+that containers would otherwise stomp, Godot has `offset_transform_*` on `Control`
 (confirm with `engine class-info --class Control --filter offset_transform`).
 
 ## Groups for broadcast
@@ -466,7 +466,7 @@ Manage via `node.set_groups` / `node.find_in_group`.
     at edit time with `anim-tree set-parameter --node-path Tree --parameter blend_position
     --value "Vector2(1,0)"`; confirm in-game with `runtime eval --code
     'emit(get_node("Tree").get("parameters/blend_position"))'`.
-- **3D character motion stack** (4.7's `SkeletonModifier3D` family — children of the
+- **3D character motion stack** (the `SkeletonModifier3D` family — children of the
   `Skeleton3D`, run after animation each frame; all `node.add` + `node.set`, APIs verified):
   `LookAtModifier3D` turns a bone toward a `target_node` (heads/eyes — set `bone_name` +
   `forward_axis`); `TwoBoneIK3D` plants limbs (indexed settings: `setting_count = 1`, then
@@ -487,7 +487,7 @@ Manage via `node.set_groups` / `node.find_in_group`.
 
 `AudioStreamPlayer` is flat (music, UI); **`AudioStreamPlayer2D` pans and attenuates by
 distance to the listener** (the current `Camera2D`, or an `AudioListener2D`). The knobs that
-matter (verified on 4.7): `max_distance` (beyond it, silent — default 2000px is small for
+matter (verified live): `max_distance` (beyond it, silent — default 2000px is small for
 zoomed-out games), `attenuation` (falloff exponent), `panning_strength`, `bus` (route world
 SFX to their own bus for the pause-menu duck — `audio.*` commands manage buses), and
 `max_polyphony` (one player can voice N overlapping shots — no per-shot player nodes).
@@ -592,7 +592,7 @@ scene stop
 Sample several times and keep the **worst** frame, not just the mean — a stutter is what players
 feel. The `profiling` group exposes deeper monitors; confirm exact names with `engine class-info
 --class Performance` / `engine search --query RENDERING_INFO` against the live build before relying
-on them (the constants evolve between 4.x releases). Don't trust the editor viewport's frame rate
+on them (the constants evolve between engine releases). Don't trust the editor viewport's frame rate
 as the game's.
 
 ## Common mistakes to avoid

@@ -3,7 +3,7 @@
 When a project leaves the editor for players, three problems appear that the build-and-playtest
 loop never surfaces: dev tooling riding along inside the pck, the pck itself being an open book
 (stock tools list and extract every script and scene), and an oversized runtime. This is the
-pipeline that closes all three, proven end to end on a real Godot 4.7 desktop release. The
+pipeline that closes all three, proven end to end on a real desktop release. The
 discipline throughout is the same as everywhere else in this skill: **verify by receipts, not by
 exit codes** — a green export means the exporter ran, not that the build is right.
 
@@ -83,7 +83,7 @@ Deterrence, not DRM.
    `encryption_include_filters="*"` (encrypting everything is cheap for small pcks), and
    `custom_template/release` pointing at the keyed template.
 
-4. **Supply the key at export time via `GODOT_SCRIPT_ENCRYPTION_KEY`** (verified working on 4.7)
+4. **Supply the key at export time via `GODOT_SCRIPT_ENCRYPTION_KEY`** (verified working live)
    in the environment of the headless export. The preset's key field works too but persists the
    key in plaintext into `export_presets.cfg` — a committed file. The env var keeps it out.
 

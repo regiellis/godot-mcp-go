@@ -1,10 +1,10 @@
-# Godot multiplayer patterns (Godot 4.7+) — high-level networking with godot-mcp
+# Godot multiplayer patterns — high-level networking with godot-mcp
 
 Building co-op / versus games on Godot's **high-level multiplayer** (`SceneMultiplayer` +
 RPC + the replication nodes), mapped to the CLI. The `multiplayer` command group wires the
 two replication nodes; everything else is plain `node.*` / `script.*` plus the live API.
 **Verify APIs against the running engine** (`engine class-info --class MultiplayerAPI`). The class surface
-below was read from the running 4.7.1 build, but *two-peer behavior cannot be exercised from
+below was read from the running build, but *two-peer behavior cannot be exercised from
 this single-instance CLI* — the runtime claims are the standard architecture, proven with two
 real instances (see "Testing locally"), not something this session watched replicate.
 
@@ -53,7 +53,7 @@ func join(address: String) -> Error:
 	return OK
 ```
 
-**Connection signals live on `MultiplayerAPI`, not `SceneTree`** (verified — 4.x moved them
+**Connection signals live on `MultiplayerAPI`, not `SceneTree`** (verified — the engine moved them
 off the tree). Wire once in the autoload's `_ready`: `peer_connected(id)` /
 `peer_disconnected(id)` fire on every peer; `connected_to_server()` / `connection_failed()` /
 `server_disconnected()` are client-only. Server-side `peer_connected` is where you spawn the
@@ -250,7 +250,7 @@ Networking needs **two running instances**, and this CLI cannot provide the seco
 `runtime` / `input` groups broker **one** game process over file IPC — no multi-instance
 driver here. Options, most practical first:
 
-- **Editor "Debug ▸ Customize Run Instances"** — Godot 4's editor launches N instances at
+- **Editor "Debug ▸ Customize Run Instances"** — Godot's editor launches N instances at
   once, each with its own args/feature tags (one server, the rest clients). An editor feature,
   not a CLI one; drive it by hand.
 - **Two OS processes** with a role flag your `_ready` reads: `godot --path . -- --server` and

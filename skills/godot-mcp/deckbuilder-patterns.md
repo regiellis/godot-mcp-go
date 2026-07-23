@@ -1,8 +1,8 @@
-# Deck-builder / card-game architecture (Godot 4)
+# Deck-builder / card-game architecture
 
 The engine architecture a turn-based deck-builder needs (Slay-the-Spire-like: a deck, a
 combat where cards queue effects, stackable powers/relics that modify those effects,
-seeded runs). Reverse-engineered from a shipped commercial Godot 4 deck-builder's compiled
+seeded runs). Reverse-engineered from a shipped commercial Godot deck-builder's compiled
 code, so the *patterns* are verified against real shipping software. They're
 **language-agnostic** — the game ships in C#, but each pattern maps cleanly to GDScript
 (mappings inline). Build the visuals/scenes with `scene.*`/`node.*` as usual; this file is

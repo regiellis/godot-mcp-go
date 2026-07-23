@@ -64,6 +64,7 @@ const AUTHORED: NavGroup[] = [
       { label: "Quickstart", slug: "quickstart" },
       { label: "Installation", slug: "installation" },
       { label: "Use with an AI client", slug: "mcp-setup" },
+      { label: "Addressing AI use in game development", slug: "on-ai" },
     ],
   },
   {
@@ -101,9 +102,7 @@ const GUIDE_SECTIONS: NavGroup[] = GUIDE_GROUPS.map((g) => ({
 
 const SHOWCASE: NavGroup[] = [{ group: "Showcase", items: [{ label: "Samples", slug: "samples" }] }];
 
-const PROJECT: NavGroup[] = [{ group: "The project", items: [{ label: "If you hate AI", slug: "on-ai" }] }];
-
-export const SIDEBAR: NavGroup[] = [...AUTHORED, ...GUIDE_SECTIONS, ...SHOWCASE, ...PROJECT];
+export const SIDEBAR: NavGroup[] = [...AUTHORED, ...GUIDE_SECTIONS, ...SHOWCASE];
 
 // Flattened, in reading order, for prev/next navigation.
 export const NAV_FLAT: NavItem[] = SIDEBAR.flatMap((g) => g.items);

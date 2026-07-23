@@ -1,7 +1,7 @@
-# C# in Godot 4 — idioms
+# C# in Godot — idioms
 
 A reference for working in a **C# Godot project**. Idioms verified against a shipped
-commercial Godot 4.5 C# game (decompiled), so they reflect real shipping practice — not
+commercial Godot C# game (decompiled), so they reflect real shipping practice — not
 tutorials.
 
 > **Scope / fit.** The `godot-mcp` CLI authors **GDScript** (`script.create`/`script.edit`
@@ -9,7 +9,7 @@ tutorials.
 > C# Godot codebase directly (in the filesystem, building with `dotnet`/Godot's build),
 > not something you drive through the addon. The `engine.*` discovery commands still help —
 > the live `ClassDB` API is identical whether you call it from C# or GDScript, so
-> `engine class-info --class Tween` etc. remain your source of truth for 4.x signatures.
+> `engine class-info --class Tween` etc. remain your source of truth for current signatures.
 > For *what to build*, `project-structure.md` and `deckbuilder-patterns.md` are
 > language-agnostic and apply here too.
 
@@ -167,4 +167,4 @@ that otherwise get forgotten at individual call sites.
 8. `Resource` subclass for inspector data; plain C# class for logic (testable, tree-free).
 9. Bridge GDScript-only APIs via an autoload proxy + `Node.Call(StringName)`; cache the `StringName`.
 10. Wrap node ops in safe extension helpers (`QueueFreeSafely`, `AddChildSafely`, …).
-11. Verify any 4.x API against the live engine (`engine class-info`/`engine search`) — never from memory.
+11. Verify any API against the live engine (`engine class-info`/`engine search`) — never from memory.

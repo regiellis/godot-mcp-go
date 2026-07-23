@@ -1,8 +1,8 @@
-# 3D character controllers (Godot 4.7+) — FPS, third-person, platformer
+# 3D character controllers — FPS, third-person, platformer
 
 How to build a `CharacterBody3D` controller the Godot way, driven from godot-mcp: one
 movement core shared by all three genres, then the rig and feel that make each distinct.
-Verified live against 4.7.1. Jump-*feel* timers (coyote, buffer, double, cutoff) are the 2D
+Verified live. Jump-*feel* timers (coyote, buffer, double, cutoff) are the 2D
 ones from `game-patterns.md`/`platformer-2d.md` with the vertical sign flipped — this doc
 reuses them, it does not re-derive them. Read `spatial` discipline in `SKILL.md` before
 placing anything: seat the body with a raycast, verify numerically, don't eyeball one frame.
@@ -292,4 +292,4 @@ changes the world-space heading of `velocity`.
   it until walking down is glued.
 - **Hard-coded `9.8`** instead of reading `physics/3d/default_gravity`.
 - **Remembered signatures.** Confirm properties/methods against the running engine (`engine class-info`/`search`)
-  before writing — CharacterBody3D's floor API evolved across 4.x.
+  before writing — CharacterBody3D's floor API has evolved across engine versions.

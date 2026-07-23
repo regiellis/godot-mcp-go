@@ -1,7 +1,7 @@
-# Project structure at scale (Godot 4)
+# Project structure at scale
 
 How to lay out a real Godot project so it stays navigable past a few dozen scenes.
-Distilled from a shipped commercial Godot 4 game (a deck-builder, ~900 scenes, ~2400
+Distilled from a shipped commercial Godot game (a deck-builder, ~900 scenes, ~2400
 code files). The principles are engine-version-durable and language-agnostic — they hold
 whether you write GDScript or C#. Map every action below to the CLI (`scene.create`,
 `project.set_setting`, `project.add_autoload`, …).

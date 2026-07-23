@@ -1,9 +1,9 @@
-# Run-based games & roguelites (Godot 4.7+) — the data blackboard, waves, and world gen
+# Run-based games & roguelites — the data blackboard, waves, and world gen
 
 The architecture of a run-based game (dig-and-defend, roguelite, wave survival): runs composed
 from a loadout, balance as data, difficulty as a budget, worlds from seeds. Pattern-mined from
 a shipped commercial Godot title's extracted source (patterns only); the blackboard/wave core
-validated headless against 4.7. Complements `deckbuilder-patterns.md` (turn-based runs) and
+validated headless against the live engine. Complements `deckbuilder-patterns.md` (turn-based runs) and
 `event-deck-games.md` (narrative runs); this is the real-time flavor.
 
 ## One reactive blackboard runs the whole game

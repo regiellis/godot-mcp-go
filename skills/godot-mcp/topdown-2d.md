@@ -1,8 +1,8 @@
-# Top-down 2D & sim construction (Godot 4.7+) — components, terrains, and clocks
+# Top-down 2D & sim construction — components, terrains, and clocks
 
 How top-down games (farming sims, RPGs, life sims) are assembled the Godot way: a component
 library glued by signals, gameplay that *paints terrain*, and systems that run off one game
-clock. Distilled from a studied complete farming game and verified live against 4.7.
+clock. Distilled from a studied complete farming game and verified live.
 `platformer-2d.md` covers side-view actors; this file is the top-down counterpart.
 
 ## Layer the world as a TileMapLayer stack
