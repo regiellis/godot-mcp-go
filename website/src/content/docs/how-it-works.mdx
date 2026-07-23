@@ -10,6 +10,10 @@ godot-mcp (Go CLI / client) --WebSocket (JSON-RPC 2.0) :9080--> Godot editor add
                                                           (MCPGameInspector / MCPGameInput autoloads)
 ```
 
+## Not Godot's built-in CLI
+
+Godot's own command line (`godot --headless`, `--export-release`, `--script`) **starts a fresh engine process** each time — the right tool for CI exports and batch scripts, with no notion of a session. godot-mcp is the other half: it **connects to the editor already running** — the open scene, the current selection, the undo history — and to the game that editor is playing. Different jobs; use both. godot-mcp itself launches the editor through Godot's CLI when needed.
+
 ## The addon is the server
 
 The **addon runs a WebSocket server inside the editor**, the long-lived process with a stable port. The CLI is a short-lived client that dials in, runs one command, and exits. The `serve` (MCP) mode is also just a long-lived client of the same server, so one connection model covers both.

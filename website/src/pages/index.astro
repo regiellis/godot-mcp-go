@@ -21,7 +21,7 @@ const heroSession = [
 ];
 
 const installSession = [
-  { type: "comment", text: "# add the addon and skill to any 4.7 project" },
+  { type: "comment", text: "# add the addon and skill to any Godot project" },
   { type: "cmd", text: "godot-mcp install --project ./mygame --enable" },
   { type: "comment", text: "# or start a new project from nothing" },
   { type: "cmd", text: "godot-mcp create --path ./mygame --install --enable" },
@@ -73,11 +73,13 @@ const caps = [
       <section class="hero">
         <div class="wrap hero-grid">
           <div class="hero-copy">
-            <h1>Drive a running <span class="mono">Godot 4.7</span> editor from your terminal, and from AI agents.</h1>
+            <h1>Drive a running <span class="mono">Godot 4.7+</span> editor from your terminal, and from AI agents.</h1>
             <p class="lede">
               A Go CLI and a GDScript addon talk to a live editor over WebSocket. Build scenes,
               write GDScript or C#, play the game, and read its state back. <strong>312 commands</strong>,
-              every one verified against a running editor.
+              every one verified against a running editor. Not Godot's batch CLI: that starts a
+              fresh engine process; this drives the editor you already have open, live scene,
+              undo history, running game and all.
             </p>
             <div class="hero-actions">
               <a class="btn btn-primary" href={docsHref("quickstart")}>Get started <Icon name="arrow" size={16} /></a>

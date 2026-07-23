@@ -18,6 +18,21 @@ Drive a running **Godot 4.7+** editor from the command line — and from AI agen
 > [!NOTE]
 > **This repository is a one-way public mirror**, published as a squashed snapshot — it shares no commit history with the canonical development repo, so **pull requests can't be merged directly**. For bugs, feature requests, or changes, please open an [**Issue**](../../issues) or start a [**Discussion**](../../discussions). That's where development is tracked. The **`asset-library` branch** is a packaging artifact for the [Godot Asset Library](https://godotengine.org/asset-library) (an `addons/`-rooted snapshot of just the addon) — it is never merged into `main`.
 
+## Isn't this just Godot's built-in CLI?
+
+No — they do different jobs, and they compose. **Godot's own command line starts a Godot process; godot-mcp talks to the one that's already running.**
+
+|  | Godot's CLI (`godot --headless`, `--export-release`, `--script`) | godot-mcp |
+| --- | --- | --- |
+| Process model | Launches a fresh engine process per invocation, cold start each time | Connects over WebSocket to the editor you already have open |
+| Session state | None — no open scene, no selection, no undo history | The live session: edited scene, selection, unsaved work, UndoRedo (every mutation Ctrl+Z-safe) |
+| Editing | Run a script once against project files | 312 commands against the open scene, with open-scene conflict protection |
+| The running game | The launched process *is* the game; nothing reaches inside it | A live channel into it: read state, `eval`, inject input, await signals, screenshot |
+| Introspection | `--doctool` dumps docs offline | `engine.*` reads the running build's ClassDB, live |
+| Built for | CI — exports, imports, batch scripts | Interactive building and playtesting, by humans at a terminal and by AI agents |
+
+Keep using Godot's CLI for exports and CI; godot-mcp itself shells out to it to launch the editor in the first place.
+
 ## How is this different from other Godot MCPs?
 
 Plenty of Godot MCP servers exist, and the good ones are editor-native — so "runs in the editor" isn't the differentiator. This one is a **co-developer** that goes deeper on the axes that matter once an agent is actually *building and testing* a game:
