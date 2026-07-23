@@ -1,0 +1,59 @@
+---
+title: Playtest loop
+description: Play the game, inject input, read live state, capture frames, and poll runtime errors.
+---
+
+The `runtime` and `input` groups reach the **running game**, a separate process from the editor. The editor brokers that hop over file IPC, so you can drive and inspect a live playtest.
+
+## Play, drive, inspect, stop
+
+```bash
+godot-mcp scene play --mode main
+godot-mcp runtime tree
+godot-mcp input action --action ui_accept --pressed true
+godot-mcp runtime get --node-path Player --properties '["position", "velocity"]'
+godot-mcp runtime screenshot --save-path user://shot.png
+godot-mcp scene stop
+```
+
+`runtime.screenshot` works even under a headless editor, because the game is a separate windowed process.
+
+## Wait for a signal
+
+`runtime.await_signal` blocks until a signal fires on a node in the running game and returns its serialized arguments:
+
+```bash
+godot-mcp runtime await-signal --node-path Player --signal died --timeout 10
+```
+
+A timeout returns `fired: false` as a **success** payload, so an agent can branch on it rather than treating it as an error.
+
+## Poll runtime errors
+
+`runtime.errors` returns structured errors and warnings the running game captured through an `OS.add_logger` hook:
+
+```bash
+godot-mcp runtime errors --clear
+```
+
+Each entry is `{ kind, message, code, backtrace[] }` with the real game-script frame in `backtrace[0]`. It is **pull-based**: the agent polls on demand, and runtime errors are unambiguously real.
+
+<Callout type="warning" title="Headless limitation">
+  A *real* script error under a `--headless` editor trips the remote-debugger break and freezes the game before you can poll. `push_error` / `push_warning` / shader errors and any error in a windowed or standalone run are captured fine. Recover a frozen game with `scene stop` then `scene play`.
+</Callout>
+
+## Direct-to-player channel
+
+Everything above brokers through the open editor. You can also drive a **standalone running game with no editor at all** — useful for QA rigs and packaged dev builds. Enable **Project → Project Settings → Godot Mcp → Runtime → Direct Server**, run a **debug build** of the game, then add the `--game` flag:
+
+```bash
+godot-mcp --game runtime tree
+godot-mcp --game runtime eval --code "emit(1 + 1)"
+godot-mcp --game input action --action ui_accept --pressed true
+```
+
+The game hosts its own `127.0.0.1`-only WebSocket server (ports **9200-9215**, `GODOT_MCP_GAME_PORT` pins one) and writes a discovery file in its `user://` dir, so `--game` finds it automatically from inside the project. The `runtime.*` and `input.*` commands behave identically to the editor-brokered path.
+
+<Callout type="important" title="Debug builds only">
+  The direct server is hard-gated on `OS.is_debug_build()`, so a release export can never host it even if the setting ships enabled. Over MCP the same channel is reachable: `godot_run` accepts `game: true`, and the typed `runtime_*` / `input_*` tools carry an optional `game` parameter.
+</Callout>

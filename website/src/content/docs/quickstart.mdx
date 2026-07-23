@@ -1,0 +1,68 @@
+---
+title: Quickstart
+description: Open a Godot 4.7 editor with the addon and drive it in a few commands.
+---
+
+This walks through opening the editor, confirming the addon is live, and driving it.
+
+## 1. Open the editor with the addon enabled
+
+Open your project (with the [addon installed](/docs/installation)) in Godot 4.7:
+
+```bash
+godot --path /path/to/your/project --editor
+```
+
+Enable the **Godot MCP** plugin under *Project → Project Settings → Plugins*. On startup the addon prints:
+
+```text
+[MCP] Server listening on ws://127.0.0.1:9080
+```
+
+<Callout type="note">
+  The addon is the long-lived WebSocket **server** hosted inside the editor. The CLI is a short-lived **client** that dials in, runs one command, prints the result, and exits. It auto-discovers the port from `<project>/.godot/godot-mcp.json`, so from inside the project directory you never pass `--port`.
+</Callout>
+
+<Callout type="tip">
+  If the CLI can't reach the editor, run `godot-mcp doctor` — a preflight over the godot binary, the addon's install/enable state, the effective port, and whether an editor is actually reachable.
+</Callout>
+
+## 2. Drive the editor
+
+From inside the project directory:
+
+```bash
+godot-mcp project info
+godot-mcp scene tree
+godot-mcp node add --type Sprite2D --name Player --parent-path .
+godot-mcp node set --node-path Player --property position --value "Vector2(100, 200)"
+```
+
+Every editor mutation goes through Godot's **UndoRedo**, so a human at the editor can `Ctrl+Z` anything the agent did.
+
+## 3. Discover what 4.7 supports
+
+Instead of guessing at API names, ask the live engine:
+
+```bash
+godot-mcp engine search --query offset_transform
+godot-mcp engine class-info --class Control --filter transform
+godot-mcp node add --help    # the CLI's own catalog is live too: a param table per command
+```
+
+Even with no typed wrapper, `node.set` / `node.get` work on any property the live node exposes, and `editor.run_script` / `runtime.eval` run arbitrary GDScript, so the entire 4.7 API is reachable. The command catalog is discoverable the same way: `godot-mcp <group> --help` lists a group and `godot-mcp help all` prints the lot.
+
+## 4. Play and inspect the running game
+
+```bash
+godot-mcp scene play --mode main
+godot-mcp runtime tree
+godot-mcp input action --action ui_accept --pressed true
+godot-mcp runtime get --node-path Player --properties '["position"]'
+godot-mcp runtime screenshot --save-path user://shot.png
+godot-mcp scene stop
+```
+
+<Callout type="tip">
+  This last step is the point: most editor-time MCPs stop once the scene is assembled. Here you build it **and prove it works by playing it**, reading real state back from the running process.
+</Callout>

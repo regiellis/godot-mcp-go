@@ -1,0 +1,72 @@
+---
+title: C# projects
+description: Scaffold the solution, author C# scripts, and build with structured diagnostics in a Godot .NET project.
+---
+
+The `csharp` group plus C#-aware `script` commands drive a C# Godot project end to end: scaffold the solution, author scripts, compile, and read structured diagnostics back.
+
+<Callout type="important" title="Requirements">
+  Running C# needs a **Godot .NET editor build** (the ".NET" download, not the standard one) and the **.NET SDK** (`dotnet` on PATH, 8.0+). The addon itself is GDScript and runs in any editor — but only a .NET editor can load and attach `.cs` scripts.
+</Callout>
+
+## 1. Check the toolchain, then scaffold
+
+```bash
+godot-mcp csharp info
+# -> { "dotnet_found": true, "dotnet_editor": true, "csproj": null, ... }
+
+godot-mcp csharp setup
+# -> writes <Name>.csproj + <Name>.sln, sets the assembly name
+```
+
+`csharp.setup` derives `<Name>` from the project name, targets `Godot.NET.Sdk` on `net8.0`, and refuses to overwrite existing files without `--force`. The SDK version defaults to the running engine's version; on a custom or prerelease engine whose exact SDK isn't published, pass the one that matches your build:
+
+```bash
+godot-mcp csharp setup --force --sdk-version 4.7.2-rc
+```
+
+## 2. Author C# scripts
+
+`script create` on a `.cs` path writes a proper Godot C# template — a `public partial class` named after the file:
+
+```bash
+godot-mcp script create --path res://Player.cs --extends CharacterBody2D
+```
+
+```csharp
+using Godot;
+
+public partial class Player : CharacterBody2D
+{
+    public override void _Ready()
+    {
+    }
+}
+```
+
+Attach it like any script; on a .NET editor the class resolves after the first successful build:
+
+```bash
+godot-mcp script attach --node-path Player --script-path res://Player.cs
+```
+
+## 3. Build and validate
+
+`csharp.build` runs `dotnet build` without blocking the editor and returns deduped, structured diagnostics:
+
+```bash
+godot-mcp csharp build
+# -> { "success": false, "errors": [ { "file": "...", "line": 7, "col": 16,
+#      "code": "CS1002", "message": "; expected", "severity": "error" } ], ... }
+```
+
+A failed build is a **success payload with `success: false`** — the point is the diagnostics, so an agent branches on them instead of catching a transport error. `script validate` on a `.cs` path builds the project and filters the diagnostics to that one file:
+
+```bash
+godot-mcp script validate --path res://Player.cs
+# -> { "valid": true, "diagnostics": [], "project_error_count": 0, ... }
+```
+
+## What stays GDScript
+
+`editor.run_script` and `runtime.eval` execute **GDScript** in both project types — that is the driving language of the tool, and it reaches a C# game's nodes, properties, and methods just fine through the engine. Introspection (`engine.search`, `engine.class_info`) is language-agnostic, so discovery works identically in a C# project.

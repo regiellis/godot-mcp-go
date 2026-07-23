@@ -1,0 +1,54 @@
+---
+// A real terminal session: prompt, command, and output lines styled distinctly.
+// Not a fake screenshot; the command shapes and response envelopes are the
+// tool's actual surface.
+interface Line { type?: "cmd" | "out" | "comment"; text: string }
+interface Props { title?: string; lines: Line[] }
+const { title = "bash", lines } = Astro.props;
+---
+
+<div class="term">
+  <div class="term-bar">
+    <span class="term-dots"><i></i><i></i><i></i></span>
+    <span class="term-title">{title}</span>
+  </div>
+  <pre class="term-body"><code>{lines.map((l) => (
+    <span class:list={["tl", l.type ?? "out"]}>{(l.type ?? "out") === "cmd" && <span class="prompt">$ </span>}{l.text}
+</span>
+  ))}</code></pre>
+</div>
+
+<style>
+  .term {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg-code);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+  .term-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.55rem 0.85rem;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border);
+  }
+  .term-dots { display: inline-flex; gap: 0.35rem; }
+  .term-dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--border-strong); display: block; }
+  .term-title { font-family: var(--font-mono); font-size: 0.76rem; color: var(--text-faint); }
+  .term-body {
+    margin: 0;
+    padding: 0.95rem 1.05rem;
+    overflow-x: auto;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.75;
+  }
+  .term-body code { font-family: inherit; background: none; border: 0; padding: 0; }
+  .tl { display: block; white-space: pre; }
+  .tl.comment { color: var(--text-faint); }
+  .tl.cmd { color: var(--text); }
+  .tl.cmd .prompt { color: var(--accent); user-select: none; }
+  .tl.out { color: var(--text-muted); }
+</style>

@@ -1,0 +1,85 @@
+---
+interface Heading { depth: number; slug: string; text: string }
+interface Props { headings: Heading[] }
+const { headings } = Astro.props;
+// The autolink-headings plugin appends a "#" text node; strip it from the label.
+const toc = headings
+  .filter((h) => h.depth === 2 || h.depth === 3)
+  .map((h) => ({ ...h, text: h.text.replace(/\s*#+\s*$/, "") }));
+---
+
+{/* Always render the aside: it reserves the third flex column, so pages
+    without headings keep the same content width as every other page. */}
+<aside class="toc" aria-label="On this page" aria-hidden={toc.length === 0}>
+  {toc.length > 0 && (
+    <>
+      <div class="toc-title">On this page</div>
+      <ul>
+        {toc.map((h) => (
+          <li class:list={["toc-item", `depth-${h.depth}`]}>
+            <a href={`#${h.slug}`} data-toc={h.slug}>{h.text}</a>
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+</aside>
+
+<script is:inline>
+  (() => {
+    const links = Array.from(document.querySelectorAll("[data-toc]"));
+    if (!links.length) return;
+    const map = new Map(links.map((l) => [l.getAttribute("data-toc"), l]));
+    const targets = links
+      .map((l) => document.getElementById(l.getAttribute("data-toc")))
+      .filter(Boolean);
+    const obs = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            links.forEach((l) => l.classList.remove("active"));
+            map.get(e.target.id)?.classList.add("active");
+          }
+        }
+      },
+      { rootMargin: "-80px 0px -70% 0px", threshold: 0 }
+    );
+    targets.forEach((t) => obs.observe(t));
+  })();
+</script>
+
+<style>
+  .toc {
+    position: sticky;
+    top: var(--topbar-h);
+    align-self: start;
+    width: var(--toc-w);
+    flex: none;
+    max-height: calc(100vh - var(--topbar-h));
+    overflow-y: auto;
+    padding: 1.9rem 0 3rem;
+    font-size: 0.85rem;
+  }
+  .toc-title {
+    font-size: 0.72rem;
+    font-weight: 660;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin-bottom: 0.6rem;
+  }
+  .toc ul { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--border); }
+  .toc-item a {
+    display: block;
+    padding: 0.24rem 0 0.24rem 0.9rem;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+  .toc-item.depth-3 a { padding-left: 1.7rem; font-size: 0.82rem; }
+  .toc-item a:hover { color: var(--text); text-decoration: none; }
+  .toc-item a.active { color: var(--accent-strong); border-left-color: var(--accent); font-weight: 560; }
+
+  @media (max-width: 1200px) { .toc { display: none; } }
+</style>

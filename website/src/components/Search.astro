@@ -1,0 +1,365 @@
+---
+// Site search: a trigger in the TopBar plus a modal dialog. Pagefind indexes
+// the built HTML (only elements under [data-pagefind-body], i.e. docs prose);
+// the client bundle and index chunks lazy-load from /pagefind/ on first open,
+// so no search cost is paid on normal page views.
+import Icon from "./Icon.astro";
+---
+
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs">
+  <Icon name="search" size={15} />
+  <span class="st-label">Search</span>
+  <kbd class="st-kbd">Ctrl K</kbd>
+</button>
+
+<dialog id="search-modal" class="search-modal" aria-label="Search the docs">
+  <div class="sm-input-row">
+    <Icon name="search" size={17} class="sm-input-icon" />
+    <input
+      id="search-input"
+      type="search"
+      placeholder="Search the docs…"
+      autocomplete="off"
+      spellcheck="false"
+      aria-label="Search query"
+    />
+    <kbd class="sm-esc">esc</kbd>
+  </div>
+  <div id="search-results" class="sm-results" role="listbox" aria-label="Search results"></div>
+  <div class="sm-foot">
+    <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+    <span><kbd>↵</kbd> open</span>
+    <span class="sm-credit">Search by Pagefind</span>
+  </div>
+</dialog>
+
+<script>
+  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const modal = document.getElementById("search-modal") as HTMLDialogElement | null;
+  const openBtn = document.getElementById("search-open");
+  const input = document.getElementById("search-input") as HTMLInputElement | null;
+  const resultsEl = document.getElementById("search-results");
+
+  type PagefindSubResult = { title: string; url: string };
+  type PagefindDoc = {
+    url: string;
+    excerpt: string;
+    meta: { title?: string };
+    sub_results?: PagefindSubResult[];
+  };
+  type Pagefind = {
+    init?: () => void;
+    search: (q: string) => Promise<{ results: { data: () => Promise<PagefindDoc> }[] }>;
+  };
+
+  let pagefind: Pagefind | null = null;
+  let loadFailed = false;
+  let active = -1;
+  let debounceId = 0;
+
+  async function loadPagefind(): Promise<Pagefind | null> {
+    if (pagefind || loadFailed) return pagefind;
+    try {
+      // Indirect native import: Vite rewrites even `@vite-ignore` dynamic
+      // imports into its preload helper, which breaks when Astro inlines this
+      // script into the page (__VITE_PRELOAD__ is undefined there).
+      const nativeImport = new Function("u", "return import(u)") as (u: string) => Promise<Pagefind>;
+      pagefind = await nativeImport(`${BASE}/pagefind/pagefind.js`);
+      pagefind.init?.();
+    } catch (e) {
+      loadFailed = true;
+      console.error("pagefind load failed:", e);
+      setMessage("The search index is generated at build time. Run pnpm build once, then reload.");
+    }
+    return pagefind;
+  }
+
+  function setMessage(text: string) {
+    if (!resultsEl) return;
+    resultsEl.innerHTML = "";
+    const p = document.createElement("p");
+    p.className = "sm-empty";
+    p.textContent = text;
+    resultsEl.appendChild(p);
+  }
+
+  function withBase(url: string): string {
+    return BASE && !url.startsWith(BASE + "/") ? BASE + url : url;
+  }
+
+  function rows(): HTMLAnchorElement[] {
+    return Array.from(resultsEl?.querySelectorAll<HTMLAnchorElement>(".sm-row") ?? []);
+  }
+
+  function setActive(index: number) {
+    const list = rows();
+    if (!list.length) return;
+    active = (index + list.length) % list.length;
+    list.forEach((el, i) => el.classList.toggle("active", i === active));
+    list[active].scrollIntoView({ block: "nearest" });
+  }
+
+  async function runSearch(query: string) {
+    if (!resultsEl) return;
+    if (!query.trim()) {
+      resultsEl.innerHTML = "";
+      active = -1;
+      return;
+    }
+    const pf = await loadPagefind();
+    if (!pf) return;
+    const res = await pf.search(query);
+    const top = res.results.slice(0, 8);
+    if (!top.length) {
+      setMessage(`No results for "${query}".`);
+      active = -1;
+      return;
+    }
+    const docs = await Promise.all(top.map((r) => r.data()));
+    resultsEl.innerHTML = "";
+    for (const doc of docs) {
+      const sub = doc.sub_results?.[0];
+      const a = document.createElement("a");
+      a.className = "sm-row";
+      a.href = withBase(sub?.url ?? doc.url);
+      a.setAttribute("role", "option");
+
+      const title = document.createElement("span");
+      title.className = "sm-title";
+      title.textContent = doc.meta.title ?? doc.url;
+      if (sub && sub.title && sub.title !== doc.meta.title) {
+        const crumb = document.createElement("span");
+        crumb.className = "sm-crumb";
+        crumb.textContent = ` › ${sub.title}`;
+        title.appendChild(crumb);
+      }
+
+      const excerpt = document.createElement("span");
+      excerpt.className = "sm-excerpt";
+      excerpt.innerHTML = doc.excerpt; // pagefind excerpts: text + <mark> only
+
+      a.append(title, excerpt);
+      a.addEventListener("mousemove", () => setActive(rows().indexOf(a)));
+      resultsEl.appendChild(a);
+    }
+    setActive(0);
+  }
+
+  function openModal() {
+    if (!modal || modal.open) return;
+    modal.showModal();
+    input?.focus();
+    input?.select();
+    void loadPagefind();
+  }
+
+  openBtn?.addEventListener("click", openModal);
+
+  // Close when clicking the backdrop (the dialog element itself, not its children).
+  modal?.addEventListener("click", (e) => {
+    if (e.target === modal) modal.close();
+  });
+
+  input?.addEventListener("input", () => {
+    window.clearTimeout(debounceId);
+    const q = input.value;
+    debounceId = window.setTimeout(() => void runSearch(q), 120);
+  });
+
+  modal?.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActive(active + 1);
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActive(active - 1);
+    } else if (e.key === "Enter") {
+      const list = rows();
+      if (active >= 0 && list[active]) {
+        e.preventDefault();
+        window.location.href = list[active].href;
+      }
+    }
+  });
+
+  window.addEventListener("keydown", (e) => {
+    const el = document.activeElement;
+    const typing =
+      el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement || (el as HTMLElement)?.isContentEditable;
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      openModal();
+    } else if (e.key === "/" && !typing && !modal?.open) {
+      e.preventDefault();
+      openModal();
+    }
+  });
+</script>
+
+<style>
+  /* Trigger: quiet input-shaped pill, icon-only on small screens. */
+  .search-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    height: 34px;
+    padding: 0 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-faint);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .search-trigger:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+  .st-kbd {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0.1rem 0.35rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-subtle);
+    color: var(--text-faint);
+  }
+
+  .search-modal {
+    width: min(640px, 92vw);
+    margin: 12vh auto auto;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    color: var(--text);
+    box-shadow: var(--shadow-pop);
+  }
+  .search-modal::backdrop {
+    background: color-mix(in srgb, #0b0d10 45%, transparent);
+    backdrop-filter: blur(2px);
+  }
+
+  .sm-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .sm-input-row :global(.sm-input-icon) {
+    color: var(--text-faint);
+    flex: none;
+  }
+  #search-input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+  }
+  #search-input::placeholder {
+    color: var(--text-faint);
+  }
+  #search-input::-webkit-search-cancel-button {
+    display: none;
+  }
+  .sm-esc {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-subtle);
+    color: var(--text-faint);
+  }
+
+  .sm-results {
+    max-height: min(24rem, 55vh);
+    overflow-y: auto;
+    padding: 0.4rem;
+  }
+  .sm-results:empty {
+    padding: 0;
+  }
+  .sm-results :global(.sm-row) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: var(--radius-sm);
+    color: var(--text);
+  }
+  .sm-results :global(.sm-row:hover) {
+    text-decoration: none;
+  }
+  .sm-results :global(.sm-row.active) {
+    background: var(--accent-soft);
+  }
+  .sm-results :global(.sm-title) {
+    font-weight: 600;
+    font-size: 0.92rem;
+  }
+  .sm-results :global(.sm-crumb) {
+    font-weight: 480;
+    color: var(--text-muted);
+  }
+  .sm-results :global(.sm-excerpt) {
+    font-size: 0.83rem;
+    line-height: 1.5;
+    color: var(--text-muted);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .sm-results :global(.sm-excerpt mark) {
+    background: none;
+    color: var(--accent-strong);
+    font-weight: 620;
+  }
+  .sm-empty {
+    margin: 0;
+    padding: 1.1rem 1rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+
+  .sm-foot {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.55rem 1rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-faint);
+    font-size: 0.75rem;
+  }
+  .sm-foot kbd {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0 0.3rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-subtle);
+    margin-right: 0.15rem;
+  }
+  .sm-credit {
+    margin-left: auto;
+  }
+
+  @media (max-width: 960px) {
+    .st-label,
+    .st-kbd {
+      display: none;
+    }
+    .search-trigger {
+      width: 34px;
+      justify-content: center;
+      padding: 0;
+    }
+  }
+</style>

@@ -1,0 +1,74 @@
+---
+title: Installation
+description: Add the addon to an existing project, bootstrap a new one, or build from source.
+---
+
+## Requirements
+
+- **Godot 4.7**.
+- **Go 1.26+** to build the CLI, or a prebuilt release binary.
+
+<Callout type="important" title="Godot 4.7+ only">
+  This is built and tested exclusively against Godot 4.7 and newer. Earlier versions (4.6 and below, and the 3.x line) are **not supported** and are not expected to work: the addon targets 4.7 APIs. There are no plans to backport.
+</Callout>
+
+<Callout type="note" title="C# / .NET">
+  C# projects are supported: `csharp.setup` scaffolds the solution, `script.create` authors C# templates, and `csharp.build` / `script.validate` compile with structured diagnostics. It needs a **Godot .NET editor build** and the **.NET SDK** — see [C# projects](/docs/csharp).
+</Callout>
+
+## Into an existing project
+
+From an unpacked release bundle, install the addon (and the agent skill) into any Godot project in one step:
+
+```bash
+godot-mcp install --project /path/to/your/project --enable
+```
+
+This copies `addons/godot_mcp/` and `.claude/skills/godot-mcp/` in and enables the plugin in `project.godot`. The addon **self-installs its game-side autoloads** on enable, so the `runtime` and `input` groups work without pre-committing anything.
+
+## Bootstrap a new project
+
+Starting from nothing? Create a fresh Godot 4.7 project and wire the addon in one command:
+
+```bash
+godot-mcp create --path ./mygame --install --enable
+```
+
+Writes a `project.godot` (config version 5, 4.7 feature tag), an original placeholder `icon.svg`, and a `.gitignore`. It never overwrites an existing `project.godot`.
+
+## Build the CLI from source
+
+```bash
+go build -o bin/godot-mcp ./cmd/godot-mcp
+# or, with Task installed:
+task build          # -> bin/godot-mcp(.exe)
+```
+
+## Pin the MCP port (per project)
+
+The addon binds the first free port in **9080-9095** and writes it to `.godot/godot-mcp.json`, so the CLI auto-discovers it and you rarely think about ports. Running **two projects at once**, pin each to a distinct port so they never contend: **Project → Project Settings → Godot Mcp → Network → Port** (turn on *Advanced Settings* to see it). Set an explicit port; `0`, the default, means auto-pick.
+
+The value is saved in that project's `project.godot`, so two concurrent projects listen deterministically on their own ports. `GODOT_MCP_PORT` in the environment still overrides everything, and the default `0` is never written to `project.godot`, so leaving the setting alone keeps the file clean.
+
+## Bundled greybox assets (optional)
+
+Copy the bundled CC0 asset packs into a project for prototyping:
+
+```bash
+godot-mcp install-assets --list
+godot-mcp install-assets --pack kenney_prototype_textures
+```
+
+## Troubleshooting
+
+If the CLI can't connect, run the environment preflight:
+
+```bash
+godot-mcp doctor
+```
+
+It checks the godot binary and version, that the project resolves, whether the addon is installed and enabled, the effective port source (env, per-project pin, or auto), whether an editor is actually reachable, and — for C# projects — the .NET SDK. Pass `--project DIR` to target a specific project, or `--json` for machine-readable output. It exits non-zero only when a check truly fails; a warning (no editor running yet, say) doesn't fail the run, so `doctor` is safe to run before you've launched anything.
+
+<Callout type="warning" title="Windows audio note">
+  If the editor crashes with `ERROR: WASAPI: GetBufferSize`, another app has taken *exclusive* control of your audio device. Turn off exclusive mode in Windows Sound settings, or launch with `--audio-driver Dummy`. It is an OS/audio issue, not the addon.
+</Callout>

@@ -1,0 +1,42 @@
+---
+title: Discover, then drive
+description: Ground on the live 4.7 API with the engine group, then act through typed or generic commands.
+---
+
+The commands deliberately do not hard-code the engine's feature list. The design principle is **version-agnostic access, introspection for discovery**.
+
+## Introspection is the feature list
+
+`node.set` / `node.get`, `runtime.set` / `runtime.get`, and `editor.run_script` / `runtime.eval` reflect whatever the *running* binary exposes. Any 4.7 (or later) feature surfaced as a property or a callable is reachable with no per-feature wrapper. The one remaining gap is *discovery*: an agent may not know a new feature's name. That is what the `engine` group closes, by reading `ClassDB` from the live build.
+
+```bash
+# what members match a term, across every class?
+godot-mcp engine search --query navigation_layer
+
+# the full API of one class, optionally filtered
+godot-mcp engine class-info --class CharacterBody3D --filter velocity
+
+# registered singletons and global class_name scripts
+godot-mcp engine singletons
+godot-mcp engine script-classes
+```
+
+<Callout type="tip">
+  Lead with `engine.search` / `engine.class_info` before authoring. This repeatedly catches silent mistakes that training memory would introduce: for example, only `VoxelGI` exposes a script `bake()` in 4.7 (Lightmap and Occluder are toolbar-only), and `surface_get_primitive_type` is ArrayMesh-only.
+</Callout>
+
+## Then drive, generically or typed
+
+With the name confirmed, act. There is usually a typed command, but the generic path always works:
+
+```bash
+# generic: works on any property the live node exposes
+godot-mcp node set --node-path Player --property motion_mode --value 1
+
+# arbitrary GDScript, editor-side or in the running game
+godot-mcp editor run-script --code "print(ProjectSettings.get_setting('application/config/name'))"
+```
+
+<Callout type="note">
+  When a command returns something surprising, re-check the API with `engine search` / `engine class-info` before assuming the write landed — most "it didn't work" moments are a property or signature that 4.7 spells differently. See [Live-engine gotchas](/docs/gotchas) for the known ones.
+</Callout>

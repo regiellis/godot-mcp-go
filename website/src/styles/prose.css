@@ -1,0 +1,131 @@
+/* ---------------------------------------------------------------------------
+   Prose: styling for rendered Markdown/MDX content inside .prose
+--------------------------------------------------------------------------- */
+
+.prose {
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.72;
+}
+
+.prose > :first-child { margin-top: 0; }
+
+/* Headings */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  color: var(--text);
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.014em;
+  scroll-margin-top: calc(var(--topbar-h) + 1.25rem);
+}
+.prose h1 { font-size: 2.1rem; margin: 0 0 0.6rem; letter-spacing: -0.022em; }
+.prose h2 {
+  font-size: 1.45rem;
+  margin: 2.6rem 0 1rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--border);
+}
+.prose h3 { font-size: 1.16rem; margin: 2rem 0 0.7rem; }
+.prose h4 { font-size: 1rem; margin: 1.6rem 0 0.5rem; color: var(--text-muted); }
+
+/* Anchor links on hover */
+.prose :is(h2, h3, h4) .heading-anchor {
+  opacity: 0;
+  margin-left: 0.4rem;
+  color: var(--text-faint);
+  font-weight: 400;
+  transition: opacity 0.12s ease;
+}
+.prose :is(h2, h3, h4):hover .heading-anchor { opacity: 1; }
+
+.prose p { margin: 0 0 1.1rem; }
+.prose strong { font-weight: 640; color: var(--text); }
+
+/* Lists */
+.prose ul,
+.prose ol { margin: 0 0 1.1rem; padding-left: 1.35rem; }
+.prose li { margin: 0.3rem 0; }
+.prose li::marker { color: var(--text-faint); }
+
+/* Links in prose get an underline */
+.prose a { text-decoration: underline; text-underline-offset: 2px; text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+.prose a:hover { text-decoration-color: var(--accent); }
+
+/* Inline code */
+.prose :not(pre) > code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.12em 0.4em;
+  color: var(--accent-strong);
+  white-space: nowrap;
+}
+
+/* Blockquote (non-callout) */
+.prose blockquote {
+  margin: 1.2rem 0;
+  padding: 0.2rem 0 0.2rem 1rem;
+  border-left: 3px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+/* Tables */
+.prose .table-wrap { overflow-x: auto; margin: 1.2rem 0; border: 1px solid var(--border); border-radius: var(--radius); }
+.prose table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.prose th,
+.prose td { text-align: left; padding: 0.6rem 0.85rem; border-bottom: 1px solid var(--border); }
+.prose thead th { background: var(--bg-subtle); font-weight: 620; color: var(--text); white-space: nowrap; }
+.prose tbody tr:last-child td { border-bottom: 0; }
+.prose td code { white-space: nowrap; }
+
+.prose hr { border: 0; border-top: 1px solid var(--border); margin: 2.2rem 0; }
+
+.prose img { max-width: 100%; border-radius: var(--radius); }
+
+/* --- Callouts (GitHub-style, rendered by the Callout component) --- */
+.callout {
+  display: flex;
+  gap: 0.75rem;
+  margin: 1.3rem 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--cl, var(--note));
+  border-radius: var(--radius);
+  background: var(--cl-bg, var(--note-bg));
+  font-size: 0.95rem;
+}
+.callout-icon { flex: none; color: var(--cl, var(--note)); margin-top: 1px; }
+.callout-body { min-width: 0; }
+.callout-title { font-weight: 640; color: var(--text); margin-bottom: 0.15rem; text-transform: capitalize; }
+.callout-body :last-child { margin-bottom: 0; }
+.callout[data-type="note"]      { --cl: var(--note);      --cl-bg: var(--note-bg); }
+.callout[data-type="tip"]       { --cl: var(--tip);       --cl-bg: var(--tip-bg); }
+.callout[data-type="important"] { --cl: var(--important); --cl-bg: var(--important-bg); }
+.callout[data-type="warning"]   { --cl: var(--warning);   --cl-bg: var(--warning-bg); }
+.callout[data-type="caution"]   { --cl: var(--caution);   --cl-bg: var(--caution-bg); }
+
+/* --- Card grid --- */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.9rem; margin: 1.4rem 0; }
+.card {
+  display: block;
+  padding: 1.1rem 1.15rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+.prose a.card, a.card:hover { text-decoration: none; }
+a.card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.prose a.card .card-title, .prose a.card .card-desc { text-decoration: none; }
+.card-icon { color: var(--accent); margin-bottom: 0.5rem; }
+.card-title { font-weight: 640; color: var(--text); margin-bottom: 0.2rem; }
+.card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.55; }
+
+/* Expressive-code frames get a little breathing room */
+.prose .expressive-code { margin: 1.2rem 0; }

@@ -1,0 +1,18 @@
+---
+title: If you hate AI
+description: A straight answer for people who are tired of AI slop, wary of AI in game development, or both.
+---
+
+Plenty of people are tired of AI right now: the slop flooding storefronts and feeds, the scraped training data, the low-effort games shipped by prompt. If that is you, this page is not going to argue with you, and it is not going to try to convert you. A lot of that anger is earned.
+
+What it will do is state plainly what this tool is and is not, so the decision is yours with clear eyes.
+
+- **It is a tool, not a position.** godot-mcp drives the Godot editor over a local socket, the way a build script drives a compiler or an LSP drives your editor. What comes out is ordinary project files: scenes, scripts, resources, sitting in your repository, reviewable like any other diff.
+- **Nothing is forced on anyone.** It is an opt-in addon you install into your own project. No engine fork, no editor takeover, nothing injected into the projects or pipelines of people who did not ask for it.
+- **It is local and quiet.** The bridge binds `127.0.0.1` only. There is no telemetry, no analytics, no account, no cloud service. Your project never leaves your machine, and this site collects nothing either.
+- **A human stays in charge.** Every editor mutation goes through Godot's UndoRedo, so a person at the editor can Ctrl+Z anything an agent did. Ad-hoc code execution is [audited and guarded](/docs/how-it-works), and file writes are jailed to the project.
+- **It does not generate art.** There is no image, audio, or asset generation in here. The bundled prototype textures are Kenney's hand-made CC0 packs, shipped with their license and attribution intact.
+
+Whether AI belongs in game development at all is an argument this page will not settle, and it will not pretend the concerns are silly. If your position is that tools like this have no place in games, that position is held in good faith, and the honest response is to agree to disagree rather than to sell you something.
+
+If you never touch this tool, nothing about your engine, your projects, or your community changes. If you are curious anyway, the whole thing is MIT-licensed and inspectable, and everything an agent does with it lands in version control where you can read it.

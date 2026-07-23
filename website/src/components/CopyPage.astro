@@ -1,0 +1,69 @@
+---
+import Icon from "./Icon.astro";
+
+interface Props { human: string; agent: string }
+const { human, agent } = Astro.props;
+
+// Embed as JSON; escape "<" so a stray </script> in content cannot close the tag.
+const enc = (s: string) => JSON.stringify(s).replace(/</g, "\\u003c");
+---
+
+<div class="copy-page">
+  <button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown">
+    <Icon name="copy" size={15} /><span class="cp-label">Copy page</span>
+  </button>
+  <button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent">
+    <Icon name="sparkle" size={15} /><span class="cp-label">Copy for agents</span>
+  </button>
+  <script type="application/json" data-src="human" set:html={enc(human)} />
+  <script type="application/json" data-src="agent" set:html={enc(agent)} />
+</div>
+
+<script is:inline>
+  (() => {
+    document.querySelectorAll(".copy-page").forEach((root) => {
+      const data = {};
+      root.querySelectorAll("script[data-src]").forEach((s) => {
+        try { data[s.getAttribute("data-src")] = JSON.parse(s.textContent || '""'); } catch (e) {}
+      });
+      root.querySelectorAll(".cp-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const text = data[btn.getAttribute("data-copy")] || "";
+          try {
+            await navigator.clipboard.writeText(text);
+          } catch (e) {
+            const ta = document.createElement("textarea");
+            ta.value = text; document.body.appendChild(ta); ta.select();
+            document.execCommand("copy"); ta.remove();
+          }
+          const label = btn.querySelector(".cp-label");
+          if (!label || btn.dataset.busy) return;
+          btn.dataset.busy = "1";
+          const prev = label.textContent;
+          label.textContent = "Copied";
+          btn.classList.add("copied");
+          setTimeout(() => { label.textContent = prev; btn.classList.remove("copied"); delete btn.dataset.busy; }, 1600);
+        });
+      });
+    });
+  })();
+</script>
+
+<style>
+  .copy-page { display: inline-flex; gap: 0.4rem; }
+  .cp-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.8rem; font-weight: 550; font-family: inherit;
+    color: var(--text-muted);
+    padding: 0.34rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  }
+  .cp-btn:hover { color: var(--text); border-color: var(--border-strong); }
+  .cp-btn.copied { color: var(--accent-strong); border-color: var(--accent); }
+  .cp-agent :global(svg) { color: var(--accent); }
+  @media (max-width: 560px) { .cp-label { display: none; } }
+</style>

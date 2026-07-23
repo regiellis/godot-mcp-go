@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>godot-mcp dashboard</title>
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/htmx.min.js"></script>
+<script src="/static/anime.min.js"></script>
+</head>
+<body>
+<span id="gm-state" data-connected="0" data-playing="0" data-recent="0" hidden></span>
+<div class="topbar">
+  <div class="brand">
+    <span class="brand-sq"></span>
+    <span class="brand-name">GODOT-MCP</span>
+    <span class="brand-tag">dashboard</span>
+  </div>
+  <div class="tab active" id="tab-overview" onclick="gmTab('overview')">OVERVIEW</div>
+  <div class="tab" id="tab-timeline" onclick="gmTab('timeline')">TIMELINE&nbsp;<span class="tab-count" id="top-tl-count">0</span></div>
+  <div class="top-right">
+    <span class="top-stat" id="top-editor"><span class="dot dot-off"></span>EDITOR OFFLINE</span>
+    <span class="top-stat" id="top-playing">&#8212;</span>
+    <span class="live-pill is-stale" id="top-live"><span class="live-dot"></span><span id="top-live-label">STALE</span></span>
+  </div>
+</div>
+<main class="stage">
+  <section id="overview" hx-get="/fragment/overview" hx-trigger="load, every 2s" hx-swap="innerHTML"></section>
+  <section id="feed" hx-get="/fragment/feed" hx-trigger="load, every 2s" hx-swap="innerHTML" style="display:none"></section>
+</main>
+<script>
+(function () {
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // --- Tabs (client-side; both fragments keep polling while hidden) ---------
+  window.gmTab = function (name) {
+    var over = name === 'overview';
+    document.getElementById('overview').style.display = over ? '' : 'none';
+    document.getElementById('feed').style.display = over ? 'none' : '';
+    document.getElementById('tab-overview').classList.toggle('active', over);
+    document.getElementById('tab-timeline').classList.toggle('active', !over);
+  };
+
+  // --- Timeline filter (remembered across the 2s feed swaps) ----------------
+  var gmFilter = 'all';
+  function applyFilter() {
+    var feed = document.getElementById('feed');
+    if (!feed) return;
+    feed.querySelectorAll('.chip').forEach(function (c) {
+      c.classList.toggle('active', c.getAttribute('data-filter') === gmFilter);
+    });
+    feed.querySelectorAll('.tl-row').forEach(function (r) {
+      var show = gmFilter === 'all'
+        || (gmFilter === 'err' && r.getAttribute('data-ok') === '0')
+        || (r.getAttribute('data-group') === gmFilter);
+      r.style.display = show ? '' : 'none';
+    });
+    // Gap separators only read correctly in the unfiltered timeline.
+    feed.querySelectorAll('.gap-strip').forEach(function (g) {
+      g.style.display = gmFilter === 'all' ? '' : 'none';
+    });
+  }
+  // Delegated clicks survive innerHTML swaps (listeners live on the stable sections).
+  document.getElementById('feed').addEventListener('click', function (e) {
+    var chip = e.target.closest('.chip');
+    if (chip) { gmFilter = chip.getAttribute('data-filter'); applyFilter(); }
+  });
+  document.getElementById('overview').addEventListener('click', function (e) {
+    if (e.target.closest('.banner-link')) gmTab('timeline');
+  });
+
+  // --- Topbar sync + live-dot pulse -----------------------------------------
+  var livePulse = null;
+  function refreshPulse(connected) {
+    if (reduced || !window.anime) return;
+    if (!connected) { if (livePulse) { livePulse.pause(); livePulse = null; } return; }
+    if (livePulse) return; // already pulsing the stable dot; leave it running
+    var dot = document.querySelector('#top-live .live-dot');
+    if (!dot) return;
+    livePulse = anime({
+      targets: dot, scale: [1, 1.5], opacity: [1, .35],
+      direction: 'alternate', loop: true, duration: 900, easing: 'easeInOutSine'
+    });
+  }
+  function syncTopbar() {
+    var st = document.getElementById('gm-state');
+    if (!st) return;
+    var connected = st.getAttribute('data-connected') === '1';
+    var playing = st.getAttribute('data-playing') === '1';
+
+    var ed = document.getElementById('top-editor');
+    ed.innerHTML = connected
+      ? '<span class="dot dot-on"></span>EDITOR ONLINE'
+      : '<span class="dot dot-off"></span>EDITOR OFFLINE';
+
+    document.getElementById('top-playing').innerHTML =
+      connected ? (playing ? '<span class="play-on">PLAYING</span>' : 'STOPPED') : '&#8212;';
+
+    var live = document.getElementById('top-live');
+    live.classList.toggle('is-live', connected);
+    live.classList.toggle('is-stale', !connected);
+    document.getElementById('top-live-label').textContent = connected ? 'LIVE' : 'STALE';
+    document.getElementById('top-tl-count').textContent = st.getAttribute('data-recent') || '0';
+
+    refreshPulse(connected);
+  }
+
+  // --- Feed row entrance (only rows newer than the last seen) ----------------
+  var lastTop = 0;
+  function animateNewRows(feed) {
+    if (reduced || !window.anime) return;
+    var newTop = lastTop;
+    feed.querySelectorAll('.tl-row').forEach(function (r) {
+      var ts = +r.getAttribute('data-ts');
+      if (ts > lastTop) {
+        anime({ targets: r, translateX: [-14, 0], opacity: [0, 1], duration: 420, easing: 'easeOutCubic' });
+        if (ts > newTop) newTop = ts;
+      }
+    });
+    lastTop = newTop;
+  }
+
+  document.body.addEventListener('htmx:afterSwap', function (e) {
+    if (!e.target) return;
+    if (e.target.id === 'overview') syncTopbar();       // OOB state carrier arrived
+    if (e.target.id === 'feed') { applyFilter(); animateNewRows(e.target); }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+# --- Go ---
+/bin/
+/dist/
+*.exe
+*.test
+*.out
+coverage.*
+vendor/
+
+# --- Godot (test project) ---
+# Per-machine cache, import data, and the addon's runtime discovery file.
+project/.godot/
+*.import
+.godot/
+
+# --- Editor / OS ---
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

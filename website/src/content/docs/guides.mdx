@@ -1,0 +1,20 @@
+---
+title: Building the Godot way
+description: Knowing the commands is not enough. These craft references teach an agent to build like a Godot developer, each concept paired with a real godot-mcp recipe verified against the live engine.
+---
+import { GUIDES, GUIDE_GROUPS } from "../../config";
+import Card from "../../components/Card.astro";
+import CardGrid from "../../components/CardGrid.astro";
+
+Two rules thread through all of them: **decouple with signals**, not polling or `get_node("../../")` chains, and **never trust a remembered API signature**. Confirm it against 4.7 with `engine class-info` or `engine search` before you write it.
+
+{GUIDE_GROUPS.map((group) => (
+  <section>
+    <h2>{group}</h2>
+    <CardGrid>
+      {GUIDES.filter((g) => g.group === group).map((g) => (
+        <Card title={g.title} href={`/docs/guides/${g.slug}`}>{g.desc}</Card>
+      ))}
+    </CardGrid>
+  </section>
+))}

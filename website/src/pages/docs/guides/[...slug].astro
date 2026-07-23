@@ -1,0 +1,37 @@
+---
+import { getCollection, render } from "astro:content";
+import DocsLayout from "../../../layouts/DocsLayout.astro";
+import Table from "../../../components/Table.astro";
+import { guideBySlug } from "../../../config";
+import { humanMarkdown, agentMarkdown } from "../../../lib/pagemd";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("guides");
+  return entries.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const meta = guideBySlug(entry.id);
+const { Content, headings } = await render(entry);
+
+const title = meta?.title ?? entry.id;
+const description = meta?.desc;
+const url = new URL(Astro.url.pathname, Astro.site).href;
+const body = entry.body ?? "";
+const mdHuman = humanMarkdown(title, description, body);
+const mdAgent = agentMarkdown(title, description, body, url);
+---
+
+<DocsLayout
+  title={title}
+  description={description}
+  current={`guides/${entry.id}`}
+  headings={headings}
+  mdHuman={mdHuman}
+  mdAgent={mdAgent}
+>
+  <Content components={{ table: Table }} />
+</DocsLayout>

@@ -1,0 +1,43 @@
+---
+title: Add your own commands
+description: Extend the MCP with project-local commands, no fork of the addon required.
+---
+
+You can add project-specific commands without forking the addon: drop a `.gd` file into a **`res://mcp_commands/`** folder in your project. On plugin enable the addon scans that folder and registers your commands next to the built-ins, so they appear everywhere the built-ins do — the CLI, nested help (`godot-mcp <group> --help`), `godot-mcp engine commands`, and, over MCP, as a [typed tool](/docs/mcp-setup) with its own schema. No Go or addon changes.
+
+## The shape of a command file
+
+A command file instantiates to a Node and exposes `get_commands() -> {"group.command": Callable}`. Extending the addon's `base_command.gd` gives you the `success()` / `error()` / `require_string()` helpers; a plain `extends Node` works too if you build the result dicts yourself. Optionally expose `get_command_docs()` so your commands get a real param table in nested help and a full schema as an MCP tool, exactly like the built-ins.
+
+```gdscript
+@tool
+extends "res://addons/godot_mcp/commands/base_command.gd"
+
+func get_commands() -> Dictionary:
+    return {
+        "custom.ping": _ping,
+        "custom.echo": _echo,
+    }
+
+func _ping(_params: Dictionary) -> Dictionary:
+    return success({"pong": true})
+
+func _echo(params: Dictionary) -> Dictionary:
+    var r := require_string(params, "message")
+    if r[1] != null:
+        return r[1]
+    return success({"message": r[0]})
+```
+
+Save this as `res://mcp_commands/example_commands.gd`, restart the editor, and the commands are live:
+
+```bash
+godot-mcp custom ping
+godot-mcp custom echo --message hi
+```
+
+## Rules
+
+- **Built-ins win.** A command name that collides with a built-in is skipped, so you can't override the shipped surface.
+- **A bad file is skipped, not fatal.** A file that fails to load or lacks `get_commands()` is skipped with a warning; it never breaks the plugin.
+- **Editing needs an editor restart.** Reloading the plugin re-runs registration but doesn't re-parse changed scripts, so recompiling a command file takes a full editor restart.

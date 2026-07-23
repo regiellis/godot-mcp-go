@@ -1,0 +1,63 @@
+---
+title: Command groups
+description: The 49 command groups, how invocation works, and how the wire coerces values.
+---
+
+Invocation is `godot-mcp <group> <command> [--flag value …]`. Command and flag names accept kebab- or snake-case (`node set-anchor` becomes `node.set_anchor`). Values that start with `[` or `{` are parsed as JSON. On error the CLI prints the JSON-RPC code, message, and any suggestions to stderr.
+
+<Callout type="tip">
+  You rarely need to memorize the catalog. Lead with `engine search` and `engine class-info` to find the right member on the live 4.7 build, then act with the typed or generic command.
+</Callout>
+
+## The groups
+
+| Area | Groups |
+| --- | --- |
+| **Core editing** | `project` `scene` `node` `script` `csharp` `editor` `engine` `fs` |
+| **3D placement + authoring** | `spatial` `material` `csg` `gridmap` `mesh` `authoring` `scene3d` |
+| **Procedural** | `scatter` `pcg` `wfc` |
+| **Art + runtime** | `lighting` `path` `camera` `scene2d` `runtime` `input` `particles` `shader` |
+| **Animation** | `animation` `anim_tree` `skeleton` |
+| **World + systems** | `tilemap` `navigation` `physics` `audio` `input_map` `resource` `multiplayer` |
+| **Project ops** | `theme` `ui` `localization` `import` `export` `android` `analysis` `batch` `profiling` `test` `doc` `cleanup` |
+
+## Discover the catalog
+
+You don't have to know a command's name or flags in advance. The CLI serves the whole catalog live from the running editor, so it never goes stale:
+
+```bash
+godot-mcp node --help                            # list a group, one line per command
+godot-mcp node add --help                        # a param table: flag, type, required, description
+godot-mcp help all                               # the entire catalog, grouped by category
+godot-mcp engine commands --group node --docs    # the same, as JSON
+```
+
+Every one of the 312 commands carries param docs, so `<group> <command> --help` prints a real table rather than a generic hint. `engine commands` is the JSON form — a flat `methods` list plus a `groups` map of group → command names, with `--group` to narrow and `--docs` to attach the param docs. Because help reads the live addon, it needs an editor running.
+
+## How values are coerced
+
+Godot literals stay strings and are coerced engine-side toward the target type:
+
+```bash
+godot-mcp node set --node-path Player --property position --value "Vector2(100, 200)"
+godot-mcp node set --node-path Light --property color --value "#ff0000"
+```
+
+- `--key value` or `--key=value` for strings, `--key=true|false` or a bare `--flag` for booleans.
+- JSON arrays and objects when the value starts with `[` or `{`.
+- Packed-array properties take a JSON array of the element literal, for example `'["Vector2(-64,-64)", "Vector2(64,-64)"]'`.
+- `scene.tree` and `node.get` report node paths **relative to the scene root** (`.`, `UI/Score`), so they feed straight back as `--node-path`. `--node-path selected` resolves to the editor's current selection.
+
+<Callout type="note">
+  Batch mutations are atomic. `node set` takes a singular `--property` / `--value` **or** a batch `--properties '{…}'` validated as one unit, committed through a single UndoRedo action.
+</Callout>
+
+## Output for pipelines
+
+Results print as pretty JSON by default. The global `--format tsv` flag renders a success result as tab-separated text instead, for shell pipelines:
+
+```bash
+godot-mcp scene tree --format tsv
+```
+
+An array of objects becomes a header row plus one row per element; a single object becomes key/value rows; nested values are emitted as compact JSON, with tabs and newlines escaped. `--format json` (the default) is unchanged.

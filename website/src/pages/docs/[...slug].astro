@@ -1,0 +1,39 @@
+---
+import { getCollection, render } from "astro:content";
+import DocsLayout from "../../layouts/DocsLayout.astro";
+import Callout from "../../components/Callout.astro";
+import Card from "../../components/Card.astro";
+import CardGrid from "../../components/CardGrid.astro";
+import Table from "../../components/Table.astro";
+import { humanMarkdown, agentMarkdown } from "../../lib/pagemd";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("docs");
+  return entries.map((entry) => ({
+    params: { slug: entry.id === "index" ? undefined : entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const current = entry.id === "index" ? "" : entry.id;
+
+const mdxComponents = { Callout, Card, CardGrid, table: Table };
+const url = new URL(Astro.url.pathname, Astro.site).href;
+const body = entry.body ?? "";
+const mdHuman = humanMarkdown(entry.data.title, entry.data.description, body);
+const mdAgent = agentMarkdown(entry.data.title, entry.data.description, body, url);
+---
+
+<DocsLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  current={current}
+  headings={headings}
+  tableOfContents={entry.data.tableOfContents}
+  mdHuman={mdHuman}
+  mdAgent={mdAgent}
+>
+  <Content components={mdxComponents} />
+</DocsLayout>

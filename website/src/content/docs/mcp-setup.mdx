@@ -1,0 +1,64 @@
+---
+title: Use with an AI client
+description: Run godot-mcp as an MCP server so Claude, Cursor, VS Code, or Codex can drive Godot.
+---
+
+`godot-mcp serve` runs as a [Model Context Protocol](https://modelcontextprotocol.io) server over stdio, so MCP clients drive Godot directly. It exposes the same surface as the CLI: every one of the 312 commands.
+
+## Two tool modes
+
+By default, `serve` exposes **every command as a first-class MCP tool** with a real JSON schema — a tool name like `node_add`, typed parameters with `required` flags, and a one-line description. The schemas are built **live** from the addon's own param docs on the first `tools/list` and cached, so the tool surface can never drift from what the editor actually registers (including any [project-local commands](/docs/extending)). Alongside the typed tools sits **`godot_run`**, the generic escape hatch: give it `{ "method": "<group>.<command>", "params": {…} }` and it proxies any method to the addon.
+
+For clients that cap the number of tools, run `serve --typed=false` to expose only `godot_run`. One tool for 312 commands keeps the model's context lean: the model discovers the live 4.7 API with `engine.search` / `engine.class_info`, then acts, instead of carrying dozens of tool schemas into every session. Both modes are deliberate: typed for schema-guided calls, single-tool for context economy.
+
+<Callout type="note">
+  If the editor is down when the client connects, `serve` starts with `godot_run` alone and upgrades automatically — once the editor becomes reachable it emits `notifications/tools/list_changed` and the typed tools appear.
+</Callout>
+
+<Callout type="tip">
+  To drive a **standalone running game with no editor open**, `godot_run` accepts `game: true`, and the typed `runtime_*` / `input_*` tools carry an optional `game` parameter that routes the call to the game's own server. See the [direct-to-player channel](/docs/playtest-loop#direct-to-player-channel).
+</Callout>
+
+## Write the config automatically
+
+`godot-mcp configure` writes an MCP-server entry for a supported client, merging without clobbering your other servers:
+
+```bash
+godot-mcp configure claude --project /path/to/your/project
+godot-mcp configure cursor
+godot-mcp configure vscode
+godot-mcp configure codex --global
+```
+
+Add `--print` to emit the snippet without writing (the safe path for uncertain global targets).
+
+## Or configure by hand
+
+```json
+{
+  "mcpServers": {
+    "godot-mcp": {
+      "command": "godot-mcp",
+      "args": ["serve", "--project", "/path/to/your/project"]
+    }
+  }
+}
+```
+
+The Godot editor must be open with the plugin enabled, exactly as for the CLI. `--project` sets where the server discovers the addon port, so it survives an editor restart.
+
+## Read-only resources
+
+Beyond the tools, the server advertises read-only **MCP resources** under the `godot://` scheme, so a client can pull context without spending a tool turn:
+
+| Resource | Contents |
+| --- | --- |
+| `godot://project/info` | project metadata |
+| `godot://project/tree` | the project file tree |
+| `godot://scene/tree` | the open scene's node tree |
+| `godot://engine/singletons` | registered singletons |
+| `godot://editor/errors` | recent editor errors |
+
+<Callout type="tip">
+  Its `initialize` reply also carries an `instructions` string with the durable discover-then-drive and spatial-placement guidance, so the steer rides along at every connect even without the skill installed.
+</Callout>

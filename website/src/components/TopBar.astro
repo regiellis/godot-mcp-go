@@ -1,0 +1,79 @@
+---
+import Logo from "./Logo.astro";
+import Search from "./Search.astro";
+import ThemeToggle from "./ThemeToggle.astro";
+import Icon from "./Icon.astro";
+import { SITE } from "../config";
+import { withBase } from "../lib/paths";
+---
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-left">
+      <button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation">
+        <Icon name="menu" size={20} />
+      </button>
+      <Logo />
+    </div>
+
+    <nav class="topbar-nav" aria-label="Primary">
+      <a href={withBase("/docs")}>Docs</a>
+      <a href={withBase("/docs/commands")}>Commands</a>
+      <a href={withBase("/docs/samples")}>Samples</a>
+    </nav>
+
+    <div class="topbar-right">
+      <Search />
+      <a class="icon-btn" href={SITE.repo} target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub">
+        <Icon name="github" size={18} />
+      </a>
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
+
+<style>
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--topbar-h);
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+  .topbar-inner {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0 1.25rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 0.6rem; }
+  .topbar-nav { display: flex; gap: 1.35rem; margin-left: 1rem; font-size: 0.92rem; }
+  .topbar-nav a { color: var(--text-muted); font-weight: 520; }
+  .topbar-nav a:hover { color: var(--text); text-decoration: none; }
+  .topbar-right { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    color: var(--text-muted);
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .icon-btn:hover { color: var(--text); border-color: var(--border-strong); text-decoration: none; }
+
+  .sidebar-toggle { display: none; }
+
+  @media (max-width: 960px) {
+    .topbar-nav { display: none; }
+    .sidebar-toggle { display: grid; }
+  }
+</style>

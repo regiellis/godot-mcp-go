@@ -1,0 +1,132 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import TopBar from "../components/TopBar.astro";
+import Sidebar from "../components/Sidebar.astro";
+import TableOfContents from "../components/TableOfContents.astro";
+import CopyPage from "../components/CopyPage.astro";
+import Icon from "../components/Icon.astro";
+import { NAV_FLAT } from "../config";
+import { docsHref } from "../lib/paths";
+
+interface Heading { depth: number; slug: string; text: string }
+interface Props {
+  title: string;
+  description?: string;
+  current: string;
+  headings?: Heading[];
+  tableOfContents?: boolean;
+  mdHuman?: string;
+  mdAgent?: string;
+}
+const { title, description, current, headings = [], tableOfContents = true, mdHuman, mdAgent } = Astro.props;
+
+const idx = NAV_FLAT.findIndex((i) => i.slug === current);
+const prev = idx > 0 ? NAV_FLAT[idx - 1] : null;
+const next = idx >= 0 && idx < NAV_FLAT.length - 1 ? NAV_FLAT[idx + 1] : null;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={title} description={description} />
+  </head>
+  <body>
+    <TopBar />
+    <div class="shell">
+      <Sidebar current={current} />
+      <main class="main">
+        <article class="prose" data-pagefind-body>
+          {mdHuman && (
+            <div class="doc-toolbar">
+              <CopyPage human={mdHuman} agent={mdAgent ?? mdHuman} />
+            </div>
+          )}
+          <header class="page-head">
+            <h1>{title}</h1>
+            {description && <p class="page-desc">{description}</p>}
+          </header>
+          <slot />
+        </article>
+
+        <nav class="pager" aria-label="Pagination">
+          {prev ? (
+            <a class="pager-link prev" href={docsHref(prev.slug)}>
+              <span class="pager-dir">Previous</span>
+              <span class="pager-label">{prev.label}</span>
+            </a>
+          ) : <span />}
+          {next && (
+            <a class="pager-link next" href={docsHref(next.slug)}>
+              <span class="pager-dir">Next <Icon name="arrow" size={14} /></span>
+              <span class="pager-label">{next.label}</span>
+            </a>
+          )}
+        </nav>
+
+        <footer class="site-foot">
+          Built with the help of <code>godot-mcp</code>. MIT licensed.
+        </footer>
+      </main>
+      {tableOfContents ? <TableOfContents headings={headings} /> : <div class="toc-spacer" />}
+    </div>
+
+    <style>
+      .shell {
+        display: flex;
+        gap: var(--gutter);
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1.25rem;
+        align-items: flex-start;
+      }
+      .main {
+        flex: 1 1 auto;
+        min-width: 0;
+        max-width: var(--content-max);
+        margin: 0 auto;
+        padding: 2.4rem 0 4rem;
+      }
+      .doc-toolbar { display: flex; justify-content: flex-end; margin-bottom: 1rem; }
+      .page-head { margin-bottom: 1.8rem; }
+      .page-head h1 { margin-bottom: 0.5rem; padding-top: 0; border-top: 0; }
+      .page-desc {
+        font-size: 1.12rem;
+        line-height: 1.55;
+        color: var(--text-muted);
+        margin: 0;
+      }
+      /* First body heading after the header should not draw its top rule. */
+      .page-head + :global(h2) { border-top: 0; padding-top: 0; margin-top: 0.5rem; }
+      .toc-spacer { width: var(--toc-w); flex: none; }
+
+      .pager {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 3rem;
+        padding-top: 1.6rem;
+        border-top: 1px solid var(--border);
+      }
+      .pager-link {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+        padding: 0.8rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        min-width: 160px;
+        transition: border-color 0.15s ease;
+      }
+      .pager-link:hover { border-color: var(--accent); text-decoration: none; }
+      .pager-link.next { text-align: right; align-items: flex-end; margin-left: auto; }
+      .pager-dir { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; color: var(--text-faint); }
+      .pager-label { font-weight: 600; color: var(--text); }
+
+      .site-foot { margin-top: 2.5rem; color: var(--text-faint); font-size: 0.85rem; }
+      .site-foot code { font-family: var(--font-mono); font-size: 0.85em; }
+
+      @media (max-width: 1200px) { .toc-spacer { display: none; } }
+      @media (max-width: 960px) { .main { padding-top: 1.8rem; } }
+    </style>
+  </body>
+</html>

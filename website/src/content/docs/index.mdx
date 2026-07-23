@@ -1,0 +1,49 @@
+---
+title: Overview
+description: What godot-mcp is and how the discover-then-drive loop works.
+---
+
+**godot-mcp** drives a running **Godot 4.7** editor from the command line and from AI agents. A Go CLI (and an MCP `serve` mode for AI clients) talks to a GDScript editor addon over a local WebSocket, so you can build scenes, write GDScript or C#, play and inspect the running game, and introspect the engine's real API. **312 commands across 49 groups**, every one verified against a live editor.
+
+<Callout type="note">
+  This goes beyond scene assembly: the `runtime` and `input` groups play the game, inject input, and read live state back, so an agent builds **and tests** — it proves its work by playing it.
+</Callout>
+
+## The core loop: discover, then drive
+
+Because the CLI talks to the *live* engine, an agent grounds itself on what Godot 4.7 actually supports before acting, instead of guessing from training memory.
+
+```bash
+# 1. discover: ask the live ClassDB what exists
+godot-mcp engine search --query offset_transform
+
+# 2. drive: act through typed or generic commands
+godot-mcp node set --node-path Player --property position --value "Vector2(100, 200)"
+
+# 3. prove it: play the game and read state back
+godot-mcp scene play --mode main
+godot-mcp runtime get --node-path Player --properties '["position"]'
+```
+
+## Where to go next
+
+<CardGrid>
+  <Card title="Quickstart" icon="rocket" href="/docs/quickstart">
+    Open the editor and drive it in five commands.
+  </Card>
+  <Card title="Installation" icon="box" href="/docs/installation">
+    Add the addon to a project, or bootstrap a new one.
+  </Card>
+  <Card title="Use with an AI client" icon="zap" href="/docs/mcp-setup">
+    Wire the MCP server into Claude, Cursor, VS Code, or Codex.
+  </Card>
+  <Card title="Command groups" icon="terminal" href="/docs/commands">
+    The 49 groups and how invocation works.
+  </Card>
+</CardGrid>
+
+## Requirements at a glance
+
+- **Godot 4.7+**.
+- **Go 1.26+** to build the CLI (or use a release binary).
+- The editor must be open with the **Godot MCP** plugin enabled; the CLI is a short-lived client that dials in per command.

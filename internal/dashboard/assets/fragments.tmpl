@@ -1,0 +1,146 @@
+{{define "overview"}}
+{{/* Out-of-band carrier: the topbar (editor state, PLAYING, LIVE pill, tab count)
+     is driven client-side from these attributes so its pulsing dot never gets
+     swapped out. This fragment polls every 2s, so the topbar stays live. */}}
+<span id="gm-state" hx-swap-oob="true"
+      data-connected="{{if .Connected}}1{{else}}0{{end}}"
+      data-playing="{{if .Playing}}1{{else}}0{{end}}"
+      data-recent="{{len .Recent}}" hidden></span>
+
+<div class="ov">
+  {{if and .Connected .LatestErr}}
+  <div class="err-banner">
+    <span class="err-chip">{{.RecentErrCount}} ERR</span>
+    <span class="err-banner-txt"><b>{{.LatestErr.Method}}</b> failed {{timeAgo .LatestErr.Ts}}</span>
+    <span class="banner-link">VIEW TIMELINE →</span>
+  </div>
+  {{end}}
+
+  <div class="statstrip">
+    <div class="stat lead">
+      <div class="stat-label">TOOL CALLS</div>
+      <div class="stat-num lead">{{if .Connected}}{{.TotalCalls}}{{else}}&#8212;{{end}}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">ERRORS</div>
+      <div class="stat-num{{if gt .Errors 0}} err{{end}}">{{if .Connected}}{{.Errors}}{{else}}&#8212;{{end}}</div>
+      {{if .Connected}}<div class="stat-sub">{{.ErrRate}}% of calls</div>{{end}}
+    </div>
+    <div class="stat">
+      <div class="stat-label">CONNECTIONS</div>
+      <div class="stat-num">{{if .Connected}}{{.ActiveConnections}}{{else}}&#8212;{{end}}</div>
+      {{if .Connected}}<div class="stat-sub">of {{.TotalConnections}} total</div>{{end}}
+    </div>
+    <div class="stat">
+      <div class="stat-label">COMMANDS</div>
+      <div class="stat-num">{{if .Connected}}{{.CommandCount}}{{else}}&#8212;{{end}}</div>
+      {{if .Connected}}<div class="stat-sub">across the addon</div>{{end}}
+    </div>
+    <div class="stat">
+      <div class="stat-label">UPTIME</div>
+      <div class="stat-num">{{if .Connected}}{{.Uptime}}{{else}}&#8212;{{end}}</div>
+    </div>
+    <div class="stat cad">
+      <div class="stat-label">CALLS · {{if .CadenceEmpty}}NONE RECENT{{else}}RECENT{{end}}</div>
+      <div class="cad-bars">{{range $i, $v := .Buckets}}<span class="cad-bar {{if $.CadenceEmpty}}cad-empty{{else if ge $i 8}}cad-hot{{else}}cad-cool{{end}}" style="height:{{if $.CadenceEmpty}}4{{else}}{{$v}}{{end}}%"></span>{{end}}</div>
+    </div>
+  </div>
+
+  <div class="panels">
+    {{/* SESSION */}}
+    <div class="panel">
+      <div class="panel-head"><span class="panel-title">SESSION</span></div>
+      <div class="kv">
+        <div class="kv-row"><span class="kv-k">Editor</span><span class="kv-v {{if .Connected}}v-ok{{else}}v-err{{end}}">{{if .Connected}}ONLINE{{else}}OFFLINE{{end}}</span></div>
+        <div class="kv-row"><span class="kv-k">Game</span><span class="kv-v">{{if .Connected}}{{if .Playing}}PLAYING{{else}}STOPPED{{end}}{{else}}&#8212;{{end}}</span></div>
+        <div class="kv-row"><span class="kv-k">Active connections</span><span class="kv-v">{{if .Connected}}{{.ActiveConnections}}{{else}}&#8212;{{end}}</span></div>
+        <div class="kv-row"><span class="kv-k">Total connections</span><span class="kv-v">{{if .Connected}}{{.TotalConnections}}{{else}}&#8212;{{end}}</span></div>
+        <div class="kv-row"><span class="kv-k">Commands</span><span class="kv-v">{{if .Connected}}{{.CommandCount}}{{else}}&#8212;{{end}}</span></div>
+        <div class="kv-row"><span class="kv-k">Uptime</span><span class="kv-v">{{if .Connected}}{{.Uptime}}{{else}}&#8212;{{end}}</span></div>
+      </div>
+    </div>
+
+    {{/* TOP GROUPS */}}
+    <div class="panel">
+      <div class="panel-head"><span class="panel-title">TOP GROUPS</span></div>
+      {{if and .Connected .Groups}}
+      <div class="grp">
+        {{range $i, $g := .Groups}}
+        <div class="grp-row">
+          <span class="grp-name">{{$g.Key}}</span>
+          <span class="grp-val">{{$g.Val}}</span>
+          <span class="grp-bar"><span class="grp-bar-fill{{if eq $i 0}} is-top{{end}}" style="width:{{$g.Pct}}%"></span></span>
+        </div>
+        {{end}}
+      </div>
+      {{else}}
+      <p class="empty">No calls yet. Drive the editor with <span class="mono">godot-mcp &lt;group&gt; &lt;command&gt;</span>.</p>
+      {{end}}
+    </div>
+
+    {{/* RECENT ERRORS */}}
+    <div class="panel">
+      <div class="panel-head err"><span class="panel-title">RECENT ERRORS</span><span class="micro">LAST {{len .Recent}} CALLS</span></div>
+      {{if and .Connected .RecentErrors}}
+      <div class="errlist">
+        {{range .RecentErrors}}
+        <div class="errlist-row">
+          <span class="errlist-time">{{clock .Ts}}</span>
+          <span class="errlist-body"><b>{{.Method}}</b>{{if .Params}} <span class="errlist-params">{{trunc 80 .Params}}</span>{{end}}</span>
+        </div>
+        {{end}}
+      </div>
+      {{else}}
+      <p class="empty">No errors in the recent window.</p>
+      {{end}}
+    </div>
+  </div>
+
+  {{if not .Connected}}
+  <div class="offline-strip">
+    <span class="offline-head">EDITOR NOT REACHABLE</span>
+    <span class="offline-sub">start the editor with the godot-mcp plugin enabled, and the dashboard reconnects automatically</span>
+  </div>
+  {{end}}
+</div>
+{{end}}
+
+{{define "feed"}}
+<div class="tl">
+  <div class="tl-chips">
+    <span class="chip active" data-filter="all">ALL {{.Total}}</span>
+    <span class="chip{{if gt .ErrCount 0}} chip-err{{end}}" data-filter="err">ERR {{.ErrCount}}</span>
+    {{range .Groups}}<span class="chip" data-filter="{{.Key}}">{{.Key}} {{.Val}}</span>{{end}}
+  </div>
+  {{if .Rows}}
+  <div class="tl-scroll">
+    <div class="tl-head"><span>TIME</span><span>GROUP</span><span>METHOD</span><span class="col-params">PARAMS</span><span class="ra">DUR</span></div>
+    {{range .Rows}}
+    {{if gt .GapMin 0}}<div class="gap-strip"><span>GAP · {{.GapMin}} MIN</span><span class="gap-rule"></span><span class="gap-clock">{{clock .Ts}}</span></div>{{end}}
+    {{if .OK}}
+    <div class="tl-row" data-group="{{group .Method}}" data-ok="1" data-ts="{{.Ts}}">
+      <span class="tl-time">{{clock .Ts}}</span>
+      <span class="chip-grp">{{group .Method}}</span>
+      <span class="tl-method">{{.Method}}</span>
+      <span class="tl-params">{{.Params}}</span>
+      <span class="tl-dur{{if ge .Ms 1000}} slow{{end}}">{{dur .Ms}}</span>
+    </div>
+    {{else}}
+    <div class="tl-row is-err" data-group="{{group .Method}}" data-ok="0" data-ts="{{.Ts}}">
+      <div class="tl-row-main">
+        <span class="tl-time">{{clock .Ts}}</span>
+        <span class="chip-errtag">ERR</span>
+        <span class="tl-method">{{.Method}}</span>
+        <span class="tl-params"></span>
+        <span class="tl-dur{{if ge .Ms 1000}} slow{{end}}">{{dur .Ms}}</span>
+      </div>
+      {{if .Params}}<div class="tl-err-detail">{{trunc 140 .Params}}</div>{{end}}
+    </div>
+    {{end}}
+    {{end}}
+  </div>
+  {{else}}
+  <p class="empty tl-empty">No activity yet. Run <span class="mono">godot-mcp project info</span> against the editor.</p>
+  {{end}}
+</div>
+{{end}}

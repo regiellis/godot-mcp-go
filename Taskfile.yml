@@ -1,0 +1,86 @@
+version: "3"
+
+# Godot MCP (Go) task runner. Run `task` to list available tasks.
+# GODOT points at the 4.7 shim; override with `task editor GODOT=godot-dev`.
+
+vars:
+  BIN: bin/godot-mcp.exe
+  GODOT: godot
+  PROJECT: project
+
+tasks:
+  default:
+    desc: List available tasks
+    cmds:
+      - task --list
+    silent: true
+
+  build:
+    desc: Build the godot-mcp CLI into bin/
+    cmds:
+      - go build -o {{.BIN}} ./cmd/godot-mcp
+
+  run:
+    desc: "Build and run the CLI, e.g. `task run -- project info`"
+    deps: [build]
+    cmds:
+      - "{{.BIN}} {{.CLI_ARGS}}"
+
+  test:
+    desc: Run Go tests
+    cmds:
+      - go test ./...
+
+  tidy:
+    desc: Sync go.mod / go.sum
+    cmds:
+      - go mod tidy
+
+  fmt:
+    desc: Format Go code
+    cmds:
+      - go fmt ./...
+
+  vet:
+    desc: Vet Go code
+    cmds:
+      - go vet ./...
+
+  check:
+    desc: fmt + vet + test
+    cmds:
+      - task: fmt
+      - task: vet
+      - task: test
+
+  editor:
+    desc: Open the test project in the Godot 4.7 editor (starts the addon server)
+    cmds:
+      - "{{.GODOT}} --path {{.PROJECT}} --editor"
+
+  play:
+    desc: Run the test project's main scene
+    cmds:
+      - "{{.GODOT}} --path {{.PROJECT}}"
+
+  godot:version:
+    desc: Print the Godot dev build version (should be 4.7.x)
+    cmds:
+      - "{{.GODOT}} --version"
+
+  slice:
+    desc: End-to-end smoke test — calls project.info (editor must be open first)
+    deps: [build]
+    cmds:
+      - "{{.BIN}} project info"
+
+  dashboard:
+    desc: Build and run the live stats dashboard (editor must be open)
+    deps: [build]
+    cmds:
+      - "{{.BIN}} dashboard --project {{.PROJECT}} {{.CLI_ARGS}}"
+
+  release:
+    desc: "Build CLI binaries + package addon/skill into dist/ (e.g. task release -- -Version 0.1.0)"
+    cmds:
+      - pwsh -NoProfile -File scripts/release.ps1 {{.CLI_ARGS}}

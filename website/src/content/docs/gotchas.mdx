@@ -1,0 +1,38 @@
+---
+title: Live-engine gotchas
+description: Things that only surface when you drive a real 4.7 editor and game, and how to work around each.
+---
+
+Some engine behaviors only show up when you drive a live editor and a running game. Each of these was hit in practice; knowing them up front saves a confusing "why did nothing happen" loop.
+
+## Discovery, not memory
+
+Training memory is confidently wrong about specific 4.7 APIs. Lead with `engine search` and `engine class-info` on the running build, every time.
+
+<Callout type="note">
+  Examples that memory gets wrong and introspection catches: only `VoxelGI` exposes a script `bake()` in 4.7 (LightmapGI and OccluderInstance3D are toolbar-only). `VoxelGI` has `get_probe_data()`, not a `probe_data` property. `surface_get_primitive_type` is ArrayMesh-only, so a primitive mesh must be converted first.
+</Callout>
+
+## Editor-time surprises
+
+- **`scene create` writes the file but does not switch the edited scene.** A new `--root-type Node3D` scene needs an explicit `scene open` before any 3D-only command works against it.
+- **The editor's resource cache survives rescans.** A script that loads a just-edited scene or script gets the stale copy. Load with `CACHE_MODE_REPLACE_DEEP`, and assert `get_script() != null` after instancing, because a script-less instance silently swallows property writes.
+- **`PackedScene.pack()` only keeps nodes whose `owner` is the root.** Build a scene programmatically and forget to set `owner`, and the children vanish on save.
+- **Out-of-tree Controls never refresh their cached minimum size**, so a `size` write clamps to the saved minimum. Add the Control to the tree before sizing it.
+- **`bake_mesh` from MeshInstance geometry yields an empty navmesh under a headless editor** (zero polygons, even synchronously). Bake in a windowed editor, or set the navmesh from colliders.
+
+## Headless traps
+
+Screenshots and error capture behave differently without a window.
+
+- **`editor.screenshot` needs a windowed editor** (it returns `-32000` under `--headless`). `runtime.screenshot` works headless, because the game is a separate windowed process.
+- **A real script error in the played game freezes it under a headless editor.** The remote debugger breaks with no UI to resume, so every runtime command afterward times out. This includes a hard error in `runtime.eval`. Recover with `scene stop` then `scene play`. `push_error`, `push_warning`, and shader errors are captured fine; a standalone or windowed run just logs the error and keeps serving IPC.
+
+<Callout type="warning">
+  This is why `runtime.errors` cannot capture a *real* script error under a headless editor: the break freezes the game before you can poll. Use a windowed run when you need to see real runtime script errors, and reserve headless for command runs and `push_error`-style diagnostics.
+</Callout>
+
+## Value coercion
+
+- **Pass packed-array properties as a JSON array of the element literal**, for example `'["Vector2(-64,-64)", "Vector2(64,-64)"]'`. Each element is coerced to the packed type engine-side.
+- **`var x := <Array-element arithmetic>` fails to compile** in GDScript: untyped `Array` elements are `Variant`, so annotate the type (`var center: Vector3 = ...`). A `Vector2i` grid stores `(x, z)` as `(x, y)`; it has no `.z`.

@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://bmcpgomain01"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_1"]
+font_size = 48
+
+[node name="Main" type="Node2D"]
+
+[node name="Label" type="Label" parent="."]
+offset_left = 64.0
+offset_top = 64.0
+offset_right = 1200.0
+offset_bottom = 160.0
+text = "Godot MCP (Go) — test project"
+label_settings = SubResource("LabelSettings_1")

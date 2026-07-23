@@ -1,0 +1,118 @@
+/* ---------------------------------------------------------------------------
+   godot-mcp-go docs — design system
+   Ollama/Mintlify-inspired: clean, rounded, soft borders, one accent, light+dark.
+   Plain CSS custom properties. No framework. Edit the tokens, the site follows.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* Type */
+  --font-sans: "InterVariable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+
+  /* Accent (Godot-adjacent blue, with a cyan-leaning gradient) */
+  --accent: #2b7fff;
+  --accent-strong: #1e63e6;
+  --accent-soft: #e8f0ff;
+  --accent-grad: linear-gradient(135deg, #2b7fff 0%, #3fc7ff 100%);
+
+  /* Light theme surfaces */
+  --bg: #ffffff;
+  --bg-subtle: #f7f8fa;
+  --bg-code: #f6f8fa;
+  --surface: #ffffff;
+  --border: #e7e9ee;
+  --border-strong: #d5d8e0;
+  --text: #1a1d24;
+  --text-muted: #5c6472;
+  --text-faint: #8b93a3;
+
+  /* Callout tints (left-border + wash) */
+  --note: #2b7fff;      --note-bg: #eef4ff;
+  --tip: #16a34a;       --tip-bg: #ecfdf3;
+  --important: #7c3aed; --important-bg: #f5f0ff;
+  --warning: #d97706;   --warning-bg: #fff7ed;
+  --caution: #dc2626;   --caution-bg: #fef2f2;
+
+  /* Geometry */
+  --radius: 10px;
+  --radius-lg: 16px;
+  --radius-sm: 7px;
+  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.04), 0 1px 3px rgba(16, 24, 40, 0.06);
+  --shadow-md: 0 4px 12px rgba(16, 24, 40, 0.08);
+  --shadow-pop: 0 12px 40px rgba(16, 24, 40, 0.16);
+
+  /* Layout */
+  --topbar-h: 60px;
+  --sidebar-w: 264px;
+  --toc-w: 220px;
+  --content-max: 760px;
+  --gutter: 2rem;
+}
+
+:root[data-theme="dark"] {
+  --accent: #4d94ff;
+  --accent-strong: #6aa8ff;
+  --accent-soft: #12233f;
+  --accent-grad: linear-gradient(135deg, #4d94ff 0%, #46d1ff 100%);
+
+  --bg: #0b0d10;
+  --bg-subtle: #111419;
+  --bg-code: #0f1319;
+  --surface: #12151a;
+  --border: #222831;
+  --border-strong: #2c333d;
+  --text: #e8eaed;
+  --text-muted: #9aa3b2;
+  --text-faint: #6b7484;
+
+  --note-bg: #0f1f38;
+  --tip-bg: #0c2117;
+  --important-bg: #1b1230;
+  --warning-bg: #241706;
+  --caution-bg: #2a0f0f;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.4);
+  --shadow-pop: 0 12px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* ------------------------------- base -------------------------------- */
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--topbar-h) + 1rem);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 15.5px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+::selection { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* thin, quiet scrollbars */
+* { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
+*::-webkit-scrollbar-track { background: transparent; }

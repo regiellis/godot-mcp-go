@@ -1,0 +1,90 @@
+---
+title: Spatial placement
+description: Place 3D objects by anchoring to real geometry, reading the bounds back, seating with a raycast, and verifying numerically.
+---
+
+Placing objects in 3D by feeding parallel position constants is how an agent floats a lamp above a table or sinks a crate into the floor. Nothing is anchored to what actually landed, so a single wrong number is invisible until you look. The `spatial` group exists to place against **real geometry** instead, and the discipline is always the same four beats.
+
+<Callout type="important" title="The spatial rule">
+  Anchor to a realized node, read its real world bounds back, seat the next piece with a raycast, and verify the result numerically. Never place by eyeballing one screenshot, and never chain off a constant you assumed.
+</Callout>
+
+## 1. Anchor, then read the bounds back
+
+Place the anchor piece, then ask the engine where it actually is in world space. `spatial bounds` returns the true world-space AABB (a union of the node's descendant geometry, not just the root's local box), so you build the next piece off measured reality.
+
+```bash
+godot-mcp spatial bounds --node-path Table
+# -> { "center": "Vector3(4, 0.75, -6)", "size": "Vector3(2, 0.9, 1.2)",
+#      "min": "Vector3(3, 0.3, -6.6)", "max": "Vector3(5, 1.2, -5.4)" }
+```
+
+<Callout type="note">
+  `node set --property position` is **local to the parent**. `spatial align`, `place_on`, and `distribute` work in **world space** and write back the local position that lands the piece where you asked. Mixing the two is the usual cause of a piece that is right in isolation and wrong once parented.
+</Callout>
+
+## 2. Seat with a raycast, at the right tier
+
+There are three seating tiers. Pick the one the surface demands, cheapest first.
+
+| Tier | Command | Use when |
+| --- | --- | --- |
+| Mesh AABB | `spatial place_on --node-path X --surface-from Floor` | the ground is flat; drop onto the top of a surface's box |
+| Footprint down-ray | `spatial place_on --node-path X --samples 3 --conform` | the ground is sloped, stepped, or uneven; sample under the footprint and conform |
+| Geometry snap | `spatial snap --node-path Bolt --to Beam --mode vertex` | you need an exact vertex or face, not a bounding box |
+
+```bash
+# flat: sit the lamp on the table's top surface
+godot-mcp spatial place_on --node-path Lamp --surface-from Table
+
+# uneven: conform a crate to sloped terrain under its footprint
+godot-mcp spatial place_on --node-path Crate --samples 3 --conform
+
+# exact: snap a bolt to the nearest real vertex of a beam
+godot-mcp spatial snap --node-path Bolt --to Beam --mode vertex
+```
+
+For a free raycast (no target node), cast a ray and place at the hit:
+
+```bash
+godot-mcp spatial raycast --from "Vector3(4,30,-6)" --to "Vector3(4,-30,-6)"
+# -> { "hit": true, "position": "Vector3(4, 1.2, -6)", "normal": "Vector3(0, 1, 0)" }
+```
+
+<Callout type="warning" title="Edit-time physics: rays yes, shape-overlap no">
+  At edit time, ray queries (`spatial raycast`, the `place_on` down-ray bundle) work against the scene's colliders. Shape-overlap queries do not: freshly added bodies are not stepped into the broadphase, so `intersect_shape` returns nothing where `intersect_ray` hits. Shape overlap is a runtime concern, reachable via `runtime.eval` in a running game.
+</Callout>
+
+## 3. Build composites by chaining off realized bounds
+
+For a cluster (a desk with a lamp, papers, and a mug), place the anchor, `spatial bounds` it, then derive each child position from the measured box, not from a guessed constant. Every piece hangs off what actually landed.
+
+```bash
+godot-mcp spatial align --node-path Lamp --to Desk --edge top --inset "Vector3(0.3, 0, 0.2)"
+godot-mcp spatial distribute --node-paths '["Book1","Book2","Book3"]' --along x --spacing 0.25
+godot-mcp spatial look_at --node-path Camera --target Desk
+```
+
+`spatial relate` reports the spatial relationship between two nodes (above, inside, touching, the gap between them), so an agent can assert an arrangement instead of trusting it. `spatial find_in_region` lists what occupies a world box, and `spatial lint` flags geometry that floats or intersects.
+
+## 4. Verify numerically
+
+A screenshot confirms nothing about a 0.05 m float. Read the result back and assert it.
+
+```bash
+# did the lamp actually land on the table top?
+godot-mcp spatial bounds --node-path Lamp
+godot-mcp spatial relate --node-path Lamp --to Table
+# -> { "relation": "resting_on", "gap": 0.0, "overlap": false }
+
+# sweep the scene for floaters and interpenetration
+godot-mcp spatial lint --check-floating
+```
+
+<Callout type="tip">
+  `spatial lint --check-floating` only considers solid geometry (MeshInstance3D, CSGShape3D) and treats a piece as supported if it touches or rests just above another solid, within a 5 cm tolerance. Lights, decals, particles, and scattered MultiMesh have no "rests on a surface" meaning and are excluded, so the check does not drown in false positives.
+</Callout>
+
+## Why `world_aabb` is the correct bound
+
+`spatial bounds` uses a union of every descendant's world geometry, not `global_transform * get_aabb()` on the root alone. In Godot 4 a `Transform3D * AABB` already transforms all eight corners, so it is rotation-correct; the union is what makes a composite node report the box a human would draw around the whole thing, not just its first mesh. Anchor to that, and rotation and nested children stay honest.

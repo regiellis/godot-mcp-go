@@ -1,0 +1,318 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import TopBar from "../components/TopBar.astro";
+import Terminal from "../components/Terminal.astro";
+import Icon from "../components/Icon.astro";
+import { SITE } from "../config";
+import { docsHref } from "../lib/paths";
+
+const heroSession = [
+  { type: "comment", text: "# ask the live 4.7 build what it exposes, then act" },
+  { type: "cmd", text: "godot-mcp engine search --query velocity" },
+  { type: "out", text: "CharacterBody2D.velocity : Vector2" },
+  { type: "out", text: "RigidBody3D.linear_velocity : Vector3" },
+  { type: "comment", text: "# build against the real SceneTree, undo-safe" },
+  { type: "cmd", text: "godot-mcp node add --type CharacterBody2D --name Player --parent-path ." },
+  { type: "out", text: '{ "added": "Player", "path": "Player" }' },
+  { type: "comment", text: "# play it, then read live state back" },
+  { type: "cmd", text: "godot-mcp scene play --mode main" },
+  { type: "cmd", text: "godot-mcp runtime get --node-path Player --properties '[\"position\"]'" },
+  { type: "out", text: '{ "position": "Vector2(320, 180)" }' },
+];
+
+const installSession = [
+  { type: "comment", text: "# add the addon and skill to any 4.7 project" },
+  { type: "cmd", text: "godot-mcp install --project ./mygame --enable" },
+  { type: "comment", text: "# or start a new project from nothing" },
+  { type: "cmd", text: "godot-mcp create --path ./mygame --install --enable" },
+];
+
+// Real head-to-head, sourced from the README comparison.
+const compare = [
+  { axis: "Running-game control", them: "editor-time only", us: "full runtime + input groups" },
+  { axis: "MCP tool schemas carried", them: "~43", us: "as few as 1 (godot_run)" },
+  { axis: "Command surface", them: "~120 ops", us: "312 across 49 groups" },
+  { axis: "Runtime dependencies", them: "Python + uv", us: "single Go binary" },
+  { axis: "Craft layer", them: "tool reference", us: "26 craft docs + agent skill" },
+];
+
+const caps = [
+  {
+    title: "It drives the running game.",
+    body: "The runtime and input groups inspect and control the live game over a two-hop IPC: read the running scene tree, set and read node state, eval, capture frames, await signals, and inject input for deterministic playtesting. Most editor-time servers stop once the scene is assembled.",
+    cmd: "godot-mcp runtime await-signal --node-path Boss --signal died --timeout 10",
+  },
+  {
+    title: "Introspection instead of wrappers.",
+    body: "The live ClassDB is the feature list. engine.search, generic node.set and node.get, and runtime.eval reach any 4.7 feature the day you upgrade, with no new release of this tool.",
+    cmd: "godot-mcp engine class-info --class CharacterBody3D --filter velocity",
+  },
+  {
+    title: "Typed tools, or one generic tool.",
+    body: "serve exposes every command as a first-class MCP tool with a real schema, built live from the addon so the tool surface never drifts from what is registered. godot_run stays as the generic escape hatch for any method. Tool-limited clients run serve --typed=false for the single-tool mode, keeping the model's context lean. Read-only godot:// resources pull context without spending a tool turn.",
+    cmd: null,
+  },
+  {
+    title: "Crash-aware discovery.",
+    body: "Per-project port discovery returns a verdict on every connection failure, so an agent recovers deliberately instead of relaunching blindly and breaking the editor.",
+    cmd: "running · starting · crashed · closed",
+  },
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead />
+  </head>
+  <body>
+    <TopBar />
+
+    <main>
+      <!-- Hero: full-bleed band, asymmetric split inside the shared rail -->
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="hero-copy">
+            <h1>Drive a running <span class="mono">Godot 4.7</span> editor from your terminal, and from AI agents.</h1>
+            <p class="lede">
+              A Go CLI and a GDScript addon talk to a live editor over WebSocket. Build scenes,
+              write GDScript or C#, play the game, and read its state back. <strong>312 commands</strong>,
+              every one verified against a running editor.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href={docsHref("quickstart")}>Get started <Icon name="arrow" size={16} /></a>
+              <a class="btn btn-ghost" href={SITE.repo} target="_blank" rel="noopener"><Icon name="github" size={16} /> Source</a>
+            </div>
+          </div>
+          <div class="hero-term">
+            <Terminal title="discover, drive, prove" lines={heroSession} />
+          </div>
+        </div>
+      </section>
+
+      <!-- Comparison: full-bleed band, copy + styled rows on the rail -->
+      <section class="compare">
+        <div class="wrap compare-grid">
+          <div class="compare-copy">
+            <h2>A co-developer, not just a bridge.</h2>
+            <p>
+              Calling out the big dog on the block is what a young pup does, and this is exactly
+              that. <a href="https://github.com/hi-godot/godot-ai" target="_blank" rel="noopener">hi-godot/godot-ai</a> is
+              a great framework; this project just went a different direction. Editor-native is
+              table stakes now, so the difference worth measuring is depth once an agent is
+              building and testing.
+            </p>
+          </div>
+          <div class="compare-table" role="table" aria-label="Comparison with godot-ai">
+            <div class="ct-head" role="row">
+              <span role="columnheader"></span>
+              <span role="columnheader" class="them">godot-ai</span>
+              <span role="columnheader" class="us">godot-mcp</span>
+            </div>
+            {compare.map((r) => (
+              <div class="ct-row" role="row">
+                <span role="cell" class="ct-axis">{r.axis}</span>
+                <span role="cell" class="them">{r.them}</span>
+                <span role="cell" class="us"><Icon name="check" size={14} /> {r.us}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- Capabilities: full-bleed band, two-column editorial grid -->
+      <section class="caps">
+        <div class="wrap caps-inner">
+          <h2 class="caps-title">What it does that editor-time servers don't</h2>
+          <div class="caps-list">
+            {caps.map((c) => (
+              <div class="cap">
+                <h3>{c.title}</h3>
+                <p>{c.body}</p>
+                {c.cmd && <code class="cap-cmd">{c.cmd}</code>}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- Architecture: full-bleed subtle band, real ASCII diagram -->
+      <section class="arch">
+        <div class="wrap arch-grid">
+          <div class="arch-copy">
+            <h2>One connection model.</h2>
+            <p>
+              The addon runs a WebSocket server inside the editor, the long-lived process. The CLI
+              and the MCP <code>serve</code> mode are both short-lived clients that dial in. Runtime
+              commands reach the separate running game over file IPC.
+            </p>
+          </div>
+          <pre class="arch-diagram"><code>{`  godot-mcp (CLI / MCP client)
+        |
+        |  WebSocket · JSON-RPC 2.0 · 127.0.0.1:9080
+        v
+  Godot editor addon  (the server)
+        |
+        |  file IPC (user://)
+        v
+  running game  (MCPGameInspector / MCPGameInput)`}</code></pre>
+        </div>
+      </section>
+
+      <!-- Install: full-bleed band, split, terminal-led -->
+      <section class="install">
+        <div class="wrap install-grid">
+          <div class="install-copy">
+            <h2>Install in one command.</h2>
+            <p>
+              Drop the addon and the agent skill into any Godot 4.7 project, or bootstrap a fresh one.
+              No runtime dependencies beyond a single Go binary.
+            </p>
+            <a class="btn btn-primary" href={docsHref("installation")}>Installation guide <Icon name="arrow" size={16} /></a>
+          </div>
+          <div class="install-term">
+            <Terminal title="terminal" lines={installSession} />
+          </div>
+        </div>
+      </section>
+
+      <!-- Closer -->
+      <section class="closer">
+        <div class="wrap closer-inner">
+          <p class="closer-line">Build the game, and prove it works by playing it.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href={docsHref("")}>Read the docs <Icon name="arrow" size={16} /></a>
+            <a class="btn btn-ghost" href={docsHref("samples")}>See samples</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="landing-foot">
+      <span>MIT licensed</span>
+      <span class="dot">·</span>
+      <a href={SITE.repo} target="_blank" rel="noopener">github.com/regiellis/godot-mcp-go</a>
+    </footer>
+
+    <style>
+      main { display: block; }
+
+      /* One shared rail for every band, matching the TopBar (1400px, 1.25rem gutters). */
+      .wrap { max-width: 1400px; margin-inline: auto; padding-inline: 1.25rem; }
+
+      /* Grid items must be allowed to shrink below their content's intrinsic width,
+         or a wide terminal line forces the page past the viewport on mobile. */
+      .hero-grid > *, .compare-grid > *, .arch-grid > *, .install-grid > * { min-width: 0; }
+
+      .btn {
+        display: inline-flex; align-items: center; gap: 0.4rem;
+        font-weight: 600; font-size: 0.95rem; padding: 0.62rem 1.1rem; border-radius: var(--radius);
+        border: 1px solid transparent; transition: background 0.15s ease, border-color 0.15s ease;
+      }
+      .btn:hover { text-decoration: none; }
+      .btn-primary { background: var(--accent); color: #fff; }
+      .btn-primary:hover { background: var(--accent-strong); }
+      .btn-ghost { background: var(--surface); color: var(--text); border-color: var(--border-strong); }
+      .btn-ghost:hover { border-color: var(--accent); }
+
+      /* Hero: 5/7 asymmetric split on the rail, full-bleed accent wash */
+      .hero {
+        border-bottom: 1px solid var(--border);
+        background: radial-gradient(1100px 520px at 78% -12%,
+          color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%);
+      }
+      .hero-grid {
+        display: grid; grid-template-columns: 5fr 7fr; gap: 3.5rem; align-items: center;
+        padding-block: 4.5rem;
+      }
+      .hero-copy h1 {
+        font-size: clamp(2rem, 3.6vw, 2.9rem); line-height: 1.12; letter-spacing: -0.025em;
+        font-weight: 700; margin: 0 0 1.2rem;
+      }
+      .hero-copy h1 .mono { font-family: var(--font-mono); font-weight: 640; font-size: 0.92em; color: var(--accent-strong); white-space: nowrap; }
+      .lede { font-size: 1.08rem; line-height: 1.6; color: var(--text-muted); margin: 0 0 1.8rem; max-width: 38ch; }
+      .lede strong { color: var(--text); }
+      .hero-actions { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+
+      /* Comparison */
+      .compare-grid {
+        display: grid; grid-template-columns: 1fr 1.4fr; gap: 4rem; align-items: center;
+        padding-block: 4.5rem;
+      }
+      .compare-copy h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); letter-spacing: -0.02em; font-weight: 680; margin: 0 0 0.8rem; }
+      .compare-copy p { color: var(--text-muted); margin: 0; line-height: 1.65; max-width: 48ch; }
+      .compare-table { font-size: 0.92rem; overflow-x: auto; }
+      .ct-head, .ct-row { display: grid; grid-template-columns: 1.3fr 1fr 1.5fr; gap: 1rem; padding: 0.7rem 0.4rem; align-items: center; }
+      .ct-head { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); font-weight: 650; border-bottom: 1px solid var(--border); }
+      .ct-row { border-bottom: 1px solid var(--border); }
+      .ct-row:last-child { border-bottom: 0; }
+      .ct-axis { color: var(--text); font-weight: 560; }
+      .compare-table .them { color: var(--text-faint); }
+      .compare-table .us { color: var(--text); font-weight: 560; display: inline-flex; align-items: center; gap: 0.35rem; }
+      .compare-table .us :global(svg) { color: var(--accent); flex: none; }
+
+      /* Capabilities: two-column editorial grid with hairlines */
+      .caps { border-top: 1px solid var(--border); }
+      .caps-inner { padding-block: 4.5rem; }
+      .caps-title { font-size: clamp(1.5rem, 2.8vw, 1.9rem); letter-spacing: -0.02em; font-weight: 680; margin: 0 0 2.2rem; }
+      .caps-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 4.5rem; }
+      .cap { padding: 1.7rem 0; border-top: 1px solid var(--border); }
+      .cap:nth-child(-n + 2) { border-top: 0; padding-top: 0; }
+      .cap h3 { font-size: 1.12rem; font-weight: 640; margin: 0 0 0.4rem; }
+      .cap p { color: var(--text-muted); margin: 0; line-height: 1.65; max-width: 58ch; }
+      .cap-cmd {
+        display: inline-block; margin-top: 0.85rem; font-family: var(--font-mono); font-size: 0.8rem;
+        color: var(--accent-strong); background: var(--bg-code); border: 1px solid var(--border);
+        border-radius: var(--radius-sm); padding: 0.4rem 0.7rem; overflow-x: auto; max-width: 100%;
+      }
+
+      /* Architecture band */
+      .arch { background: var(--bg-subtle); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+      .arch-grid {
+        display: grid; grid-template-columns: 1fr 1.35fr; gap: 4rem; align-items: center;
+        padding-block: 4rem;
+      }
+      .arch-copy h2 { font-size: clamp(1.5rem, 2.8vw, 1.9rem); letter-spacing: -0.02em; font-weight: 680; margin: 0 0 0.8rem; }
+      .arch-copy p { color: var(--text-muted); margin: 0; line-height: 1.65; max-width: 48ch; }
+      .arch-copy code { font-family: var(--font-mono); font-size: 0.85em; color: var(--accent-strong); }
+      .arch-diagram {
+        margin: 0; padding: 1.3rem; overflow-x: auto;
+        font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.7; color: var(--text-muted);
+        background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+      }
+      .arch-diagram code { font-family: inherit; background: none; border: 0; padding: 0; }
+
+      /* Install */
+      .install-grid {
+        display: grid; grid-template-columns: 1fr 1.25fr; gap: 4rem; align-items: center;
+        padding-block: 4.5rem;
+      }
+      .install-copy h2 { font-size: clamp(1.5rem, 2.8vw, 1.9rem); letter-spacing: -0.02em; font-weight: 680; margin: 0 0 0.8rem; }
+      .install-copy p { color: var(--text-muted); margin: 0 0 1.3rem; line-height: 1.65; max-width: 48ch; }
+
+      /* Closer */
+      .closer { border-top: 1px solid var(--border); text-align: center; }
+      .closer-inner { padding-block: 4.5rem; }
+      .closer-line {
+        font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 680; letter-spacing: -0.02em;
+        margin: 0 auto 1.6rem; max-width: 30ch;
+      }
+      .closer .hero-actions { justify-content: center; }
+
+      .landing-foot {
+        display: flex; gap: 0.5rem; justify-content: center; align-items: center;
+        padding: 2.2rem 1.25rem 3rem; color: var(--text-faint); font-size: 0.88rem;
+        border-top: 1px solid var(--border);
+      }
+      .landing-foot .dot { opacity: 0.5; }
+
+      @media (max-width: 900px) {
+        .hero-grid, .compare-grid, .arch-grid, .install-grid { grid-template-columns: 1fr; gap: 2rem; }
+        .hero-grid { padding-block: 3rem; }
+        .lede { max-width: none; }
+        .caps-list { grid-template-columns: 1fr; column-gap: 0; }
+        .cap:nth-child(2) { border-top: 1px solid var(--border); padding-top: 1.7rem; }
+      }
+    </style>
+  </body>
+</html>
