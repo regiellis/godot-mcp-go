@@ -1,0 +1,85 @@
+---
+title: Your own tools and UIs
+description: Speak the wire protocol directly — a Python client and a working browser panel, each under 50 lines.
+---
+
+The CLI is one client of a boring, stable wire: **JSON-RPC 2.0 over a local WebSocket** hosted by the editor addon. Anything that can open a WebSocket can be a Godot tool — a script, a test rig, a web UI. Three facts cover the whole protocol:
+
+- **Find the port** in `<project>/.godot/godot-mcp.json` — the addon writes it on bind (auto range 9080-9095).
+- **Send** `{"jsonrpc": "2.0", "id": 1, "method": "<group>.<command>", "params": {…}}` as a text frame, and **match the response by `id`** — frames without your `id` (heartbeats) are ignored.
+- **Errors** come back as `{"error": {"code", "message", "data"}}` with JSON-RPC-style codes — see [How it works](/docs/how-it-works).
+
+## A Python client
+
+```python
+# pip install websockets
+import asyncio, json, pathlib, sys
+import websockets
+
+def port(project="."):
+    f = pathlib.Path(project) / ".godot" / "godot-mcp.json"
+    return json.loads(f.read_text())["port"] if f.exists() else 9080
+
+async def call(method, params=None, project="."):
+    async with websockets.connect(f"ws://127.0.0.1:{port(project)}") as ws:
+        await ws.send(json.dumps(
+            {"jsonrpc": "2.0", "id": 1, "method": method, "params": params or {}}))
+        async for raw in ws:
+            msg = json.loads(raw)
+            if msg.get("id") == 1:            # heartbeat frames carry no id: skip them
+                if "error" in msg:
+                    raise RuntimeError(msg["error"]["message"])
+                return msg["result"]
+
+if __name__ == "__main__":
+    params = json.loads(sys.argv[2]) if len(sys.argv) > 2 else None
+    print(json.dumps(asyncio.run(call(sys.argv[1], params)), indent=2))
+```
+
+```bash
+python godot.py scene.tree
+python godot.py node.add '{"type": "Sprite2D", "name": "Player", "parent_path": "."}'
+```
+
+## A browser panel
+
+A WebSocket from a page needs no server and no CORS exception — this single file is a working Godot control panel:
+
+```html
+<!doctype html>
+<meta charset="utf-8">
+<title>godot-mcp panel</title>
+<style>
+  body { font: 14px ui-monospace, monospace; background: #12151a; color: #e8eaed; padding: 2rem; }
+  input { width: 26rem; } input, button { font: inherit; padding: .35rem .6rem; }
+  pre { white-space: pre-wrap; color: #7ecbff; }
+</style>
+<input id="m" value="scene.tree" placeholder="group.command">
+<input id="p" value="{}" placeholder="params JSON">
+<button id="go">run</button>
+<pre id="out"></pre>
+<script>
+  const ws = new WebSocket("ws://127.0.0.1:9080"); // or read the port from godot-mcp.json
+  let id = 0;
+  const pending = new Map();
+  ws.onmessage = (e) => {
+    const msg = JSON.parse(e.data);
+    if (!pending.has(msg.id)) return;              // heartbeats and strays: ignore
+    pending.get(msg.id)(msg.error ?? msg.result);
+    pending.delete(msg.id);
+  };
+  go.onclick = () => {
+    const reqId = ++id;
+    pending.set(reqId, (r) => (out.textContent = JSON.stringify(r, null, 2)));
+    ws.send(JSON.stringify({ jsonrpc: "2.0", id: reqId, method: m.value, params: JSON.parse(p.value || "{}") }));
+  };
+</script>
+```
+
+The exchange above is verified against a live editor. Grow it in any direction — the [live dashboard](/docs/dashboard) that ships with the CLI is exactly this pattern taken further: one persistent connection polling `stats.snapshot`, an htmx UI, embedded in the Go binary.
+
+## Or skip the socket
+
+- **Shell out to the CLI** and parse JSON or TSV — see [Scripting and CI](/docs/automation).
+- **Speak MCP**: `godot-mcp serve` exposes every command as a typed tool for AI clients — see [Use with an AI client](/docs/mcp-setup).
+- **Generate from the catalog**: `engine commands --docs` returns every command with typed params — enough to build forms, bindings, or a command-palette UI without hardcoding a single command name.

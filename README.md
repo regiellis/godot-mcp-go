@@ -178,6 +178,18 @@ godot-mcp dashboard --port 8090     # then open http://127.0.0.1:8090
 
 Run it from inside your project dir (it discovers the addon port like the CLI), or pass `--project DIR` / `--addon-port N`. It holds a single persistent connection and polls the addon's `stats.snapshot`.
 
+## Build on it
+
+The CLI is an automation surface, not just a keyboard. The contract: results on stdout as JSON (or `--format tsv` for shell tools), errors on stderr with JSON-RPC codes, exit codes `0`/`1`/`2`, port discovery from the project directory, and `doctor`/`status` as scriptable preflights. The catalog itself is queryable JSON — `engine commands --docs` returns every command with typed params — so generators and UIs never hardcode a command list. Underneath it all is a stable JSON-RPC-over-WebSocket wire that anything can speak: a Python script, a browser panel, a QA rig driving a standalone game via `--game`.
+
+```bash
+# hide every Label in the edited scene
+godot-mcp batch find-nodes-by-type --type Label | jq -r '.matches[].path' \
+  | while read -r p; do godot-mcp node set --node-path "$p" --property visible --value false; done
+```
+
+Worked examples — a CI smoke test, a Python client, a working browser panel: [Scripting and CI](https://regiellis.github.io/godot-mcp-go/docs/automation/) · [Your own tools and UIs](https://regiellis.github.io/godot-mcp-go/docs/building-on-top/).
+
 ## Command groups
 
 `analysis` `android` `anim_tree` `animation` `audio` `authoring` `batch` `camera` `cleanup` `csg` `csharp` `doc` `editor` `engine` `export` `fs` `gridmap` `import` `input` `input_map` `lighting` `localization` `material` `mesh` `multiplayer` `navigation` `node` `particles` `path` `pcg` `physics` `profiling` `project` `resource` `runtime` `scatter` `scene` `scene2d` `scene3d` `script` `shader` `skeleton` `spatial` `test` `theme` `tilemap` `ui` `wfc`

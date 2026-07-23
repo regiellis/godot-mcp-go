@@ -87,6 +87,13 @@ const AUTHORED: NavGroup[] = [
     ],
   },
   {
+    group: "Building on it",
+    items: [
+      { label: "Scripting and CI", slug: "automation" },
+      { label: "Your own tools and UIs", slug: "building-on-top" },
+    ],
+  },
+  {
     group: "Building the Godot way",
     items: [{ label: "Guides overview", slug: "guides" }],
   },
