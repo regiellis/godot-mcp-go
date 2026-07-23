@@ -16,7 +16,7 @@ Drive a running **Godot 4.7+** editor from the command line — and from AI agen
 > **One surface, two front doors — without drowning your agent's context.** This is both a **CLI** and an **MCP server** over the same 312 commands. Terminal-first agents can skip MCP entirely: the CLI is self-describing (`godot-mcp help all` lists the catalog; `godot-mcp <group> <command> --help` prints a real param table), so shell-driving costs **zero** tool schemas. Over MCP, clients that load tool schemas on demand (Claude Code does) pay only for the tools they actually use — and `serve --typed=false` collapses the surface to one generic `godot_run` plus read-only `godot://` resources for clients that carry every schema eagerly.
 
 > [!NOTE]
-> **This repository is a one-way public mirror**, published as a squashed snapshot — it shares no commit history with the canonical development repo, so **pull requests can't be merged directly**. For bugs, feature requests, or changes, please open an [**Issue**](../../issues) or start a [**Discussion**](../../discussions). That's where development is tracked.
+> **This repository is a one-way public mirror**, published as a squashed snapshot — it shares no commit history with the canonical development repo, so **pull requests can't be merged directly**. For bugs, feature requests, or changes, please open an [**Issue**](../../issues) or start a [**Discussion**](../../discussions). That's where development is tracked. The **`asset-library` branch** is a packaging artifact for the [Godot Asset Library](https://godotengine.org/asset-library) (an `addons/`-rooted snapshot of just the addon) — it is never merged into `main`.
 
 ## How is this different from other Godot MCPs?
 
