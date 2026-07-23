@@ -4,6 +4,7 @@ import DocsLayout from "../../layouts/DocsLayout.astro";
 import Callout from "../../components/Callout.astro";
 import Card from "../../components/Card.astro";
 import CardGrid from "../../components/CardGrid.astro";
+import ShellTabs from "../../components/ShellTabs.astro";
 import Table from "../../components/Table.astro";
 import { humanMarkdown, agentMarkdown } from "../../lib/pagemd";
 
@@ -19,7 +20,7 @@ const { entry } = Astro.props;
 const { Content, headings } = await render(entry);
 const current = entry.id === "index" ? "" : entry.id;
 
-const mdxComponents = { Callout, Card, CardGrid, table: Table };
+const mdxComponents = { Callout, Card, CardGrid, ShellTabs, table: Table };
 const url = new URL(Astro.url.pathname, Astro.site).href;
 const body = entry.body ?? "";
 const mdHuman = humanMarkdown(entry.data.title, entry.data.description, body);

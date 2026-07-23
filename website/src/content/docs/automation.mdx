@@ -1,27 +1,48 @@
 ---
 title: Scripting and CI
-description: The CLI's automation contract — exit codes, JSON and TSV output, discovery — plus a complete CI smoke test.
+description: The CLI's automation contract in bash and PowerShell — exit codes, JSON and TSV output, discovery — plus a complete CI smoke test.
 ---
 
 The CLI is built to live inside scripts: results go to stdout, errors go to stderr as the JSON-RPC code and message, and exit codes follow one contract — `0` success, `1` command or connection error, `2` usage error. Everything on this page is composition on top of that.
 
+Single commands are identical in every shell — `godot-mcp project info` pastes into bash, PowerShell, or cmd unchanged. The tabs below appear where pipelines genuinely diverge; PowerShell examples use its native object pipeline (`ConvertFrom-Json`) rather than transliterated bash.
+
 ## Machine output
 
-Default output is pretty-printed JSON — pipe it to `jq`:
+Default output is pretty-printed JSON. `--format tsv` (global flags precede the group) re-renders a result for text tools: an object becomes `key<TAB>value` rows, an array of objects becomes a header row plus one row per element, and nested values stay as compact JSON.
+
+<ShellTabs>
+
+<Fragment slot="bash">
 
 ```bash
 godot-mcp engine commands --group node | jq -r '.methods[]'
-```
 
-`--format tsv` re-renders a result for classic shell tools: an object becomes `key<TAB>value` rows, an array of objects becomes a header row plus one row per element, and nested values stay as compact JSON. Global flags precede the group:
-
-```bash
 godot-mcp --format tsv project info | awk -F'\t' '$1 == "main_scene" { print $2 }'
 ```
+
+</Fragment>
+
+<Fragment slot="ps">
+
+```powershell
+(godot-mcp engine commands --group node | ConvertFrom-Json).methods
+
+# PowerShell parses JSON natively, so TSV is rarely needed:
+(godot-mcp project info | ConvertFrom-Json).main_scene
+```
+
+</Fragment>
+
+</ShellTabs>
 
 ## Drive every node of a type
 
 Queries compose with actions — `batch find-nodes-by-type` returns paths that feed straight back into `node set`:
+
+<ShellTabs>
+
+<Fragment slot="bash">
 
 ```bash
 godot-mcp batch find-nodes-by-type --type Label \
@@ -31,11 +52,28 @@ godot-mcp batch find-nodes-by-type --type Label \
     done
 ```
 
+</Fragment>
+
+<Fragment slot="ps">
+
+```powershell
+(godot-mcp batch find-nodes-by-type --type Label | ConvertFrom-Json).matches.path |
+  ForEach-Object { godot-mcp node set --node-path $_ --property visible --value false }
+```
+
+</Fragment>
+
+</ShellTabs>
+
 ## Preflight, then launch
 
 `godot-mcp doctor` checks the environment (godot binary, project, addon install state, port config, dotnet) and exits `1` only on a real failure — "no editor running yet" is a warning, so it is safe to run before you have launched anything. `godot-mcp status` gives the machine-readable liveness verdict (`running` / `starting` / `crashed` / `closed`); the launch policy follows from it — never start a second editor when one is `running`.
 
 ## A complete CI smoke test
+
+<ShellTabs>
+
+<Fragment slot="bash">
 
 ```bash
 #!/usr/bin/env bash
@@ -58,17 +96,68 @@ godot-mcp scene stop
 kill $EDITOR_PID
 ```
 
-Every step exits non-zero on failure, so `set -e` turns any broken link into a red build.
+</Fragment>
+
+<Fragment slot="ps">
+
+```powershell
+$ErrorActionPreference = "Stop"
+
+godot-mcp doctor --project . --json | Out-Null       # environment sanity: exit 1 on real problems
+if ($LASTEXITCODE) { exit 1 }
+
+$editor = Start-Process godot -ArgumentList "--path", ".", "--editor", "--headless" `
+  -RedirectStandardOutput editor.log -RedirectStandardError editor.err.log -PassThru
+foreach ($i in 1..60) {                              # the addon writes the discovery file on bind
+  if (Test-Path .godot/godot-mcp.json) { break }; Start-Sleep -Milliseconds 500
+}
+
+godot-mcp project info | Out-Null                    # the editor answers
+if ($LASTEXITCODE) { exit 1 }
+godot-mcp scene play --mode main | Out-Null
+$name = (godot-mcp runtime eval --code "emit(get_tree().current_scene.name)" |
+  ConvertFrom-Json).output[0]
+if ($name -ne "Main") { exit 1 }                     # assert against the running game
+godot-mcp scene stop | Out-Null
+
+Stop-Process $editor.Id
+```
+
+</Fragment>
+
+</ShellTabs>
+
+Every step exits non-zero on failure, so `set -e` (bash) or the explicit `$LASTEXITCODE` checks (PowerShell) turn any broken link into a red build.
 
 ## The catalog is data
 
 `engine commands` returns the whole tool surface as JSON — the method list, a group map, and per-command param docs (attached for `--group`, or `--docs` for the full catalog). Generators become trivial: bindings, wrappers, forms, docs that cannot drift.
+
+<ShellTabs>
+
+<Fragment slot="bash">
 
 ```bash
 # every node command with its required flags
 godot-mcp engine commands --group node \
   | jq -r '.docs | to_entries[] | .key + "  " + ([.value.params[]? | select(.required) | "--" + .name] | join(" "))'
 ```
+
+</Fragment>
+
+<Fragment slot="ps">
+
+```powershell
+# every node command with its required flags
+$cat = godot-mcp engine commands --group node | ConvertFrom-Json
+$cat.docs.PSObject.Properties | ForEach-Object {
+  $_.Name + "  " + ((@($_.Value.params) | Where-Object required | ForEach-Object { "--" + $_.name }) -join " ")
+}
+```
+
+</Fragment>
+
+</ShellTabs>
 
 ## Standalone game rigs
 

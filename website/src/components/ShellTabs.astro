@@ -1,0 +1,80 @@
+---
+// Two-shell tabbed code block. Usage in MDX (no import needed; registered in
+// the docs renderer's components map):
+//
+//   <ShellTabs>
+//     <Fragment slot="bash">```bash … ```</Fragment>
+//     <Fragment slot="ps">```powershell … ```</Fragment>
+//   </ShellTabs>
+//
+// The choice is remembered (localStorage) and applied to every instance on
+// every page, so a Windows reader picks PowerShell once.
+---
+
+<div class="shell-tabs" data-shell-tabs>
+  <div class="st-bar" role="tablist" aria-label="Shell">
+    <button class="st-tab" type="button" role="tab" data-shell="bash">bash</button>
+    <button class="st-tab" type="button" role="tab" data-shell="ps">PowerShell</button>
+  </div>
+  <div class="st-panel" data-shell="bash"><slot name="bash" /></div>
+  <div class="st-panel" data-shell="ps"><slot name="ps" /></div>
+</div>
+
+<script>
+  const KEY = "preferred-shell";
+  function apply(shell: string) {
+    document.querySelectorAll("[data-shell-tabs]").forEach((root) => {
+      root.querySelectorAll(".st-tab").forEach((t) => {
+        const active = (t as HTMLElement).dataset.shell === shell;
+        t.classList.toggle("active", active);
+        t.setAttribute("aria-selected", String(active));
+      });
+      root.querySelectorAll(".st-panel").forEach((p) => {
+        p.classList.toggle("active", (p as HTMLElement).dataset.shell === shell);
+      });
+    });
+  }
+  function init() {
+    let shell = "bash";
+    try {
+      shell = localStorage.getItem(KEY) === "ps" ? "ps" : "bash";
+    } catch {}
+    apply(shell);
+    document.querySelectorAll("[data-shell-tabs] .st-tab").forEach((t) => {
+      t.addEventListener("click", () => {
+        const s = (t as HTMLElement).dataset.shell ?? "bash";
+        try {
+          localStorage.setItem(KEY, s);
+        } catch {}
+        apply(s);
+      });
+    });
+  }
+  init();
+</script>
+
+<style>
+  .shell-tabs { margin: 1rem 0 1.25rem; }
+  .st-bar {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .st-tab {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 560;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.35rem 0.65rem;
+    margin-bottom: -1px;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .st-tab:hover { color: var(--text); }
+  .st-tab.active { color: var(--text); border-bottom-color: var(--primary); }
+  .st-panel { display: none; }
+  .st-panel.active { display: block; }
+</style>
