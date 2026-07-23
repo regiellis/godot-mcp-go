@@ -1,4 +1,4 @@
-# 2D platformer construction (4.7) — the component-actor way
+# 2D platformer construction (Godot 4.7+) — the component-actor way
 
 How to assemble a 2D platformer character, its animation, and its level the Godot way:
 composition over inheritance, physics as the single source of truth, and almost no glue code.

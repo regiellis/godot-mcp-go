@@ -1,4 +1,4 @@
-# 2D lighting (4.7) — darkness, lights, shadows, and the escape hatches
+# 2D lighting (Godot 4.7+) — darkness, lights, shadows, and the escape hatches
 
 The complete 2D lighting stack: the darkness/light/shadow triad, what must be *exempted* from
 it, normal-mapped sprites, glow, and the SDF layer. Every recipe driven live against 4.7.1.rc

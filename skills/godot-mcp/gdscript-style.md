@@ -1,4 +1,4 @@
-# GDScript style for games (Godot 4.7)
+# GDScript style for games (Godot 4.7+)
 
 How to write GDScript a competent Godot dev would ship. Patterns here are durable;
 for any exact API/signature, confirm against the live engine with

@@ -1,4 +1,4 @@
-# Rhythm & music minigames (4.7) — clock, beatmaps, judging
+# Rhythm & music minigames (Godot 4.7+) — clock, beatmaps, judging
 
 The architecture of a timing game — standalone or embedded as a minigame in a larger game.
 Pattern-mined from a shipped commercial Godot title's karaoke/rhythm module; the clock and

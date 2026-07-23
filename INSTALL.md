@@ -1,6 +1,6 @@
 # Installing godot-mcp
 
-A release bundle has three pieces. You need **Godot 4.7**.
+A release bundle has three pieces. You need **Godot 4.7+**.
 
 ## Easiest: the `install` command
 
@@ -109,7 +109,7 @@ The game hosts its own `127.0.0.1`-only server (ports 9200-9215; `GODOT_MCP_GAME
 
 ## Verify
 
-1. Open your project in Godot 4.7 (`godot`) and enable the plugin.
+1. Open your project in Godot 4.7+ (`godot`) and enable the plugin.
 2. From a terminal **inside the project directory** (so the CLI auto-discovers the port):
    ```sh
    godot-mcp project info

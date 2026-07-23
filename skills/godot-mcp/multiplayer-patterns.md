@@ -1,9 +1,9 @@
-# Godot multiplayer patterns (4.7) — high-level networking with godot-mcp
+# Godot multiplayer patterns (Godot 4.7+) — high-level networking with godot-mcp
 
 Building co-op / versus games on Godot's **high-level multiplayer** (`SceneMultiplayer` +
 RPC + the replication nodes), mapped to the CLI. The `multiplayer` command group wires the
 two replication nodes; everything else is plain `node.*` / `script.*` plus the live API.
-**Verify APIs against 4.7** (`engine class-info --class MultiplayerAPI`). The class surface
+**Verify APIs against the running engine** (`engine class-info --class MultiplayerAPI`). The class surface
 below was read from the running 4.7.1 build, but *two-peer behavior cannot be exercised from
 this single-instance CLI* — the runtime claims are the standard architecture, proven with two
 real instances (see "Testing locally"), not something this session watched replicate.

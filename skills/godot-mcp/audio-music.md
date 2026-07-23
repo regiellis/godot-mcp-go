@@ -1,4 +1,4 @@
-# Audio & music (4.7) — buses, SFX, interactive scores
+# Audio & music (Godot 4.7+) — buses, SFX, interactive scores
 
 Building a game's sound the Godot way, mapped to the CLI. Audio is a resource pipeline:
 `AudioStream` resources feed `AudioStreamPlayer` nodes routed through `AudioServer`
@@ -264,4 +264,4 @@ bus routing — is already covered in **`game-patterns.md`** ("Positional audio 
 - Forgetting bar/beat metadata on the music stream, then wondering why `NEXT_BAR` fires immediately.
 - Routing everything to `Master`. Give Music/SFX/UI/VO their own buses so ducking, muting, and
   per-category volume have somewhere to attach.
-- Trusting a remembered signature — confirm 4.7 with `engine class-info` / `engine search`.
+- Trusting a remembered signature — confirm against the running engine with `engine class-info` / `engine search`.

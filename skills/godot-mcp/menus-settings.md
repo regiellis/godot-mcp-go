@@ -1,4 +1,4 @@
-# Menus & settings screens (4.7) — structure and the meta-game the Godot way
+# Menus & settings screens (Godot 4.7+) — structure and the meta-game the Godot way
 
 How to build the screens *around* the game — title, pause, settings, remap, dialogs — with the CLI.
 This doc owns **structure and the widget family**; `ui-polish-2d.md` owns the *look* (Design tokens,

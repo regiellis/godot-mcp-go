@@ -1,4 +1,4 @@
-# Godot game patterns (4.7) — building with godot-mcp
+# Godot game patterns (Godot 4.7+) — building with godot-mcp
 
 How to build games the Godot way, mapped to the CLI. Read `gdscript-style.md` for
 language idioms. **Verify exact APIs against the live engine** (`engine class-info
@@ -606,4 +606,4 @@ as the game's.
 - Forgetting `delta` (frame-rate-dependent movement).
 - Confusing **game feel** (the control) with **juice** (the feedback) — or shipping a prototype
   with neither. Game feel goes in the movement code; juice is fired on signals.
-- Trusting remembered API signatures — confirm 4.7 with `engine class-info`/`search`.
+- Trusting remembered API signatures — confirm against the running engine with `engine class-info`/`search`.

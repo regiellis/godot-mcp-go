@@ -1,4 +1,4 @@
-# Level design & spatial communication (4.7) — building blockouts with godot-mcp
+# Level design & spatial communication (Godot 4.7+) — building blockouts with godot-mcp
 
 How to lay out a *space* that teaches the player what to do without a word of text — and how
 to **build it** as a playable blockout with the CLI. Distilled from level-design talks aimed at

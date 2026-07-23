@@ -1,4 +1,4 @@
-# Top-down 2D & sim construction (4.7) — components, terrains, and clocks
+# Top-down 2D & sim construction (Godot 4.7+) — components, terrains, and clocks
 
 How top-down games (farming sims, RPGs, life sims) are assembled the Godot way: a component
 library glued by signals, gameplay that *paints terrain*, and systems that run off one game

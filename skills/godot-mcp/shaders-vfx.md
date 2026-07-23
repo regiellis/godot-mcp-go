@@ -1,4 +1,4 @@
-# Shaders for VFX (4.7) — writing gdshader code and wiring it with the CLI
+# Shaders for VFX (Godot 4.7+) — writing gdshader code and wiring it with the CLI
 
 Authoring `.gdshader` code and wiring it to nodes for game VFX. `game-patterns.md` holds the
 **combat-VFX grammar** (the aesthetic recipe — lifetime curves, LUT recolor, erosion, polar remaps);

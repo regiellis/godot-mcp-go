@@ -1,4 +1,4 @@
-# Run-based games & roguelites (4.7) — the data blackboard, waves, and world gen
+# Run-based games & roguelites (Godot 4.7+) — the data blackboard, waves, and world gen
 
 The architecture of a run-based game (dig-and-defend, roguelite, wave survival): runs composed
 from a loadout, balance as data, difficulty as a budget, worlds from seeds. Pattern-mined from

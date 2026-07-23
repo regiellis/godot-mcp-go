@@ -1,4 +1,4 @@
-# Environment art pass (Godot 4.7) — greybox → final, driven from the editor
+# Environment art pass (Godot 4.7+) — greybox → final, driven from the editor
 
 The pass *after* the level is proven. `level-design.md` says "beautify last" — this is the last:
 you run it only once the blockout, game feel, and encounters hold up. It's the **Art Pass** in

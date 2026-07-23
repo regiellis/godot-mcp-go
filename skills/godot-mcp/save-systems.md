@@ -1,4 +1,4 @@
-# Save/load systems (Godot 4.7) — building with godot-mcp
+# Save/load systems (Godot 4.7+) — building with godot-mcp
 
 The unifying reference for persistence. Four other docs cover a *slice* of saving from their
 genre's angle — this one owns the shared architecture and the format decisions. **Verify exact
@@ -247,4 +247,4 @@ process, so it reads the real `user://` and autoloads — not the editor's.
 - **No `version` field** — the first format change orphans every existing save.
 - **Non-atomic writes** — a crash mid-write corrupts the slot. Temp-then-rename, keep a `.bak`.
 - **Autosaving mid-combat**, or threading a save that was already sub-frame — risk, no win.
-- **Trusting remembered API signatures** — confirm against 4.7 with `engine class-info`/`search`.
+- **Trusting remembered API signatures** — confirm against the running engine with `engine class-info`/`search`.

@@ -1,4 +1,4 @@
-# Comp-faithful 2D UI (4.7) — tokens, drawn controls, juice, and screen builders
+# Comp-faithful 2D UI (Godot 4.7+) — tokens, drawn controls, juice, and screen builders
 
 How to take a visual design (HTML/CSS comps, Figma frames) to a polished Godot UI that
 actually matches it — and how to build those screens programmatically without the editor

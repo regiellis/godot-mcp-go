@@ -1,4 +1,4 @@
-# Mobile & touch input (4.7) — building with godot-mcp
+# Mobile & touch input (Godot 4.7+) — building with godot-mcp
 
 Touch, multitouch, gestures, on-screen controls, and safe areas the Godot way. Every class and
 setting below was introspected against the live 4.7 build — **re-verify with `engine class-info`

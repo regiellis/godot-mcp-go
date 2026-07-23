@@ -1,4 +1,4 @@
-# 3D character controllers (4.7) — FPS, third-person, platformer
+# 3D character controllers (Godot 4.7+) — FPS, third-person, platformer
 
 How to build a `CharacterBody3D` controller the Godot way, driven from godot-mcp: one
 movement core shared by all three genres, then the rig and feel that make each distinct.
@@ -291,5 +291,5 @@ changes the world-space heading of `velocity`.
 - **`floor_snap_length` too small.** The body launches off every downhill and stair crest; raise
   it until walking down is glued.
 - **Hard-coded `9.8`** instead of reading `physics/3d/default_gravity`.
-- **Remembered signatures.** Confirm properties/methods against 4.7 (`engine class-info`/`search`)
+- **Remembered signatures.** Confirm properties/methods against the running engine (`engine class-info`/`search`)
   before writing — CharacterBody3D's floor API evolved across 4.x.

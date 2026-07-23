@@ -1,11 +1,11 @@
 ---
 name: godot-mcp
-description: Drive a running Godot 4.7 editor from the command line via the godot-mcp CLI — build/edit scenes and nodes, write GDScript, run and playtest the game (inspect the live tree, simulate input, screenshot), and introspect the engine's real API. Use when the task involves creating or modifying a Godot project, testing game behavior, or answering "does Godot/this node support X" against the actual engine.
+description: Drive a running Godot editor (4.7+) from the command line via the godot-mcp CLI — build/edit scenes and nodes, write GDScript, run and playtest the game (inspect the live tree, simulate input, screenshot), and introspect the engine's real API. Use when the task involves creating or modifying a Godot project, testing game behavior, or answering "does Godot/this node support X" against the actual engine.
 ---
 
 # Godot MCP (godot-mcp)
 
-`godot-mcp` is a CLI that drives a **running Godot 4.7 editor** over a WebSocket the editor's MCP addon hosts. You create scenes, add nodes, write scripts, play the game, simulate input, and inspect both the editor and the running game — without the user leaving the conversation. Every editor mutation goes through Godot's UndoRedo, so the user can Ctrl+Z anything.
+`godot-mcp` is a CLI that drives a **running Godot editor (4.7+)** over a WebSocket the editor's MCP addon hosts. You create scenes, add nodes, write scripts, play the game, simulate input, and inspect both the editor and the running game — without the user leaving the conversation. Every editor mutation goes through Godot's UndoRedo, so the user can Ctrl+Z anything.
 
 ## Prerequisites (check first)
 
@@ -20,23 +20,25 @@ description: Drive a running Godot 4.7 editor from the command line via the godo
 
 ## The golden rule: discover, then drive
 
-Your training may predate Godot 4.7. **Do not guess** whether a class, property, or method exists — ask the live engine:
+Your training may predate the engine you are driving. **Do not guess** whether a class, property, or method exists — ask the live engine:
 
 ```
 godot-mcp engine search --query offset_transform      # find members across all classes
 godot-mcp engine class-info --class Control --filter transform   # a class's own members + signatures
 godot-mcp engine classes --inherits Node2D            # what subclasses exist
 godot-mcp engine defaults --class OmniLight3D          # a class's default property values (no instantiation)
-godot-mcp engine version                              # confirm the build (4.7.x)
+godot-mcp engine version                              # confirm the running version
 godot-mcp engine commands [--group node]              # the MCP's own tool surface, with param docs per command
 godot-mcp node set --help                             # a command's param table (name/type/required/desc)
 ```
 
 `class-info` defaults to a class's **own** members — exactly where version-new API (like 4.7's `offset_transform_*`) lives; add `--inherited` for the full set. Lead with these whenever you're unsure, then act.
 
+**Version numbers in this skill and its craft references are floors and provenance, never expiry dates.** This guidance was verified against Godot 4.7 and applies to newer builds; a `4.7` marks when something was checked or when a feature landed, not a version the skill stops working past. When any statement in these docs and the live engine disagree, **the live engine wins** — `engine version` and `engine class-info` are the ground truth.
+
 **Universal fallback:** even if no typed command wraps a feature, you can always reach it:
 - `node.set` / `node.get` work on **any** property name the live node exposes.
-- `editor.run_script --code '...'` runs arbitrary `@tool` GDScript in the editor; `runtime.eval --code '...'` runs it in the game. Use `emit(value)` to return data. So 100% of the 4.7 API is reachable with no per-feature wrapper.
+- `editor.run_script --code '...'` runs arbitrary `@tool` GDScript in the editor; `runtime.eval --code '...'` runs it in the game. Use `emit(value)` to return data. So 100% of the running engine's API is reachable with no per-feature wrapper.
 
 ## The spatial rule: anchor, read back, verify (don't place blind)
 
@@ -155,7 +157,7 @@ Knowing the tools isn't enough — build the *Godot way*. Reference files sit ne
 - **`csharp-godot.md`** — C#-in-Godot idioms (`partial`, `[Signal]` vs `event`, `[Export]`, tween/`await`, GDScript-proxy interop). A reference for editing a **C# Godot project**. The CLI supports C# directly: `csharp.setup` scaffolds the csproj/sln, `script.create` on a `.cs` path writes the C# template, and `csharp.build` / `script.validate --path X.cs` compile with structured diagnostics (needs a Godot .NET editor build plus the dotnet SDK; `editor.run_script`/`runtime.eval` still execute GDScript).
 - **`shipping-export.md`** — the release pipeline: keeping dev tooling (this addon included — disable the plugin; it removes its autoloads) out of player builds via export filters, the headless export loop, **PCK encryption** with keyed custom templates (compile-time `SCRIPT_AES256_ENCRYPTION_KEY` bake, export-time `GODOT_SCRIPT_ENCRYPTION_KEY` env key, key hygiene), size-optimized template builds (the scons knob menu with caveats), and receipt-based verification (pck string scans, the boot-is-the-key-match-proof rule, restore-then-regression). Read before cutting a build for players.
 
-Two rules thread through all of them: **decouple with signals, not polling or `get_node("../../")` chains**, and **never trust a remembered API signature — confirm it against 4.7** with `engine class-info`/`engine search` before you write it.
+Two rules thread through all of them: **decouple with signals, not polling or `get_node("../../")` chains**, and **never trust a remembered API signature — confirm it against the running engine** with `engine class-info`/`engine search` before you write it.
 
 ## Core workflows
 
