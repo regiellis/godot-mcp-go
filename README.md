@@ -1,4 +1,8 @@
-# godot-mcp-go
+<p align="center">
+  <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/website/public/brand/mark.svg" width="104" alt="godot-mcp: a terminal prompt in a rounded tile with a live-connection dot">
+</p>
+
+# godot-mcp
 
 [![Godot 4.7+](https://img.shields.io/badge/Godot-4.7%2B-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org)
 [![Go 1.26+](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](https://go.dev)

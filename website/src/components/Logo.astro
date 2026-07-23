@@ -6,11 +6,14 @@ const { compact = false } = Astro.props;
 
 <a class="logo" href={withBase("/")} aria-label="godot-mcp home">
   <span class="logo-mark" aria-hidden="true">
-    <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
-      <rect x="1" y="1" width="30" height="30" rx="8" fill="url(#lg)" />
-      <path d="M10 21V11l6 5 6-5v10" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+    <svg width="26" height="26" viewBox="0 0 128 128" fill="none">
+      <rect x="4" y="4" width="120" height="120" rx="28" fill="#12151a" />
+      <rect x="4" y="4" width="120" height="120" rx="28" stroke="url(#lg)" stroke-width="8" />
+      <path d="M36 46 L60 64 L36 82" stroke="url(#lg)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" />
+      <rect x="68" y="76" width="26" height="10" rx="4" fill="#e8eaed" />
+      <circle cx="97" cy="33" r="9" fill="#4ade80" />
       <defs>
-        <linearGradient id="lg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+        <linearGradient id="lg" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
           <stop stop-color="#2b7fff" /><stop offset="1" stop-color="#3fc7ff" />
         </linearGradient>
       </defs>

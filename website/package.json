@@ -22,6 +22,7 @@
   },
   "devDependencies": {
     "astro-pagefind": "^2.0.1",
-    "pagefind": "^1.5.2"
+    "pagefind": "^1.5.2",
+    "playwright-core": "^1.61.1"
   }
 }
