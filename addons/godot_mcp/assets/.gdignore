@@ -1,0 +1,3 @@
+# Godot skips this dir. The Kenney packs here are a file-copy SOURCE for
+# `install-assets`, not runtime resources — ignoring them prevents UID-duplicate
+# warnings against the copies install-assets writes to res://assets/.
