@@ -13,7 +13,7 @@
 Drive a running **Godot 4.7+** editor from the command line — and from AI agents — to build scenes, write GDScript or C#, play and inspect the game, and introspect the engine's real API. A Go CLI talks to a GDScript editor addon over WebSocket. **312 commands across 49 groups**, every one verified against a live editor.
 
 > [!TIP]
-> **One surface, two front doors — without drowning your agent's context.** This is both a **CLI** and an **MCP server** over the same 312 commands. Terminal-first agents can skip MCP entirely: the CLI is self-describing (`godot-mcp help all` lists the catalog; `godot-mcp <group> <command> --help` prints a real param table), so shell-driving costs **zero** tool schemas. Over MCP, clients that load tool schemas on demand (Claude Code does) pay only for the tools they actually use — and `serve --typed=false` collapses the surface to one generic `godot_run` plus read-only `godot://` resources for clients that carry every schema eagerly.
+> **One surface, three front doors — without drowning your agent's context.** This is a **CLI**, a **stdio MCP server**, and an **in-editor streamable-HTTP MCP endpoint**, all over the same 312 commands. Terminal-first agents can skip MCP entirely: the CLI is self-describing (`godot-mcp help all` lists the catalog; `godot-mcp <group> <command> --help` prints a real param table), so shell-driving costs **zero** tool schemas. Over MCP, clients that load tool schemas on demand (Claude Code does) pay only for the tools they actually use — and `serve --typed=false` (or the `http_typed` project setting on the HTTP endpoint) collapses the surface to one generic `godot_run` plus read-only `godot://` resources for clients that carry every schema eagerly. HTTP-capable clients can even skip the binary: the addon itself serves `POST /mcp` straight from the editor.
 
 > [!NOTE]
 > **This repository is a one-way public mirror**, published as a squashed snapshot — it shares no commit history with the canonical development repo, so **pull requests can't be merged directly**. For bugs, feature requests, or changes, please open an [**Issue**](../../issues) or start a [**Discussion**](../../discussions). That's where development is tracked. The **`asset-library` branch** is a packaging artifact for the [Godot Asset Library](https://godotengine.org/asset-library) (an `addons/`-rooted snapshot of just the addon) — it is never merged into `main`.
@@ -39,6 +39,7 @@ Plenty of Godot MCP servers exist, and the good ones are editor-native — so "r
 
 - **It drives the running game.** The `runtime` and `input` groups inspect and control the live game over a two-hop IPC — read the running scene tree, set/read node state, `eval`, capture frames, `await_signal`, poll `runtime.errors`, inject input for deterministic playtesting. Most editor-time MCPs stop at "the scene is assembled"; this one builds it *and proves it works by playing it*.
 - **Schemas that can't go stale — or one lean tool, your choice.** By default `serve` exposes every command as a typed MCP tool whose schema is built **live** from the addon's own param docs, so the tool surface never drifts from what the editor registers. `serve --typed=false` collapses to the single generic `godot_run` for tool-limited clients (rivals ship ~40–160 fixed schemas either way) — plus read-only `godot://` resources for pulling project/scene/engine state without spending a tool turn.
+- **Two MCP transports, plus prompts.** stdio through the Go binary, or **editor-direct streamable HTTP**: the addon itself hosts `POST /mcp` on `127.0.0.1`, so an HTTP-capable MCP client drives the editor with **no external process at all** — same commands, same guards. And the playbooks ship as first-class **MCP prompts** (`discover-then-drive`, `spatial-placement`, `launch-recovery`, `bug-hunt`), served even when the editor is down.
 - **C# projects too.** `script.create` authors C# templates, `csharp.setup` scaffolds the csproj/sln, and `csharp.build` / `script.validate` compile with structured per-file diagnostics (requires a Godot .NET editor build and the dotnet SDK).
 - **Introspection instead of wrappers.** The live `ClassDB` *is* the feature list (`engine.search`, generic `node.set`/`node.get`, `runtime.eval`), so new engine features are reachable the day you upgrade, with no new release of this tool.
 - **Live editor integration** — commands run against the real SceneTree with UndoRedo (Ctrl+Z safe for the human) and open-scene conflict protection, not offline `.tscn` rewriting that clobbers unsaved work.
@@ -64,7 +65,7 @@ The honest trade-off: godot-ai has the larger community and Asset Library one-cl
 
 ```
 godot-mcp (Go CLI / client)  ──WebSocket(JSON-RPC 2.0):9080──▶  Godot editor addon (server)
-                                                                      │
+MCP client (streamable HTTP) ──POST /mcp:9100────────────────▶        │
                                             file IPC (user://) ◀──────┘──▶  running game
                                                               (MCPGameInspector / MCPGameInput autoloads)
 ```
@@ -167,6 +168,24 @@ Example client config:
 ```
 
 The Godot editor must be open with the plugin enabled (as for the CLI). `--project` sets where the server discovers the addon port.
+
+`serve` also ships **MCP prompts** — the durable playbooks (`discover-then-drive`, `spatial-placement`, `launch-recovery`, `bug-hunt`) as first-class prompts your client can pull with `prompts/get`, served even when the editor is down — alongside the read-only `godot://` resources and the `instructions` string every connect carries.
+
+### Or connect straight to the editor (no binary)
+
+The addon itself hosts a **streamable-HTTP MCP endpoint** inside the editor — `POST /mcp` on `127.0.0.1`, auto-port **9100-9115** (the actual port is in `<project>/.godot/godot-mcp.json` as `http_port`; pin one with the `godot_mcp/network/http_port` project setting or `GODOT_MCP_HTTP_PORT`). Any MCP client that speaks streamable HTTP connects with no external process:
+
+```json
+{
+  "mcpServers": {
+    "godot-mcp": {
+      "url": "http://127.0.0.1:9100/mcp"
+    }
+  }
+}
+```
+
+Same tool surface as `serve` (the generic `godot_run` plus typed per-command tools), same guards. Set `godot_mcp/network/http_typed` to `false` in Project Settings to list only `godot_run` for tool-limited clients, or `godot_mcp/network/mcp_http` to `false` to turn the endpoint off.
 
 ## Live dashboard (opt-in)
 

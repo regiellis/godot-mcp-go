@@ -27,7 +27,18 @@ const _PORT_SETTING := "godot_mcp/network/port"
 ## in MCPGameInspector is the hard gate, so this can never expose a release export.
 const _DIRECT_SERVER_SETTING := "godot_mcp/runtime/direct_server"
 
+## Streamable-HTTP MCP endpoint (mcp_http_server.gd), a sibling transport to the
+## WebSocket server so an HTTP MCP client reaches the editor with no Go process.
+## _MCP_HTTP_SETTING enables it (default true); _HTTP_PORT_SETTING pins its port
+## (0 = auto in 9100-9115); _HTTP_TYPED_SETTING toggles typed tools (default true;
+## false = only godot_run, for tool-limited clients). All three follow the same
+## non-dirtying set_initial_value pattern as the WS port setting.
+const _MCP_HTTP_SETTING := "godot_mcp/network/mcp_http"
+const _HTTP_PORT_SETTING := "godot_mcp/network/http_port"
+const _HTTP_TYPED_SETTING := "godot_mcp/network/http_typed"
+
 var _server: Node
+var _http_server: Node
 var _router: Node
 
 
@@ -40,14 +51,31 @@ func _enter_tree() -> void:
 	_router.editor_plugin = self
 	add_child(_router)
 
+	# Start the HTTP endpoint first (when enabled) so its bound port is known
+	# before the WebSocket server writes the shared discovery file.
+	if _http_enabled():
+		_http_server = preload("res://addons/godot_mcp/mcp_http_server.gd").new()
+		_http_server.name = "MCPHttpServer"
+		_http_server.command_router = _router
+		add_child(_http_server)
+		_http_server.start()
+
 	_server = preload("res://addons/godot_mcp/websocket_server.gd").new()
 	_server.name = "MCPWebSocketServer"
 	_server.command_router = _router
+	_server.http_server = _http_server  # null when the HTTP endpoint is disabled
 	add_child(_server)
 	_server.start()
 
+	# Let the HTTP endpoint refresh the discovery file after a resume-rebind.
+	if _http_server:
+		_http_server.ws_server = _server
+
 
 func _exit_tree() -> void:
+	if _http_server:
+		_http_server.stop()
+		_http_server.queue_free()
 	if _server:
 		_server.stop()
 		_server.queue_free()
@@ -83,6 +111,46 @@ func _register_settings() -> void:
 		"type": TYPE_BOOL,
 	})
 	ProjectSettings.set_as_basic(_DIRECT_SERVER_SETTING, true)
+
+	# HTTP endpoint enable (default true): a bool kept out of project.godot by
+	# set_initial_value(true); only false (a user opt-out) is ever persisted.
+	if not ProjectSettings.has_setting(_MCP_HTTP_SETTING):
+		ProjectSettings.set_setting(_MCP_HTTP_SETTING, true)
+	ProjectSettings.set_initial_value(_MCP_HTTP_SETTING, true)
+	ProjectSettings.add_property_info({
+		"name": _MCP_HTTP_SETTING,
+		"type": TYPE_BOOL,
+	})
+	ProjectSettings.set_as_basic(_MCP_HTTP_SETTING, true)
+
+	# HTTP port (0 = auto-pick a free port in 9100-9115), same non-dirtying rules
+	# as the WS port setting.
+	if not ProjectSettings.has_setting(_HTTP_PORT_SETTING):
+		ProjectSettings.set_setting(_HTTP_PORT_SETTING, 0)
+	ProjectSettings.set_initial_value(_HTTP_PORT_SETTING, 0)
+	ProjectSettings.add_property_info({
+		"name": _HTTP_PORT_SETTING,
+		"type": TYPE_INT,
+		"hint": PROPERTY_HINT_RANGE,
+		"hint_string": "0,65535,1",  # 0 = auto-pick a free port in 9100-9115
+	})
+	ProjectSettings.set_as_basic(_HTTP_PORT_SETTING, true)
+
+	# HTTP typed tools (default true): false lists only godot_run, for tool-limited
+	# MCP clients (the serve --typed=false role).
+	if not ProjectSettings.has_setting(_HTTP_TYPED_SETTING):
+		ProjectSettings.set_setting(_HTTP_TYPED_SETTING, true)
+	ProjectSettings.set_initial_value(_HTTP_TYPED_SETTING, true)
+	ProjectSettings.add_property_info({
+		"name": _HTTP_TYPED_SETTING,
+		"type": TYPE_BOOL,
+	})
+	ProjectSettings.set_as_basic(_HTTP_TYPED_SETTING, true)
+
+
+## Whether the streamable-HTTP MCP endpoint should run (default true when unset).
+func _http_enabled() -> bool:
+	return bool(ProjectSettings.get_setting(_MCP_HTTP_SETTING, true))
 
 
 func _inject_autoloads() -> void:

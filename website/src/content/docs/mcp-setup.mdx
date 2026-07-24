@@ -3,7 +3,7 @@ title: Use with an AI client
 description: Run godot-mcp as an MCP server so Claude, Cursor, VS Code, or Codex can drive Godot.
 ---
 
-`godot-mcp serve` runs as a [Model Context Protocol](https://modelcontextprotocol.io) server over stdio, so MCP clients drive Godot directly. It exposes the same surface as the CLI: every one of the 312 commands.
+`godot-mcp serve` runs as a [Model Context Protocol](https://modelcontextprotocol.io) server over stdio, so MCP clients drive Godot directly. It exposes the same surface as the CLI: every one of the 312 commands. Clients that speak **streamable HTTP** can skip the binary entirely and [connect straight to the editor](#or-connect-straight-to-the-editor-streamable-http), which hosts its own MCP endpoint.
 
 ## Two tool modes
 
@@ -47,6 +47,33 @@ Add `--print` to emit the snippet without writing (the safe path for uncertain g
 
 The Godot editor must be open with the plugin enabled, exactly as for the CLI. `--project` sets where the server discovers the addon port, so it survives an editor restart.
 
+## Or connect straight to the editor (streamable HTTP)
+
+The addon hosts a **streamable-HTTP MCP endpoint inside the editor** — `POST /mcp` on `127.0.0.1` — so an MCP client that speaks streamable HTTP connects with **no external process at all**:
+
+```json
+{
+  "mcpServers": {
+    "godot-mcp": {
+      "url": "http://127.0.0.1:9100/mcp"
+    }
+  }
+}
+```
+
+The endpoint picks the first free port in **9100–9115** and records it as `http_port` in `<project>/.godot/godot-mcp.json`; pin a fixed one with the `godot_mcp/network/http_port` project setting (Project → Project Settings → Godot Mcp) or the `GODOT_MCP_HTTP_PORT` environment variable.
+
+The tool surface mirrors `serve`: the generic `godot_run` plus every documented command as a typed tool, dispatched through the same command router with the same safety guards. Two settings tune it:
+
+| Setting | Default | Effect |
+| --- | --- | --- |
+| `godot_mcp/network/mcp_http` | `true` | turns the endpoint on or off |
+| `godot_mcp/network/http_typed` | `true` | `false` lists only `godot_run` — the `serve --typed=false` role for tool-limited clients |
+
+<Callout type="note">
+  stdio (`godot-mcp serve`) remains the right choice for clients without streamable-HTTP support, and it adds the `godot://` resources, the MCP prompts below, and the `game: true` routing to a standalone player. The HTTP endpoint's strength is zero-install reach: if the editor is running, the server is running.
+</Callout>
+
 ## Read-only resources
 
 Beyond the tools, the server advertises read-only **MCP resources** under the `godot://` scheme, so a client can pull context without spending a tool turn:
@@ -59,6 +86,17 @@ Beyond the tools, the server advertises read-only **MCP resources** under the `g
 | `godot://engine/singletons` | registered singletons |
 | `godot://editor/errors` | recent editor errors |
 
+## Prompts
+
+`serve` also ships the durable playbooks as first-class **MCP prompts**, so a client can pull them with `prompts/get` — even when the editor is down:
+
+| Prompt | What it teaches |
+| --- | --- |
+| `discover-then-drive` | ground on the live engine API (`engine.search` / `engine.class_info`) before acting, and the durable editor rules |
+| `spatial-placement` | anchor, read real bounds back, seat with a raycast, verify numerically (optional `target` argument) |
+| `launch-recovery` | recover an unreachable editor from its discovery verdict instead of relaunching blindly |
+| `bug-hunt` | treat surprising results as tool bugs: root-cause, verify by reading state back |
+
 <Callout type="tip">
-  Its `initialize` reply also carries an `instructions` string with the durable discover-then-drive and spatial-placement guidance, so the steer rides along at every connect even without the skill installed.
+  The `initialize` reply also carries an `instructions` string with the same discover-then-drive and spatial-placement steer in compressed form, so the guidance rides along at every connect even without the skill installed.
 </Callout>

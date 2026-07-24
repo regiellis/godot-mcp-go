@@ -132,6 +132,10 @@ func (s *mcpServer) handle(line []byte) {
 		s.reply(msg.ID, map[string]any{"resourceTemplates": []any{}}, nil)
 	case "resources/read":
 		s.resourcesRead(msg)
+	case "prompts/list":
+		s.reply(msg.ID, map[string]any{"prompts": promptDescriptors()}, nil)
+	case "prompts/get":
+		s.promptsGet(msg)
 	case "ping":
 		s.reply(msg.ID, map[string]any{}, nil)
 	default:
@@ -156,6 +160,8 @@ func (s *mcpServer) initializeResult(params json.RawMessage) map[string]any {
 		"capabilities": map[string]any{
 			"tools":     map[string]any{"listChanged": true},
 			"resources": map[string]any{},
+			// Prompts are static, embedded text — the list never changes at runtime.
+			"prompts": map[string]any{"listChanged": false},
 		},
 		"serverInfo":   map[string]any{"name": "godot-mcp", "version": "0.4.0"},
 		"instructions": serverInstructions,

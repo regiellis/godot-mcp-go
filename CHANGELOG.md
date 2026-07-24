@@ -4,6 +4,28 @@ All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project aims to
 follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **The editor is now an MCP server itself — streamable HTTP, zero external
+  process.** The addon hosts `POST /mcp` on `127.0.0.1` (auto port 9100-9115;
+  `GODOT_MCP_HTTP_PORT` or the `godot_mcp/network/http_port` setting pins one),
+  so any MCP client that speaks streamable HTTP connects straight to the
+  running editor. Tools mirror `serve`: the generic `godot_run` plus every
+  documented command as a typed tool with a real schema, dispatched through
+  the same command router — all guards apply unchanged. The
+  `godot_mcp/network/http_typed` setting collapses the list to `godot_run`
+  alone for tool-limited clients, `godot_mcp/network/mcp_http` turns the
+  endpoint off, and the discovery file now carries `http_port`.
+
+- **MCP prompts in `serve`.** The stdio MCP server now declares the prompts
+  capability and ships four static prompts distilled from the agent skill —
+  `discover-then-drive`, `spatial-placement` (optional `target` argument),
+  `launch-recovery`, and `bug-hunt` — embedded in the binary and served via
+  `prompts/list`/`prompts/get` even when the editor is down. The playbook now
+  rides along as first-class MCP prompts, not just the `instructions` string.
+
 ## [0.4.0] — 2026-07-22
 
 The Unity CLI answer, shipped in two days: full nested help with per-command

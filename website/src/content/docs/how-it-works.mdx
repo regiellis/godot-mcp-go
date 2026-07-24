@@ -5,7 +5,7 @@ description: The addon-as-server architecture, the two-hop runtime IPC, and cras
 
 ```text
 godot-mcp (Go CLI / client) --WebSocket (JSON-RPC 2.0) :9080--> Godot editor addon (server)
-                                                                       |
+MCP client (streamable HTTP) --POST /mcp :9100----------------->       |
                                              file IPC (user://) <------+--> running game
                                                           (MCPGameInspector / MCPGameInput autoloads)
 ```
@@ -21,6 +21,7 @@ The **addon runs a WebSocket server inside the editor**, the long-lived process 
 - The server binds `127.0.0.1` only. It is a local dev bridge.
 - The CLI resolves the port from `<project>/.godot/godot-mcp.json` (written by the addon on bind), so the common case needs no flags.
 - The message envelope is JSON-RPC 2.0 with dotted methods (`node.add`, `scene.play`, `runtime.capture_frames`).
+- The addon hosts a second transport: a [streamable-HTTP MCP endpoint](/docs/mcp-setup#or-connect-straight-to-the-editor-streamable-http) (`POST /mcp`, ports 9100–9115, recorded as `http_port` in the same discovery file), so an HTTP-capable MCP client drives the editor with no external process. Both transports dispatch through the same command router, so the safety guards below apply to each identically.
 
 ## The two-hop runtime IPC
 

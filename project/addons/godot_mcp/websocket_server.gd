@@ -7,6 +7,10 @@ extends Node
 ## TCPServer and wrap each accepted stream in a WebSocketPeer.
 
 var command_router: Node
+## The sibling HTTP endpoint (mcp_http_server.gd), set by the plugin. We stamp its
+## bound port into the shared discovery file so a CLI/client can find both
+## transports from one file. Null when the HTTP endpoint is disabled ⇒ http_port 0.
+var http_server: Node = null
 
 const DEFAULT_PORT := 9080
 const PORT_RANGE := 16        # scan DEFAULT_PORT .. DEFAULT_PORT+PORT_RANGE-1
@@ -209,10 +213,18 @@ func _send(ws: WebSocketPeer, id: Variant, result: Variant, err: Variant) -> voi
 	ws.send_text(JSON.stringify(resp))
 
 
+## Rewrite the discovery file on demand (e.g. after the HTTP endpoint rebinds on
+## resume and its port changed). No-op unless we're bound.
+func rewrite_discovery() -> void:
+	if _running:
+		_write_discovery()
+
+
 func _write_discovery() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://.godot"))
 	var info := {
 		"port": _port,
+		"http_port": (http_server.bound_port() if (http_server != null and http_server.has_method("bound_port")) else 0),
 		"pid": OS.get_process_id(),
 		"godot_version": "%s.%s.%s" % [
 			Engine.get_version_info()["major"],

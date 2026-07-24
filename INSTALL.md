@@ -32,7 +32,7 @@ Copy the `addons/godot_mcp/` folder into your Godot project so you end up with:
 
 Then in Godot: **Project → Project Settings → Plugins → Godot MCP → Enable**.
 
-On enable the addon starts a WebSocket server (`[MCP] Server listening on ws://127.0.0.1:9080`) and, if your project doesn't already declare them, injects two autoloads (`MCPGameInspector`, `MCPGameInput`) that the `runtime`/`input` commands need. Disabling the plugin removes only the autoloads it added.
+On enable the addon starts a WebSocket server (`[MCP] Server listening on ws://127.0.0.1:9080`) plus a **streamable-HTTP MCP endpoint** (`[MCP-HTTP] MCP endpoint listening on http://127.0.0.1:9100/mcp`) that HTTP-capable MCP clients can connect to directly — no CLI binary needed. If your project doesn't already declare them, it also injects two autoloads (`MCPGameInspector`, `MCPGameInput`) that the `runtime`/`input` commands need. Disabling the plugin removes only the autoloads it added.
 
 (Standalone `godot-mcp-addon_<version>.zip` extracts the `godot_mcp` folder directly — drop it into your project's `addons/`.)
 
@@ -67,6 +67,8 @@ Currently bundled:
 By default the addon binds the first free port in **9080-9095** and writes it to `<project>/.godot/godot-mcp.json`, so the CLI auto-discovers it — you rarely need to think about ports. Running **two projects at once**, pin each to a distinct port so they never contend:
 
 **Project → Project Settings → General → Godot Mcp → Network → Port** (turn on *Advanced Settings* if you don't see it). Set it to e.g. `9091`; `0` means auto-pick. The value is saved in that project's `project.godot`, and the server rebinds to it the next time the plugin loads (toggle it off/on under *Plugins*, or run `godot-mcp editor reload-plugin`). `GODOT_MCP_PORT` in the environment still overrides everything. The default (`0`) is never written to `project.godot`, so leaving it alone keeps the file clean.
+
+The **streamable-HTTP MCP endpoint** works the same way in its own range (**9100-9115**, recorded as `http_port` in the discovery file): pin it via **Network → Http Port** or `GODOT_MCP_HTTP_PORT`, turn it off via **Network → Mcp Http**, and set **Network → Http Typed** to off to expose only the generic `godot_run` tool to tool-limited clients.
 
 ## Adding your own commands (optional)
 
