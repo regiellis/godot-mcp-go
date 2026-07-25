@@ -89,3 +89,8 @@ tasks:
     desc: "Build CLI binaries + package addon/skill into dist/ (e.g. task release -- -Version 0.1.0)"
     cmds:
       - pwsh -NoProfile -File scripts/release.ps1 {{.CLI_ARGS}}
+
+  mirror:audit:
+    desc: Audit what is already public (github/main + asset-library) against the publish policy
+    cmds:
+      - pwsh -NoProfile -File scripts/mirror-audit.ps1 {{.CLI_ARGS}}
