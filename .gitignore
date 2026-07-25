@@ -1,0 +1,13 @@
+# Godot 4 editor cache and per-machine state.
+.godot/
+
+# Export output.
+export_presets.cfg
+*.pck
+*.zip
+
+# OS and editor cruft.
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
