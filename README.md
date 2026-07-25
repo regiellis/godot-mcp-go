@@ -17,6 +17,8 @@ Drive a running **Godot 4.7+** editor from the command line — and from AI agen
 
 > [!NOTE]
 > **This repository is a one-way public mirror**, published as a squashed snapshot — it shares no commit history with the canonical development repo, so **pull requests can't be merged directly**. For bugs, feature requests, or changes, please open an [**Issue**](../../issues) or start a [**Discussion**](../../discussions). That's where development is tracked. The **`asset-library` branch** is a packaging artifact for the [Godot Asset Library](https://godotengine.org/asset-library) (an `addons/`-rooted snapshot of just the addon) — it is never merged into `main`.
+>
+> The snapshot also omits maintainer tooling, so `scripts/` is absent here. `Taskfile.yml` ships whole and a few of its tasks call into that folder (`task test:http`, `task release`); those are maintainer-only and will not run from a clone of this mirror. Everything a user needs is in the build, editor, and play tasks. Where the CHANGELOG names a path under `scripts/`, it refers to the development repo.
 
 ## Isn't this just Godot's built-in CLI?
 
