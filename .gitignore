@@ -22,4 +22,4 @@ Thumbs.db
 
 # Agent/framework runtime state — machine-local, not project config.
 .claude/scheduled_tasks.lock
-.warden/local.json
+
