@@ -221,7 +221,9 @@ func _set_property(params: Dictionary) -> Dictionary:
 ## Parse a raw param value for `property` on `node`, resolving @export node-path
 ## references (PROPERTY_HINT_NODE_TYPE) to the actual Node. Returns [value, err].
 func _resolve_prop_value(node: Node, root: Node, property: String, raw: Variant, old_value: Variant) -> Array:
-	var parsed: Variant = PropertyParser.parse_value(raw, typeof(old_value))
+	# @export node references resolve against the tree, not the type system, so they
+	# must be handled before the strict parse (an Object property would otherwise
+	# demand a res:// path).
 	if raw is String:
 		for prop in node.get_property_list():
 			if prop["name"] == property and prop["hint"] == PROPERTY_HINT_NODE_TYPE:
@@ -231,7 +233,15 @@ func _resolve_prop_value(node: Node, root: Node, property: String, raw: Variant,
 				if target == null:
 					return [null, error_not_found("Node '%s'" % raw, "Could not resolve node reference for '%s'" % property)]
 				return [target, null]
-	return [parsed, null]
+
+	# Coerce against the DECLARED type, not the current value's type, and refuse a
+	# coercion that cannot be performed rather than writing a zeroed default.
+	var decl := PropertyParser.declared_type(node, property)
+	var target_type: int = int(decl["type"]) if decl["found"] else typeof(old_value)
+	var res := PropertyParser.parse_checked(raw, target_type, String(decl["class_name"]))
+	if not bool(res["ok"]):
+		return [null, error_invalid_params("Cannot set '%s': %s" % [property, String(res["reason"])])]
+	return [res["value"], null]
 
 
 func _get_properties(params: Dictionary) -> Dictionary:
@@ -292,9 +302,25 @@ func _add_resource(params: Dictionary) -> Dictionary:
 		return error_invalid_params("'%s' is not a valid Resource type (a ClassDB class or a class_name Resource script)" % resource_type)
 
 	var resource_props: Dictionary = params.get("resource_properties", {})
+	var applied: Array = []
+	var ignored: Array = []
+	var failures: Array = []
 	for prop_name: String in resource_props:
-		if prop_name in resource:
-			resource.set(prop_name, PropertyParser.parse_value(resource_props[prop_name], typeof(resource.get(prop_name))))
+		if not prop_name in resource:
+			ignored.append(prop_name)
+			continue
+		var decl := PropertyParser.declared_type(resource, prop_name)
+		var ttype: int = int(decl["type"]) if decl["found"] else typeof(resource.get(prop_name))
+		var pres := PropertyParser.parse_checked(resource_props[prop_name], ttype, String(decl["class_name"]))
+		if not bool(pres["ok"]):
+			failures.append("%s: %s" % [prop_name, String(pres["reason"])])
+			continue
+		resource.set(prop_name, pres["value"])
+		applied.append(prop_name)
+	# Atomic: refuse the whole call rather than assigning the resource with some
+	# properties silently missing.
+	if not failures.is_empty():
+		return error(-32602, "Could not set %d resource property/properties" % failures.size(), {"failed": failures, "applied": applied})
 
 	var old_value: Variant = node.get(property) if property in node else null
 	var undo_redo := get_undo_redo()
@@ -303,7 +329,15 @@ func _add_resource(params: Dictionary) -> Dictionary:
 	undo_redo.add_do_reference(resource)
 	undo_redo.add_undo_property(node, property, old_value)
 	undo_redo.commit_action()
-	return success({"node_path": str(get_edited_root().get_path_to(node)), "property": property, "resource_type": resource_type})
+	# Report what actually landed: a caller has no other way to read an embedded
+	# sub-resource's properties back.
+	return success({
+		"node_path": str(get_edited_root().get_path_to(node)),
+		"property": property,
+		"resource_type": resource_type,
+		"properties_set": applied,
+		"properties_ignored": ignored,
+	})
 
 
 const _ANCHOR_PRESETS := {

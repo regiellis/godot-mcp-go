@@ -19,6 +19,32 @@ follow [Semantic Versioning](https://semver.org/).
   alone for tool-limited clients, `godot_mcp/network/mcp_http` turns the
   endpoint off, and the discovery file now carries `http_port`.
 
+### Fixed
+
+- **Property writes no longer silently substitute a wrong value.** Three bugs in
+  `property_parser.gd`, all found by driving the typed command groups to build a
+  scene rather than scripting it:
+  - A numeric input with too few components **zeroed the property and reported
+    success**: `node set --property area_size --value 34.0` on an `AreaLight3D`
+    (whose `area_size` is a `Vector2`) wrote `Vector2(0, 0)`. Write paths now
+    coerce through `PropertyParser.parse_checked()`, which refuses and names the
+    expected literal. Applies to Vector2/3/4, Rect2, Quaternion and Color.
+  - **JSON arrays were stringified before parsing**, so `[28,28]` became
+    `Vector2(0, 28)` — `_numbers()` stripped a `Vector2(` prefix but not `[`.
+    Arrays and dictionaries are now read element-wise.
+  - **Resource-typed properties silently dropped `res://` paths.**
+    `resource create --type Sky --properties '{"sky_material":"res://…"}'`
+    returned `properties_set:["sky_material"]` while saving `null`, because the
+    value was coerced against `typeof(current)` (`TYPE_NIL` for an unset
+    resource). Write paths now resolve the **declared** type from
+    `get_property_list()` and load `res://` / `uid://` strings into real
+    references, erroring on a missing file or a class mismatch. Consequence:
+    `node set --property environment --value res://env.tres` and other
+    resource-by-path assignments now work.
+- `node.add_resource`, `resource.create` and `resource.edit` are **atomic** on
+  failure (nothing written) and now report `properties_set` as what actually
+  applied, plus `properties_ignored` for names the object does not have.
+
 ### Security
 
 - **The HTTP MCP endpoint now validates `Origin`.** Binding `127.0.0.1` does not

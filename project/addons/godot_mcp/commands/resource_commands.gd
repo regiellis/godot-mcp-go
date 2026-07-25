@@ -188,25 +188,36 @@ func _edit(params: Dictionary) -> Dictionary:
 		return error_internal("Failed to load resource: %s" % path)
 
 	var changed: Dictionary = {}
+	var ignored: Array = []
+	var failures: Array = []
 	for prop_name: String in new_props:
 		if not prop_name in resource:
+			ignored.append(prop_name)
 			continue
 		var old_value: Variant = resource.get(prop_name)
-		var new_value: Variant = PropertyParser.parse_value(new_props[prop_name], typeof(old_value))
-		resource.set(prop_name, new_value)
+		var decl := PropertyParser.declared_type(resource, prop_name)
+		var ttype: int = int(decl["type"]) if decl["found"] else typeof(old_value)
+		var pres := PropertyParser.parse_checked(new_props[prop_name], ttype, String(decl["class_name"]))
+		if not bool(pres["ok"]):
+			failures.append("%s: %s" % [prop_name, String(pres["reason"])])
+			continue
+		resource.set(prop_name, pres["value"])
 		changed[prop_name] = {
 			"old": PropertyParser.serialize_value(old_value),
 			"new": PropertyParser.serialize_value(resource.get(prop_name)),
 		}
+	# Refuse before saving: a partial edit reported as success is the bug this fixes.
+	if not failures.is_empty():
+		return error(-32602, "Could not set %d property/properties; nothing was saved" % failures.size(), {"failed": failures, "would_change": changed.keys(), "ignored": ignored})
 
 	if changed.is_empty():
-		return success({"path": path, "changed": {}, "message": "No properties were changed"})
+		return success({"path": path, "changed": {}, "properties_ignored": ignored, "message": "No properties were changed"})
 
 	var err := ResourceSaver.save(resource, path)
 	if err != OK:
 		return error_internal("Failed to save resource: %s" % error_string(err))
 
-	return success({"path": path, "type": resource.get_class(), "changed": changed})
+	return success({"path": path, "type": resource.get_class(), "changed": changed, "properties_ignored": ignored})
 
 
 func _create(params: Dictionary) -> Dictionary:
@@ -237,9 +248,24 @@ func _create(params: Dictionary) -> Dictionary:
 		return error_invalid_params("'%s' is not a known Resource type (a ClassDB class or a class_name Resource script)" % resource_type)
 
 	var properties: Dictionary = params.get("properties", {})
+	var applied: Array = []
+	var ignored: Array = []
+	var failures: Array = []
 	for prop_name: String in properties:
-		if prop_name in resource:
-			resource.set(prop_name, PropertyParser.parse_value(properties[prop_name], typeof(resource.get(prop_name))))
+		if not prop_name in resource:
+			ignored.append(prop_name)
+			continue
+		var decl := PropertyParser.declared_type(resource, prop_name)
+		var ttype: int = int(decl["type"]) if decl["found"] else typeof(resource.get(prop_name))
+		var pres := PropertyParser.parse_checked(properties[prop_name], ttype, String(decl["class_name"]))
+		if not bool(pres["ok"]):
+			failures.append("%s: %s" % [prop_name, String(pres["reason"])])
+			continue
+		resource.set(prop_name, pres["value"])
+		applied.append(prop_name)
+	# Refuse rather than write a file whose reported properties are fiction.
+	if not failures.is_empty():
+		return error(-32602, "Could not set %d property/properties; nothing was written" % failures.size(), {"failed": failures, "would_apply": applied})
 
 	var err := ResourceSaver.save(resource, path)
 	if err != OK:
@@ -247,7 +273,8 @@ func _create(params: Dictionary) -> Dictionary:
 
 	EditorInterface.get_resource_filesystem().scan()
 
-	return success({"path": path, "type": resource_type, "properties_set": properties.keys()})
+	# properties_set lists what was ACTUALLY assigned, never just the keys asked for.
+	return success({"path": path, "type": resource_type, "properties_set": applied, "properties_ignored": ignored})
 
 
 func _preview(params: Dictionary) -> Dictionary:
