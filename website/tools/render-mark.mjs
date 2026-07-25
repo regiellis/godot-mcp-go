@@ -1,8 +1,8 @@
 // Rasterize the master brand mark (public/brand/mark.svg) to PNG.
 //
-// KARA.md makes one mark serve the favicon, the topbar logo, the README header,
-// the social card, and the Godot addon icon, so every raster copy has to come
-// from the same SVG. Run this after touching mark.svg:
+// One mark serves the favicon, the topbar logo, the README header, the social
+// card, and the Godot addon icon, so every raster copy has to come from the same
+// SVG. Run this after touching mark.svg:
 //
 //   node tools/render-mark.mjs
 //
