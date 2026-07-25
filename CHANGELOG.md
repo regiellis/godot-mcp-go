@@ -19,6 +19,29 @@ follow [Semantic Versioning](https://semver.org/).
   alone for tool-limited clients, `godot_mcp/network/mcp_http` turns the
   endpoint off, and the discovery file now carries `http_port`.
 
+### Security
+
+- **The HTTP MCP endpoint now validates `Origin`.** Binding `127.0.0.1` does not
+  keep a browser out: any web page you visited while the editor was open could
+  POST to `http://127.0.0.1:9100/mcp` — the wildcard `Access-Control-Allow-Origin`
+  even let it read the replies — and reach `editor.run_script`, i.e. arbitrary
+  code execution. Requests with no `Origin` (native MCP clients, curl, the Go
+  CLI) and loopback origins are served as before; any other origin now gets
+  `403` with the connection closed, and `Access-Control-Allow-Origin` echoes the
+  allowed origin instead of `*`. The WebSocket transport cannot be gated this way
+  (Godot exposes no handshake headers server-side, and browser WebSockets are
+  exempt from CORS) and that is an accepted limitation, not a pending fix — the
+  ports are unauthenticated by design, so treat a running editor as reachable by
+  anything local. The docs now carry a **Threat model** section spelling this out.
+
+### Added
+
+- `scripts/test-http-mcp.ps1` (`task test:http`): a 34-check conformance sweep of
+  the HTTP endpoint against a live editor — handshake and protocol negotiation,
+  tool-surface legality, router dispatch and error mapping, HTTP framing
+  (411/413/405/404, keep-alive, pipelining, `Connection: close`), and the Origin
+  gate. Exit 0 means all passed.
+
 - **MCP prompts in `serve`.** The stdio MCP server now declares the prompts
   capability and ships four static prompts distilled from the agent skill —
   `discover-then-drive`, `spatial-placement` (optional `target` argument),

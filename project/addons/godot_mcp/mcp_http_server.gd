@@ -11,6 +11,12 @@ extends Node
 ## accepted stream in a StreamPeerTCP, and parse HTTP/1.1 by hand. 127.0.0.1 ONLY
 ## (a hard invariant — never 0.0.0.0). POST /mcp carries a JSON-RPC 2.0 body and
 ## we reply with a plain application/json response (no SSE in v1).
+##
+## Binding loopback is NOT sufficient on its own: a page in the user's browser can
+## reach 127.0.0.1, so every request is also gated on Origin (_origin_allowed), as
+## the MCP spec requires. No Origin (native MCP clients, curl, the Go CLI) and
+## loopback origins pass; anything else gets 403. ACAO echoes the allowed origin and
+## is never "*", so a hostile page can neither drive the editor nor read a reply.
 
 var command_router: Node
 ## Back-reference to the WebSocket server, the single writer of the shared
@@ -30,6 +36,11 @@ const RESUME_GAP_MS := 15000                    # frame gap this large ⇒ host 
 const MCP_PATH := "/mcp"
 const PORT_SETTING := "godot_mcp/network/http_port"
 const TYPED_SETTING := "godot_mcp/network/http_typed"
+
+## Hosts an Origin may name and still be served. A browser cannot forge Origin, so
+## this is what keeps a hostile page from driving the editor over loopback. Any
+## 127.x.x.x host also passes (see _origin_allowed).
+const LOOPBACK_HOSTS := ["127.0.0.1", "localhost", "::1"]
 
 ## Streamable-HTTP MCP protocol versions we understand. We echo the client's if it
 ## is one of these, else fall back to our latest (the first entry).
@@ -255,7 +266,7 @@ func _try_extract_request(conn: Dictionary) -> Dictionary:
 			return {"status": "incomplete"}
 		var body := buf.slice(header_end, header_end + content_length)
 		conn["buf"] = buf.slice(header_end + content_length)
-		return {"status": "ok", "method": http_method, "path": path, "body": body, "keep_alive": keep_alive}
+		return {"status": "ok", "method": http_method, "path": path, "body": body, "keep_alive": keep_alive, "origin": String(headers.get("origin", ""))}
 
 	# Non-POST carries no body here; consume the headers (plus any declared body).
 	var consumed := header_end
@@ -264,7 +275,7 @@ func _try_extract_request(conn: Dictionary) -> Dictionary:
 			return {"status": "incomplete"}
 		consumed = header_end + content_length
 	conn["buf"] = buf.slice(consumed)
-	return {"status": "ok", "method": http_method, "path": path, "body": PackedByteArray(), "keep_alive": keep_alive}
+	return {"status": "ok", "method": http_method, "path": path, "body": PackedByteArray(), "keep_alive": keep_alive, "origin": String(headers.get("origin", ""))}
 
 
 ## Index just past the CRLFCRLF header terminator, or -1 if not present yet.
@@ -283,37 +294,48 @@ func _service(conn: Dictionary, req: Dictionary) -> void:
 	var keep_alive: bool = req["keep_alive"]
 	var http_method: String = req["method"]
 	var path: String = req["path"]
+	var origin := String(req.get("origin", ""))
+
+	# Origin gate before anything else, preflight included: a hostile page must not
+	# learn what this endpoint is, drive it, or get a preflight granted. Refuse and
+	# close, with no CORS headers at all.
+	if not _origin_allowed(origin):
+		push_warning("[MCP-HTTP] Refused a request carrying cross-site Origin '%s'" % origin)
+		_send_status(peer, 403, "Forbidden", false)
+		conn["busy"] = false
+		conn["dead"] = true
+		return
 
 	if http_method == "OPTIONS":
-		# CORS preflight tolerance (local dev bridge, 127.0.0.1 only).
-		_send_status(peer, 204, "No Content", keep_alive, _cors_preflight_headers())
+		# CORS preflight for loopback dev tooling (a browser page on the same host).
+		_send_status(peer, 204, "No Content", keep_alive, origin, _cors_preflight_headers())
 	elif path != MCP_PATH:
-		_send_status(peer, 404, "Not Found", keep_alive)
+		_send_status(peer, 404, "Not Found", keep_alive, origin)
 	elif http_method != "POST":
-		_send_status(peer, 405, "Method Not Allowed", keep_alive, {"Allow": "POST, OPTIONS"})
+		_send_status(peer, 405, "Method Not Allowed", keep_alive, origin, {"Allow": "POST, OPTIONS"})
 	else:
-		await _handle_post(peer, req["body"], keep_alive)
+		await _handle_post(peer, req["body"], keep_alive, origin)
 
 	conn["busy"] = false
 	if not keep_alive:
 		conn["dead"] = true
 
 
-func _handle_post(peer: StreamPeerTCP, body: PackedByteArray, keep_alive: bool) -> void:
+func _handle_post(peer: StreamPeerTCP, body: PackedByteArray, keep_alive: bool, origin: String = "") -> void:
 	var json := JSON.new()
 	if json.parse(body.get_string_from_utf8()) != OK or not (json.data is Dictionary):
-		_send_json(peer, {"jsonrpc": "2.0", "id": null, "error": {"code": -32700, "message": "Parse error"}}, keep_alive)
+		_send_json(peer, {"jsonrpc": "2.0", "id": null, "error": {"code": -32700, "message": "Parse error"}}, keep_alive, origin)
 		return
 	var msg: Dictionary = json.data
 
 	# A JSON-RPC notification (no id — e.g. notifications/initialized) is accepted
 	# with an empty 202 and no body.
 	if not (msg.has("id") and msg["id"] != null):
-		_send_status(peer, 202, "Accepted", keep_alive)
+		_send_status(peer, 202, "Accepted", keep_alive, origin)
 		return
 
 	var resp := await _handle_mcp(String(msg.get("method", "")), msg.get("params", {}), _normalize_id(msg["id"]))
-	_send_json(peer, resp, keep_alive)
+	_send_json(peer, resp, keep_alive, origin)
 
 
 ## Godot's JSON parser coerces every number to a float, so an integer id like 1
@@ -541,6 +563,38 @@ func _tool_result(text: String, is_error: bool) -> Dictionary:
 	return {"content": [{"type": "text", "text": text}], "isError": is_error}
 
 
+## True when a request may proceed: no Origin at all (a native MCP client, curl, the
+## Go CLI — none of them set one) or a loopback origin, which is a dev tool running
+## on this machine. A page served from any real site is refused, as is an opaque
+## origin (file:// and sandboxed iframes send the literal "null", which has no
+## "://" and so falls through to false).
+func _origin_allowed(origin: String) -> bool:
+	if origin.strip_edges().is_empty():
+		return true
+	var o := origin.strip_edges().to_lower()
+	var scheme_end := o.find("://")
+	if scheme_end == -1:
+		return false
+	var scheme := o.substr(0, scheme_end)
+	if scheme != "http" and scheme != "https":
+		return false
+	var host := o.substr(scheme_end + 3)
+	var slash := host.find("/")
+	if slash != -1:
+		host = host.substr(0, slash)
+	if host.begins_with("["):                  # IPv6 literal, e.g. [::1]:9100
+		var close_bracket := host.find("]")
+		if close_bracket > 0:
+			host = host.substr(1, close_bracket - 1)
+	else:
+		var colon := host.find(":")
+		if colon != -1:
+			host = host.substr(0, colon)
+	if host.begins_with("127."):               # the whole 127.0.0.0/8 loopback block
+		return true
+	return host in LOOPBACK_HOSTS
+
+
 func _cors_preflight_headers() -> Dictionary:
 	return {
 		"Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -549,15 +603,15 @@ func _cors_preflight_headers() -> Dictionary:
 	}
 
 
-func _send_json(peer: StreamPeerTCP, obj: Dictionary, keep_alive: bool) -> void:
-	_send_http(peer, 200, "OK", "application/json", JSON.stringify(obj).to_utf8_buffer(), keep_alive)
+func _send_json(peer: StreamPeerTCP, obj: Dictionary, keep_alive: bool, origin: String = "") -> void:
+	_send_http(peer, 200, "OK", "application/json", JSON.stringify(obj).to_utf8_buffer(), keep_alive, origin)
 
 
-func _send_status(peer: StreamPeerTCP, code: int, reason: String, keep_alive: bool, extra: Dictionary = {}) -> void:
-	_send_http(peer, code, reason, "", PackedByteArray(), keep_alive, extra)
+func _send_status(peer: StreamPeerTCP, code: int, reason: String, keep_alive: bool, origin: String = "", extra: Dictionary = {}) -> void:
+	_send_http(peer, code, reason, "", PackedByteArray(), keep_alive, origin, extra)
 
 
-func _send_http(peer: StreamPeerTCP, code: int, reason: String, content_type: String, body: PackedByteArray, keep_alive: bool, extra: Dictionary = {}) -> void:
+func _send_http(peer: StreamPeerTCP, code: int, reason: String, content_type: String, body: PackedByteArray, keep_alive: bool, origin: String = "", extra: Dictionary = {}) -> void:
 	if peer.get_status() != StreamPeerTCP.STATUS_CONNECTED:
 		return
 	var head := "HTTP/1.1 %d %s\r\n" % [code, reason]
@@ -566,7 +620,12 @@ func _send_http(peer: StreamPeerTCP, code: int, reason: String, content_type: St
 	# A 204 carries no body and (per RFC 7230) no Content-Length; everything else does.
 	if code != 204:
 		head += "Content-Length: %d\r\n" % body.size()
-	head += "Access-Control-Allow-Origin: *\r\n"
+	# Echo an allowed origin, never "*" — a wildcard would let any page read the
+	# reply. Requests without an Origin (the normal MCP client) get no CORS header,
+	# which is correct: CORS only governs browsers.
+	if not origin.strip_edges().is_empty():
+		head += "Access-Control-Allow-Origin: %s\r\n" % origin.strip_edges()
+		head += "Vary: Origin\r\n"
 	head += "Connection: %s\r\n" % ("keep-alive" if keep_alive else "close")
 	for k in extra:
 		head += "%s: %s\r\n" % [k, extra[k]]

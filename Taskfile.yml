@@ -74,6 +74,11 @@ tasks:
     cmds:
       - "{{.BIN}} project info"
 
+  test:http:
+    desc: Conformance sweep of the in-editor streamable-HTTP MCP endpoint (editor must be open first)
+    cmds:
+      - pwsh -NoProfile -File scripts/test-http-mcp.ps1 {{.CLI_ARGS}}
+
   dashboard:
     desc: Build and run the live stats dashboard (editor must be open)
     deps: [build]
