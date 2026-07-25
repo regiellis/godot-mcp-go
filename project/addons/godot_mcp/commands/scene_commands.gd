@@ -102,9 +102,15 @@ func _open(params: Dictionary) -> Dictionary:
 		return success({"path": normalized, "opened": false, "already_active": true})
 
 	# force=true on an open scene reloads from disk, discarding unsaved edits.
+	# reload_scene_from_path does NOT change which tab is current, so a scene that
+	# was open but inactive used to stay inactive while this reported opened=true —
+	# and every later command then targeted the previously-active scene instead.
+	# Reload first (that is the documented discard), then switch to it.
 	if force and was_open and EditorInterface.has_method("reload_scene_from_path"):
 		EditorInterface.reload_scene_from_path(normalized)
-		return success({"path": normalized, "opened": true, "reloaded": true})
+		if not was_active:
+			EditorInterface.open_scene_from_path(normalized)
+		return success({"path": normalized, "opened": true, "reloaded": true, "already_active": was_active})
 
 	EditorInterface.open_scene_from_path(normalized)
 	return success({"path": normalized, "opened": true, "was_already_open": was_open})

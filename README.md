@@ -121,7 +121,7 @@ Copies `addons/godot_mcp/` and `.claude/skills/godot-mcp/` in and enables the pl
    ```sh
    task editor          # godot --path project --editor
    ```
-   Ensure the **Godot MCP** plugin is enabled (Project → Project Settings → Plugins). The addon prints `[MCP] Server listening on ws://127.0.0.1:9080`.
+   Ensure the **Godot MCP/CLI** plugin is enabled (Project → Project Settings → Plugins). The addon prints `[MCP] Server listening on ws://127.0.0.1:9080`.
 2. From inside the project directory, drive it:
    ```sh
    godot-mcp project info
