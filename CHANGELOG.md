@@ -47,6 +47,20 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Security
 
+- **The `Origin` gate accepted attacker-registrable lookalike hosts.** The
+  loopback test was `host.begins_with("127.")`, a prefix match on the host
+  *string* rather than an address check, so an origin of
+  `http://127.0.0.1.evil.example` or `https://127.evil.com` passed and had its
+  origin echoed back in `Access-Control-Allow-Origin`. Anyone can register a
+  domain in that shape and resolve it anywhere, so a page served from one could
+  drive the editor through `editor.run_script` and read the replies, which is
+  exactly what the gate was added to prevent. The host is now parsed as four
+  numeric octets (`_is_loopback_ipv4`). Real loopback origins, `localhost`,
+  `::1`, and header-less native clients are unaffected. **Anyone running the
+  HTTP endpoint from 0.4.0 should update**; the WebSocket transport is
+  unchanged and was never gated. Conformance suite grew lookalike-host,
+  `null`-origin, and non-`127.0.0.1` loopback cases (37 checks, was 34).
+
 - **The HTTP MCP endpoint now validates `Origin`.** Binding `127.0.0.1` does not
   keep a browser out: any web page you visited while the editor was open could
   POST to `http://127.0.0.1:9100/mcp` — the wildcard `Access-Control-Allow-Origin`

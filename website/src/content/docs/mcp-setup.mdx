@@ -70,7 +70,7 @@ The tool surface mirrors `serve`: the generic `godot_run` plus every documented 
 | `godot_mcp/network/mcp_http` | `true` | turns the endpoint on or off |
 | `godot_mcp/network/http_typed` | `true` | `false` lists only `godot_run` — the `serve --typed=false` role for tool-limited clients |
 
-The endpoint listens on loopback **and** checks the `Origin` header, so a web page you happen to have open cannot reach it: requests carrying no `Origin` (every native MCP client) or a `localhost` / `127.x.x.x` origin are served, anything else gets `403`, and the CORS header echoes the allowed origin rather than `*`. A browser-based MCP client running on `http://localhost:<port>` works unchanged. The WebSocket transport cannot be gated the same way — see [the threat model](/docs/how-it-works#threat-model) for what that does and does not mean.
+The endpoint listens on loopback **and** checks the `Origin` header, so a web page you happen to have open cannot reach it: requests carrying no `Origin` (every native MCP client) or an origin whose host is `localhost`, `::1`, or a loopback address are served, anything else gets `403`, and the CORS header echoes the allowed origin rather than `*`. A browser-based MCP client running on `http://localhost:<port>` works unchanged. The WebSocket transport cannot be gated the same way — see [the threat model](/docs/how-it-works#threat-model) for what that does and does not mean.
 
 <Callout type="note">
   stdio (`godot-mcp serve`) remains the right choice for clients without streamable-HTTP support, and it adds the `godot://` resources, the MCP prompts below, and the `game: true` routing to a standalone player. The HTTP endpoint's strength is zero-install reach: if the editor is running, the server is running.
