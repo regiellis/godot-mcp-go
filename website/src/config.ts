@@ -45,6 +45,7 @@ export const GUIDES: Guide[] = [
   { slug: "mobile-touch", group: "Systems", title: "Mobile and touch", desc: "Index-keyed multitouch, on-screen controls, pinch/pan gestures, safe-area HUD insets." },
   { slug: "rhythm-games", group: "Systems", title: "Rhythm games", desc: "The corrected audio clock pushed down the tree, beatmap data, notes as functions of time, windowed judging." },
   { slug: "in-game-docs", group: "Systems", title: "In-game docs", desc: "Gyms, zoos, and museums: document the game in-game with doc.* recipes so it never goes stale." },
+  { slug: "shipping-export", group: "Systems", title: "Shipping and export", desc: "The release pipeline: keeping dev tooling out of the pck, encrypting it, trimming the runtime, and verifying a build by receipts rather than exit codes." },
 
   { slug: "event-deck-games", group: "Genres", title: "Event / decision games", desc: "Reigns-like architecture: immutable cards plus a mutable overlay that is the save, weighted selection, condition DSLs." },
   { slug: "run-based-games", group: "Genres", title: "Run-based / roguelite", desc: "The reactive data blackboard, wave assembly under a weight budget, seeded staged worldgen with a self-audit." },

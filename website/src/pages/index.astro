@@ -3,7 +3,7 @@ import BaseHead from "../components/BaseHead.astro";
 import TopBar from "../components/TopBar.astro";
 import Terminal from "../components/Terminal.astro";
 import Icon from "../components/Icon.astro";
-import { SITE } from "../config";
+import { SITE, GUIDES } from "../config";
 import { docsHref } from "../lib/paths";
 
 const heroSession = [
@@ -33,7 +33,8 @@ const compare = [
   { axis: "MCP tool schemas carried", them: "~43", us: "as few as 1 (godot_run)" },
   { axis: "Command surface", them: "~120 ops", us: "312 across 49 groups" },
   { axis: "Runtime dependencies", them: "Python + uv", us: "single Go binary" },
-  { axis: "Craft layer", them: "tool reference", us: "26 craft docs + agent skill" },
+  // Count derived from GUIDES so it cannot drift from the craft docs actually published.
+  { axis: "Craft layer", them: "tool reference", us: `${GUIDES.length} craft docs + agent skill` },
 ];
 
 const caps = [
