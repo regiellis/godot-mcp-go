@@ -39,7 +39,8 @@ const TYPED_SETTING := "godot_mcp/network/http_typed"
 
 ## Hosts an Origin may name and still be served. A browser cannot forge Origin, so
 ## this is what keeps a hostile page from driving the editor over loopback. Any
-## 127.x.x.x host also passes (see _origin_allowed).
+## address inside 127.0.0.0/8 also passes, parsed as four octets rather than matched
+## as a string (see _is_loopback_ipv4, and the bypass that rule exists to close).
 const LOOPBACK_HOSTS := ["127.0.0.1", "localhost", "::1"]
 
 ## Streamable-HTTP MCP protocol versions we understand. We echo the client's if it
@@ -590,9 +591,33 @@ func _origin_allowed(origin: String) -> bool:
 		var colon := host.find(":")
 		if colon != -1:
 			host = host.substr(0, colon)
-	if host.begins_with("127."):               # the whole 127.0.0.0/8 loopback block
+	if _is_loopback_ipv4(host):                # the whole 127.0.0.0/8 loopback block
 		return true
 	return host in LOOPBACK_HOSTS
+
+
+## True only for a real dotted-quad inside 127.0.0.0/8.
+##
+## This was `host.begins_with("127.")`, which is a prefix test on the host STRING, not
+## an address check: it also accepted hostnames like `127.0.0.1.evil.example` and
+## `127.evil.com`. Anyone can register those and resolve them anywhere, so a hostile
+## page served from one passed the gate and got its origin echoed back in ACAO, leaving
+## it able to drive the editor (editor.run_script included) and read the replies. Parse
+## the four octets; never pattern-match the host.
+func _is_loopback_ipv4(host: String) -> bool:
+	var parts := host.split(".")
+	if parts.size() != 4:
+		return false
+	for part in parts:
+		if part.length() < 1 or part.length() > 3:
+			return false
+		for i in part.length():
+			var c := part.unicode_at(i)
+			if c < 48 or c > 57:               # ASCII "0".."9" only: no sign, no spaces
+				return false
+		if int(part) > 255:
+			return false
+	return int(parts[0]) == 127
 
 
 func _cors_preflight_headers() -> Dictionary:
