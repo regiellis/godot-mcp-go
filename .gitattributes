@@ -1,3 +1,8 @@
 # Normalize line endings for every file Git considers text.
 * text=auto eol=lf
 
+# The Asset Library downloads a git archive of this commit. Ship only addons/, so
+# the editor's installer offers the addon and nothing else.
+/**        export-ignore
+/addons    !export-ignore
+/addons/** !export-ignore
