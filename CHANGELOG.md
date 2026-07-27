@@ -6,6 +6,13 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.5.0] — 2026-07-27
+
+The editor stops needing a middleman: it speaks MCP itself over streamable
+HTTP, so an HTTP-capable client connects with no Go process in between. Also
+the release where the new endpoint's `Origin` gate was added, then found
+bypassable and hardened.
+
 ### Added
 
 - **The editor is now an MCP server itself — streamable HTTP, zero external
@@ -18,6 +25,20 @@ follow [Semantic Versioning](https://semver.org/).
   `godot_mcp/network/http_typed` setting collapses the list to `godot_run`
   alone for tool-limited clients, `godot_mcp/network/mcp_http` turns the
   endpoint off, and the discovery file now carries `http_port`.
+
+- **MCP prompts in `serve`.** The stdio MCP server now declares the prompts
+  capability and ships four static prompts distilled from the agent skill —
+  `discover-then-drive`, `spatial-placement` (optional `target` argument),
+  `launch-recovery`, and `bug-hunt` — embedded in the binary and served via
+  `prompts/list`/`prompts/get` even when the editor is down. The playbook now
+  rides along as first-class MCP prompts, not just the `instructions` string.
+
+- `scripts/test-http-mcp.ps1` (`task test:http`): a 37-check conformance sweep of
+  the HTTP endpoint against a live editor — handshake and protocol negotiation,
+  tool-surface legality, router dispatch and error mapping, HTTP framing
+  (411/413/405/404, keep-alive, pipelining, `Connection: close`), and the Origin
+  gate including lookalike hosts and the literal `null` origin. Exit 0 means all
+  passed. Maintainer-only: `scripts/` does not ship in the public mirror.
 
 ### Fixed
 
@@ -56,10 +77,13 @@ follow [Semantic Versioning](https://semver.org/).
   drive the editor through `editor.run_script` and read the replies, which is
   exactly what the gate was added to prevent. The host is now parsed as four
   numeric octets (`_is_loopback_ipv4`). Real loopback origins, `localhost`,
-  `::1`, and header-less native clients are unaffected. **Anyone running the
-  HTTP endpoint from 0.4.0 should update**; the WebSocket transport is
-  unchanged and was never gated. Conformance suite grew lookalike-host,
+  `::1`, and header-less native clients are unaffected. The WebSocket transport
+  is unchanged and was never gated. Conformance suite grew lookalike-host,
   `null`-origin, and non-`127.0.0.1` loopback cases (37 checks, was 34).
+  **Exposure was limited to builds from `main`**: the HTTP endpoint itself
+  landed after the `v0.4.0` tag, so no tagged release ever carried the
+  endpoint, let alone the flawed gate. The pending Asset Library snapshot did
+  carry it and has been refreshed.
 
 - **The HTTP MCP endpoint now validates `Origin`.** Binding `127.0.0.1` does not
   keep a browser out: any web page you visited while the editor was open could
@@ -73,21 +97,6 @@ follow [Semantic Versioning](https://semver.org/).
   exempt from CORS) and that is an accepted limitation, not a pending fix — the
   ports are unauthenticated by design, so treat a running editor as reachable by
   anything local. The docs now carry a **Threat model** section spelling this out.
-
-### Added
-
-- `scripts/test-http-mcp.ps1` (`task test:http`): a 34-check conformance sweep of
-  the HTTP endpoint against a live editor — handshake and protocol negotiation,
-  tool-surface legality, router dispatch and error mapping, HTTP framing
-  (411/413/405/404, keep-alive, pipelining, `Connection: close`), and the Origin
-  gate. Exit 0 means all passed.
-
-- **MCP prompts in `serve`.** The stdio MCP server now declares the prompts
-  capability and ships four static prompts distilled from the agent skill —
-  `discover-then-drive`, `spatial-placement` (optional `target` argument),
-  `launch-recovery`, and `bug-hunt` — embedded in the binary and served via
-  `prompts/list`/`prompts/get` even when the editor is down. The playbook now
-  rides along as first-class MCP prompts, not just the `instructions` string.
 
 ## [0.4.0] — 2026-07-22
 

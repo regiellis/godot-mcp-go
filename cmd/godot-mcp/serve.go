@@ -163,7 +163,7 @@ func (s *mcpServer) initializeResult(params json.RawMessage) map[string]any {
 			// Prompts are static, embedded text — the list never changes at runtime.
 			"prompts": map[string]any{"listChanged": false},
 		},
-		"serverInfo":   map[string]any{"name": "godot-mcp", "version": "0.4.0"},
+		"serverInfo":   map[string]any{"name": "godot-mcp", "version": cliVersion},
 		"instructions": serverInstructions,
 	}
 }
