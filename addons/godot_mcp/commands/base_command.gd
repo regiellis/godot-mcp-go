@@ -97,6 +97,15 @@ func require_dict(params: Dictionary, key: String) -> Array:
 	return [{}, error_invalid_params("Parameter '%s' must be an object, got %s" % [key, type_string(typeof(v))])]
 
 
+## Optional counterpart to require_dict: absent means an empty map, which is not an
+## error. A value that is present but not an object still is — a malformed
+## --properties used to be iterated as a String and drop every key without a word.
+func optional_dict(params: Dictionary, key: String) -> Array:
+	if not params.has(key):
+		return [{}, null]
+	return require_dict(params, key)
+
+
 ## Require an Array param. Accepts an Array, or a JSON array passed as a string.
 ## Returns [Array, error_or_null], matching require_dict.
 func require_array(params: Dictionary, key: String) -> Array:
@@ -165,6 +174,46 @@ func get_game_user_dir() -> String:
 	if not DirAccess.dir_exists_absolute(game_dir):
 		DirAccess.make_dir_recursive_absolute(game_dir)
 	return game_dir
+
+
+## Precondition for every editor->game file-IPC call: the launched game reads
+## project.godot FROM DISK, so a game-side autoload the editor holds only in
+## memory does not exist in the game.
+##
+## Worth checking rather than discovering by timeout. plugin.gd injects these on
+## enable and saves, but the on-disk file can lose them between then and now — a
+## git revert or checkout of project.godot (common in projects that keep dev-only
+## autoloads out of version control), a branch switch, an external edit. The
+## editor keeps its in-memory copy either way, so `project.info` still lists the
+## autoloads and every editor-side command keeps answering normally; only the game
+## hop is broken, which is what makes this one hard to see.
+##
+## Without the check the failure is both expensive and mute: runtime.* burns its
+## entire timeout and then GUESSES at this cause in a suggestion string, and
+## input.* — fire-and-forget, with no response to wait on — reports
+## `{"sent": true}` for an event nothing will ever read.
+##
+## Returns {} when the channel can work (including when project.godot cannot be
+## read at all — better to attempt the call than to block on a guess), or an
+## error dict ready to return.
+func game_autoload_error(autoload_name: String) -> Dictionary:
+	var cfg := ConfigFile.new()
+	if cfg.load(ProjectSettings.globalize_path("res://project.godot")) != OK:
+		return {}
+	if cfg.has_section_key("autoload", autoload_name):
+		return {}
+	return error(
+		-32000,
+		"%s is missing from project.godot on disk, so the running game never loaded it" % autoload_name,
+		{
+			"suggestion": (
+				"The plugin injects this autoload when it is enabled, and the on-disk file has "
+				+ "lost it since (a git revert or checkout of project.godot does exactly this). "
+				+ "Re-save project settings from the editor, then stop and replay the game."
+			),
+			"missing_setting": "autoload/%s" % autoload_name,
+		}
+	)
 
 
 ## Resolve a global class_name (an addon/project script class) to its Script, or
@@ -420,11 +469,16 @@ func guard_offline_scene_save(path: String) -> Dictionary:
 
 # --- UndoRedo helpers -------------------------------------------------------
 
-func add_child_with_undo(parent: Node, child: Node, root: Node, action_name: String) -> void:
+## Add `child` under `parent` in one undoable action. `index` >= 0 seats it at that
+## sibling position instead of appending, inside the same action, since sibling
+## order is draw order in 2D and a second action would make that two undo steps.
+func add_child_with_undo(parent: Node, child: Node, root: Node, action_name: String, index: int = -1) -> void:
 	var undo_redo := get_undo_redo()
 	undo_redo.create_action(action_name)
 	undo_redo.add_do_method(parent, "add_child", child)
 	undo_redo.add_do_method(child, "set_owner", root)
+	if index >= 0:
+		undo_redo.add_do_method(parent, "move_child", child, index)
 	undo_redo.add_do_reference(child)
 	undo_redo.add_undo_method(parent, "remove_child", child)
 	undo_redo.commit_action()
@@ -449,6 +503,50 @@ func set_properties_with_undo(obj: Object, props: Dictionary, action_name: Strin
 		undo_redo.add_do_property(obj, prop, props[prop])
 		undo_redo.add_undo_property(obj, prop, obj.get(prop))
 	undo_redo.commit_action()
+
+
+# --- Initial property maps --------------------------------------------------
+
+## Apply an initial {property: value} map to a freshly built object, coercing each
+## value against its DECLARED type via parse_checked. Returns
+## {applied, ignored, failures}: `ignored` names the object does not have, and
+## `failures` coercions parse_checked refused.
+##
+## Use this for every `--properties` / `--mesh_properties` map. The shortcut it
+## replaces — `obj.set(name, parse_value(raw, typeof(obj.get(name))))` — failed
+## silently twice over: `typeof` on a null Resource property reads TYPE_NIL, so a
+## `res://` path was assigned as text and dropped, and the lenient parse zero-pads
+## a short numeric literal instead of refusing it. Both returned success.
+func apply_initial_properties(obj: Object, props: Dictionary) -> Dictionary:
+	var applied: Array = []
+	var ignored: Array = []
+	var failures: Array = []
+	for prop_name: String in props:
+		if not prop_name in obj:
+			ignored.append(prop_name)
+			continue
+		var decl := PropertyParser.declared_type(obj, prop_name)
+		var target_type: int = int(decl["type"]) if decl["found"] else typeof(obj.get(prop_name))
+		var res := PropertyParser.parse_checked(props[prop_name], target_type, String(decl["class_name"]))
+		if not bool(res["ok"]):
+			failures.append("%s: %s" % [prop_name, String(res["reason"])])
+			continue
+		obj.set(prop_name, res["value"])
+		applied.append(prop_name)
+	return {"applied": applied, "ignored": ignored, "failures": failures}
+
+
+## The error for a non-empty `failures` from apply_initial_properties. Callers
+## refuse the whole call rather than persisting an object some of whose properties
+## silently never landed.
+func error_property_failures(result: Dictionary) -> Dictionary:
+	var failures: Array = result["failures"]
+	var noun := "property" if failures.size() == 1 else "properties"
+	return error(-32602, "Could not set %d %s" % [failures.size(), noun], {
+		"failed": failures,
+		"applied": result["applied"],
+		"ignored": result["ignored"],
+	})
 
 
 # --- Command documentation --------------------------------------------------

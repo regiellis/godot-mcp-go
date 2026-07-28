@@ -44,7 +44,6 @@ var _router: Node
 
 func _enter_tree() -> void:
 	_register_settings()
-	_inject_autoloads()
 
 	_router = preload("res://addons/godot_mcp/command_router.gd").new()
 	_router.name = "MCPCommandRouter"
@@ -81,6 +80,27 @@ func _exit_tree() -> void:
 		_server.queue_free()
 	if _router:
 		_router.queue_free()
+
+
+## Autoloads are injected when the plugin is ENABLED and removed only on an actual DISABLE.
+##
+## They used to ride `_enter_tree` / `_exit_tree`, which run on every editor launch and shutdown — so
+## the addon rewrote the host's `project.godot` twice per session. Two costs, both paid by the user:
+## the file is permanently dirty, so the autoloads have to be kept out of every commit by hand; and
+## the shutdown save can drop OTHER plugins' committed autoloads, because it persists whatever the
+## in-memory settings hold after every plugin has torn itself down. Seen 2026-07-27 in a consumer
+## project — one quit stripped a different addon's seven autoloads, which would have shipped a game
+## that could not boot.
+##
+## `_enable_plugin` / `_disable_plugin` fire exactly when the user ticks or unticks the plugin, which
+## is what these are for. The export flow is unchanged: disabling still removes them, so they never
+## reach a release `project.binary`. A project that keeps the plugin enabled should COMMIT the two
+## autoloads — nothing re-adds them at load any more, by design.
+func _enable_plugin() -> void:
+	_inject_autoloads()
+
+
+func _disable_plugin() -> void:
 	_remove_autoloads()
 
 

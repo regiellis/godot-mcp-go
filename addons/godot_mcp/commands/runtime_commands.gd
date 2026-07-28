@@ -266,6 +266,11 @@ func _screenshot(params: Dictionary) -> Dictionary:
 func _send(command: String, params: Dictionary, timeout_sec: float = 5.0) -> Dictionary:
 	if not EditorInterface.is_playing_scene():
 		return error(-32000, "No scene is currently playing", {"suggestion": "Use scene.play first"})
+	# Answer in microseconds from the on-disk project.godot rather than spending the
+	# whole timeout to then guess at this exact cause. See base_command.
+	var no_autoload := game_autoload_error("MCPGameInspector")
+	if not no_autoload.is_empty():
+		return no_autoload
 
 	var user_dir := get_game_user_dir()
 	var request_path := user_dir + "/mcp_game_request"

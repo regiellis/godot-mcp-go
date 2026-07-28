@@ -247,25 +247,13 @@ func _create(params: Dictionary) -> Dictionary:
 	if resource == null:
 		return error_invalid_params("'%s' is not a known Resource type (a ClassDB class or a class_name Resource script)" % resource_type)
 
-	var properties: Dictionary = params.get("properties", {})
-	var applied: Array = []
-	var ignored: Array = []
-	var failures: Array = []
-	for prop_name: String in properties:
-		if not prop_name in resource:
-			ignored.append(prop_name)
-			continue
-		var decl := PropertyParser.declared_type(resource, prop_name)
-		var ttype: int = int(decl["type"]) if decl["found"] else typeof(resource.get(prop_name))
-		var pres := PropertyParser.parse_checked(properties[prop_name], ttype, String(decl["class_name"]))
-		if not bool(pres["ok"]):
-			failures.append("%s: %s" % [prop_name, String(pres["reason"])])
-			continue
-		resource.set(prop_name, pres["value"])
-		applied.append(prop_name)
 	# Refuse rather than write a file whose reported properties are fiction.
-	if not failures.is_empty():
-		return error(-32602, "Could not set %d property/properties; nothing was written" % failures.size(), {"failed": failures, "would_apply": applied})
+	var pd := optional_dict(params, "properties")
+	if pd[1] != null:
+		return pd[1]
+	var props := apply_initial_properties(resource, pd[0])
+	if not props["failures"].is_empty():
+		return error_property_failures(props)
 
 	var err := ResourceSaver.save(resource, path)
 	if err != OK:
@@ -274,7 +262,7 @@ func _create(params: Dictionary) -> Dictionary:
 	EditorInterface.get_resource_filesystem().scan()
 
 	# properties_set lists what was ACTUALLY assigned, never just the keys asked for.
-	return success({"path": path, "type": resource_type, "properties_set": applied, "properties_ignored": ignored})
+	return success({"path": path, "type": resource_type, "properties_set": props["applied"], "properties_ignored": props["ignored"]})
 
 
 func _preview(params: Dictionary) -> Dictionary:

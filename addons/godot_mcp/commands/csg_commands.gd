@@ -57,16 +57,19 @@ func _add(params: Dictionary) -> Dictionary:
 	node.use_collision = optional_bool(params, "use_collision", false)
 
 	# Convenience dims + any extra props, version-agnostic via "prop in node".
-	var props: Dictionary = params.get("properties", {})
+	var pd := optional_dict(params, "properties")
+	if pd[1] != null:
+		node.free()
+		return pd[1]
+	var props: Dictionary = pd[0]
 	if params.has("size"): props["size"] = params["size"]
 	if params.has("radius"): props["radius"] = params["radius"]
 	if params.has("height"): props["height"] = params["height"]
-	var ignored: Array = []
-	for pname: String in props:
-		if pname in node:
-			node.set(pname, PropertyParser.parse_value(props[pname], typeof(node.get(pname))))
-		else:
-			ignored.append(pname)
+	var applied := apply_initial_properties(node, props)
+	if not applied["failures"].is_empty():
+		node.free()
+		return error_property_failures(applied)
+	var ignored: Array = applied["ignored"]
 
 	node.position = _vector3_param(params, "position", Vector3.ZERO)
 	node.rotation_degrees = _vector3_param(params, "rotation", Vector3.ZERO)
