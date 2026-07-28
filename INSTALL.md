@@ -10,13 +10,17 @@ From an unpacked release bundle, the CLI installs the addon **and** the agent sk
 godot-mcp install --project /path/to/your/project --enable
 ```
 
-This copies `addons/godot_mcp/` and `.claude/skills/godot-mcp/` into the project and enables the plugin in `project.godot`. Flags: `--skill=false` to skip the skill, `--enable` to turn the plugin on (otherwise enable it in-editor), `--force` to overwrite, `--from DIR` to point at a different addon source. Omit `--project` to target the project containing your current directory.
+**Run it from the unpacked bundle**, where the binary sits beside `addons/` and `skills/`. That is how it finds what to copy: move the binary somewhere on its own first and `install` has no addon to install, and says so. If you have already moved it, point at the pieces with `--from DIR` (an `addons/godot_mcp` directory) and `--skill-from DIR` (a `skills/godot-mcp` directory).
+
+This copies `addons/godot_mcp/` and `.claude/skills/godot-mcp/` into the project and enables the plugin in `project.godot`. Flags: `--skill=false` to skip the skill, `--enable` to turn the plugin on (otherwise enable it in-editor), `--force` to overwrite. Omit `--project` to target the project containing your current directory.
 
 Then open the project in Godot 4.7 — done. The manual steps below are the alternative if you'd rather copy things yourself.
 
 ## 1. The CLI
 
 The bundle contains the `godot-mcp` binary (`godot-mcp.exe` on Windows). Put it somewhere on your `PATH`, or run it by full path.
+
+Only `install` and `install-assets` care where the binary lives, because they copy files that ship next to it. Everything else drives a running editor over a socket, so once the addon is in your project the binary works fine on its own from anywhere.
 
 ```sh
 godot-mcp --help

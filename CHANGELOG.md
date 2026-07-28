@@ -6,6 +6,42 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.1] — 2026-07-28
+
+A CLI-only patch. The addon is unchanged from 0.6.0; its version moves in step
+with the bundle so Project Settings and the archive name agree.
+
+### Fixed
+
+- **`install` and `install-assets` no longer depend on the binary sitting in its
+  bundle.** Both resolved their sources next to the executable and nowhere else.
+  That is right for the release archive, where the binary sits beside `addons/`
+  and `skills/`, and wrong for the flow `INSTALL.md` invited: it said to put the
+  binary on your `PATH`, and copying it out of the bundle made the guide's own
+  headline command fail with exit 1 and nothing installed. Candidate layouts are
+  now walked against the executable's directory **and its parent**, so the
+  archive behaves as before and a repo checkout resolves with no flags at all.
+  The search stays anchored to the executable rather than the working directory
+  on purpose: a cwd walk would resolve inside the *target* project and offer that
+  project's own addon as the source, copying a directory onto itself.
+
+- A binary genuinely separated from its bundle still cannot install an addon it
+  does not carry, so that case still fails. It now lists every path it tried and
+  names both remedies, instead of naming a single guess.
+
+### Added
+
+- **`install --skill-from DIR`**, the counterpart to `--from`. Only the addon had
+  a source override, so from a repo checkout the agent skill could not be
+  installed through the CLI at all.
+
+### Changed
+
+- `INSTALL.md` says which commands care where the binary lives (`install` and
+  `install-assets`, which copy files shipped beside it) and which do not
+  (everything else drives a running editor over a socket, so the binary works
+  from anywhere once the addon is in the project).
+
 ## [0.6.0] — 2026-07-28
 
 A bug-fix release, and every one of these came out of building a game with the

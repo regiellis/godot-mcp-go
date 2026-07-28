@@ -38,14 +38,24 @@ Flags:`)
 		return 2
 	}
 
-	// Resolve the source assets dir (bundled next to the binary, or --from).
-	src := *from
+	// Resolve the source assets dir across both shipped layouts. The marker is
+	// `.gdignore`, which the assets dir carries by design (it stops the editor
+	// scanning the pack sources) and which is present whatever packs ship.
+	src, tried := resolveAsset(*from, ".gdignore",
+		[]string{"addons", "godot_mcp", "assets"},            // release archive
+		[]string{"project", "addons", "godot_mcp", "assets"}, // repo checkout
+	)
 	if src == "" {
-		src = assetDir("addons", "godot_mcp", "assets")
+		fmt.Fprintln(os.Stderr, "install-assets: no asset source found. Looked in:")
+		for _, p := range tried {
+			fmt.Fprintf(os.Stderr, "  %s\n", p)
+		}
+		fmt.Fprintln(os.Stderr, "Run it from the extracted release folder, or pass --from with the path to addons/godot_mcp/assets.")
+		return 1
 	}
 	packs, err := listPacks(src)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "install-assets: no asset source at %q (pass --from with the path to addons/godot_mcp/assets)\n", src)
+		fmt.Fprintf(os.Stderr, "install-assets: cannot read asset source %q: %v\n", src, err)
 		return 1
 	}
 	if len(packs) == 0 {

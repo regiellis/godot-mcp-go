@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/bynine/godot-mcp-go/internal/client"
@@ -13,12 +14,13 @@ import (
 
 // runInstall copies the bundled Godot addon (and optionally the agent skill)
 // into a target project, optionally enabling the plugin in project.godot.
-// Sources default to `addons/godot_mcp` and `skills/godot-mcp` next to the
-// binary — the release-bundle layout — and are overridable with --from.
+// Sources resolve across both shipped layouts (see resolveAsset) and are
+// overridable with --from and --skill-from.
 func runInstall(args []string) int {
 	fs := flag.NewFlagSet("install", flag.ContinueOnError)
 	project := fs.String("project", "", "target Godot project dir (default: the project containing the cwd)")
-	from := fs.String("from", "", "addon source dir (default: addons/godot_mcp next to the binary)")
+	from := fs.String("from", "", "addon source dir (default: addons/godot_mcp beside the binary, or project/addons/godot_mcp in a checkout)")
+	skillFrom := fs.String("skill-from", "", "skill source dir (default: skills/godot-mcp beside the binary or repo root)")
 	skill := fs.Bool("skill", true, "install the agent skill into <project>/.claude/skills/godot-mcp (use --skill=false to skip)")
 	enable := fs.Bool("enable", false, "enable the plugin in project.godot")
 	force := fs.Bool("force", false, "overwrite an existing addon/skill install")
@@ -26,7 +28,7 @@ func runInstall(args []string) int {
 		fmt.Fprintln(os.Stderr, `godot-mcp install — copy the addon into a Godot project
 
 Usage:
-  godot-mcp install [--project DIR] [--from DIR] [--skill] [--enable] [--force]
+  godot-mcp install [--project DIR] [--from DIR] [--skill-from DIR] [--skill] [--enable] [--force]
 
 Flags:`)
 		fs.PrintDefaults()
@@ -45,16 +47,25 @@ Flags:`)
 		return 1
 	}
 
-	addonSrc := *from
+	addonSrc, tried := resolveAsset(*from, "plugin.cfg",
+		[]string{"addons", "godot_mcp"},            // release archive: beside the binary
+		[]string{"project", "addons", "godot_mcp"}, // repo checkout: under project/
+	)
 	if addonSrc == "" {
-		addonSrc = assetDir("addons", "godot_mcp")
-	}
-	if !fileExists(filepath.Join(addonSrc, "plugin.cfg")) {
-		fmt.Fprintf(os.Stderr, "install: addon source not found at %q (pass --from with the path to addons/godot_mcp)\n", addonSrc)
+		fmt.Fprintln(os.Stderr, "install: addon source not found. Looked in:")
+		for _, p := range tried {
+			fmt.Fprintf(os.Stderr, "  %s\n", p)
+		}
+		fmt.Fprintln(os.Stderr, "Run install from the extracted release folder (the binary sits beside addons/),")
+		fmt.Fprintln(os.Stderr, "or pass --from with the path to an addons/godot_mcp directory.")
 		return 1
 	}
 
 	addonDst := filepath.Join(root, "addons", "godot_mcp")
+	if samePath(addonSrc, addonDst) {
+		fmt.Fprintf(os.Stderr, "install: source and destination are the same directory (%q); nothing to do\n", addonDst)
+		return 1
+	}
 	if pathExists(addonDst) && !*force {
 		fmt.Fprintf(os.Stderr, "install: %q already exists (use --force to overwrite)\n", addonDst)
 		return 1
@@ -66,9 +77,15 @@ Flags:`)
 	fmt.Printf("installed addon  -> %s\n", addonDst)
 
 	if *skill {
-		skillSrc := assetDir("skills", "godot-mcp")
-		if !fileExists(filepath.Join(skillSrc, "SKILL.md")) {
-			fmt.Fprintf(os.Stderr, "install: skill source not found at %q (skipping --skill)\n", skillSrc)
+		// Same relative path in both layouts, so one candidate covers the archive
+		// (beside the binary) and a checkout (repo root, one level up from bin/).
+		skillSrc, skillTried := resolveAsset(*skillFrom, "SKILL.md", []string{"skills", "godot-mcp"})
+		if skillSrc == "" {
+			fmt.Fprintln(os.Stderr, "install: skill source not found, skipping it. Looked in:")
+			for _, p := range skillTried {
+				fmt.Fprintf(os.Stderr, "  %s\n", p)
+			}
+			fmt.Fprintln(os.Stderr, "Pass --skill-from with the path to a skills/godot-mcp directory, or --skill=false to silence this.")
 		} else {
 			skillDst := filepath.Join(root, ".claude", "skills", "godot-mcp")
 			if pathExists(skillDst) && !*force {
@@ -93,17 +110,63 @@ Flags:`)
 	return 0
 }
 
-// assetDir resolves a bundled asset dir next to the running binary.
-func assetDir(parts ...string) string {
+// resolveAsset finds a bundled asset directory, identified by a marker file it
+// must contain. An explicit override wins outright (and is reported as tried, so
+// a typo names itself). Otherwise it walks the candidate layouts against two
+// bases: the binary's own directory, which is the release archive (exe beside
+// addons/ and skills/), and its parent, which is a repo checkout (bin/godot-mcp
+// with the sources at the repo root).
+//
+// Both bases are anchored to the executable, never the working directory: a cwd
+// search could reach into the *target* project and offer its existing addon as
+// the source, i.e. copy a directory onto itself.
+//
+// Returns the resolved dir and every path considered, so a failure can say where
+// it looked instead of naming one guess. A binary copied onto PATH alone matches
+// nothing, which is the case this reporting exists for.
+func resolveAsset(override, marker string, layouts ...[]string) (string, []string) {
+	var tried []string
+	check := func(dir string) bool {
+		tried = append(tried, dir)
+		return fileExists(filepath.Join(dir, marker))
+	}
+	if override != "" {
+		if check(override) {
+			return override, tried
+		}
+		return "", tried
+	}
 	exe, err := os.Executable()
 	if err != nil {
-		return filepath.Join(parts...)
+		return "", tried
 	}
-	return filepath.Join(append([]string{filepath.Dir(exe)}, parts...)...)
+	exeDir := filepath.Dir(exe)
+	for _, base := range []string{exeDir, filepath.Dir(exeDir)} {
+		for _, layout := range layouts {
+			if dir := filepath.Join(append([]string{base}, layout...)...); check(dir) {
+				return dir, tried
+			}
+		}
+	}
+	return "", tried
 }
 
 func fileExists(p string) bool { fi, err := os.Stat(p); return err == nil && !fi.IsDir() }
 func pathExists(p string) bool { _, err := os.Stat(p); return err == nil }
+
+// samePath reports whether two paths name the same directory, so a copy can
+// refuse to run source-onto-destination.
+func samePath(a, b string) bool {
+	aa, err1 := filepath.Abs(a)
+	bb, err2 := filepath.Abs(b)
+	if err1 != nil || err2 != nil {
+		return false
+	}
+	if runtime.GOOS == "windows" {
+		return strings.EqualFold(filepath.Clean(aa), filepath.Clean(bb))
+	}
+	return filepath.Clean(aa) == filepath.Clean(bb)
+}
 
 func copyDir(src, dst string) error {
 	return filepath.WalkDir(src, func(path string, d os.DirEntry, err error) error {
