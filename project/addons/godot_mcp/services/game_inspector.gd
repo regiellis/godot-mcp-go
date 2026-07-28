@@ -335,16 +335,22 @@ func _set_node_property(params: Dictionary) -> void:
 	})
 
 
+## The eval wrapper. Its preamble is _EVAL_PREAMBLE_LINES long, so a parse error's
+## reported line maps back to the caller's own code as `line - _EVAL_PREAMBLE_LINES`.
+const _EVAL_WRAPPER := "extends Node\n\nvar output: Array = []\n\nfunc emit(value: Variant) -> void:\n\toutput.append(str(value))\n\nfunc run() -> void:\n%s\n"
+const _EVAL_PREAMBLE_LINES := 8
+
+
 func _execute_script(params: Dictionary) -> void:
 	var code: String = params.get("code", "")
 	if code.is_empty():
 		_respond({"error": "code is required"})
 		return
-	var wrapped := "extends Node\n\nvar output: Array = []\n\nfunc emit(value: Variant) -> void:\n\toutput.append(str(value))\n\nfunc run() -> void:\n%s\n" % _indent(code)
-	var script := GDScript.new()
-	script.source_code = wrapped
-	if script.reload() != OK:
-		_respond({"error": "Script compilation failed"})
+	var wrapped := _EVAL_WRAPPER % _indent(code)
+	var since: int = _error_log.next_seq() if _error_log != null else 0
+	var script := _compile_off_main_thread(wrapped)
+	if script == null:
+		_respond({"error": "Script compilation failed%s" % _compile_failure_detail(since)})
 		return
 	var node := Node.new()
 	node.set_script(script)
@@ -361,6 +367,43 @@ func _indent(code: String) -> String:
 	for line in code.split("\n"):
 		out.append("\t" + line)
 	return "\n".join(out)
+
+
+static func _compile_source(src: String) -> GDScript:
+	var s := GDScript.new()
+	s.source_code = src
+	return s if s.reload() == OK else null
+
+
+## Compile eval source on a WORKER thread, never the main one. A GDScript parse
+## error calls debug_break_parse, which breaks into the remote debugger — but only
+## when the compile runs on the main thread. Under a --headless editor there is no
+## UI to resume that break, so the game froze and every later runtime command timed
+## out with nothing surfaced anywhere; the channel just went dead. Compiling
+## off-thread turns that hang into a returned compile error. Verified on 4.7.1.rc:
+## reload() off-thread returns ERR_PARSE_ERROR, and the script it produces attaches
+## and runs normally on the main thread.
+func _compile_off_main_thread(src: String) -> GDScript:
+	var t := Thread.new()
+	if t.start(_compile_source.bind(src)) != OK:
+		return _compile_source(src)  # single-threaded build: no thread to hide behind
+	return t.wait_to_finish()
+
+
+## reload() reports only ERR_PARSE_ERROR, so the reason is recovered from the error
+## log the compile wrote through. Lines are rebased off the wrapper preamble so they
+## name the caller's line rather than one in generated source they never saw.
+func _compile_failure_detail(since_seq: int) -> String:
+	if _error_log == null:
+		return ""
+	var entry: Dictionary = _error_log.newest_since(since_seq)
+	if entry.is_empty():
+		return ""
+	var detail := ": %s" % String(entry["message"])
+	var line := int(entry.get("line", 0)) - _EVAL_PREAMBLE_LINES
+	if line > 0:
+		detail += " (line %d of your code)" % line
+	return detail
 
 
 func _screenshot(params: Dictionary) -> void:

@@ -67,13 +67,28 @@ func _add(params: Dictionary) -> Dictionary:
 	if not node_name.is_empty():
 		node.name = node_name
 
-	var properties: Dictionary = params.get("properties", {})
-	for prop_name: String in properties:
-		if prop_name in node:
-			node.set(prop_name, PropertyParser.parse_value(properties[prop_name], typeof(node.get(prop_name))))
+	var pd := optional_dict(params, "properties")
+	if pd[1] != null:
+		node.free()
+		return pd[1]
+	var props := apply_initial_properties(node, pd[0])
+	if not props["failures"].is_empty():
+		node.free()  # never entered the tree, so drop it rather than leak an orphan
+		return error_property_failures(props)
 
-	add_child_with_undo(parent, node, root, "MCP: Add %s" % type)
-	return success({"node_path": str(root.get_path_to(node)), "type": type, "name": String(node.name)})
+	# Seat it among its siblings when asked: sibling order is draw order in 2D, so
+	# "insert a background behind existing content" is an index, not a reparent.
+	var index := -1
+	if params.has("index"):
+		index = clampi(_wrap_index(optional_int(params, "index", -1), parent.get_child_count() + 1), 0, parent.get_child_count())
+
+	add_child_with_undo(parent, node, root, "MCP: Add %s" % type, index)
+	var out := {"node_path": str(root.get_path_to(node)), "type": type, "name": String(node.name), "index": node.get_index()}
+	if not props["applied"].is_empty():
+		out["properties_set"] = props["applied"]
+	if not props["ignored"].is_empty():
+		out["properties_ignored"] = props["ignored"]
+	return success(out)
 
 
 func _delete(params: Dictionary) -> Dictionary:
@@ -130,35 +145,99 @@ func _duplicate(params: Dictionary) -> Dictionary:
 	return success({"original": str(root.get_path_to(node)), "duplicate": str(root.get_path_to(dup)), "name": String(dup.name)})
 
 
+## Reparent a node, reorder it among its siblings, or both. Sibling order is draw
+## order in 2D, so seating a node relative to its siblings is as common an edit as
+## reparenting; `new_parent_path` is therefore optional when an ordering param is
+## given. Ordering takes `index` (0-based, negative counts from the end) or
+## `before`/`after` naming a sibling to seat against.
 func _move(params: Dictionary) -> Dictionary:
 	var ctx := _resolve_node(params)
 	if ctx[1] != null:
 		return ctx[1]
-	var r := require_string(params, "new_parent_path")
-	if r[1] != null:
-		return r[1]
 	var node: Node = ctx[0]
 	var root := get_edited_root()
 	if node == root:
 		return error_invalid_params("Cannot move the root node")
-	var new_parent := find_node_by_path(r[0])
-	if new_parent == null:
-		return error_not_found("Target parent '%s'" % r[0], "Use scene.tree to see available nodes")
-	if new_parent == node or node.is_ancestor_of(new_parent):
-		return error_invalid_params("Cannot move a node into its own subtree")
 
 	var old_parent := node.get_parent()
+	var new_parent := old_parent
+	var parent_path := optional_string(params, "new_parent_path", "")
+	if not parent_path.is_empty():
+		new_parent = find_node_by_path(parent_path)
+		if new_parent == null:
+			return error_not_found("Target parent '%s'" % parent_path, "Use scene.tree to see available nodes")
+		if new_parent == node or node.is_ancestor_of(new_parent):
+			return error_invalid_params("Cannot move a node into its own subtree")
+
+	var reparenting := new_parent != old_parent
+	var idx := _resolve_sibling_index(params, new_parent, node, reparenting)
+	if idx[1] != null:
+		return idx[1]
+	var index: int = idx[0]
+	if not reparenting and index < 0:
+		return error_invalid_params("Nothing to move: pass 'new_parent_path' to reparent, or 'index'/'before'/'after' to reorder among siblings")
+
+	var old_index := node.get_index()
 	var undo_redo := get_undo_redo()
 	undo_redo.create_action("MCP: Move %s" % node.name)
-	undo_redo.add_do_method(old_parent, "remove_child", node)
-	undo_redo.add_do_method(new_parent, "add_child", node)
-	undo_redo.add_do_method(node, "set_owner", root)
-	undo_redo.add_undo_method(new_parent, "remove_child", node)
-	undo_redo.add_undo_method(old_parent, "add_child", node)
-	undo_redo.add_undo_method(node, "set_owner", root)
+	if reparenting:
+		undo_redo.add_do_method(old_parent, "remove_child", node)
+		undo_redo.add_do_method(new_parent, "add_child", node)
+		undo_redo.add_do_method(node, "set_owner", root)
+	if index >= 0:
+		undo_redo.add_do_method(new_parent, "move_child", node, index)
+	if reparenting:
+		undo_redo.add_undo_method(new_parent, "remove_child", node)
+		undo_redo.add_undo_method(old_parent, "add_child", node)
+		undo_redo.add_undo_method(node, "set_owner", root)
+	undo_redo.add_undo_method(old_parent, "move_child", node, old_index)
 	undo_redo.commit_action()
 	NodeUtils.set_owner_recursive(node, root)
-	return success({"node": String(node.name), "new_parent": str(root.get_path_to(new_parent)), "new_path": str(root.get_path_to(node))})
+	return success({
+		"node": String(node.name),
+		"new_parent": str(root.get_path_to(new_parent)),
+		"new_path": str(root.get_path_to(node)),
+		"old_index": old_index,
+		"index": node.get_index(),
+	})
+
+
+## Godot's negative-index convention: -1 is the last slot in a list of `count`.
+func _wrap_index(index: int, count: int) -> int:
+	return count + index if index < 0 else index
+
+
+## Resolve the requested sibling position for `node` under `parent` into a final
+## 0-based index for move_child, or -1 when no ordering param was passed.
+## Returns [index, err].
+func _resolve_sibling_index(params: Dictionary, parent: Node, node: Node, reparenting: bool) -> Array:
+	# The count the parent will have once the move lands; an append puts the node
+	# last, so this is what bounds every target index.
+	var final_count := parent.get_child_count() + (1 if reparenting else 0)
+
+	if params.has("index"):
+		return [clampi(_wrap_index(optional_int(params, "index", 0), final_count), 0, final_count - 1), null]
+
+	var relation := "before" if params.has("before") else ("after" if params.has("after") else "")
+	if relation.is_empty():
+		return [-1, null]
+
+	var anchor_path := optional_string(params, relation, "")
+	var anchor := find_node_by_path(anchor_path)
+	if anchor == null:
+		return [-1, error_not_found("Sibling '%s'" % anchor_path, "Use scene.tree to see available nodes")]
+	if anchor == node:
+		return [-1, error_invalid_params("Cannot seat '%s' relative to itself" % node.name)]
+	if anchor.get_parent() != parent:
+		return [-1, error_invalid_params("'%s' is not a child of '%s', so it can't anchor the new position" % [anchor.name, parent.name])]
+
+	# move_child takes the index in the RESULTING order. When the node already sits
+	# ahead of the anchor it vacates a slot on the way past, so everything at or
+	# after the anchor shifts down by one and the target has to follow.
+	var target := anchor.get_index() + (0 if relation == "before" else 1)
+	if not reparenting and node.get_index() < target:
+		target -= 1
+	return [clampi(target, 0, final_count - 1), null]
 
 
 func _set_property(params: Dictionary) -> Dictionary:
@@ -301,26 +380,14 @@ func _add_resource(params: Dictionary) -> Dictionary:
 	if resource == null:
 		return error_invalid_params("'%s' is not a valid Resource type (a ClassDB class or a class_name Resource script)" % resource_type)
 
-	var resource_props: Dictionary = params.get("resource_properties", {})
-	var applied: Array = []
-	var ignored: Array = []
-	var failures: Array = []
-	for prop_name: String in resource_props:
-		if not prop_name in resource:
-			ignored.append(prop_name)
-			continue
-		var decl := PropertyParser.declared_type(resource, prop_name)
-		var ttype: int = int(decl["type"]) if decl["found"] else typeof(resource.get(prop_name))
-		var pres := PropertyParser.parse_checked(resource_props[prop_name], ttype, String(decl["class_name"]))
-		if not bool(pres["ok"]):
-			failures.append("%s: %s" % [prop_name, String(pres["reason"])])
-			continue
-		resource.set(prop_name, pres["value"])
-		applied.append(prop_name)
 	# Atomic: refuse the whole call rather than assigning the resource with some
 	# properties silently missing.
-	if not failures.is_empty():
-		return error(-32602, "Could not set %d resource property/properties" % failures.size(), {"failed": failures, "applied": applied})
+	var rpd := optional_dict(params, "resource_properties")
+	if rpd[1] != null:
+		return rpd[1]
+	var props := apply_initial_properties(resource, rpd[0])
+	if not props["failures"].is_empty():
+		return error_property_failures(props)
 
 	var old_value: Variant = node.get(property) if property in node else null
 	var undo_redo := get_undo_redo()
@@ -335,8 +402,8 @@ func _add_resource(params: Dictionary) -> Dictionary:
 		"node_path": str(get_edited_root().get_path_to(node)),
 		"property": property,
 		"resource_type": resource_type,
-		"properties_set": applied,
-		"properties_ignored": ignored,
+		"properties_set": props["applied"],
+		"properties_ignored": props["ignored"],
 	})
 
 
@@ -594,7 +661,8 @@ func get_command_docs() -> Dictionary:
 				doc_param("type", "String", true, "Node class (e.g. 'Sprite2D') or a global script class_name."),
 				doc_param("parent_path", "NodePath", false, "Parent to add under, relative to the scene root (default '.', the root). --parent is an accepted alias."),
 				doc_param("name", "String", false, "Name for the new node (defaults to the type name)."),
-				doc_param("properties", "Dictionary", false, "Initial {property: value} map, each value coerced toward the property's type."),
+				doc_param("properties", "Dictionary", false, "Initial {property: value} map. Each value is coerced against the property's declared type and a res:// or uid:// path is loaded into the real resource; a coercion that can't be made errors instead of writing a default. Names the type lacks come back under properties_ignored."),
+				doc_param("index", "int", false, "Seat the node at this sibling position instead of appending (0-based; negative counts from the end). Sibling order is draw order in 2D."),
 			],
 		},
 		"node.delete": {
@@ -618,10 +686,13 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"node.move": {
-			"description": "Reparent a node under --new-parent-path (rejects moving into its own subtree). Undoable.",
+			"description": "Reparent a node under --new-parent-path, reorder it among its siblings with --index/--before/--after, or both. Rejects moving into its own subtree. Undoable.",
 			"params": [
 				doc_param("node_path", "NodePath", true, "Node to move."),
-				doc_param("new_parent_path", "NodePath", true, "New parent, relative to the scene root."),
+				doc_param("new_parent_path", "NodePath", false, "New parent, relative to the scene root. Omit to reorder in place, in which case one of --index/--before/--after is required."),
+				doc_param("index", "int", false, "Final sibling position, 0-based; negative counts from the end (-1 is last). Sibling order is draw order in 2D."),
+				doc_param("before", "NodePath", false, "Seat the node immediately before this sibling of the target parent."),
+				doc_param("after", "NodePath", false, "Seat the node immediately after this sibling of the target parent."),
 			],
 		},
 		"node.set": {

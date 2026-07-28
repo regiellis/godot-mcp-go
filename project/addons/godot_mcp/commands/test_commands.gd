@@ -214,6 +214,11 @@ func _run_stress_test(params: Dictionary) -> Dictionary:
 
 	if not EditorInterface.is_playing_scene():
 		return error(-32000, "No scene is currently playing", {"suggestion": "Use scene.play first"})
+	# Drives input for up to 60s; without the autoload every event goes nowhere and
+	# the run would report a clean stress test having exercised nothing.
+	var no_autoload := game_autoload_error("MCPGameInput")
+	if not no_autoload.is_empty():
+		return no_autoload
 
 	var initial_errors := _count_log_errors()
 
@@ -390,6 +395,9 @@ func _execute_assert_step(step: Dictionary) -> Dictionary:
 func _send_game_command(command: String, params: Dictionary = {}, timeout_sec: float = 5.0) -> Dictionary:
 	if not EditorInterface.is_playing_scene():
 		return error(-32000, "No scene is currently playing", {"suggestion": "Use scene.play first"})
+	var no_autoload := game_autoload_error("MCPGameInspector")
+	if not no_autoload.is_empty():
+		return no_autoload
 
 	var user_dir := get_game_user_dir()
 	var request_path := user_dir + "/mcp_game_request"

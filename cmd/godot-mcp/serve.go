@@ -503,14 +503,32 @@ func (s *mcpServer) toolsCall(msg rpcMsg) {
 	}
 
 	var resolved int
+	var portRes client.Resolution
 	if isGame {
 		resolved = client.ResolveGamePort(0, s.cwd)
 	} else {
-		resolved = client.ResolvePort(s.flagPort, s.cwd)
+		portRes = client.ResolvePortSource(s.flagPort, s.cwd)
+		resolved = portRes.Port
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), methodTimeout(method, params, s.timeout))
 	defer cancel()
+
+	// Confirm whose editor is answering before the call mutates anything. Free in
+	// the common case (a live discovery file names its own editor); when the port
+	// was guessed, a wrong answer would otherwise be indistinguishable from a right
+	// one, and every edit would land in someone else's project.
+	if !isGame {
+		if mm := client.CheckProject(ctx, portRes); mm != nil && mm.Fatal() {
+			b, _ := json.Marshal(map[string]any{
+				"wrong_editor": true, "port": mm.Port, "port_source": string(mm.Source),
+				"expected_project": mm.Expected, "answering_project": mm.Answering,
+				"message": mm.Error(), "action": mm.Action(),
+			})
+			s.reply(msg.ID, toolResult(string(b), true), nil)
+			return
+		}
+	}
 
 	result, err := client.Call(ctx, resolved, method, params)
 	if err != nil {

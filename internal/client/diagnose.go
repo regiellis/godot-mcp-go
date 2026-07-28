@@ -1,10 +1,9 @@
 package client
 
 import (
+	"context"
 	"fmt"
 	"net"
-	"os"
-	"strconv"
 	"time"
 )
 
@@ -32,6 +31,13 @@ type Status struct {
 	StartedUnix int64   `json:"started_unix,omitempty"`
 	Message     string  `json:"message"`
 	Action      string  `json:"action"`
+
+	// PortSource, ProjectPath, and ProjectMatch answer "whose editor is this?".
+	// Port discovery falls back to the default port, so a reachable editor is not
+	// necessarily this project's, and every command would land in the other one.
+	PortSource   PortSource `json:"port_source"`
+	ProjectPath  string     `json:"project_path,omitempty"`  // project the answering editor serves
+	ProjectMatch *bool      `json:"project_match,omitempty"` // nil when it could not be determined
 }
 
 // Diagnose decides the editor's state for the project at cwd. flagPort (>0) pins
@@ -39,32 +45,46 @@ type Status struct {
 // TCP probe and, when a discovery file exists but the probe fails, a pid-liveness
 // check to separate a crash (process gone) from a still-booting editor.
 func Diagnose(cwd string, flagPort int) Status {
-	var disc *Discovery
-	if root, err := FindProjectRoot(cwd); err == nil {
-		if d, err := ReadDiscovery(root); err == nil {
-			disc = d
-		}
+	// Resolve the port ONCE (flag > env > discovery > default) so the probed port
+	// and the port reported in the verdict never diverge.
+	res := ResolvePortSource(flagPort, cwd)
+	disc := res.Disc
+
+	reachable := probe(res.Port)
+	alive := disc != nil && pidAlive(disc.PID)
+	st := classify(disc, res.Port, reachable, alive)
+	st.PortSource = res.Source
+
+	// Which project answered. This is the preflight, so it is worth one call: a
+	// reachable editor that serves a different project is the failure mode a
+	// verdict of "running" would otherwise wave straight through.
+	if !reachable || res.Project == "" {
+		return st
 	}
-	// Resolve the port ONCE, reusing the disc we already read (flag > env > disc >
-	// default) so the probed port and the port reported in the verdict never diverge.
-	port := flagPort
-	if port <= 0 {
-		if env := os.Getenv("GODOT_MCP_PORT"); env != "" {
-			if p, err := strconv.Atoi(env); err == nil {
-				port = p
-			}
-		}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	answering, err := AnsweringProject(ctx, res.Port)
+	if err != nil || answering == "" {
+		return st
 	}
-	if port <= 0 && disc != nil && disc.Port > 0 {
-		port = disc.Port
-	}
-	if port <= 0 {
-		port = DefaultPort
+	st.ProjectPath = answering
+	match := SameProjectPath(answering, res.Project)
+	st.ProjectMatch = &match
+	if match {
+		return st
 	}
 
-	reachable := probe(port)
-	alive := disc != nil && pidAlive(disc.PID)
-	return classify(disc, port, reachable, alive)
+	// Something answered, but not this project's editor, so as far as THIS project
+	// is concerned nothing is serving it. Re-derive the verdict as if the probe had
+	// failed: that is what makes the launch policy produce the right move ("you may
+	// launch one") instead of "running, proceed" against a stranger's editor.
+	st = classify(disc, res.Port, false, alive)
+	st.PortSource = res.Source
+	st.ProjectPath = answering
+	st.ProjectMatch = &match
+	st.Message = fmt.Sprintf("An editor answered on port %d, but it is serving %s, not %s — this project has no editor of its own.", res.Port, answering, res.Project)
+	st.Action = (&ProjectMismatch{Port: res.Port, Source: res.Source, Expected: res.Project, Answering: answering}).Action()
+	return st
 }
 
 // classify is the pure decision from the three observable facts: whether the

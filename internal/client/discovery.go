@@ -55,22 +55,54 @@ func ReadDiscovery(projectRoot string) (*Discovery, error) {
 	return &d, nil
 }
 
-// ResolvePort picks the port to connect to, in precedence order:
-// explicit flag (>0) > GODOT_MCP_PORT env > discovery file under cwd's
-// project root > DefaultPort.
-func ResolvePort(flagPort int, cwd string) int {
-	if flagPort > 0 {
-		return flagPort
-	}
-	if env := os.Getenv("GODOT_MCP_PORT"); env != "" {
-		if p, err := strconv.Atoi(env); err == nil {
-			return p
-		}
-	}
+// PortSource records where the connect port came from. It decides how far the CLI
+// can trust that the editor answering there is this project's: a port read from a
+// live discovery file names its own editor, while the default fallback names
+// whichever editor happens to hold 9080.
+type PortSource string
+
+const (
+	SourceFlag      PortSource = "flag"
+	SourceEnv       PortSource = "env"
+	SourceDiscovery PortSource = "discovery"
+	SourceDefault   PortSource = "default"
+)
+
+// Resolution is a resolved port plus the context needed to judge it: where the
+// port came from, which project the caller is standing in, and that project's
+// discovery file if it has one.
+type Resolution struct {
+	Port    int
+	Source  PortSource
+	Project string     // caller's project root; "" when cwd is not inside a project
+	Disc    *Discovery // the caller's discovery file, when present
+}
+
+// ResolvePortSource picks the port to connect to and reports how it got there, in
+// precedence order: explicit flag (>0) > GODOT_MCP_PORT env > discovery file under
+// cwd's project root > DefaultPort.
+func ResolvePortSource(flagPort int, cwd string) Resolution {
+	r := Resolution{Port: DefaultPort, Source: SourceDefault}
 	if root, err := FindProjectRoot(cwd); err == nil {
-		if d, err := ReadDiscovery(root); err == nil && d.Port > 0 {
-			return d.Port
+		r.Project = root
+		if d, err := ReadDiscovery(root); err == nil {
+			r.Disc = d
 		}
 	}
-	return DefaultPort
+	switch {
+	case flagPort > 0:
+		r.Port, r.Source = flagPort, SourceFlag
+	case os.Getenv("GODOT_MCP_PORT") != "":
+		if p, err := strconv.Atoi(os.Getenv("GODOT_MCP_PORT")); err == nil {
+			r.Port, r.Source = p, SourceEnv
+		}
+	case r.Disc != nil && r.Disc.Port > 0:
+		r.Port, r.Source = r.Disc.Port, SourceDiscovery
+	}
+	return r
+}
+
+// ResolvePort picks the port to connect to. See ResolvePortSource for precedence.
+func ResolvePort(flagPort int, cwd string) int {
+	return ResolvePortSource(flagPort, cwd).Port
 }

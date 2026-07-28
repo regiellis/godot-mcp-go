@@ -101,10 +101,12 @@ func main() {
 
 	cwd, _ := os.Getwd()
 	var resolved int
+	var portRes client.Resolution
 	if *game {
 		resolved = client.ResolveGamePort(*port, cwd)
 	} else {
-		resolved = client.ResolvePort(*port, cwd)
+		portRes = client.ResolvePortSource(*port, cwd)
+		resolved = portRes.Port
 	}
 
 	// A dotnet build's first NuGet restore can run minutes; floor the default
@@ -121,6 +123,18 @@ func main() {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), deadline)
 	defer cancel()
+
+	// Confirm whose editor is answering before the call mutates anything. Skipped
+	// when the port came from this project's own live discovery file, which is the
+	// common case and costs nothing.
+	if !*game {
+		if mm := client.CheckProject(ctx, portRes); mm != nil {
+			printMismatch(mm)
+			if mm.Fatal() {
+				os.Exit(1)
+			}
+		}
+	}
 
 	result, err := client.Call(ctx, resolved, method, params)
 	if err != nil {
@@ -461,6 +475,19 @@ func printDiagnosis(st client.Status) {
 	if b, err := json.MarshalIndent(st, "", "  "); err == nil {
 		fmt.Fprintln(os.Stderr, string(b))
 	}
+}
+
+// printMismatch reports that the editor answering is serving another project.
+// A guessed port aborts the command; an explicitly targeted one warns and
+// continues, since asking for that port is a statement of intent.
+func printMismatch(mm *client.ProjectMismatch) {
+	label := "warning"
+	if mm.Fatal() {
+		label = "error"
+	}
+	fmt.Fprintf(os.Stderr, "%s: wrong editor — %s\n", label, mm.Error())
+	fmt.Fprintf(os.Stderr, "port %d came from: %s\n", mm.Port, mm.Source)
+	fmt.Fprintln(os.Stderr, mm.Action())
 }
 
 // printGameDialError reports a failed dial on the --game channel. Unlike the

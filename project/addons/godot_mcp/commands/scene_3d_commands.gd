@@ -149,10 +149,14 @@ func _add_mesh(params: Dictionary) -> Dictionary:
 			mesh_instance.free()
 			return error_invalid_params("Unknown mesh_type '%s'. Available: %s" % [mesh_type, _MESH_TYPES])
 		var mesh_res: Mesh = ClassDB.instantiate(mesh_type)
-		var mesh_properties: Dictionary = params.get("mesh_properties", {})
-		for prop_name: String in mesh_properties:
-			if prop_name in mesh_res:
-				mesh_res.set(prop_name, PropertyParser.parse_value(mesh_properties[prop_name], typeof(mesh_res.get(prop_name))))
+		var mpd := optional_dict(params, "mesh_properties")
+		if mpd[1] != null:
+			mesh_instance.free()
+			return mpd[1]
+		var mesh_props := apply_initial_properties(mesh_res, mpd[0])
+		if not mesh_props["failures"].is_empty():
+			mesh_instance.free()
+			return error_property_failures(mesh_props)
 		mesh_instance.mesh = mesh_res
 
 	mesh_instance.position = _vector3_param(params, "position", Vector3.ZERO)

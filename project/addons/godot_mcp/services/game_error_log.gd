@@ -64,6 +64,25 @@ func _kind(t: int) -> String:
 		_: return "error"
 
 
+## The seq the next captured entry will take. Snapshot it before an operation to
+## read back only what that operation logged.
+func next_seq() -> int:
+	return _seq
+
+
+## Newest entry with seq >= since_seq, or {} when the operation logged nothing.
+## Lets a caller attach the real text of an error whose API returns only a code —
+## a GDScript parse error reports ERR_PARSE_ERROR and prints the reason here.
+func newest_since(since_seq: int) -> Dictionary:
+	for i in range(_entries.size() - 1, -1, -1):
+		var e: Dictionary = _entries[i]
+		if int(e["seq"]) < since_seq:
+			break
+		if not String(e["message"]).is_empty():
+			return e
+	return {}
+
+
 ## Return buffered entries with seq >= since_seq. next_seq is the cursor to pass
 ## on the following poll for incremental reads. clear empties the buffer after.
 func poll(since_seq: int, clear: bool) -> Dictionary:

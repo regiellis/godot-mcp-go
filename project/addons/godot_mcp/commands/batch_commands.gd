@@ -159,9 +159,13 @@ func _add_nodes(params: Dictionary) -> Dictionary:
 		if not node_name.is_empty():
 			node.name = node_name
 
-		for prop_name: String in properties:
-			if prop_name in node:
-				node.set(prop_name, PropertyParser.parse_value(properties[prop_name], typeof(node.get(prop_name))))
+		# A refused coercion fails only this entry: batch reports per-index errors
+		# and keeps going, so one bad property must not abort the rest of the run.
+		var props := apply_initial_properties(node, properties)
+		if not props["failures"].is_empty():
+			node.free()
+			errors.append({"index": i, "error": "Could not set properties", "failed": props["failures"]})
+			continue
 
 		add_child_with_undo(parent, node, root, "MCP: Batch add %s" % type)
 

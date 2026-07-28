@@ -117,6 +117,12 @@ func _sequence(params: Dictionary) -> Dictionary:
 func _write(payload: Variant) -> Dictionary:
 	if not EditorInterface.is_playing_scene():
 		return error(-32000, "No scene is currently playing", {"suggestion": "Use scene.play first"})
+	# This channel is one-way, so there is no timeout to fail on: without the
+	# autoload the write succeeds, nothing ever reads it, and the caller is told
+	# "sent": true. Fail loudly here instead. See base_command.
+	var no_autoload := game_autoload_error("MCPGameInput")
+	if not no_autoload.is_empty():
+		return no_autoload
 	var path := get_game_user_dir() + "/mcp_input_commands"
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:

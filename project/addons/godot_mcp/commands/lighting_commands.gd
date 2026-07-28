@@ -81,13 +81,15 @@ func _add(params: Dictionary) -> Dictionary:
 			node.quality = optional_int(params, "quality", 1)
 
 	# Any extra props, version-agnostic.
-	var props: Dictionary = params.get("properties", {})
-	var ignored: Array = []
-	for p: String in props:
-		if p in node:
-			node.set(p, PropertyParser.parse_value(props[p], typeof(node.get(p))))
-		else:
-			ignored.append(p)
+	var pd := optional_dict(params, "properties")
+	if pd[1] != null:
+		node.free()
+		return pd[1]
+	var applied := apply_initial_properties(node, pd[0])
+	if not applied["failures"].is_empty():
+		node.free()
+		return error_property_failures(applied)
+	var ignored: Array = applied["ignored"]
 
 	node.position = _v3(params, "position", Vector3.ZERO)
 	add_child_with_undo(parent, node, root, "MCP: Add %s" % type)
@@ -275,13 +277,15 @@ func _add_2d(params: Dictionary) -> Dictionary:
 		node.set("shadow_enabled", optional_bool(params, "shadows", false))
 
 	# Any extra props, version-agnostic (same pattern as _add).
-	var props: Dictionary = params.get("properties", {})
-	var ignored: Array = []
-	for p: String in props:
-		if p in node:
-			node.set(p, PropertyParser.parse_value(props[p], typeof(node.get(p))))
-		else:
-			ignored.append(p)
+	var pd := optional_dict(params, "properties")
+	if pd[1] != null:
+		node.free()
+		return pd[1]
+	var applied := apply_initial_properties(node, pd[0])
+	if not applied["failures"].is_empty():
+		node.free()
+		return error_property_failures(applied)
+	var ignored: Array = applied["ignored"]
 
 	node.position = _v2(params, "position", Vector2.ZERO)
 	add_child_with_undo(parent, node, root, "MCP: Add %s" % type)

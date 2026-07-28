@@ -172,16 +172,23 @@ func _ensure(params: Dictionary) -> Dictionary:
 		return error_invalid_params("Unknown node type '%s' (not in ClassDB or a script class_name)" % type)
 	node.name = node_name
 
-	var properties: Dictionary = params.get("properties", {})
-	for prop_name: String in properties:
-		if prop_name in node:
-			node.set(prop_name, PropertyParser.parse_value(properties[prop_name], typeof(node.get(prop_name))))
+	var pd := optional_dict(params, "properties")
+	if pd[1] != null:
+		node.free()
+		return pd[1]
+	var props := apply_initial_properties(node, pd[0])
+	if not props["failures"].is_empty():
+		node.free()
+		return error_property_failures(props)
 
 	add_child_with_undo(parent, node, root, "MCP: Ensure %s" % node_name)
-	return success({
+	var out := {
 		"created": true, "node_path": str(root.get_path_to(node)),
 		"type": type, "name": String(node.name),
-	})
+	}
+	if not props["ignored"].is_empty():
+		out["properties_ignored"] = props["ignored"]
+	return success(out)
 
 
 # --- checkpoint -------------------------------------------------------------

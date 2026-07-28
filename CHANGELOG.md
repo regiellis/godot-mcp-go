@@ -6,7 +6,85 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-## [0.5.0] — 2026-07-27
+### Fixed
+
+- **The addon no longer rewrites the host's `project.godot` on every editor launch
+  and shutdown.** Autoload injection moved from `_enter_tree` / `_exit_tree` to
+  `_enable_plugin` / `_disable_plugin`, which is what those virtuals are for: they
+  fire when the user actually ticks or unticks the plugin. The tree hooks fire every
+  time the editor starts and stops, so the addon dirtied the project file twice a
+  session — a standing chore for anyone who does not want dev-only autoloads in their
+  commits. Worse, the shutdown save persists whatever the in-memory settings hold
+  *after every plugin has torn itself down*: observed 2026-07-27 in a consumer project,
+  one quit dropped a DIFFERENT addon's seven committed autoloads, which would have
+  shipped a game that could not boot. Export is unchanged — disabling the plugin still
+  removes them. Projects that keep the plugin enabled should now COMMIT the two
+  autoloads, since nothing re-adds them at load.
+
+- **A missing game-side autoload is now diagnosed instantly instead of by
+  timeout — or, worse, not at all.** Every editor→game entry point
+  (`runtime.*`, `input.*`, `test.*`) now checks that `MCPGameInspector` /
+  `MCPGameInput` are present in the **on-disk** `project.godot` before it
+  writes an IPC request, reading the same file `get_game_user_dir()` already
+  parses. The launched game loads that file itself, so an autoload the editor
+  holds only in memory does not exist in the game; the on-disk copy can lose
+  one after plugin-enable, most often in projects that deliberately keep these
+  dev-only autoloads out of version control and then revert or check out
+  `project.godot` mid-session. Every editor-side command keeps working in that
+  state — `project.info` still lists both autoloads — so only the game hop
+  breaks, which made it expensive to diagnose. Previously `runtime.*` spent its
+  full timeout and then *guessed* at this cause in a suggestion string, while
+  `input.*`, being one-way with no response to wait on, reported
+  `{"sent": true}` for events nothing would ever read. The new error names the
+  missing setting and how to restore it. An unreadable `project.godot` is
+  treated as "proceed", so the check can never block a working call.
+
+- **An initial `--properties` map no longer drops a value on the floor.**
+  `node.add --properties '{"texture": "res://icon.png"}'` created the node, left
+  `texture` null, and reported success. The map was coerced against
+  `typeof(node.get(name))`, which reads the *current* value, and a null Resource
+  property reads as nil — so the path was assigned as text and discarded. `node.set`
+  had already been fixed to coerce against the declared type, which is why the same
+  value worked there and made this look like a quirk rather than a bug. Nine commands
+  now share one strict helper: a `res://` or `uid://` path is loaded into the real
+  resource, a coercion that cannot be made is an error naming the literal the
+  property wanted, and a name the type does not have comes back under
+  `properties_ignored`. A malformed `--properties` value is an error too; it used to
+  be iterated as a string and drop every key without a word. Affects `node.add`,
+  `authoring.ensure`, `batch.add_nodes`, `csg.add`, `lighting.add`,
+  `lighting.add_2d`, and `scene3d.add_mesh`.
+
+- **A script error in `runtime.eval` no longer wedges the game channel.** Under a
+  `--headless` editor a GDScript parse error broke into the remote debugger, which
+  has no UI to resume, so the game froze and every later `runtime.*` command timed
+  out with nothing surfaced anywhere. The channel simply went dead, and the usual
+  trigger — `var x := <untyped expression>` — is easy to write by accident. That
+  break only fires for a compile on the main thread, so the wrapped source is now
+  compiled on a worker thread first. A bad eval returns the parse message with the
+  line number in the caller's own code, and the next command still works.
+
+- **Commands no longer answer from another project's editor.** Port discovery falls
+  back to the default port when the project has no discovery file, so whichever
+  godot-mcp editor happened to be running answered, and every write landed in *that*
+  project with a success envelope each time. One session was spent chasing settings
+  that would not persist; they persisted, in the other project. A port that did not
+  come from this project's live discovery file is now checked against the answering
+  editor's `project_path` before the call runs: a guessed port aborts, an explicit
+  `--port` or `GODOT_MCP_PORT` warns. `godot-mcp status` reports `project_path` and
+  `project_match`, and a mismatch now reads as no editor at all rather than
+  "running", so the launch policy points at opening one. The healthy case costs
+  nothing, since a live discovery file names its own editor and skips the check.
+
+### Added
+
+- **`node.move` reorders siblings, and `node.add` takes `--index`.** Sibling order is
+  draw order in 2D, so seating a node behind existing content is routine work that
+  had no CLI expression at all: `node.move` only reparented, and the fallback was
+  `editor.run_script` with a hand-written `move_child`. `--new-parent-path` is now
+  optional when `--index` (0-based, negative counts from the end) or
+  `--before`/`--after` names a sibling to seat against, and the two combine to
+  reparent and position in one undoable step. `node.add --index` skips the round trip
+  entirely for a new node.
 
 The editor stops needing a middleman: it speaks MCP itself over streamable
 HTTP, so an HTTP-capable client connects with no Go process in between. Also
