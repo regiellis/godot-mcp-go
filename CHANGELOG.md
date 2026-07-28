@@ -24,9 +24,22 @@ Autoload registration moved from the editor's tree hooks to plugin enable and
 disable, so nothing re-adds `MCPGameInspector` / `MCPGameInput` at editor load
 any more. Anyone who deliberately kept them out of version control, relying on
 the old inject-on-launch behaviour, will find `runtime.*` and `input.*` inert
-after upgrading. Either commit the two autoloads, or toggle the plugin off and
-on once to have them re-added. The failure is self-describing: `runtime.*` now
-names the missing autoload in about 0.3s instead of spending its whole timeout.
+after upgrading. The failure is self-describing: `runtime.*` names the missing
+autoload in about 0.3s instead of spending its whole timeout.
+
+Three ways to restore them, in order of preference:
+
+- Commit the two autoloads. That is what a project on this version should do.
+- Add them from the CLI: `project add-autoload --name MCPGameInspector --path
+  res://addons/godot_mcp/services/game_inspector.gd`, then the same for
+  `MCPGameInput` with `services/game_input.gd`.
+- Untick and re-tick the plugin in Project Settings > Plugins, which runs the
+  enable hook and injects the pair.
+
+**Do not attempt that last one through the CLI.** `project disable-plugin --name
+godot_mcp` tears down the very WebSocket server the CLI is talking to: the
+disable lands, the response never arrives, and nothing remains to re-enable
+with. Use `project add-autoload` instead.
 
 ### Fixed
 
