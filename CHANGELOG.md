@@ -6,6 +6,28 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.0] — 2026-07-28
+
+A bug-fix release, and every one of these came out of building a game with the
+tool rather than reading its source. Four were found in a single session: an
+initial `--properties` map that dropped values on the floor, sibling ordering
+that had no CLI expression at all, commands that could answer from a different
+project's editor, and a bad `runtime.eval` that wedged the game channel until
+the game was restarted. The addon also stops rewriting the host's
+`project.godot` twice a session, which is the change to read the upgrade note
+for.
+
+### Upgrading
+
+**Projects that keep the plugin enabled must now commit the two autoloads.**
+Autoload registration moved from the editor's tree hooks to plugin enable and
+disable, so nothing re-adds `MCPGameInspector` / `MCPGameInput` at editor load
+any more. Anyone who deliberately kept them out of version control, relying on
+the old inject-on-launch behaviour, will find `runtime.*` and `input.*` inert
+after upgrading. Either commit the two autoloads, or toggle the plugin off and
+on once to have them re-added. The failure is self-describing: `runtime.*` now
+names the missing autoload in about 0.3s instead of spending its whole timeout.
+
 ### Fixed
 
 - **The addon no longer rewrites the host's `project.godot` on every editor launch
@@ -86,6 +108,8 @@ follow [Semantic Versioning](https://semver.org/).
   reparent and position in one undoable step. `node.add --index` skips the round trip
   entirely for a new node.
 
+## [0.5.0] — 2026-07-27
+
 The editor stops needing a middleman: it speaks MCP itself over streamable
 HTTP, so an HTTP-capable client connects with no Go process in between. Also
 the release where the new endpoint's `Origin` gate was added, then found
@@ -143,6 +167,13 @@ bypassable and hardened.
 - `node.add_resource`, `resource.create` and `resource.edit` are **atomic** on
   failure (nothing written) and now report `properties_set` as what actually
   applied, plus `properties_ignored` for names the object does not have.
+
+- **`scene open --force` switches to the scene it reloads** instead of leaving a
+  different one active. `EditorInterface.reload_scene_from_path` reloads a tab
+  without changing which tab is current, so forcing a scene that was open but not
+  active returned `opened:true` while the editor stayed put — and every later
+  command silently targeted the previously-active scene. The handler switches
+  after reloading and reports `already_active` so a caller can tell the difference.
 
 ### Security
 
