@@ -102,11 +102,13 @@ Flags:`)
 			fmt.Fprintf(os.Stderr, "install-assets: %q already exists (use --force)\n", dstPack)
 			continue
 		}
-		if err := copyDir(filepath.Join(src, name), dstPack); err != nil {
+		skipped, err := copyDir(filepath.Join(src, name), dstPack)
+		if err != nil {
 			fmt.Fprintf(os.Stderr, "install-assets: copying %s: %v\n", name, err)
 			continue
 		}
 		fmt.Printf("installed pack   -> %s\n", dstPack)
+		reportSkipped(skipped)
 		if res := resPath(root, dstPack); res != "" {
 			fmt.Printf("  reference as     %s/...\n", res)
 		}

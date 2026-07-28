@@ -70,11 +70,14 @@ Flags:`)
 		fmt.Fprintf(os.Stderr, "install: %q already exists (use --force to overwrite)\n", addonDst)
 		return 1
 	}
-	if err := copyDir(addonSrc, addonDst); err != nil {
+	skipped, err := copyDir(addonSrc, addonDst)
+	if err != nil {
 		fmt.Fprintln(os.Stderr, "install: copying addon:", err)
 		return 1
 	}
 	fmt.Printf("installed addon  -> %s\n", addonDst)
+	reportSkipped(skipped)
+	warnStaleContextDocs(addonDst)
 
 	if *skill {
 		// Same relative path in both layouts, so one candidate covers the archive
@@ -90,10 +93,11 @@ Flags:`)
 			skillDst := filepath.Join(root, ".claude", "skills", "godot-mcp")
 			if pathExists(skillDst) && !*force {
 				fmt.Fprintf(os.Stderr, "install: %q already exists (use --force)\n", skillDst)
-			} else if err := copyDir(skillSrc, skillDst); err != nil {
+			} else if skillSkipped, err := copyDir(skillSrc, skillDst); err != nil {
 				fmt.Fprintln(os.Stderr, "install: copying skill:", err)
 			} else {
 				fmt.Printf("installed skill  -> %s\n", skillDst)
+				reportSkipped(skillSkipped)
 			}
 		}
 	}
@@ -151,6 +155,30 @@ func resolveAsset(override, marker string, layouts ...[]string) (string, []strin
 	return "", tried
 }
 
+// reportSkipped names anything copyDir left behind, so the install is not
+// quietly different from its source.
+func reportSkipped(skipped []string) {
+	for _, s := range skipped {
+		fmt.Printf("  skipped %s (repo-internal doc, not shipped)\n", s)
+	}
+}
+
+// warnStaleContextDocs flags a dev context doc an EARLIER install left in the
+// project. It only warns: the file now sits in the user's tree, possibly
+// committed, and deleting files inside someone's project is not this command's
+// call to make.
+func warnStaleContextDocs(dst string) {
+	_ = filepath.WalkDir(dst, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return nil
+		}
+		if !d.IsDir() && devContextDoc(d.Name()) {
+			fmt.Fprintf(os.Stderr, "install: %s is left over from an earlier install and is not part of the addon; delete it.\n", path)
+		}
+		return nil
+	})
+}
+
 func fileExists(p string) bool { fi, err := os.Stat(p); return err == nil && !fi.IsDir() }
 func pathExists(p string) bool { _, err := os.Stat(p); return err == nil }
 
@@ -168,8 +196,21 @@ func samePath(a, b string) bool {
 	return filepath.Clean(aa) == filepath.Clean(bb)
 }
 
-func copyDir(src, dst string) error {
-	return filepath.WalkDir(src, func(path string, d os.DirEntry, err error) error {
+// devContextDoc reports whether a file is repo-internal guidance that must not
+// land in a consumer project. This is the same rule scripts/release.ps1 applies
+// when staging an archive; keep the two in step. Installing from an archive never
+// hits it (the file was stripped at package time), but installing from a source
+// checkout copies whatever is on disk.
+func devContextDoc(name string) bool {
+	return strings.EqualFold(name, "CLAUDE.md")
+}
+
+// copyDir copies a tree, skipping dev context docs at any depth. It returns the
+// paths it skipped so the caller can say so rather than silently differing from
+// the source.
+func copyDir(src, dst string) ([]string, error) {
+	var skipped []string
+	err := filepath.WalkDir(src, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -177,12 +218,17 @@ func copyDir(src, dst string) error {
 		if err != nil {
 			return err
 		}
+		if !d.IsDir() && devContextDoc(d.Name()) {
+			skipped = append(skipped, rel)
+			return nil
+		}
 		target := filepath.Join(dst, rel)
 		if d.IsDir() {
 			return os.MkdirAll(target, 0o755)
 		}
 		return copyFile(path, target)
 	})
+	return skipped, err
 }
 
 func copyFile(src, dst string) error {

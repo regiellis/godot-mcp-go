@@ -75,6 +75,59 @@ func TestResolveAssetReportsEveryCandidate(t *testing.T) {
 	}
 }
 
+func TestCopyDirSkipsDevContextDocs(t *testing.T) {
+	// release.ps1 strips CLAUDE.md from every archive; copyDir has to apply the
+	// same rule so a source-checkout install does not put the addon's dev context
+	// doc into someone's game project.
+	src := t.TempDir()
+	dst := filepath.Join(t.TempDir(), "out")
+	files := map[string]string{
+		"plugin.cfg":               "[plugin]\n",
+		"CLAUDE.md":                "dev guidance",
+		"commands/base_command.gd": "@tool\n",
+		"commands/CLAUDE.md":       "nested dev guidance",
+		"services/game_input.gd":   "extends Node\n",
+		"docs/claude.md":           "lowercase variant",
+	}
+	for rel, body := range files {
+		p := filepath.Join(src, filepath.FromSlash(rel))
+		if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(p, []byte(body), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	skipped, err := copyDir(src, dst)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	mustExist := []string{"plugin.cfg", "commands/base_command.gd", "services/game_input.gd"}
+	for _, rel := range mustExist {
+		if !fileExists(filepath.Join(dst, filepath.FromSlash(rel))) {
+			t.Errorf("%s was not copied", rel)
+		}
+	}
+	// Nested and differently-cased copies must go too: a case-insensitive
+	// filesystem would otherwise ship the same file under another spelling.
+	mustNotExist := []string{"CLAUDE.md", "commands/CLAUDE.md", "docs/claude.md"}
+	for _, rel := range mustNotExist {
+		if fileExists(filepath.Join(dst, filepath.FromSlash(rel))) {
+			t.Errorf("%s was copied into the destination", rel)
+		}
+	}
+	if len(skipped) != len(mustNotExist) {
+		t.Errorf("skipped %d files, want %d: %v", len(skipped), len(mustNotExist), skipped)
+	}
+	// Directories that held only a skipped file are still created; that is fine,
+	// but the skip must be reported so the install is not silently lossy.
+	if len(skipped) == 0 {
+		t.Error("nothing reported as skipped; the caller cannot tell the copy was filtered")
+	}
+}
+
 func TestSamePath(t *testing.T) {
 	// Guards the source-onto-destination copy that a cwd-based search could
 	// otherwise set up.

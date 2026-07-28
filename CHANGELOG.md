@@ -6,6 +6,26 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.2] — 2026-07-28
+
+Another CLI-only patch, from the same corner as 0.6.1. The addon is unchanged.
+
+### Fixed
+
+- **`install` no longer copies the addon's dev context doc into your project.**
+  It copied `addons/godot_mcp/` wholesale, so `addons/godot_mcp/CLAUDE.md` came
+  along: repo-internal guidance with no business in a consumer project.
+  `release.ps1` had always stripped it from packaged archives, so installing
+  from a release was fine and installing from a source checkout was not. 0.6.1
+  made checkout installs work without flags, which widened that path rather than
+  narrowing it. The copy now applies the same rule the archive step does, at any
+  depth and regardless of case, and names what it skipped rather than differing
+  from its source in silence.
+
+- `install` also warns when an **earlier** install left the file in your project.
+  It only warns: the file is in your tree by then, possibly committed, and
+  deleting things inside someone's project is not this command's call.
+
 ## [0.6.1] — 2026-07-28
 
 A CLI-only patch. The addon is unchanged from 0.6.0; its version moves in step
