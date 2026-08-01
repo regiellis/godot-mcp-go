@@ -165,6 +165,17 @@ func _register_project_file(path: String) -> int:
 	return added
 
 
+# Param names handlers accept beyond their documented list. Kept small on
+# purpose: an alias is a deliberate compatibility grant, not a loophole.
+const _PARAM_ALIASES := {
+	"node.add": ["parent"],
+	"node.add_resource": ["properties"],
+}
+
+# Params a transport injects for routing; never the handler's business.
+const _TRANSPORT_PARAMS := ["game"]
+
+
 func execute(method: String, params: Dictionary) -> Dictionary:
 	var t0 := Time.get_ticks_msec()
 	var result: Dictionary
@@ -176,10 +187,56 @@ func execute(method: String, params: Dictionary) -> Dictionary:
 		}}
 	else:
 		result = await _handlers[method].call(params)
+		if not result.has("error"):
+			_flag_unknown_params(method, params, result)
 	# Don't record the dashboard's own stats polling.
 	if not method.begins_with("stats."):
 		_record(method, not result.has("error"), Time.get_ticks_msec() - t0, params)
 	return result
+
+
+# A param the command's docs don't declare is almost always a typo or a
+# flag borrowed from a sibling command, and a handler reads only the keys it
+# knows — the call "succeeds" while the value goes nowhere. Annotate the
+# success payload so the miss is visible in the result itself, with the
+# closest declared name as a hint. Annotation, not an error: docs are the
+# best available map of a handler's params, not a proven-complete one.
+func _flag_unknown_params(method: String, params: Dictionary, result: Dictionary) -> void:
+	if not _docs.has(method):
+		return
+	var payload: Variant = result.get("result")
+	if not payload is Dictionary:
+		return
+	var declared := {}
+	for p in (_docs[method] as Dictionary).get("params", []):
+		if p is Dictionary:
+			declared[str((p as Dictionary).get("name", ""))] = true
+	for alias in _PARAM_ALIASES.get(method, []):
+		declared[alias] = true
+	for t in _TRANSPORT_PARAMS:
+		declared[t] = true
+	var unknown: Array = []
+	var hints: Array = []
+	for key in params:
+		var k := str(key)
+		if declared.has(k):
+			continue
+		unknown.append(k)
+		var best := ""
+		var best_score := 0.0
+		for d in declared:
+			var score: float = k.similarity(str(d))
+			if score > best_score:
+				best_score = score
+				best = str(d)
+		if best_score >= 0.4:
+			hints.append("'%s' is not a %s param — did you mean '%s'?" % [k, method, best])
+		else:
+			hints.append("'%s' is not a %s param (see %s --help)" % [k, method, method])
+	if unknown.is_empty():
+		return
+	(payload as Dictionary)["unknown_params"] = unknown
+	(payload as Dictionary)["unknown_params_hint"] = "; ".join(hints)
 
 
 func get_available_methods() -> Array:

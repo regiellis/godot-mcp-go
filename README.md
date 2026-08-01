@@ -115,6 +115,8 @@ godot-mcp create --path ./mygame --install --enable
 
 Copies `addons/godot_mcp/` and `.claude/skills/godot-mcp/` in and enables the plugin in `project.godot`. See [INSTALL.md](INSTALL.md) for flags and the manual alternative.
 
+> **Before you ship:** the addon is development tooling — disable the plugin and add `addons/godot_mcp/*` to every export preset's exclude filter so it never rides into an exported game. [INSTALL.md](INSTALL.md#before-you-ship) has the two steps; the [Shipping and export guide](https://regiellis.github.io/godot-mcp-go/docs/guides/shipping-export) covers verifying a build.
+
 ## Quick start
 
 1. Open the test project (or your own with the addon installed) in Godot 4.7+:

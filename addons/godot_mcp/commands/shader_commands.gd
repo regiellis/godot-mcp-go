@@ -183,9 +183,16 @@ func _create(params: Dictionary) -> Dictionary:
 	file.store_string(content)
 	file.close()
 
-	_refresh_loaded_shader(path, content)
-
-	return success({"path": path, "shader_type": shader_type, "created": true})
+	var out := {"path": path, "shader_type": shader_type, "created": true}
+	out["hot_reload"] = _refresh_loaded_shader(path, content)
+	if out["hot_reload"] == "blocked":
+		out["suggestion"] = "The Shader Editor has this file open and overrides programmatic reloads with its own buffer — close that tab (or reopen the file there), then re-run."
+	var compiled: Variant = _compile_status(content)
+	if compiled != null:
+		out["compiled"] = compiled
+		if compiled == false:
+			out["suggestion"] = "The shader failed to parse — read the tail of editor.errors for the line and reason."
+	return success(out)
 
 
 func _read(params: Dictionary) -> Dictionary:
@@ -241,15 +248,22 @@ func _edit(params: Dictionary) -> Dictionary:
 					content = content.replace(search, replace)
 					changes_made += 1
 
+	var out := {"path": path, "changes_made": changes_made}
 	if changes_made > 0:
 		var file := FileAccess.open(path, FileAccess.WRITE)
 		if file == null:
 			return error_internal("Cannot write shader: %s" % error_string(FileAccess.get_open_error()))
 		file.store_string(content)
 		file.close()
-		_refresh_loaded_shader(path, content)
-
-	return success({"path": path, "changes_made": changes_made})
+		out["hot_reload"] = _refresh_loaded_shader(path, content)
+		if out["hot_reload"] == "blocked":
+			out["suggestion"] = "The Shader Editor has this file open and overrides programmatic reloads with its own buffer — close that tab (or reopen the file there), then re-run."
+		var compiled: Variant = _compile_status(content)
+		if compiled != null:
+			out["compiled"] = compiled
+			if compiled == false:
+				out["suggestion"] = "The shader failed to parse — read the tail of editor.errors for the line and reason."
+	return success(out)
 
 
 func _assign_material(params: Dictionary) -> Dictionary:
@@ -368,22 +382,54 @@ func _get_shader_material(node: Node) -> ShaderMaterial:
 	return null
 
 
-func _refresh_loaded_shader(path: String, content: String) -> void:
+# Push new source into the loaded shader and report what happened:
+# "updated" (the cached shader now runs this content), "blocked" (the set
+# did not stick — the editor's Shader Editor holds the file open and
+# re-applies its own buffer synchronously), or "not_loaded" (nothing
+# references the file yet, so the next load reads the new source).
+func _refresh_loaded_shader(path: String, content: String) -> String:
 	var normalized := normalize_project_path(path)
 	if normalized.is_empty():
-		return
+		return "not_loaded"
+	var status := "not_loaded"
 	if ResourceLoader.has_cached(normalized):
-		var shader := Shader.new()
-		shader.code = content
-		shader.take_over_path(normalized)
-		shader.emit_changed()
+		# Update the CACHED shader in place so every material referencing it
+		# recompiles, and its resource_path stays intact. The old approach —
+		# a fresh Shader + take_over_path — updated an object nothing
+		# referenced, while materials kept a now PATH-LESS stale copy that
+		# the next ResourceSaver.save() embedded into their .tres, silently
+		# detaching them from this file (found live 2026-08-01).
+		var shader := ResourceLoader.load(normalized) as Shader
+		if shader != null:
+			shader.code = content
+			status = "updated" if shader.code == content else "blocked"
 	EditorInterface.get_resource_filesystem().update_file(normalized)
+	return status
+
+
+# Best-effort compile check for a result envelope: a shader whose parse fails
+# exposes an EMPTY uniform list, so declared-but-unlisted uniforms mean the
+# compile failed. Screen/depth-hinted samplers never enumerate, and global /
+# instance uniforms don't start with "uniform ", so neither counts as expected.
+# Returns true / false, or null when the source declares nothing enumerable
+# (no way to tell — report nothing rather than guess).
+func _compile_status(content: String) -> Variant:
+	var probe := Shader.new()
+	probe.code = content
+	if probe.get_shader_uniform_list(false).size() > 0:
+		return true
+	var expected := 0
+	for line in content.split("\n"):
+		var t := line.strip_edges()
+		if t.begins_with("uniform ") and not ("hint_screen_texture" in t or "hint_depth_texture" in t):
+			expected += 1
+	return false if expected > 0 else null
 
 
 func get_command_docs() -> Dictionary:
 	return {
 		"shader.create": {
-			"description": "Write a new text shader (.gdshader) file. Uses --content, or a starter template for --shader-type when content is omitted. Refuses to clobber a file open in the script editor without --force.",
+			"description": "Write a new text shader (.gdshader) file. Uses --content, or a starter template for --shader-type when content is omitted. Refuses to clobber a file open in the script editor without --force. Reports `compiled` (uniform-list probe) when the source declares enumerable uniforms; a false means a parse error — read editor.errors.",
 			"params": [
 				doc_param("path", "String", true, "Save path for the shader (inside the project)."),
 				doc_param("shader_type", "String", false, "Template to seed when --content is empty: spatial (default), canvas_item, particles, sky."),
@@ -398,7 +444,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"shader.edit": {
-			"description": "Rewrite a shader with --content, or apply --replacements (search/replace pairs) to the existing source. Refuses a file open in the script editor without --force.",
+			"description": "Rewrite a shader with --content, or apply --replacements (search/replace pairs) to the existing source. Hot-reloads the loaded shader in place, so open materials recompile and keep their file reference. Refuses a file open in the script editor without --force. Reports `compiled` (uniform-list probe) when the source declares enumerable uniforms; a false means a parse error — read editor.errors.",
 			"params": [
 				doc_param("path", "String", true, "Path to the shader file."),
 				doc_param("content", "String", false, "Full replacement source. Use this OR --replacements."),
