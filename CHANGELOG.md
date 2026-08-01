@@ -6,6 +6,35 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.6.3] — 2026-08-01
+
+Two addon fixes found by driving shader work against a live editor, plus
+shipping guidance the install docs should always have carried.
+
+### Fixed
+
+- **`shader edit` and `shader create` hot-reload the material's cached shader
+  in place.** The old path built a fresh `Shader` and took over the file's
+  path, so every material kept referencing the stale copy: edits compiled but
+  never rendered, and the next material save embedded the detached shader into
+  the `.tres`, silently disconnecting the material from its file. Results now
+  report `hot_reload` (`updated`, `blocked` when an open Shader Editor tab
+  re-applies its own buffer, or `not_loaded`) and `compiled` from a uniform
+  probe, so a broken edit is visible in the reply.
+- **`editor screenshot` renders a fresh frame before capturing.** A minimized
+  or unfocused editor stops redrawing, so the viewport texture could be hours
+  old and every capture returned the same stale image while reporting success.
+
+### Added
+
+- **"Before you ship" guidance in README, INSTALL, and the docs site.**
+  Disable the plugin before exporting (this removes the two injected
+  autoloads) and exclude `addons/godot_mcp/*` in every export preset. The
+  game-side autoloads poll IPC files each frame in release builds too, and
+  `runtime eval` is an arbitrary-eval surface, so the addon must never ride
+  into a shipped game. The shipping-export guide covers verifying a build by
+  scanning the exported `.pck`.
+
 ## [0.6.2] — 2026-07-28
 
 Another CLI-only patch, from the same corner as 0.6.1. The addon is unchanged.
