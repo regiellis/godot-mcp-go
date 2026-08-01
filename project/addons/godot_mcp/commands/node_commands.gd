@@ -381,10 +381,16 @@ func _add_resource(params: Dictionary) -> Dictionary:
 		return error_invalid_params("'%s' is not a valid Resource type (a ClassDB class or a class_name Resource script)" % resource_type)
 
 	# Atomic: refuse the whole call rather than assigning the resource with some
-	# properties silently missing.
+	# properties silently missing. --properties is an accepted alias: the map
+	# rides beside the --property slot argument, so the longer canonical name
+	# stays, but reaching for the sibling commands' flag should still land.
 	var rpd := optional_dict(params, "resource_properties")
 	if rpd[1] != null:
 		return rpd[1]
+	if (rpd[0] as Dictionary).is_empty() and params.has("properties"):
+		rpd = optional_dict(params, "properties")
+		if rpd[1] != null:
+			return rpd[1]
 	var props := apply_initial_properties(resource, rpd[0])
 	if not props["failures"].is_empty():
 		return error_property_failures(props)
@@ -718,7 +724,7 @@ func get_command_docs() -> Dictionary:
 				doc_param("node_path", "NodePath", true, "Target node."),
 				doc_param("property", "String", true, "Property to assign the new resource to."),
 				doc_param("resource_type", "String", true, "Resource class (ClassDB) or a class_name Resource script."),
-				doc_param("resource_properties", "Dictionary", false, "Initial values on the new resource."),
+				doc_param("resource_properties", "Dictionary", false, "Initial values on the new resource (--properties is an accepted alias)."),
 			],
 		},
 		"node.set_anchor": {

@@ -59,6 +59,23 @@ godot-mcp install-assets --list
 godot-mcp install-assets --pack kenney_prototype_textures
 ```
 
+## Before you ship
+
+The addon is development tooling and must not ride into an exported game: it is a command server with an arbitrary-eval surface, and its two game-side autoloads poll IPC files every frame — in release builds too. Two steps keep it out:
+
+1. **Disable the plugin before exporting** (Project → Project Settings → Plugins). Disabling removes the two injected autoloads (`MCPGameInspector`, `MCPGameInput`) from `project.godot`; re-enabling puts them back, so the toggle costs nothing per release.
+2. **Exclude the addon files in every export preset.** In the Export window, Resources tab, add to *Filters to exclude files/folders*:
+
+   ```
+   addons/godot_mcp/*
+   ```
+
+   Add `mcp_commands/*` too if the project defines [project-local commands](/docs/extending). The default "Export all resources" mode ships unreferenced scripts, so the filter matters even with the plugin disabled.
+
+<Callout type="warning" title="Verify the build">
+  String-scan the exported `.pck`: it should contain no `godot_mcp` or `MCPGame` matches. The [Shipping and export guide](/docs/guides/shipping-export) covers the receipt scan and the rest of the release pipeline.
+</Callout>
+
 ## Troubleshooting
 
 If the CLI can't connect, run the environment preflight:

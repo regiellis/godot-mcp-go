@@ -157,6 +157,9 @@ func _screenshot(params: Dictionary) -> Dictionary:
 	if base == null:
 		return error_internal("Could not access editor base control")
 	var viewport := base.get_viewport()
+	# An unfocused/minimized editor stops redrawing, so the texture can hold a
+	# frame that is minutes or hours old. Render one fresh frame before reading.
+	RenderingServer.force_draw()
 	var image := viewport.get_texture().get_image() if viewport else null
 	if image == null or image.is_empty():
 		return error(-32000, "Could not capture editor viewport", {
@@ -472,7 +475,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"editor.screenshot": {
-			"description": "Capture the editor viewport to a PNG (base64, or saved to --save-path). Needs a windowed editor; fails under --headless.",
+			"description": "Capture the editor viewport to a PNG (base64, or saved to --save-path). Forces a fresh frame first, so an unfocused editor cannot serve a stale image. Needs a windowed editor; fails under --headless.",
 			"params": [
 				doc_param("save_path", "String", false, "res://, user://, or absolute path to save the PNG; omit to return base64."),
 			],

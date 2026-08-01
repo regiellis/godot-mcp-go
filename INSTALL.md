@@ -123,3 +123,18 @@ The game hosts its own `127.0.0.1`-only server (ports 9200-9215; `GODOT_MCP_GAME
    ```
 
 If the CLI can't connect, run `godot-mcp doctor` (from inside the project, or with `--project DIR`) — it checks the godot binary, the addon install/enable state, the effective port, and whether an editor is actually reachable — or pass `--port 9080` explicitly.
+
+## Before you ship
+
+The addon is development tooling and must not ride into an exported game: it is a command server with an arbitrary-eval surface, and its two game-side autoloads poll IPC files every frame — in release builds too. Two steps keep it out:
+
+1. **Disable the plugin before exporting** (Project → Project Settings → Plugins). Disabling removes the two injected autoloads (`MCPGameInspector`, `MCPGameInput`) from `project.godot`; re-enabling puts them back, so this costs nothing to toggle per release.
+2. **Exclude the addon files in every export preset.** In the Export window, Resources tab, add to *Filters to exclude files/folders*:
+
+   ```
+   addons/godot_mcp/*
+   ```
+
+   Add `mcp_commands/*` too if the project defines project-local commands. The default "Export all resources" mode ships unreferenced scripts, so the filter matters even with the plugin disabled.
+
+To verify a build, string-scan the exported `.pck` — it should contain no `godot_mcp` or `MCPGame` matches. The [Shipping and export guide](https://regiellis.github.io/godot-mcp-go/docs/guides/shipping-export) covers the receipt scan and the rest of the release pipeline.
