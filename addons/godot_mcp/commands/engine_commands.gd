@@ -186,13 +186,86 @@ func _defaults(params: Dictionary) -> Dictionary:
 	})
 
 
-func _search(params: Dictionary) -> Dictionary:
-	var r := require_string(params, "query")
-	if r[1] != null:
-		return r[1]
-	var query: String = r[0].to_lower()
-	var limit := optional_int(params, "limit", 50)
+## Build the fuzzy matcher, or null when the running build has no FuzzySearch.
+##
+## Reached through ClassDB rather than the `FuzzySearch` identifier on purpose:
+## naming the type directly is a parse error on 4.7, which would break the whole
+## plugin rather than degrade one command.
+func _fuzzy_matcher() -> Object:
+	if not ClassDB.class_exists("FuzzySearch"):
+		return null
+	var fz: Object = ClassDB.instantiate("FuzzySearch")
+	if fz == null:
+		return null
+	fz.set("case_sensitive", false)
+	# Without this the matcher accepts almost anything across a 100k-name corpus:
+	# an unfiltered "linvel" ranked AccessibilityServer.update_set_list_item_level
+	# above linear_velocity.
+	fz.set("filter_low_scores", true)
+	fz.set("max_results", 400)
+	return fz
 
+
+## Fuzzy sweep of the whole API, ranked by score. Empty when the running build
+## has no FuzzySearch.
+##
+## Deliberately ONE search over every candidate rather than per-class calls: the
+## point of fuzzy matching is the ranking, and matching class by class in ClassDB
+## order throws it away — the answer becomes alphabetical, so AccessibilityServer
+## outranks the class you meant. Names are grouped back onto their owning class in
+## score order, so the first entry is the best hit.
+func _fuzzy_search_matches(query: String) -> Array:
+	var fz := _fuzzy_matcher()
+	if fz == null:
+		return []
+
+	var targets := PackedStringArray()
+	var owners: Array = []
+	for cls: String in ClassDB.get_class_list():
+		targets.append(cls)
+		owners.append({"class": cls, "kind": "class"})
+		for p in ClassDB.class_get_property_list(cls, true):
+			if p["type"] != TYPE_NIL:
+				targets.append(p["name"])
+				owners.append({"class": cls, "kind": "property"})
+		for m in ClassDB.class_get_method_list(cls, true):
+			targets.append(m["name"])
+			owners.append({"class": cls, "kind": "method"})
+	for e in ProjectSettings.get_global_class_list():
+		targets.append(String(e.get("class", "")))
+		owners.append({"class": String(e.get("class", "")), "kind": "script", "entry": e})
+
+	var by_class := {}
+	var order: Array = []
+	for m in fz.call("search_all", query, targets):
+		var idx := int(m.get("original_index"))
+		if idx < 0 or idx >= owners.size():
+			continue
+		var owner: Dictionary = owners[idx]
+		var cls: String = owner["class"]
+		if not by_class.has(cls):
+			by_class[cls] = {"class": cls}
+			order.append(cls)
+			if owner["kind"] == "script":
+				var e: Dictionary = owner["entry"]
+				by_class[cls]["kind"] = "script"
+				by_class[cls]["base"] = e.get("base", "")
+				by_class[cls]["script_path"] = e.get("path", "")
+		var name := String(m.get("target"))
+		match owner["kind"]:
+			"property":
+				by_class[cls].get_or_add("properties", []).append(name)
+			"method":
+				by_class[cls].get_or_add("methods", []).append(name)
+
+	var out: Array = []
+	for cls in order:
+		out.append(by_class[cls])
+	return out
+
+
+## Substring sweep of ClassDB plus the global class list. `query` is lowercased.
+func _collect_search_matches(query: String) -> Array:
 	var matches: Array = []
 	for cls: String in ClassDB.get_class_list():
 		var props: Array = []
@@ -217,12 +290,44 @@ func _search(params: Dictionary) -> Dictionary:
 		var name: String = e.get("class", "")
 		if name.to_lower().contains(query):
 			matches.append({"class": name, "kind": "script", "base": e.get("base", ""), "script_path": e.get("path", "")})
+	return matches
+
+
+func _search(params: Dictionary) -> Dictionary:
+	var r := require_string(params, "query")
+	if r[1] != null:
+		return r[1]
+	var query: String = r[0].to_lower()
+	var limit := optional_int(params, "limit", 50)
+
+	# Substring first: it is the cheap sweep and it is what most queries want.
+	var matches := _collect_search_matches(query)
+	var mode := "substring"
+
+	# A query that matches nothing as a substring is usually an abbreviation an
+	# agent guessed ("linvel" for linear_velocity, "gpos" for global_position).
+	# 4.8's FuzzySearch resolves those; 4.7 has no such class and keeps the empty
+	# result. Running it only as a rescue keeps the common path at its old speed
+	# and makes the fuzzy pass strictly additive — it can never change a result
+	# the substring sweep already found.
+	if matches.is_empty():
+		var fuzzy := _fuzzy_search_matches(query)
+		if not fuzzy.is_empty():
+			matches = fuzzy
+			mode = "fuzzy"
 
 	var total := matches.size()
 	var truncated := limit > 0 and total > limit
 	if truncated:
 		matches = matches.slice(0, limit)
-	return success({"query": r[0], "matches": matches, "count": matches.size(), "total_matched": total, "truncated": truncated})
+	return success({
+		"query": r[0],
+		"matches": matches,
+		"count": matches.size(),
+		"total_matched": total,
+		"truncated": truncated,
+		"match_mode": mode,
+	})
 
 
 ## List global class_name scripts (those provided by addons and the project).
@@ -309,9 +414,9 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"engine.search": {
-			"description": "Search the live API: ClassDB classes, properties, and methods (plus global class_name scripts) matching --query.",
+			"description": "Search the live API: ClassDB classes, properties, and methods (plus global class_name scripts) matching --query. Matches by substring first; if that finds nothing and the running build exposes FuzzySearch (Godot 4.8+), it retries fuzzily so an abbreviation like 'linvel' still reaches linear_velocity. `match_mode` in the result says which pass produced the matches ('substring' or 'fuzzy').",
 			"params": [
-				doc_param("query", "String", true, "Substring to match against class/property/method names."),
+				doc_param("query", "String", true, "Substring to match against class/property/method names; an abbreviation also works on 4.8+."),
 				doc_param("limit", "int", false, "Max matches (default 50)."),
 			],
 		},
