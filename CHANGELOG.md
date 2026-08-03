@@ -6,6 +6,42 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.2] — 2026-08-03
+
+Documentation only. No command, addon, or CLI behaviour changed. The agent skill
+and the craft guides did change, so the skill archive is worth updating even
+though the addon is unchanged apart from a one-word fix in its README.
+
+### Added
+
+- **A changelog page on the docs site**, at `/docs/changelog`. It renders this
+  file rather than a copy, so the published history and the file maintainers
+  actually edit cannot disagree. Every release anchors, so deep links work, and
+  the search index covers it: looking up a feature in the docs now also finds the
+  release it shipped in.
+
+### Documentation
+
+- **Every prose surface went through the writing linter, reading the matched
+  spans rather than the summary counts.** That covers the README, INSTALL, both
+  addon READMEs, all 18 docs pages, this changelog, and the 28 craft guides,
+  which had never been linted at all despite being published as guide pages.
+  Most of the volume was bullet labels shaped `- **Sentence.** Body`, where the
+  period sits inside the bold; the rest were empty intensifiers and vague words
+  swapped for the concrete thing meant, such as gapless looping in the audio
+  guide and "things they can't use must look unusable" in the level-design one.
+  Every surface now reports only findings that were reviewed and deliberately
+  kept, each with a recorded reason.
+- **The Godot builds behind the 4.7+ claim are named** in the README, the
+  installation page, INSTALL, and the addon README: `4.7.1-rc`, `4.7.2-rc`, and
+  a `4.8-dev` build from `master`. That last one is a master build rather than
+  the published dev 2 snapshot, and is described that way. The note carries the
+  consequence worth knowing before opening a 4.7 project in 4.8: 4.8 writes a
+  `unique_id` attribute into saved scenes that 4.7 does not, so the round trip is
+  not clean.
+- **The comparison names projects rather than org paths**, `godot-ai` and
+  `Godot-MCP-Native`.
+
 ## [0.7.1] — 2026-08-03
 
 Forward-compatibility work: the addon is verified on Godot 4.8-dev, and
