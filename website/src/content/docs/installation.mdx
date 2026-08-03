@@ -86,7 +86,7 @@ If the CLI can't connect, run the environment preflight:
 godot-mcp doctor
 ```
 
-It checks the godot binary and version, that the project resolves, whether the addon is installed and enabled, the effective port source (env, per-project pin, or auto), whether an editor is actually reachable, and — for C# projects — the .NET SDK. Pass `--project DIR` to target a specific project, or `--json` for machine-readable output. It exits non-zero only when a check truly fails; a warning (no editor running yet, say) doesn't fail the run, so `doctor` is safe to run before you've launched anything.
+It checks the godot binary and version, that the project resolves, whether the addon is installed and enabled, the effective port source (env, per-project pin, or auto), whether an editor is actually reachable, and — for C# projects — the .NET SDK. Pass `--project DIR` to target a specific project, or `--json` for machine-readable output. It exits non-zero only when a check fails; a warning (no editor running yet, say) doesn't fail the run, so `doctor` is safe to run before you've launched anything.
 
 <Callout type="warning" title="Windows audio note">
   If the editor crashes with `ERROR: WASAPI: GetBufferSize`, another app has taken *exclusive* control of your audio device. Turn off exclusive mode in Windows Sound settings, or launch with `--audio-driver Dummy`. It is an OS/audio issue, not the addon.

@@ -213,7 +213,7 @@ scattered through scenes.
 A standout: the social feed, web browser, email, and forum are **entirely data-driven** off
 the Store's JSON databases — no bespoke code per post.
 
-- **Domain objects are live JSON proxies.** A class wraps a dict from the Store; its
+- **Domain objects are live JSON proxies**. A class wraps a dict from the Store; its
   properties get/set straight into that dict, so mutations persist with no explicit save:
 
   ```gdscript
@@ -222,7 +222,7 @@ the Store's JSON databases — no bespoke code per post.
       get: return _dict.get("liked", false)
   ```
 
-- **UI binds from data.** A feed screen reads `Store.get_value("fb://posts/<id>")`,
+- **UI binds from data**. A feed screen reads `Store.get_value("fb://posts/<id>")`,
   wraps it in a domain object, instances a view per item. A like button just flips the
   proxy property; a dirty-checker re-renders.
 - **References as strings** (`author_ref = "fb://profiles/alice"`) model the social graph
@@ -251,7 +251,7 @@ so re-skinning the product never touches code.
   *procedural text cards* from the project's own metadata (studio name, title), so the flow is
   complete on day one. Fade in → wait-or-skip → fade out → a short **black dwell** between
   cards (cuts without it read as flashes). Skip is one flag checked by every wait.
-- **Saves: version + wrap, never introspect.** The payload is
+- **Saves: version + wrap, never introspect**. The payload is
   `{version, slot_id, saved_at_unix, snapshot_json, custom_state, custom_meta}` where
   `snapshot_json` is the story runner's own **opaque** state export — the save system never
   knows story internals. External systems register as *providers* contributing custom state
@@ -259,7 +259,7 @@ so re-skinning the product never touches code.
   `.bak`; loads that fail fall back to the backup, and every failure path returns a *named
   reason* (`slot_not_found`, `backup_write_failed`) surfaced by signal, never a crash. Slot UI
   is powered by `list_slots_metadata()` — enumerate, validate, sort by recency.
-- **Settings are a table, not a screen of code.** Each setting is one registration row
+- **Settings are a table, not a screen of code**. Each setting is one registration row
   (`key, control, kind, options, default, section`); load/apply/persist (`ConfigFile`) iterate
   the table. Four tabs is the shipped shape: General, Display, Sound, **Accessibility**
   (subtitle size/background, colorblind overlay, QTE-off) — plan the a11y tab from the start.

@@ -38,6 +38,6 @@ godot-mcp custom echo --message hi
 
 ## Rules
 
-- **Built-ins win.** A command name that collides with a built-in is skipped, so you can't override the shipped surface.
-- **A bad file is skipped, not fatal.** A file that fails to load or lacks `get_commands()` is skipped with a warning; it never breaks the plugin.
-- **Editing needs an editor restart.** Reloading the plugin re-runs registration but doesn't re-parse changed scripts, so recompiling a command file takes a full editor restart.
+- **Built-ins win**. A command name that collides with a built-in is skipped, so you can't override the shipped surface.
+- **A bad file is skipped, not fatal**. A file that fails to load or lacks `get_commands()` is skipped with a warning; it never breaks the plugin.
+- **Editing needs an editor restart**. Reloading the plugin re-runs registration but doesn't re-parse changed scripts, so recompiling a command file takes a full editor restart.

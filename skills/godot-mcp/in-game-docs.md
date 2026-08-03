@@ -94,9 +94,9 @@ Notes are stored as node metadata (`_doc_note`), so they ride along in the scene
 
 ## The discipline
 
-- **Know what to document where.** The talk is emphatic: engineers read text docs (especially APIs); artists and designers will not. Put movement/asset/system truth *in-game*; keep API text where engineers expect it. This isn't "don't document" — it's "document the right thing in the right place."
-- **One source of truth.** When someone (or future-you) asks "how far can a player jump?", the answer is "run the gym," not "find the table." Update the gym, not a doc *and* the game.
-- **It's generatable, so it stays current.** Because `doc gym`/`doc zoo` regenerate from your real numbers and real asset folders, refreshing them is one command — which is the whole point. A doc you can rebuild in a second is a doc you'll actually keep.
-- **Combine them.** Zoo + notes (flag the asset that needs a material change). Gym + zoo (an item range you can pick up and test). The patterns compose, like the rest of the toolset.
+- **Know what to document where**. The talk is emphatic: engineers read text docs (especially APIs); artists and designers will not. Put movement/asset/system truth *in-game*; keep API text where engineers expect it. This isn't "don't document" — it's "document the right thing in the right place."
+- **One source of truth**. When someone (or future-you) asks "how far can a player jump?", the answer is "run the gym," not "find the table." Update the gym, not a doc *and* the game.
+- **It's generatable, so it stays current**. Because `doc gym`/`doc zoo` regenerate from your real numbers and real asset folders, refreshing them is one command — which is the whole point. A doc you can rebuild in a second is a doc you'll actually keep.
+- **Combine them**. Zoo + notes (flag the asset that needs a material change). Gym + zoo (an item range you can pick up and test). The patterns compose, like the rest of the toolset.
 
 These are scaffolds: `doc.*` gives you the labeled, measured, lit *structure* — you drop the live content (your controller, your assets, your system demos) onto it.

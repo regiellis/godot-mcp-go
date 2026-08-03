@@ -81,7 +81,7 @@ godot-mcp scene save
 ```
 
 - Matches by node name, instance source basename, and the `engine/editor` source path; BFS from the root, and it **doesn't recurse into a matched subtree** (deleting a camera rig removes its children with it).
-- **Decals are kept by default.** A real export can have *thousands* of decal references (this one had ~1760) and many are real surface detail — stripping them is a judgement call. Add `--include-decals` only when you've decided they're UI/debug junk.
+- **Decals are kept by default**. A real export can have *thousands* of decal references (this one had ~1760) and many are real surface detail — stripping them is a judgement call. Add `--include-decals` only when you've decided they're UI/debug junk.
 - Tune the match set with `--patterns '["CineCam","EnviroDome",…]'` and protect specific nodes with `--keep '["HeroCamera"]'`.
 
 Always `--dry-run` first and read the `reason` on each match before deleting.

@@ -221,7 +221,7 @@ Pick by role, and put the loop settings where that format keeps them:
   stream: `loop_mode` (`LOOP_DISABLED` / `LOOP_FORWARD` / `LOOP_PINGPONG` / `LOOP_BACKWARD`),
   `loop_begin` / `loop_end` (in frames). Usually set via the `.wav`'s **import options**; reach
   the resource directly with `AudioStreamWAV.load_from_file(path, {})`.
-- **OggVorbis** — music and long loops. Compressed (small), seamless looping: `loop = true`,
+- **OggVorbis** — music and long loops. Compressed (small), gapless looping: `loop = true`,
   `loop_offset` (seconds — where the loop restarts). Also carries `bpm` / `bar_beats` /
   `beat_count` — **set these for `AudioStreamInteractive`'s bar/beat-quantized transitions**.
 - **MP3** — same `loop` / `loop_offset` / `bpm` fields as Ogg; prefer Ogg unless a source is
@@ -246,7 +246,7 @@ bus routing — is already covered in **`game-patterns.md`** ("Positional audio 
   while pb.get_frames_available() > 0:
       pb.push_frame(Vector2(sample, sample))   # one stereo frame, values in −1..1
   ```
-  Reach for it only when a sound is genuinely computed (parametric SFX, a chiptune synth).
+  Reach for it only when a sound is computed at runtime (parametric SFX, a chiptune synth).
 - **`AudioEffectRecord`** — a bus effect that captures its input to an `AudioStreamWAV`
   (`set_recording_active(true)` → `get_recording()`); for a mic/voice-memo or capturing gameplay
   audio.

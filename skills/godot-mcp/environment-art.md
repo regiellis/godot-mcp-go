@@ -58,7 +58,7 @@ m.roughness = 0.85
 EditorInterface.get_edited_scene_root().get_node("Floor").material = m'
 ```
 Then `scene save`. **Reuse** materials from a small `.tres` library — don't author a unique material
-per node. Reach for a custom shader only when PBR genuinely can't express the surface.
+per node. Reach for a custom shader only when PBR can't express the surface.
 
 ## Lighting for real — realtime vs baked
 

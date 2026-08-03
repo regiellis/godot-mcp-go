@@ -27,7 +27,7 @@ saving, and crop placement each talk to exactly one node.
 
 Actions that change the ground (tilling, paths, corruption) are *terrain painting*: the engine's
 autotiler picks tiles whose peering bits connect with neighbors, so one command yields
-seamless patches. **Build** (verified live):
+tiling patches. **Build** (verified live):
 ```
 tilemap get-info --node-path TilledSoil            # discover terrain_sets: [{id, terrains:[{id,name}]}]
 tilemap set-terrain --node-path TilledSoil --cells '[[4,2],[5,2],[5,3]]' --terrain-set 0 --terrain 0

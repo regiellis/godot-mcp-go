@@ -7,13 +7,13 @@ signatures evolve.
 
 ## Principles
 
-- **Compose, don't centralize.** One small scene per entity/UI piece, instanced into
+- **Compose, don't centralize**. One small scene per entity/UI piece, instanced into
   levels (`scene.instance`). Build capability from child nodes, behavior from focused
   scripts. (See SKILL.md "Build with composition, not monoliths".)
-- **Components.** Recurring behavior → its own small scene + script (`HealthComponent`,
+- **Components**. Recurring behavior → its own small scene + script (`HealthComponent`,
   `HurtboxComponent`), instanced wherever needed. Components expose signals; the owner wires them.
-- **Data-driven.** Stats/items/config as `Resource` types (`.tres`), not hard-coded.
-- **Decouple with signals.** Emitter announces; listeners react. No per-frame polling
+- **Data-driven**. Stats/items/config as `Resource` types (`.tres`), not hard-coded.
+- **Decouple with signals**. Emitter announces; listeners react. No per-frame polling
   of other nodes, no reaching across the tree with `get_node` chains.
 - **Separate** data (Resources) / logic (scripts on the owning node) / presentation
   (Sprite, AnimationPlayer, UI). Don't put all three in one script.
@@ -190,11 +190,11 @@ func pop(sx: float, sy: float, t := 0.12) -> void:
 
 **Combat-VFX shader grammar** (from a shipped commercial deck-builder's 2D VFX library — the
 system behind every impact/burst/ring effect, built on `GPUParticles2D` + `canvas_item` shaders):
-- **Lifetime drives everything.** In the shader, `INSTANCE_CUSTOM.y / INSTANCE_CUSTOM.w` is the
+- **Lifetime drives everything**. In the shader, `INSTANCE_CUSTOM.y / INSTANCE_CUSTOM.w` is the
   particle's 0→1 age; sample **authored 1D curve textures** at that value (`CurveTexture` for
   erosion threshold, flipbook frame, hue shift) instead of hardcoding math — artists tune curves,
   not code.
-- **Grayscale + LUT.** Particle textures are grayscale masks; color comes from
+- **Grayscale + LUT**. Particle textures are grayscale masks; color comes from
   `texture(lut, mask.rr)` — one texture serves every palette, recolored per effect.
 - **Erosion dissolve**: `smoothstep(threshold, threshold + softness, noise.r)` with the threshold
   read from the lifetime curve — the standard burn-away for smoke/impact sprites.
@@ -316,7 +316,7 @@ source study; UI feel in that doc's juice grammar.
 A war story that repeats across devlogs: enemies prototyped ad hoc end up with mixed roots
 (`CharacterBody2D` here, `Area2D` there, `StaticBody2D` somewhere else) and suddenly damage is
 inconsistent — some never register hits, some take double. Two rules prevent it:
-- **One root type per family.** Everything that shares behavior ("takes damage") shares a root
+- **One root type per family**. Everything that shares behavior ("takes damage") shares a root
   type and child layout, decided the moment the *second* variant exists. Prefer `Area2D` roots
   for enemies that don't need physics resolution — cheaper than `CharacterBody2D`.
 - **One generic hurtbox scene** (an `Area2D` child) that only detects and forwards to the

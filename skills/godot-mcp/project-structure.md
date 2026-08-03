@@ -75,17 +75,17 @@ component pattern and SKILL.md "Build with composition, not monoliths".
 
 ### Node-setup conventions inside a scene
 
-- **Script on the root only.** Children are pure visuals/structure; the root's one script
+- **Script on the root only**. Children are pure visuals/structure; the root's one script
   owns the logic. Don't sprinkle scripts down the tree (a reusable child *is* a sub-scene
   with its own root script — that's different).
-- **Expose children by unique name, not by path.** Mark a node "Access as Unique Name"
+- **Expose children by unique name, not by path**. Mark a node "Access as Unique Name"
   and reach it as `%HealthBar` — survives reparenting. The shipped game uses `%`-access
   pervasively and almost never hard-codes `$A/B/C` chains. (GDScript: `@onready var bar :=
   %HealthBar`. The CLI sets unique-name access on a node via `node.set`.)
 - **Pass child references as exported `NodePath`s** when the root must drive specific
   children (e.g. a VFX root controlling four particle emitters) — wired in the inspector,
   not looked up by string.
-- **Keep visuals data-driven.** Colors, textures, offsets, materials belong on the nodes
+- **Keep visuals data-driven**. Colors, textures, offsets, materials belong on the nodes
   (set via `node.set`), so they stay inspector-editable; logic in script reads/updates
   them. Don't bake visual constants into code.
 
@@ -104,7 +104,7 @@ A central registry/loader that maps an id → resource keeps lookups in one plac
 
 ## Autoloads — for cross-cutting services only
 
-Register singletons (`project.add_autoload`) for things that are genuinely
+Register singletons (`project.add_autoload`) for things that are
 project-global and have no natural owner in the scene tree:
 
 - asset/preload manager, audio manager, scene/transition manager, run/game state,

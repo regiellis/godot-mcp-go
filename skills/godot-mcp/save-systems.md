@@ -22,10 +22,10 @@ flags, RNG seed, current scene key are *authoritative*. Health bars, pathfinding
 particle state are *derived* — recomputed on load. Saving derived state bloats the file and
 rots the moment the derivation changes.
 
-- **The "everything in one dict" trap.** Dumping `get_tree()` into one nested Dictionary feels
+- **The "everything in one dict" trap**. Dumping `get_tree()` into one nested Dictionary feels
   fast and rots fast: private fields leak into the format, a refactor breaks old saves, and you
   can't reason about what a slot holds. Save a *deliberate* per-type projection of each entity.
-- **Granularity.** Persist at the coarsest unit that still reloads correctly — a puzzle game
+- **Granularity**. Persist at the coarsest unit that still reloads correctly — a puzzle game
   saves "level N, moves so far"; an open-world game saves per-region deltas. Finer is wasted
   bytes and migration surface; coarser loses progress players expect kept.
 
@@ -104,18 +104,18 @@ res://systems/save_manager.gd`; each saveable gets `add_to_group("persist")` + t
 | `FileAccess.store_var`/`get_var` | full Variant | no (binary) | Fast, compact, opaque. |
 | `Resource` + `ResourceSaver` (`.tres`) | typed, `@export`ed | `.tres` yes / `.res` no | Editor-inspectable. **Security caveat below.** |
 
-- **JSON is the portable default but loses types.** `JSON.parse_string` returns every number as
+- **JSON is the portable default but loses types**. `JSON.parse_string` returns every number as
   a `float` and has no `Vector2`/`Color` — a naive `Vector2(10, 20)` errors on read. Two fixes:
   (a) **serialize helpers** — flatten to arrays out, rebuild in (`[v.x, v.y]` / `Vector2(a[0],
   a[1])`), the pattern the collector uses; (b) `JSON.from_native(v, false)` /
   `JSON.to_native(j, false)` tag engine types into a JSON-safe structure and back.
-- **`var_to_str` is the underrated middle.** It writes `Vector2(10, 20)` as literal text and
+- **`var_to_str` is the underrated middle**. It writes `Vector2(10, 20)` as literal text and
   `str_to_var` reads it back with the Vector intact — full Variant fidelity, still diffable and
   hand-editable, no serialize helpers. Cost: only Godot reads it.
 - **Binary `store_var`/`get_var` is fastest and smallest**, opaque on disk. Pass
   `store_var(data, false)` / `get_var(false)` — the `false` keeps arbitrary object
   instantiation out of the reader (same risk as below).
-- **`Resource` + `ResourceSaver` is inspectable but unsafe for untrusted saves.** A `@export`ed
+- **`Resource` + `ResourceSaver` is inspectable but unsafe for untrusted saves**. A `@export`ed
   `SaveData extends Resource` saved via `ResourceSaver.save(data, "user://save.tres")` is typed
   and inspector-editable — great for *authored* data. But **loading a `.tres`/`.res` instantiates
   whatever types and scripts the file declares**, so a tampered save can run code on load.
@@ -201,7 +201,7 @@ Most saves are a small Dictionary that finishes **sub-frame** — write them syn
   ```
   **Build the snapshot on the main thread**, hand the worker only plain data (the serialized
   string / a duplicated dict) — never touch the scene tree from a worker.
-- **Simpler alternative: `call_deferred` + chunking.** Serialize a slice per idle callback so no
+- **Simpler alternative: `call_deferred` + chunking**. Serialize a slice per idle callback so no
   single frame does all the work — no thread, no data-race surface. Enough for big-but-not-huge.
 
 ## Autosave and crash-safe writes
@@ -209,7 +209,7 @@ Most saves are a small Dictionary that finishes **sub-frame** — write them syn
 - **Trigger on checkpoints, plus a low-frequency timer** (a `Timer` node firing every ~120 s).
   **Never autosave mid-combat** — a save that captures a half-resolved fight reloads broken;
   gate it (`if _in_combat: return`) and let the next checkpoint catch it.
-- **Write atomically: temp then rename.** A crash *during* a write leaves a truncated, wiped
+- **Write atomically: temp then rename**. A crash *during* a write leaves a truncated, wiped
   slot. Write to `save.json.tmp`, `close()`, then `DirAccess.rename_absolute(tmp, final)` — the
   rename is atomic on every desktop filesystem, so the slot is only ever the last *complete*
   write. Keep a `.bak` of the prior slot too (as the other two docs' headers do).

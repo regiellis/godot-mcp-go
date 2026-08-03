@@ -114,7 +114,7 @@ func arrive(target: Vector2) -> Vector2:
 
 Seek is this without the taper. Seek overshoots the target, turns around, overshoots
 again, and orbits forever — the classic "enemy vibrating on the player" bug. Reach for
-arrive by default and only drop the taper when the agent genuinely should not slow down.
+arrive by default and only drop the taper when the agent should not slow down.
 
 ### Flee
 
@@ -182,7 +182,7 @@ func _physics_process(delta: float) -> void:
 ```
 
 Clamp the **sum**, not each term, or the weights stop meaning anything. When two
-behaviours genuinely conflict (flee-from-fire vs seek-objective) prefer priority — take
+behaviours conflict (flee-from-fire vs seek-objective) prefer priority — take
 the first behaviour that returns a non-zero force — over blending, which averages the two
 into walking straight into the fire.
 
@@ -274,12 +274,12 @@ means `separation_weight` is too low.
 
 ## Pitfalls
 
-- **A sibling `NodePath` needs `../`.** Silent null, no error, agent never moves.
-- **Steer in `_physics_process`, not `_process`.** `move_and_slide` is physics-frame work.
+- **A sibling `NodePath` needs `../`**. Silent null, no error, agent never moves.
+- **Steer in `_physics_process`, not `_process`**. `move_and_slide` is physics-frame work.
 - **Clamp the summed force, not each behaviour**, or blending weights do nothing.
 - **`max_force` too high erases the effect** — it becomes velocity assignment again with
   extra steps. If motion looks snappy, lower it before adding more behaviours.
-- **Separation over a whole-tree group scan is O(n²).** Fine for a squad; for hundreds,
+- **Separation over a whole-tree group scan is O(n²)**. Fine for a squad; for hundreds,
   bucket by grid cell or use an `Area2D` neighbour list.
-- **`get_nodes_in_group` returns freed nodes' peers mid-frame.** Guard with
+- **`get_nodes_in_group` returns freed nodes' peers mid-frame**. Guard with
   `is_instance_valid(other)` when agents die during iteration.

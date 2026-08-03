@@ -21,11 +21,11 @@ rest; the rules below are the whole contract.
 
 Two things to know before trusting a clean result:
 
-- **A clean lint is not a passing compile.** Style rules read source, so they still report
+- **A clean lint is not a passing compile**. Style rules read source, so they still report
   on a file that doesn't parse — and zero findings there would read as fine. A single-file
   run reports `syntax_valid`; a directory run is style-only. `script validate` is the
   compile check.
-- **`max-line-length` (default 100) is the noisy rule.** Silence it with
+- **`max-line-length` (default 100) is the noisy rule**. Silence it with
   `--disable max-line-length`, raise it with `--max-line-length`, or pass `0` to turn it
   off when a project deliberately runs long lines.
 

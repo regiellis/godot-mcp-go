@@ -111,8 +111,8 @@ func compute_damage(base: int, ctx: DamageContext) -> int:
 ```
 
 **Pattern: open/closed via hooks.** Adding a new relic/power means adding a listener that
-overrides a hook — never editing the damage/turn code. This is the single highest-leverage
-pattern in the genre; get it right first.
+overrides a hook — never editing the damage/turn code. This is the one pattern to get
+right first: every later relic and power depends on it.
 
 ## 4. Cards are data + one behavior method
 

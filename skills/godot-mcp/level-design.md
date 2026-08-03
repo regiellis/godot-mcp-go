@@ -36,12 +36,12 @@ Level design is **functionality and gameplay**; environmental art is coherence a
 optimization (culling, streaming) is neither. Keep them in separate stages so you don't make
 work for yourself:
 
-- **Keep iteration cycles short — the prime directive.** Anything that slows down changing the
+- **Keep iteration cycles short — the prime directive**. Anything that slows down changing the
   level before you *know* it's good is the enemy. Beautify before playtesting and every later
   change fights a pile of art. In practice: **build blockouts from CSG primitives colored only
   by the greybox color language** (flat albedo, no textures), and don't `scene.instance`
   finished art until the layout is proven.
-- **Experiment to find the requirements first.** Prototype the core mechanic, learn what a level
+- **Experiment to find the requirements first**. Prototype the core mechanic, learn what a level
   must *support* (jump height, sightline distances, encounter size), then design levels.
 - **Plan all levels up front** as a content grid — for each level note: art/environment variant
   (so it isn't monotonous), dominant theme, where it sits on the **difficulty curve**, and which
@@ -50,9 +50,9 @@ work for yourself:
 - **Build the middle first; finish the first level last** (Romero; Mario's World 1) — you can't
   design onboarding until you know what you're onboarding *into*. So build `blockout_03` before
   `blockout_01`.
-- **Beautiful corner.** To nail art style + asset pipeline without polishing everything, fully
+- **Beautiful corner**. To nail art style + asset pipeline without polishing everything, fully
   art-up **one tiny slice** (one room) as a target; the rest stays graybox.
-- **Budget motivation.** Solo work needs rewarding tasks to sustain it — but keep ~2–3
+- **Budget motivation**. Solo work needs rewarding tasks to sustain it — but keep ~2–3
   game-needs per 1 done-for-fun, and if the fun thing is premature polish that slows iteration,
   do something else for fun. A game needs **both** messy experimentation and a structured plan.
 
@@ -64,13 +64,13 @@ a pass once the larger decisions above it are stable. Don't model the coffee cup
 placement might still move; don't place the desk while the room might resize; don't build the
 hospital while the layout might change. The cup is never the problem — the layout is.
 
-- **Big (macro) — answer the gameplay questions.** Room sizes, combat spaces, choke points, cover,
+- **Big (macro) — answer the gameplay questions**. Room sizes, combat spaces, choke points, cover,
   sight lines, routes, spawns, the critical path. The level is literally cube-room / cube-hallway /
   cube-cover. Question: *"is it fun?"* — not *"does it look like a hospital?"*
-- **Medium (structure) — define the space.** What makes it read as the place: doors, windows,
+- **Medium (structure) — define the space**. What makes it read as the place: doors, windows,
   stairs, elevators, desks, major machinery, bridges. Question: *"does this feel like a hospital?"* —
   while still validating gameplay.
-- **Small (detail) — only after the level works.** Clutter, props, signage, decals, monitors,
+- **Small (detail) — only after the level works**. Clutter, props, signage, decals, monitors,
   particles. Question: *"is it believable?"*
 
 This is the shape behind every staged process in this doc:
@@ -92,15 +92,15 @@ real AI. Greybox the AI alongside the level. The guiding idea: **greybox AI test
 doesn't win the game** — if it can reliably break your pathing / cover / sight lines / encounter
 flow, it's doing its job; if it stands around, you're testing half the game.
 
-- **Big AI — archetypes as questions.** Each is a coloured capsule (`CharacterBody2D/3D` +
+- **Big AI — archetypes as questions**. Each is a coloured capsule (`CharacterBody2D/3D` +
   `NavigationAgent`, one material per type), not a finished enemy: **Rusher** (combat space big
   enough? cover meaningful?), **Flanker** (enough routes? too linear?), **Sniper** (are sight lines
   interesting?), **Defender** (does objective play work?). Build the navmesh with the `navigation`
   group; drive the pawn with a `NavigationAgent`.
-- **Medium AI — tactical.** Cover use, retreat, grouping, search/patrol. Tests "does this space
+- **Medium AI — tactical**. Cover use, retreat, grouping, search/patrol. Tests "does this space
   support *intelligent* behaviour?" — a room that works against Rushers often fails the moment
   enemies use cover.
-- **Small AI — personality.** Voice, animation, gestures, abilities. Immersion, not gameplay proof — last.
+- **Small AI — personality**. Voice, animation, gestures, abilities. Immersion, not gameplay proof — last.
 
 **Reusable AI test pawn:** one capsule with an `@export` mode enum (Rush / Flee / Patrol / Defend /
 Flank / Wander) switchable in the inspector, and **loud debug visuals** (target, nav path, aggro
@@ -232,7 +232,7 @@ the `SKILL.md` golden rule preaches, applied to space:
 Use the **`spatial` group** — it does the math (3D, meters, global space; returns `"Vector3(…)"` you
 feed straight back into `node set --property global_position`):
 
-- **Build composites by chaining off realized bounds.** Place the anchor, `spatial bounds` it, derive
+- **Build composites by chaining off realized bounds**. Place the anchor, `spatial bounds` it, derive
   the next piece from *those* numbers, `bounds` that, and so on (post → board → rim → net):
   ```
   spatial bounds --node-path Post            # -> center/size/min/max of what ACTUALLY landed
@@ -266,13 +266,13 @@ feed straight back into `node set --property global_position`):
   merely resting on top. A **cone** of rays would be the wrong tool for seating — a cone samples a
   *viewpoint* (line-of-sight); seating samples a *footprint*, which is why Tier 2 fires a parallel
   bundle, not a fan.
-- **Mirror, don't rebuild, for symmetric layouts.** Build one verified unit (a hoop, a guard post),
+- **Mirror, don't rebuild, for symmetric layouts**. Build one verified unit (a hoop, a guard post),
   read its realized `global_position`, then place the twin by negating one axis and flipping the yaw
   (`spatial look_at` or a `node set --property rotation_degrees`) — the math guarantees the symmetry
   you'd otherwise eyeball wrong across two independent builds.
 - **Face things with `spatial look_at --target <node>` (or `--point`), never Euler** — hand-computed
   `rotation_degrees` for "aim at" is reliably ~20° off.
-- **Verify numerically + from multiple vantages.** `spatial relate` after a placement, `spatial lint
+- **Verify numerically + from multiple vantages**. `spatial relate` after a placement, `spatial lint
   --check-floating` after a set (catches coincident duplicates and unsupported/sunk pieces); then
   teleport the camera (`editor set-camera`) or player (`runtime set global_position`) to several spots
   and screenshot each. One frame hides the error — this is the placement-side of the **3-second
@@ -434,7 +434,7 @@ post — now the question is "does it *feel* right?", not "can I understand this
 polish; it waits (Presentation-stages layer 4).
 
 **2.5D rig (enough for most prototypes):** key `DirectionalLight3D` + ambient fill + an optional
-**back/rim light** behind the player — a *second light node*, not a material trick, so it's robust
+**back/rim light** behind the player — a *second light node*, not a material trick, so it survives
 on grey geometry. A subtle rim lifts the character silhouette off a grey background. Lighting is
 also a way to build the **depth value hierarchy** (2.5D section): light each layer toward its target
 value (background dim → player brightest) instead of, or alongside, material albedo value.
@@ -518,11 +518,11 @@ that sells size.
 
 When routes are many, lead the eye:
 
-- **Light = contrast, not moth-to-flame.** A lit feature is *easier to read*, so it reads as
+- **Light = contrast, not moth-to-flame**. A lit feature is *easier to read*, so it reads as
   important. **Build:** put an **attention light** (building blocks) on the thing you want noticed.
 - **Movement / noise** pull attention. **Build:** an **animated attractor** (a rotating fan box, a
   swaying door) via `animation.*`.
-- **Affordances communicate function.** A *doorway/arch* says "pass through," *steps* say "climb,"
+- **Affordances communicate function**. A *doorway/arch* says "pass through," *steps* say "climb,"
   a *window* says "climb through" (players are cat burglars). **Build:** shape the opening like the
   action you want — an arch box for passage, stepped boxes for climbing. Curve stairs out of sight
   to add **mystery**.
@@ -556,7 +556,7 @@ Every blocker says something; make it say the right thing.
 - **Bars** read "not meant to go here" — they block *and* signal intent. A **gap**, after you've
   taught the player to jump gaps, reads "jump here" — so a too-wide gap used as a wall is a lie
   that makes them fail an invited jump. **Use the blocker whose *meaning* matches your intent.**
-- **Unactionable things must look unactionable.** A door they can't use shouldn't look usable from
+- **Things they can't use must look unusable**. A door they can't open shouldn't look openable from
   afar. **Build:** barricade it with furniture boxes, or just **delete it** — an unrealistic-clear
   space beats a realistic-frustrating one (`node delete`).
 

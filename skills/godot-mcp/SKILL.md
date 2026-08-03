@@ -15,7 +15,7 @@ description: Drive a running Godot editor from the command line via the godot-mc
    - `crashed` — a stale discovery file remains but the process is gone. Tell the user it crashed; you may **relaunch exactly one** editor.
    - `closed` — no discovery file: closed cleanly or never started. You may **launch exactly one** editor if the task needs it.
    - Launch with `godot --path <project> --editor`. **Relaunch at most once**; if it's still unreachable after one attempt, stop and report — don't loop launches. After a successful launch, `status` will read `running`/`starting`, which is your guard against opening a second.
-   - **Check `project_match` too.** `status` reports which project the answering editor serves. When another project's editor holds the port, the verdict reads `closed`/`crashed` (nothing is serving *this* project) with `project_match: false` and the answering `project_path` — so follow the verdict and open one for this project. Commands refuse to run in that state rather than editing the other project, which is what the check exists to prevent.
+   - **Check `project_match` too**. `status` reports which project the answering editor serves. When another project's editor holds the port, the verdict reads `closed`/`crashed` (nothing is serving *this* project) with `project_match: false` and the answering `project_path` — so follow the verdict and open one for this project. Commands refuse to run in that state rather than editing the other project, which is what the check exists to prevent.
 2. **The CLI binary.** In this repo: `task build` → `bin/godot-mcp.exe`. Invoke as `bin/godot-mcp.exe <group> <command> [--flags]` (or `task run -- <group> <command> [--flags]`). Elsewhere, use the installed `godot-mcp`.
 3. **Connection is automatic.** The CLI finds the port from `<project>/.godot/godot-mcp.json` (written by the addon) when run from inside the project dir; otherwise pass `--port` (default 9080).
 
@@ -45,7 +45,7 @@ from there.
 **These docs record what was verified against a live engine, not a version the guidance expires past.** When any statement here and the running engine disagree, **the live engine wins** — `engine version` and `engine class-info` are the ground truth.
 
 **Universal fallback:** even if no typed command wraps a feature, you can always reach it:
-- `node.set` / `node.get` work on **any** property name the live node exposes, and `node.call` invokes **any method** it exposes (`runtime.call` does the same in the running game). Between them, a feature is reachable whether the engine surfaces it as a property or a method — reach for `editor.run_script` / `runtime.eval` only when you genuinely need several statements.
+- `node.set` / `node.get` work on **any** property name the live node exposes, and `node.call` invokes **any method** it exposes (`runtime.call` does the same in the running game). Between them, a feature is reachable whether the engine surfaces it as a property or a method — reach for `editor.run_script` / `runtime.eval` only when you need several statements.
 - `editor.run_script --code '...'` runs arbitrary `@tool` GDScript in the editor; `runtime.eval --code '...'` runs it in the game. Use `emit(value)` to return data. So 100% of the running engine's API is reachable with no per-feature wrapper.
 
 ## The spatial rule: anchor, read back, verify (don't place blind)
@@ -72,7 +72,7 @@ The discipline they encode:
 2. **Mind local vs global.** `node.set --property position` is **local to the parent**. To anchor across the tree, write **`global_position`** — which is exactly what `spatial align`/`place_on`/`distribute` do.
 3. **Raycast / `place_on` to seat on surfaces** — don't compute heights. `spatial raycast` **works at edit time against CSG `use_collision`** (greybox geometry registers collision in the editor — verified) and any real collider; `spatial place_on` uses mesh-AABB math so it works even without colliders. In the **running game**, raycast via `runtime eval` (`get_tree().root.world_3d.direct_space_state`).
 4. **Face with `spatial look_at`**, never hand-computed Euler — hand-rolled angles are reliably ~20° off.
-5. **Verify by reading back, not by one screenshot.** `spatial relate` after a placement, `spatial lint` after a set ("center_delta.x = 0; gap.y = 0 → touching, not sunk"). When layout genuinely needs eyes, **teleport the camera** (`editor set-camera`) or player (`runtime set global_position`) to several vantages and screenshot each — one frame hides a 5 cm / 60 cm error.
+5. **Verify by reading back, not by one screenshot.** `spatial relate` after a placement, `spatial lint` after a set ("center_delta.x = 0; gap.y = 0 → touching, not sunk"). When layout needs eyes, **teleport the camera** (`editor set-camera`) or player (`runtime set global_position`) to several vantages and screenshot each — one frame hides a 5 cm / 60 cm error.
 
 Godot conventions to reason in: **+Y up, −Z forward, right-handed, meters** (1 unit ≈ 1 m); 2D is **+Y down, pixels**, bounds via `Control.get_global_rect()`.
 
@@ -97,7 +97,7 @@ Most-used:
 - `scene tree|create|open|save|play|stop|instance` — `tree` is your map of the open scene.
 - `node add|set|get|call|rename|move|delete|set_anchor|connect|set_meta|get_meta` — building blocks (`set`/`get` are property ops; `set` takes singular `--property/--value` **or** a batch `--properties '{...}'`). `call --method M [--args '[…]']` runs a method and returns its result — `node call --node-path Fx --method restart` rather than a `run_script` to do one call; args coerce to the method's declared types, so `'["Vector3(1,0,1)"]'` arrives typed. It is **not** undoable. `set_meta|get_meta` read/write arbitrary node metadata — the general-purpose store `set` (properties only) can't reach. **In 2D, sibling order is draw order**, so reach for `node move --before|--after|--index` to seat a node behind or in front of its siblings, and `node add --index` to place a new one; `move` reparents and reorders in one undoable step. A `--properties` value that can't be coerced is an error naming what the property wanted, so a failed create tells you why instead of leaving the property null.
 - `spatial bounds|relate|place_on|align|distribute|look_at|raycast|find_in_region|lint` — 3D placement done right (anchor → read back → seat → verify). See "The spatial rule" above.
-- `authoring resolve|ensure|checkpoint` — robust scripted-build helpers: `resolve` (fuzzy name → ranked node/scene/resource paths, flags ambiguity), `ensure` (idempotent get-or-create a node by name — re-runs converge, no `Node2`/`Node3`), `checkpoint` (capture/diff/restore a JSON snapshot of node transforms — "what did my edits move?").
+- `authoring resolve|ensure|checkpoint` — re-runnable scripted-build helpers: `resolve` (fuzzy name → ranked node/scene/resource paths, flags ambiguity), `ensure` (idempotent get-or-create a node by name — re-runs converge, no `Node2`/`Node3`), `checkpoint` (capture/diff/restore a JSON snapshot of node transforms — "what did my edits move?").
 - `resource find|info|read|edit|create|preview` — asset discovery + graph: `find --type PackedScene [--path res://… --name foo]` (type-filtered, matches subclasses), `info --path res://x` (its dependencies **and** referencers — "what breaks if I delete this").
 - `fs mkdir|move|copy|delete` — asset/file management with **dependency fixup**, the one thing `node.*` can't reach. `move --from --to` renames/relocates a file or dir and rewrites every `res://` path reference to it (uid refs survive the move automatically); `copy` regenerates the copy's uid so it doesn't collide; `delete` refuses a referenced file (or a dir holding an open scene) unless `--force`, and reports what breaks. The safe way to reorganize a project without breaking scenes.
 - `script create|read|edit|attach|validate|symbols|lint` — GDScript authoring. `symbols` reads one script's declared methods/properties/signals/constants without spending context on the file (and reaches scripts with no `class_name`, which `engine class-info` can't). `lint` checks the official style guide.
@@ -126,9 +126,9 @@ These are typed conveniences over the same engine; the discover-then-drive and *
 Godot is built around **node and scene composition** — lean into it. Do **not** build one giant scene driven by one giant script. That fights the engine and produces code that can't be reused, tested, or debugged.
 
 - **One scene per "thing."** Give each entity or UI piece its own small, self-contained scene — `player.tscn`, `enemy.tscn`, `coin.tscn`, `health_bar.tscn` — then **instance** them into levels with `scene.instance`. A level is a *composition of instances*, not a hand-built mega-tree.
-- **Compose capabilities from child nodes; don't hand-code them.** Need collision? add a `CollisionShape2D`. A trigger? `Area2D`. Timing? `Timer`. Animation? `AnimationPlayer`. Reach for a node before writing code — use `engine search`/`engine class-info` to find the right node type for a capability.
-- **Small, focused scripts at the node that owns the behavior.** Split responsibilities (movement, health, AI) across nodes instead of one 1000-line script on the root. A recurring behavior becomes a reusable **component scene** (e.g. a `HealthComponent`, a `Hurtbox`) you instance wherever it's needed — fix it once, every user updates.
-- **Decouple with signals.** Wire interactions with `node.connect` (e.g. `Area2D.body_entered` → a handler) so pieces stay independent and reusable. For references, prefer `@export` (set via `node.set`) wired in the inspector over brittle `get_node("../../X")` chains.
+- **Compose capabilities from child nodes; don't hand-code them**. Need collision? add a `CollisionShape2D`. A trigger? `Area2D`. Timing? `Timer`. Animation? `AnimationPlayer`. Reach for a node before writing code — use `engine search`/`engine class-info` to find the right node type for a capability.
+- **Small, focused scripts at the node that owns the behavior**. Split responsibilities (movement, health, AI) across nodes instead of one 1000-line script on the root. A recurring behavior becomes a reusable **component scene** (e.g. a `HealthComponent`, a `Hurtbox`) you instance wherever it's needed — fix it once, every user updates.
+- **Decouple with signals**. Wire interactions with `node.connect` (e.g. `Area2D.body_entered` → a handler) so pieces stay independent and reusable. For references, prefer `@export` (set via `node.set`) wired in the inspector over brittle `get_node("../../X")` chains.
 - **Prefer inspector data over hard-coded values** so designers (and you) can tweak without editing code.
 
 How this maps to the tools: `scene.create` per entity → `node.add` the capability nodes → `script.create`/`script.attach` a focused script → `scene.instance` to compose into a level → `node.connect` for signals → `node.set` to wire `@export`ed references and set inspector values. When you catch yourself adding a fifth responsibility to one script or one scene, split it into a child node or a separate scene instead.
@@ -217,9 +217,9 @@ Input is **fire-and-forget** (`sent:true` ≠ applied) — confirm effects by re
 
 ## Pitfalls
 
-- **Prefer inspector properties over code.** Set visual props (color, position, transform) via `node.set`, not GDScript, so they stay editable in the inspector.
+- **Prefer inspector properties over code**. Set visual props (color, position, transform) via `node.set`, not GDScript, so they stay editable in the inspector.
 - **Never edit `project.godot` directly** — `project set-setting`.
-- **`editor reload` after `script create`/major `script edit`.**
+- **`editor reload` after `script create`/major `script edit`**.
 - **`runtime.eval`/`editor.run_script`:** no nested `func`s; `emit(v)` to return; use `.get("prop")` for dynamic access.
 - **Input timing:** prefer `input action` over raw `input key` when InputMap actions exist; UI buttons fire on release (`input click` auto press+releases).
 - **Save:** `scene save` after significant edits.

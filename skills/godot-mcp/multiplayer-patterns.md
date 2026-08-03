@@ -15,14 +15,14 @@ scene with the same node paths — `/root/Game/Players/12345` must exist and mea
 thing everywhere, because RPCs and synchronizers address nodes **by path**. Break path
 symmetry and every message silently misfires.
 
-- **One `MultiplayerAPI` per node.** Each `Node` exposes `multiplayer` (verified) — by default
+- **One `MultiplayerAPI` per node**. Each `Node` exposes `multiplayer` (verified) — by default
   all share the tree's one API. It carries the peer, the connection signals, and
   `get_unique_id()` / `is_server()` / `get_peers()` / `get_remote_sender_id()` (all verified).
-- **Server-authoritative is the default.** State lives on the server; clients send **intent**
+- **Server-authoritative is the default**. State lives on the server; clients send **intent**
   ("move left", "fire"), the server simulates, the result streams back. Clients never own
   truth — that is what makes a game hard to cheat. The pragmatic co-op shortcut (client owns
   its own player) is under Authority, with its tradeoff stated.
-- **Unique ids.** The server is **always peer `1`**; each client gets a random positive id.
+- **Unique ids**. The server is **always peer `1`**; each client gets a random positive id.
   `multiplayer.get_unique_id()` returns this peer's id (`1` = "I am the server").
 
 This doc is realtime state replication; for request/response web traffic (leaderboards) use
@@ -147,7 +147,7 @@ Streams chosen properties from a node's **authority** to everyone else, driven b
 `set_visibility_for(peer, visible)`, `visibility_update_mode`. The config is built with
 `add_property(path)` + `property_set_spawn/sync/watch(path, enabled)` (all verified).
 
-- **Property paths are relative to `root_path`.** `.:position` is the root node's own
+- **Property paths are relative to `root_path`**. `.:position` is the root node's own
   `position`; `Sprite2D:modulate` a child's. Make the synchronizer a **child of** what it
   syncs and leave `root_path` default.
 - **`sync` vs `watch`:** a *synced* property sends every interval; a *watched* one sends (on
@@ -236,9 +236,9 @@ Spawn the host's own player the same way after `host()` (call `_on_peer_connecte
 
 The most common design error is replicating one fact two ways. Split by shape:
 
-- **Continuous state → `MultiplayerSynchronizer`.** Positions, rotations, health — changes
+- **Continuous state → `MultiplayerSynchronizer`**. Positions, rotations, health — changes
   every frame, only the *latest* value matters (a dropped unreliable packet self-corrects).
-- **Discrete events → RPCs.** Fire, jump, pickup, chat, "round over" — one-shot facts that
+- **Discrete events → RPCs**. Fire, jump, pickup, chat, "round over" — one-shot facts that
   must arrive exactly once (`"reliable"`) and are meaningless to poll.
 
 Pick one per fact. Do **not** sync a `bool is_firing` *and* send a `fire()` RPC — the receiver
@@ -262,7 +262,7 @@ driver here. Options, most practical first:
 
 ## Common mistakes to avoid
 
-- **Peer set after scenes load.** Assign `multiplayer.multiplayer_peer` and wire its signals
+- **Peer set after scenes load**. Assign `multiplayer.multiplayer_peer` and wire its signals
   *before* the networked scene enters the tree, or early spawns/RPCs fire into a peerless tree.
 - **Missing authority checks** — every networked `_physics_process` / input handler needs the
   `if not is_multiplayer_authority(): return` gate, or peers simulate every node and diverge.

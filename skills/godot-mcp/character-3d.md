@@ -300,18 +300,18 @@ changes the world-space heading of `velocity`.
 
 ## Common mistakes
 
-- **World-basis forward.** Raw input into `velocity` ignores facing — multiply by the body basis
+- **World-basis forward**. Raw input into `velocity` ignores facing — multiply by the body basis
   (FPS) or camera-pivot basis (third-person). The most common 3D-controller bug.
-- **Pitching the whole body.** Pitch the *head* `Node3D`, yaw the body — never `rotate_x` the
+- **Pitching the whole body**. Pitch the *head* `Node3D`, yaw the body — never `rotate_x` the
   `CharacterBody3D`, which tilts the collider and gimbals the character.
-- **Gravity in `_process`.** All movement goes in `_physics_process` with `delta`; `_process` is
+- **Gravity in `_process`**. All movement goes in `_physics_process` with `delta`; `_process` is
   frame-rate-dependent and desyncs from collision.
-- **Mouse not captured.** Without `MOUSE_MODE_CAPTURED` the cursor leaves the window and
+- **Mouse not captured**. Without `MOUSE_MODE_CAPTURED` the cursor leaves the window and
   mouse-look dies at the edge; restore `MOUSE_MODE_VISIBLE` for menus.
-- **SpringArm colliding with the player.** The arm raycasts into the player's own capsule and
+- **SpringArm colliding with the player**. The arm raycasts into the player's own capsule and
   slams the camera to the face — `add_excluded_object(get_rid())` (the body's RID) or drop its layer.
-- **`floor_snap_length` too small.** The body launches off every downhill and stair crest; raise
+- **`floor_snap_length` too small**. The body launches off every downhill and stair crest; raise
   it until walking down is glued.
 - **Hard-coded `9.8`** instead of reading `physics/3d/default_gravity`.
-- **Remembered signatures.** Confirm properties/methods against the running engine (`engine class-info`/`search`)
+- **Remembered signatures**. Confirm properties/methods against the running engine (`engine class-info`/`search`)
   before writing — CharacterBody3D's floor API has evolved across engine versions.

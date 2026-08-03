@@ -5,7 +5,7 @@ description: The CLI's automation contract in bash and PowerShell — exit codes
 
 The CLI is built to live inside scripts: results go to stdout, errors go to stderr as the JSON-RPC code and message, and exit codes follow one contract — `0` success, `1` command or connection error, `2` usage error. Everything on this page is composition on top of that.
 
-Single commands are identical in every shell — `godot-mcp project info` pastes into bash, PowerShell, or cmd unchanged. The tabs below appear where pipelines genuinely diverge; PowerShell examples use its native object pipeline (`ConvertFrom-Json`) rather than transliterated bash.
+Single commands are identical in every shell — `godot-mcp project info` pastes into bash, PowerShell, or cmd unchanged. The tabs below appear where pipelines diverge; PowerShell examples use its native object pipeline (`ConvertFrom-Json`) rather than transliterated bash.
 
 ## Machine output
 

@@ -194,7 +194,7 @@ A mouse-only menu is broken on a controller. Exactly one Control holds focus; `u
 `ui_left`/`ui_right`/`ui_accept`/`ui_cancel` (built-in actions) move and activate it. On every screen:
 
 - **Grab focus on open** — `first_button.grab_focus()` when it shows; re-grab after a sub-dialog closes. No focus → a controller does nothing.
-- **Every actionable Control is focusable** — Buttons default to `focus_mode = FOCUS_ALL`(2); custom Controls must set it (`FOCUS_NONE`=0, `FOCUS_CLICK`=1).
+- **Every interactive Control is focusable** — Buttons default to `focus_mode = FOCUS_ALL`(2); custom Controls must set it (`FOCUS_NONE`=0, `FOCUS_CLICK`=1).
 - **Fix auto-routing where it's wrong** — `focus_neighbor_top/bottom/left/right` (or `set_focus_neighbor(SIDE_BOTTOM, path)`) and `focus_next`/`focus_previous`.
 - **Verify by driving** — `scene play`, then `input action --action ui_down` / `ui_accept`, and `runtime get` the focused path: reach *and trigger* mouse-free.
 - **Touch builds** may want an on-screen stick — see *VirtualJoystick*.
@@ -239,7 +239,7 @@ base file, `FontVariation` — its axis-pinning and letter-spacing traps are in 
 ## GraphEdit family (when a game needs a node editor)
 
 `GraphEdit` + `GraphNode` build in-game/tool **node graphs** — a skill-tree builder, dialogue
-debugger, visual crafting bench. Use it only when the game truly edits a graph; a static skill tree
+debugger, visual crafting bench. Use it only when the game edits a graph; a static skill tree
 is better as `TextureButton`s + `Line2D`s. `GraphEdit` doesn't connect wires itself — it emits
 `connection_request(from, from_port, to, to_port)` and you decide, calling `connect_node(from,
 from_port, to, to_port)` to accept the wire (`disconnection_request` is the tear-down half). Each

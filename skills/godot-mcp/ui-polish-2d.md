@@ -10,7 +10,7 @@ pixel comps; every gotcha here was hit for real. Core kit validated headless aga
 Create a `Design` class (`@tool`, `RefCounted`, all `const`/`static`) as the **single source of
 truth for the look** — never hard-code a color or size anywhere else. Discipline that pays:
 
-- **Fix the ratio, scale the constant.** Author comps at one 16:9 size, run the game at another,
+- **Fix the ratio, scale the constant**. Author comps at one 16:9 size, run the game at another,
   and make every length `comp_px * SCALE`. With `stretch/aspect = keep`, common resolutions
   scale exactly; nothing re-lays-out.
 - **Name colors by meaning**, not hue: `FELT`/`RIVAL_FELT`, `NEG_FACE` ("dark = subtracts"),
@@ -26,7 +26,7 @@ truth for the look** — never hard-code a color or size anywhere else. Discipli
 Typography facts (all verified live, all silent failures otherwise):
 - **`Label.label_settings` disables the theme for that label entirely** — `add_theme_*_override`
   calls on it are ignored without error. Write size/color *into* the settings resource.
-- **`LabelSettings` with `shadow_size = 0` is the only crisp (unblurred) text drop shadow.**
+- **`LabelSettings` with `shadow_size = 0` is the only crisp (unblurred) text drop shadow**.
 - **Shared resources are shared**: a `LabelSettings`/`FontVariation` preloaded by N instances is
   one object — the last writer styles them all. `duplicate()` a private copy per instance,
   keeping the inner font shared (shallow copy) to preserve the glyph cache.
@@ -35,7 +35,7 @@ Typography facts (all verified live, all silent failures otherwise):
 - **Variable fonts render at their axis defaults** (often too light) unless every
   `FontVariation` pins the axes: `{ts.name_to_tag("weight"): 700.0}` via
   `TextServerManager.get_primary_interface()`. A variation does *not* inherit axes from the theme.
-- **A `Label` centers its line box, not its ink.** Descender-less text (digits, all-caps) sits
+- **A `Label` centers its line box, not its ink**. Descender-less text (digits, all-caps) sits
   visibly low. Fix with a measured nudge: shift `offset_top/bottom` by
   `font_size * -0.03 + line_spacing * 0.5` (measure your own font; center on the *face* rect only,
   never face + shadow).
@@ -71,7 +71,7 @@ draw_style_box(style(face_color, radius), rect.grow_side(SIDE_TOP, -travel).grow
   keeps the layout rect intact so rows stay even. Treat the authored value as the rest pose and
   add your lift on top; overwriting it ratchets `@tool` scenes downward on reload.
 - On `NOTIFICATION_RESIZED`, set `pivot_offset = size * 0.5` so pops/squashes punch from center.
-- **Game pieces resolve their own colors.** A `Die`/card exposes rule state (`role`, `selected`,
+- **Game pieces resolve their own colors**. A `Die`/card exposes rule state (`role`, `selected`,
   `zeroed`); a `face_colors()` ladder maps state → palette in priority order. Screens never tint
   pieces — per-screen tinting drifts. Bonus: a concealed piece checks *concealment first*, so a
   bluff can't leak through the fill.
@@ -100,7 +100,7 @@ builder has done its job. The traps — each one a silent failure, all hit live:
   whose cached script is gone instances as a bare `Control` that swallows every property write.
   Load with `ResourceLoader.load(path, type, ResourceLoader.CACHE_MODE_REPLACE_DEEP)` and
   **assert `get_script() != null`** after instancing.
-- **`owner` decides what `PackedScene.pack()` keeps.** Every node you add must get
+- **`owner` decides what `PackedScene.pack()` keeps**. Every node you add must get
   `node.owner = root` or it is silently dropped from the saved file.
 - **Minimum-size caching outside the tree**: `get_combined_minimum_size()` refreshes on a
   deferred update that never runs for an out-of-tree builder — writing `size` clamps to whatever

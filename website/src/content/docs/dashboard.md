@@ -9,6 +9,6 @@ description: An opt-in web UI showing live activity across every client talking 
 godot-mcp dashboard --port 8090     # then open http://127.0.0.1:8090
 ```
 
-The page and its assets are embedded in the binary, so there is no Node or build step. Run it from inside your project directory (it discovers the addon port like the CLI), or pass `--project DIR` / `--addon-port N`.
+The page and its assets are embedded in the binary. No Node, no build step. Run it from inside your project directory (it discovers the addon port like the CLI), or pass `--project DIR` / `--addon-port N`.
 
 It holds a single persistent connection and polls the addon's `stats.snapshot`, so it observes activity without competing with the agent for the editor's main thread.

@@ -41,7 +41,7 @@ shader set-param --node-path Sprite --param flash_amount --value 0.5
 
 - `shader assign-material` **builds a fresh `ShaderMaterial`** and picks the slot: `CanvasItem.material`,
   `MeshInstance3D.material_override`, else a `material` property. One per call, so each node gets its own.
-- **Uniforms live on the material, not the node.** `shader set-param` calls
+- **Uniforms live on the material, not the node**. `shader set-param` calls
   `material.set_shader_parameter(name, value)`; the path is `shader_parameter/<name>` **on the
   `ShaderMaterial`** (verified round-trip on an orphan material). So `node set --property
   shader_parameter/amt` does **nothing** — the node has no such property. Drive the material in a
@@ -271,20 +271,20 @@ screenshot`, since a shader that compiles but looks wrong only shows on screen.
 
 ## Common mistakes
 
-- **Tweening a never-set parameter.** `tween_property(mat, "shader_parameter/x", …)` starts from
+- **Tweening a never-set parameter**. `tween_property(mat, "shader_parameter/x", …)` starts from
   the current value — which is `null` until the parameter has been explicitly set once, and a
   null-start tween dies silently. Seed with `set_shader_parameter` first (verified live).
-- **Editing `project.godot` for global uniforms.** Use `shader global-add`/`global-set` — a `global
+- **Editing `project.godot` for global uniforms**. Use `shader global-add`/`global-set` — a `global
   uniform` won't compile until the global is registered (verified error above). Same for setting a
   uniform via `node set --property shader_parameter/x`: it's a *material* property, so use `shader set-param`.
-- **`uniform` vs `varying`.** `uniform` = a knob set from outside (constant across the draw);
+- **`uniform` vs `varying`**. `uniform` = a knob set from outside (constant across the draw);
   `varying` = a value passed **vertex → fragment**, interpolated per pixel. Using a uniform to move
   data between stages is the classic mix-up.
-- **Forgetting the screen sampler.** No `hint_screen_texture` sampler means no frame to read; `SCREEN_UV`
+- **Forgetting the screen sampler**. No `hint_screen_texture` sampler means no frame to read; `SCREEN_UV`
   alone is just coordinates.
-- **Shared `.tres` material across instances.** A uniform set on a shared `ShaderMaterial` changes
+- **Shared `.tres` material across instances**. A uniform set on a shared `ShaderMaterial` changes
   *every* node using it — `duplicate()` it or use an `instance uniform`. (`assign-material` already
   gives each node its own; this bites when you `load` one onto many.)
-- **`COLOR` vs `ALBEDO`.** `canvas_item` writes `COLOR` (rgba); `spatial` writes `ALBEDO` (rgb) +
+- **`COLOR` vs `ALBEDO`**. `canvas_item` writes `COLOR` (rgba); `spatial` writes `ALBEDO` (rgb) +
   `ALPHA`; `particles` writes `TRANSFORM`/`VELOCITY`/`COLOR`. Copying a snippet across types fails on
   the wrong output name — check `shader_type` first.
