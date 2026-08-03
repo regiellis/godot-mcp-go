@@ -19,4 +19,12 @@ const guides = defineCollection({
   schema: z.object({}).passthrough(),
 });
 
-export const collections = { docs, guides };
+// The release history, rendered straight from the repo-root CHANGELOG.md so the
+// published page and the file maintainers actually edit can never disagree. No
+// frontmatter; the leading "# Changelog" is dropped by remarkStripFirstH1.
+const changelog = defineCollection({
+  loader: glob({ pattern: "CHANGELOG.md", base: ".." }),
+  schema: z.object({}).passthrough(),
+});
+
+export const collections = { docs, guides, changelog };

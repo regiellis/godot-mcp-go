@@ -1,0 +1,30 @@
+---
+// Renders the repo-root CHANGELOG.md. Deliberately not a copy: the file lives at
+// the root because that is where releases are cut and where GitHub reads it from,
+// so the site loads that one rather than keeping a second version to forget.
+import { getEntry, render } from "astro:content";
+import DocsLayout from "../../layouts/DocsLayout.astro";
+import Table from "../../components/Table.astro";
+import { humanMarkdown, agentMarkdown } from "../../lib/pagemd";
+
+const entry = await getEntry("changelog", "changelog");
+if (!entry) throw new Error("CHANGELOG.md not found at the repo root");
+
+const { Content, headings } = await render(entry);
+
+const title = "Changelog";
+const description = "Every release, newest first, with the reasoning behind each change.";
+const url = new URL(Astro.url.pathname, Astro.site).href;
+const body = entry.body ?? "";
+---
+
+<DocsLayout
+  title={title}
+  description={description}
+  current="changelog"
+  headings={headings}
+  mdHuman={humanMarkdown(title, description, body)}
+  mdAgent={agentMarkdown(title, description, body, url)}
+>
+  <Content components={{ table: Table }} />
+</DocsLayout>

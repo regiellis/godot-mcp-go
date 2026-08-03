@@ -86,6 +86,8 @@ const AUTHORED: NavGroup[] = [
       { label: "Command groups", slug: "commands" },
       { label: "Custom commands", slug: "extending" },
       { label: "How it works", slug: "how-it-works" },
+      // Rendered from the repo-root CHANGELOG.md, not authored under content/docs.
+      { label: "Changelog", slug: "changelog" },
     ],
   },
   {
