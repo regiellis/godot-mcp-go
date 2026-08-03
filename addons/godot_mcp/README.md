@@ -19,7 +19,7 @@ the running game. Every editor mutation goes through `UndoRedo`, so Ctrl+Z rever
 3. The Output panel prints the bound port, for example `[MCP] Server listening on ws://127.0.0.1:9080`.
 
 Enabling the plugin also installs two autoloads, `MCPGameInspector` and `MCPGameInput`, which the
-`runtime` and `input` command groups need in order to reach a running game. Disabling the plugin
+`runtime` and `input` command groups need to reach a running game. Disabling the plugin
 removes them again.
 
 The bound ports are written to `<project>/.godot/godot-mcp.json`, so a client can find the editor
@@ -28,7 +28,7 @@ project settings, or the `GODOT_MCP_PORT` and `GODOT_MCP_HTTP_PORT` environment 
 
 ## Requirements
 
-Godot 4.7 or newer. The addon alone is enough for an HTTP-capable MCP client. The command line tool
+Godot 4.7 or newer, run against `4.7.1-rc`, `4.7.2-rc`, and a `4.8-dev` build from master. The addon alone is enough for an HTTP-capable MCP client. The command line tool
 and the agent skill are separate downloads from the repository releases.
 
 ## Security
