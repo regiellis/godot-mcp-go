@@ -31,7 +31,7 @@ const installSession = [
 const compare = [
   { axis: "Running-game control", them: "editor-time only", us: "full runtime + input groups" },
   { axis: "MCP tool schemas carried", them: "~43", us: "as few as 1 (godot_run)" },
-  { axis: "Command surface", them: "~120 ops", us: "312 across 49 groups" },
+  { axis: "Command surface", them: "~120 ops", us: "316 across 49 groups" },
   { axis: "Runtime dependencies", them: "Python + uv", us: "single Go binary" },
   // Count derived from GUIDES so it cannot drift from the craft docs actually published.
   { axis: "Craft layer", them: "tool reference", us: `${GUIDES.length} craft docs + agent skill` },
@@ -77,7 +77,7 @@ const caps = [
             <h1>Drive a running <span class="mono">Godot 4.7+</span> editor from your terminal, and from AI agents.</h1>
             <p class="lede">
               A Go CLI and a GDScript addon talk to a live editor over WebSocket. Build scenes,
-              write GDScript or C#, play the game, and read its state back. <strong>312 commands</strong>,
+              write GDScript or C#, play the game, and read its state back. <strong>316 commands</strong>,
               every one verified against a running editor. Not Godot's batch CLI: that starts a
               fresh engine process; this drives the editor you already have open, live scene,
               undo history, running game and all.

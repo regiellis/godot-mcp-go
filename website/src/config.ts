@@ -7,7 +7,7 @@ export const SITE = {
   name: "godot-mcp",
   tagline: "Drive a running Godot 4.7 editor from the CLI and from AI agents.",
   description:
-    "A Go CLI and GDScript editor addon that drive a live Godot 4.7 editor over WebSocket: build scenes, write GDScript or C#, play and inspect the running game, and introspect the engine's real API. 312 commands across 49 groups.",
+    "A Go CLI and GDScript editor addon that drive a live Godot 4.7 editor over WebSocket: build scenes, write GDScript or C#, play and inspect the running game, and introspect the engine's real API. 316 commands across 49 groups.",
   repo: "https://github.com/regiellis/godot-mcp-go",
   editorVersion: "Godot 4.7+",
 };
@@ -37,6 +37,7 @@ export const GUIDES: Guide[] = [
   { slug: "character-3d", group: "3D and spatial", title: "3D character controllers", desc: "One camera-relative movement core for FPS, third-person, and platformer, plus the floor contract and rigs." },
   { slug: "environment-art", group: "3D and spatial", title: "Environment art", desc: "The art pass after the greybox is proven: PBR materials, real lighting, post restraint, set dressing, the paper diorama." },
 
+  { slug: "ai-steering", group: "Systems", title: "Steering and agent movement", desc: "Movement that reads as a creature rather than a cursor: arrive, flee, pursue and separation as summable forces, blending vs priority." },
   { slug: "menus-settings", group: "Systems", title: "Menus and settings", desc: "The meta-game screens: pause done right, the settings widget family, ConfigFile persistence, input remapping." },
   { slug: "audio-music", group: "Systems", title: "Audio and music", desc: "Bus architecture, SFX variation, interactive music, sidechain ducking, spectrum-driven visuals, loop points." },
   { slug: "shaders-vfx", group: "Systems", title: "Shaders and VFX", desc: "gdshader authoring and wiring, the 2D VFX kit, and a programmatic compile-verification loop." },

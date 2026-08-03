@@ -121,7 +121,7 @@ func _classdb_info(cls: String, params: Dictionary) -> Dictionary:
 		var name: String = p["name"]
 		if not filter.is_empty() and not name.to_lower().contains(filter):
 			continue
-		properties.append({"name": name, "type": _type_name(p["type"], p.get("class_name", ""))})
+		properties.append({"name": name, "type": type_name(p["type"], p.get("class_name", ""))})
 
 	var methods: Array = []
 	for m in ClassDB.class_get_method_list(cls, no_inherit):
@@ -130,7 +130,7 @@ func _classdb_info(cls: String, params: Dictionary) -> Dictionary:
 			continue
 		if not filter.is_empty() and not name.to_lower().contains(filter):
 			continue
-		methods.append(_method_brief(m))
+		methods.append(method_brief(m))
 
 	var signals: Array = []
 	for s in ClassDB.class_get_signal_list(cls, no_inherit):
@@ -139,7 +139,7 @@ func _classdb_info(cls: String, params: Dictionary) -> Dictionary:
 			continue
 		var args: Array = []
 		for a in s["args"]:
-			args.append({"name": a["name"], "type": _type_name(a["type"], a.get("class_name", ""))})
+			args.append({"name": a["name"], "type": type_name(a["type"], a.get("class_name", ""))})
 		signals.append({"name": name, "args": args})
 
 	return success({
@@ -252,57 +252,17 @@ func _script_class_info(cls: String, entry: Dictionary, params: Dictionary) -> D
 	var script := load(entry.get("path", "")) as Script
 	if script == null:
 		return error_internal("Could not load script for '%s'" % cls)
-	var filter := optional_string(params, "filter", "").to_lower()
 
-	var properties: Array = []
-	for p in script.get_script_property_list():
-		if not (int(p["usage"]) & PROPERTY_USAGE_SCRIPT_VARIABLE) or p["type"] == TYPE_NIL:
-			continue
-		var name: String = p["name"]
-		if not filter.is_empty() and not name.to_lower().contains(filter):
-			continue
-		properties.append({"name": name, "type": _type_name(p["type"], p.get("class_name", ""))})
-
-	var methods: Array = []
-	for m in script.get_script_method_list():
-		var name: String = m["name"]
-		if name.begins_with("_"):
-			continue
-		if not filter.is_empty() and not name.to_lower().contains(filter):
-			continue
-		methods.append(_method_brief(m))
-
-	var signals: Array = []
-	for s in script.get_script_signal_list():
-		var name: String = s["name"]
-		if not filter.is_empty() and not name.to_lower().contains(filter):
-			continue
-		var args: Array = []
-		for a in s["args"]:
-			args.append({"name": a["name"], "type": _type_name(a["type"], a.get("class_name", ""))})
-		signals.append({"name": name, "args": args})
-
-	# Constants include enums (an enum is a constant whose value is a Dictionary).
-	var constants: Dictionary = {}
-	var cmap: Dictionary = script.get_script_constant_map()
-	for k in cmap:
-		constants[String(k)] = PropertyParser.serialize_value(cmap[k])
-
-	return success({
+	var payload := script_symbols(script, optional_string(params, "filter", ""))
+	payload.merge({
 		"class": cls,
 		"kind": "script",
 		"inherits": entry.get("base", ""),
 		"base_type": script.get_instance_base_type(),
 		"script_path": entry.get("path", ""),
 		"can_instantiate": script.can_instantiate(),
-		"properties": properties,
-		"methods": methods,
-		"signals": signals,
-		"constants": constants,
-		"property_count": properties.size(),
-		"method_count": methods.size(),
-		"signal_count": signals.size(),
 	})
+	return success(payload)
 
 
 func _singletons(_params: Dictionary) -> Dictionary:
@@ -313,22 +273,9 @@ func _singletons(_params: Dictionary) -> Dictionary:
 
 # --- Helpers ----------------------------------------------------------------
 
-func _type_name(t: int, hint_class: String = "") -> String:
-	if t == TYPE_OBJECT and not hint_class.is_empty():
-		return hint_class
-	return type_string(t)
-
-
-func _method_brief(m: Dictionary) -> Dictionary:
-	var args: Array = []
-	for a in m["args"]:
-		args.append({"name": a["name"], "type": _type_name(a["type"], a.get("class_name", ""))})
-	var ret: Dictionary = m.get("return", {})
-	return {
-		"name": m["name"],
-		"return": _type_name(ret.get("type", TYPE_NIL), ret.get("class_name", "")),
-		"args": args,
-	}
+# type_name() and method_brief() live in base_command.gd — script.symbols reports
+# the same shapes, and two copies drifted apart is exactly the bug class the
+# shared-helper rule exists to prevent.
 
 
 func get_command_docs() -> Dictionary:

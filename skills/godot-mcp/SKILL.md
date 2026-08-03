@@ -38,7 +38,7 @@ godot-mcp node set --help                             # a command's param table 
 **These docs record what was verified against a live engine, not a version the guidance expires past.** When any statement here and the running engine disagree, **the live engine wins** — `engine version` and `engine class-info` are the ground truth.
 
 **Universal fallback:** even if no typed command wraps a feature, you can always reach it:
-- `node.set` / `node.get` work on **any** property name the live node exposes.
+- `node.set` / `node.get` work on **any** property name the live node exposes, and `node.call` invokes **any method** it exposes (`runtime.call` does the same in the running game). Between them, a feature is reachable whether the engine surfaces it as a property or a method — reach for `editor.run_script` / `runtime.eval` only when you genuinely need several statements.
 - `editor.run_script --code '...'` runs arbitrary `@tool` GDScript in the editor; `runtime.eval --code '...'` runs it in the game. Use `emit(value)` to return data. So 100% of the running engine's API is reachable with no per-feature wrapper.
 
 ## The spatial rule: anchor, read back, verify (don't place blind)
@@ -88,14 +88,14 @@ Run `godot-mcp <group>` patterns; discover exact names per group by reading the 
 Most-used:
 - `project info|tree|search|grep|settings|set_setting` — project metadata, files, settings (never edit `project.godot` directly — use `project set-setting`).
 - `scene tree|create|open|save|play|stop|instance` — `tree` is your map of the open scene.
-- `node add|set|get|rename|move|delete|set_anchor|connect|set_meta|get_meta` — building blocks (`set`/`get` are property ops; `set` takes singular `--property/--value` **or** a batch `--properties '{...}'`). `set_meta|get_meta` read/write arbitrary node metadata — the general-purpose store `set` (properties only) can't reach. **In 2D, sibling order is draw order**, so reach for `node move --before|--after|--index` to seat a node behind or in front of its siblings, and `node add --index` to place a new one; `move` reparents and reorders in one undoable step. A `--properties` value that can't be coerced is an error naming what the property wanted, so a failed create tells you why instead of leaving the property null.
+- `node add|set|get|call|rename|move|delete|set_anchor|connect|set_meta|get_meta` — building blocks (`set`/`get` are property ops; `set` takes singular `--property/--value` **or** a batch `--properties '{...}'`). `call --method M [--args '[…]']` runs a method and returns its result — `node call --node-path Fx --method restart` rather than a `run_script` to do one call; args coerce to the method's declared types, so `'["Vector3(1,0,1)"]'` arrives typed. It is **not** undoable. `set_meta|get_meta` read/write arbitrary node metadata — the general-purpose store `set` (properties only) can't reach. **In 2D, sibling order is draw order**, so reach for `node move --before|--after|--index` to seat a node behind or in front of its siblings, and `node add --index` to place a new one; `move` reparents and reorders in one undoable step. A `--properties` value that can't be coerced is an error naming what the property wanted, so a failed create tells you why instead of leaving the property null.
 - `spatial bounds|relate|place_on|align|distribute|look_at|raycast|find_in_region|lint` — 3D placement done right (anchor → read back → seat → verify). See "The spatial rule" above.
 - `authoring resolve|ensure|checkpoint` — robust scripted-build helpers: `resolve` (fuzzy name → ranked node/scene/resource paths, flags ambiguity), `ensure` (idempotent get-or-create a node by name — re-runs converge, no `Node2`/`Node3`), `checkpoint` (capture/diff/restore a JSON snapshot of node transforms — "what did my edits move?").
 - `resource find|info|read|edit|create|preview` — asset discovery + graph: `find --type PackedScene [--path res://… --name foo]` (type-filtered, matches subclasses), `info --path res://x` (its dependencies **and** referencers — "what breaks if I delete this").
 - `fs mkdir|move|copy|delete` — asset/file management with **dependency fixup**, the one thing `node.*` can't reach. `move --from --to` renames/relocates a file or dir and rewrites every `res://` path reference to it (uid refs survive the move automatically); `copy` regenerates the copy's uid so it doesn't collide; `delete` refuses a referenced file (or a dir holding an open scene) unless `--force`, and reports what breaks. The safe way to reorganize a project without breaking scenes.
-- `script create|read|edit|attach|validate` — GDScript authoring.
+- `script create|read|edit|attach|validate|symbols|lint` — GDScript authoring. `symbols` reads one script's declared methods/properties/signals/constants without spending context on the file (and reaches scripts with no `class_name`, which `engine class-info` can't). `lint` checks the official style guide.
 - `editor run_script|errors|log|screenshot|reload|signals` — editor control + diagnostics.
-- `runtime tree|get|set|eval|screenshot|...` — the **running** game (needs `scene play` first). A standalone debug-build game (no editor) is reachable too when the project enables `godot_mcp/runtime/direct_server`: add `--game` to route directly to it.
+- `runtime tree|get|set|call|eval|screenshot|...` — the **running** game (needs `scene play` first). `call` invokes a method on a live node (script methods included) and returns its result, which beats `eval` when you only need one call. A standalone debug-build game (no editor) is reachable too when the project enables `godot_mcp/runtime/direct_server`: add `--game` to route directly to it.
 - `input key|tap|click|move|action|sequence` — simulate input into the running game.
 
 3D content pipeline (build → dress → light a level, the Godot way):
@@ -130,7 +130,8 @@ How this maps to the tools: `scene.create` per entity → `node.add` the capabil
 
 Knowing the tools isn't enough — build the *Godot way*. Reference files sit next to this skill; read the relevant one before writing code or structuring a game:
 
-- **`gdscript-style.md`** — GDScript idioms: static typing, naming, `@export`/`@onready`, signals over polling, `_physics_process` for movement, Resources for data, `class_name`/autoloads.
+- **`gdscript-style.md`** — GDScript idioms: static typing, naming, `@export`/`@onready`, signals over polling, `_physics_process` for movement, Resources for data, `class_name`/autoloads — plus the `script lint` rules that enforce most of it mechanically.
+- **`ai-steering.md`** — agent movement that reads as a creature rather than a cursor: accelerate toward a desired velocity instead of assigning it (`max_force` is the feel dial), arrive/flee/pursue/separation as summable forces, blending vs priority, facing, when to reach for `NavigationAgent` instead, and how to verify motion numerically rather than by screenshot. Read before writing any chase, patrol, or crowd behavior.
 - **`game-patterns.md`** — buildable patterns mapped to CLI command sequences: movement, **game feel vs juice** (control-code vs signal-fired feedback), components, state machines, projectiles, Area2D triggers, signal-bound HUD, groups, timers, animation, scene management — plus build order and common mistakes.
 - **`platformer-2d.md`** — 2D platformer *construction*: the component actor (Node2D root; body/controllers/graphics/interaction as sibling components), the intent-API + predicate contract, physics-expression-driven `AnimationTree` transitions (no glue code), codeless `AnimatableBody2D` moving platforms, level-owned cameras with trip-line limits, a collision-layer contract, and scene-tile blockouts via `tilemap.*`. Read before building a 2D platformer.
 - **`topdown-2d.md`** — top-down 2D / sim *construction*: the layered `TileMapLayer` stack + Y-sort chain rule, gameplay-as-terrain-painting (`tilemap.set_terrain`, cursor components), the one-job Area2D component library with tool-gated hits, behavior state machines as child nodes, NPC wander via navigation, the one-clock day/night pattern (gradient-sampled `CanvasModulate`), and component + polymorphic-Resource saves. Read before building a farming sim, RPG, or any top-down game.
@@ -186,6 +187,14 @@ godot-mcp scene2d add-body --type StaticBody2D --shape rectangle --size "Vector2
 
 ### Scripts
 `script create` (template or `--content`), `script edit` (modes: `--content` full; `--replacements '[{"search":"a","replace":"b"}]'`; `--start-line/--end-line --content`; `--insert-at-line N --text "..."`), then `script validate` (single `--path`, or batch: `--modified` compiles every git-modified/untracked `.gd`, `--all` sweeps the project — results list failures only). After creating/major edits, `editor reload` so Godot picks up changes.
+
+Before reading a script you did not write, try `script symbols --path res://x.gd` — it returns the declared methods, properties, signals, and constants without pulling the whole file into context, and unlike `engine class-info` it works on scripts with no `class_name`. Add `--include-inherited` to walk the base-script chain.
+
+`script lint --path res://x.gd` checks style against the official guide and returns structured findings (`line`, `rule`, `severity`, `message`). 17 rules: the 9 naming rules are `error`, the rest are warnings. Run it after writing or editing a script — it is the check that makes `gdscript-style.md` enforceable rather than advisory. Suppress a line inline with `# gdlint-ignore[-next-line] rule`, or a whole run with `--disable rule,rule`. `max-line-length` is the noisy one (default 100; `0` turns it off).
+
+A clean lint is **not** a passing compile — style rules read source, so they still report on a file that doesn't parse, and zero findings there would read as fine. A single-file run reports `syntax_valid`; a directory run is style-only, and `script validate --all` is the tree-wide compile check.
+
+There is no `script format`. Reformatting safely needs a real parser, and it isn't worth making you install a binary for. Write to the style guide as you go and let `script lint` catch the rest.
 
 ### Playtest loop (the payoff)
 ```

@@ -1,43 +1,37 @@
-# Astro Starter Kit: Minimal
+# godot-mcp docs site
+
+The public documentation site, deployed to GitHub Pages by `.github/workflows/docs.yml`
+on every push to `main`. Plain **Astro** with MDX, Expressive Code, and Pagefind search.
+
+## Running it
 
 ```sh
-pnpm create astro@latest -- --template minimal
+pnpm install
+pnpm dev      # local preview
+pnpm build    # production build into dist/
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Search is generated post-build from `dist/`, so it only works in dev after one `pnpm build`.
 
-## 🚀 Project Structure
+## Where things live
 
-Inside of your Astro project, you'll see the following folders and files:
+| Path | What it holds |
+| --- | --- |
+| `src/config.ts` | Site metadata, the sidebar, and the craft-guide list |
+| `src/content/docs/` | Authored pages (`.mdx` for callouts and cards, `.md` otherwise) |
+| `src/components/` | The shell: topbar, sidebar, TOC, callouts, cards, code frames |
+| `src/styles/theme.css` | Design tokens; light and dark switch on `:root[data-theme]` |
+| `public/brand/` | The master mark; raster copies come from `tools/render-mark.mjs` |
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
-```
+The craft guides are not authored here. They are glob-imported from `skills/godot-mcp/*.md`
+at the repo root and keyed by the `GUIDES` list in `src/config.ts`, so the published pages
+and the shipped agent skill can never drift apart. To add one, write the Markdown there and
+add its entry here.
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Adding a docs page: create `src/content/docs/<slug>.mdx` with `title` and `description`
+frontmatter, then list it in a `SIDEBAR` group in `src/config.ts`.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Links
 
-Any static assets, like images, can be placed in the `public/` directory.
-
-## 🧞 Commands
-
-All commands are run from the root of the project, from a terminal:
-
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `pnpm install`             | Installs dependencies                            |
-| `pnpm dev`             | Starts local dev server at `localhost:4321`      |
-| `pnpm build`           | Build your production site to `./dist/`          |
-| `pnpm preview`         | Preview your build locally, before deploying     |
-| `pnpm astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `pnpm astro -- --help` | Get help using the Astro CLI                     |
-
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+Author internal links root-absolute (`/docs/quickstart`). A rehype plugin prefixes them with
+the Pages `base` at build time, so never hard-code the repo path.

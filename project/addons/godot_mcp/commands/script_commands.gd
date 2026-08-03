@@ -1,9 +1,11 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## Script authoring (GDScript + C#): list, read, create, edit, attach, validate.
+## Script authoring (GDScript + C#): list, read, create, edit, attach, validate,
+## symbols, lint. Every command here is self-contained — no external tool.
 
 const CSharpCommands := preload("res://addons/godot_mcp/commands/csharp_commands.gd")
+const GDScriptLinter := preload("res://addons/godot_mcp/utils/gdscript_linter.gd")
 
 
 func get_commands() -> Dictionary:
@@ -15,6 +17,8 @@ func get_commands() -> Dictionary:
 		"script.attach": _attach,
 		"script.validate": _validate,
 		"script.list_open": _list_open,
+		"script.symbols": _symbols,
+		"script.lint": _lint,
 	}
 
 
@@ -574,6 +578,159 @@ func _list_open(_params: Dictionary) -> Dictionary:
 	return success({"scripts": open_scripts, "count": open_scripts.size()})
 
 
+## The API surface one script declares: methods, properties, signals, constants.
+##
+## engine.class_info covers only scripts registered as a global class_name, which
+## leaves the ordinary case — a player.gd attached to a node — with no answer but
+## script.read and a few hundred lines of context spent to learn six signatures.
+func _symbols(params: Dictionary) -> Dictionary:
+	var r := require_string(params, "path")
+	if r[1] != null:
+		return r[1]
+	var path: String = r[0]
+	if path.get_extension().to_lower() != "gd":
+		return error_invalid_params(
+			"script.symbols reads GDScript (.gd). For C#, build the project and use engine.class_info."
+		)
+	if not FileAccess.file_exists(path):
+		return error_not_found("Script '%s'" % path)
+
+	var script := load(path) as Script
+	if script == null:
+		return error_internal(
+			"Could not load '%s' as a script. Run script.validate --path %s for the parse error." % [path, path]
+		)
+
+	var payload := script_symbols(
+		script,
+		optional_string(params, "filter", ""),
+		optional_bool(params, "include_private", false),
+		optional_bool(params, "include_inherited", false),
+	)
+	payload.merge({
+		"path": normalize_project_path(path),
+		"base_type": script.get_instance_base_type(),
+		"can_instantiate": script.can_instantiate(),
+		"global_name": script.get_global_name(),
+	})
+	return success(payload)
+
+
+## Every .gd file under `path` (or just `path` when it is a file). Mirrors
+## script.list's skips: addons/ unless asked for, and hidden directories.
+func _collect_gd_files(path: String, include_addons: bool, out: Array) -> void:
+	if FileAccess.file_exists(path):
+		out.append(path)
+		return
+	var dir := DirAccess.open(path)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var entry := dir.get_next()
+	while not entry.is_empty():
+		if entry.begins_with("."):
+			entry = dir.get_next()
+			continue
+		var full := path.path_join(entry)
+		if dir.current_is_dir():
+			if include_addons or entry != "addons":
+				_collect_gd_files(full, include_addons, out)
+		elif entry.get_extension().to_lower() == "gd":
+			out.append(full)
+		entry = dir.get_next()
+	dir.list_dir_end()
+
+
+## Lint GDScript against the official style guide. Native — no external binary, so
+## this works wherever the addon does.
+func _lint(params: Dictionary) -> Dictionary:
+	var path := optional_string(params, "path", "res://")
+	var is_file := FileAccess.file_exists(path)
+	if not is_file and not DirAccess.dir_exists_absolute(path):
+		return error_not_found("Path '%s'" % path)
+	if is_file and path.get_extension().to_lower() != "gd":
+		return error_invalid_params("script.lint reads GDScript (.gd). For C#, use script.validate.")
+
+	var disable: Array = []
+	for name in optional_string(params, "disable", "").split(",", false):
+		var rule := name.strip_edges()
+		if not rule.is_empty():
+			disable.append(rule)
+	var unknown: Array = []
+	for rule in disable:
+		if not GDScriptLinter.SEVERITY.has(rule):
+			unknown.append(rule)
+	if not unknown.is_empty():
+		return error_invalid_params(
+			"Unknown lint rule(s): %s. Known rules: %s"
+			% [", ".join(PackedStringArray(unknown)), ", ".join(PackedStringArray(GDScriptLinter.rule_names()))]
+		)
+
+	var opts := {
+		"max_line_length": optional_int(params, "max_line_length", 100),
+		"disable": disable,
+	}
+
+	var targets: Array = []
+	_collect_gd_files(path, optional_bool(params, "include_addons", false), targets)
+	if targets.is_empty():
+		return error_not_found("GDScript files under '%s'" % path)
+
+	var findings: Array = []
+	var errors := 0
+	var warnings := 0
+	var invalid: Array = []
+
+	for file_path in targets:
+		var file := FileAccess.open(file_path, FileAccess.READ)
+		if file == null:
+			continue
+		var source := file.get_as_text()
+		file.close()
+
+		var res_path := normalize_project_path(file_path)
+		for f in GDScriptLinter.lint(source, opts):
+			f["path"] = res_path
+			findings.append(f)
+			if f["severity"] == "error":
+				errors += 1
+			else:
+				warnings += 1
+
+		# Style rules read source, so they report on a file that does not compile —
+		# and "no findings" would then read as "fine", which is the opposite of the
+		# truth. Only single-file runs pay for the compile check: it builds a
+		# throwaway GDScript per file, and every one of those writes its diagnostics
+		# to the editor's error log, so sweeping a directory would bury the real
+		# contents of editor.errors under temp-compile noise. Directory runs point at
+		# script.validate --all instead, which is the command for exactly that.
+		if is_file:
+			var check := _validate_one(file_path)
+			if not check["valid"]:
+				invalid.append({"path": res_path, "reason": check.get("error_string", "parse error")})
+
+	var payload := {
+		"path": normalize_project_path(path),
+		"findings": findings,
+		"count": findings.size(),
+		"error_count": errors,
+		"warning_count": warnings,
+		"files_checked": targets.size(),
+	}
+	if is_file:
+		payload["syntax_valid"] = invalid.is_empty()
+		payload["does_not_compile"] = invalid
+		if not invalid.is_empty():
+			payload["warning"] = (
+				"This file does not compile, so style findings are incomplete: %s. Fix it first (script.validate)."
+				% invalid[0]["reason"]
+			)
+	else:
+		payload["syntax_checked"] = false
+		payload["note"] = "Style only — run script.validate --all to compile-check these files."
+	return success(payload)
+
+
 func get_command_docs() -> Dictionary:
 	return {
 		"script.list": {
@@ -629,5 +786,23 @@ func get_command_docs() -> Dictionary:
 		},
 		"script.list_open": {
 			"description": "List scripts currently open in the editor's script editor.",
+		},
+		"script.symbols": {
+			"description": "Read one GDScript's declared API — methods, properties, signals, constants — without reading the file. Works on any .gd path, including scripts with no class_name (which engine.class_info cannot reach). Reports what this file declares; --include-inherited adds members from the scripts it extends. Engine members are never included — get those from engine.class_info on the reported base_type.",
+			"params": [
+				doc_param("path", "String", true, "res:// path to a .gd file."),
+				doc_param("filter", "String", false, "Case-insensitive substring filter over member names."),
+				doc_param("include_private", "bool", false, "Include methods starting with '_' (default false)."),
+				doc_param("include_inherited", "bool", false, "Add members inherited from base scripts (default false)."),
+			],
+		},
+		"script.lint": {
+			"description": "Lint GDScript against the official style guide. Native — needs no external tool. Returns structured findings: path, line, rule, severity, message. --path may be a file or a directory (default 'res://', skipping addons/). 17 rules: the 9 naming rules are severity 'error', the rest ('duplicated-load', 'unnecessary-pass', 'unused-argument', 'comparison-with-itself', 'private-access', 'no-else-return', 'standalone-expression', 'max-line-length') are warnings. Style rules read source, so they also report on a file that does not compile: a single-file run therefore also compile-checks it and reports `syntax_valid`, since zero findings on a broken file would otherwise read as clean. A directory run is style-only (`syntax_checked: false`) — use script.validate --all to compile-check a tree. Suppress inline with `# gdlint-ignore[-next-line] rule[,rule]`.",
+			"params": [
+				doc_param("path", "String", false, "File or directory to lint (default 'res://')."),
+				doc_param("disable", "String", false, "Comma-separated rule names to skip, e.g. 'max-line-length,unused-argument'. An unknown name is an error listing the known ones."),
+				doc_param("max_line_length", "int", false, "Line-length limit for the max-line-length rule (default 100; 0 disables it)."),
+				doc_param("include_addons", "bool", false, "Lint addons/ too (skipped by default unless --path points inside it)."),
+			],
 		},
 	}

@@ -4,6 +4,43 @@ How to write GDScript a competent Godot dev would ship. Patterns here are durabl
 for any exact API/signature, confirm against the live engine with
 `engine class-info --class <X>` / `engine search` rather than trusting memory.
 
+## Check the style, don't eyeball it
+
+Most of this page is machine-checkable. After writing or editing a script, run:
+
+```
+script lint --path res://path/to/file.gd
+```
+
+`script lint` returns structured findings (`path`, `line`, `rule`, `severity`, `message`)
+against the official GDScript style guide, covering 17 rules — the 9 naming rules below at
+severity `error`, the rest as warnings. It needs no external tool.
+
+There is no auto-formatter. Write to the guide as you go and let the linter catch the
+rest; the rules below are the whole contract.
+
+Two things to know before trusting a clean result:
+
+- **A clean lint is not a passing compile.** Style rules read source, so they still report
+  on a file that doesn't parse — and zero findings there would read as fine. A single-file
+  run reports `syntax_valid`; a directory run is style-only. `script validate` is the
+  compile check.
+- **`max-line-length` (default 100) is the noisy rule.** Silence it with
+  `--disable max-line-length`, raise it with `--max-line-length`, or pass `0` to turn it
+  off when a project deliberately runs long lines.
+
+Suppress a single line in the source itself, which survives outside the tool:
+
+```gdscript
+# gdlint-ignore-next-line variable-name
+var LegacyName := 1
+
+var OtherName := 2  # gdlint-ignore variable-name
+```
+
+Indentation is **tabs**, per the official guide. The examples below use spaces for
+readability in Markdown, so indent the real file with tabs rather than copying the spacing.
+
 ## Type everything
 
 Static typing catches errors at parse time, runs faster, and gives the editor real
@@ -27,8 +64,22 @@ func take_damage(amount: int) -> void:
 
 - `snake_case` — variables, functions, files (`player_controller.gd`), signals.
 - `PascalCase` — `class_name`, node names in the tree, enum types.
-- `CONSTANT_CASE` — `const MAX_SPEED := 600.0`.
+- `CONSTANT_CASE` — `const MAX_SPEED := 600.0`, and enum *members*.
 - `_leading_underscore` — private members and helpers (`_velocity`, `_update_ui()`).
+
+Every one of these is enforced by `script lint`, as the rules `variable-name`,
+`function-name`, `function-argument-name`, `loop-variable-name`, `signal-name`,
+`class-name`, `enum-name`, `enum-member-name`, and `constant-name` — all severity
+`error`, and `variable-name` covers locals, not just members. The remaining rules catch
+real defects rather than naming: `duplicated-load`, `standalone-expression`,
+`unnecessary-pass`, `unused-argument`, `comparison-with-itself`, `private-access`,
+`no-else-return`, and `max-line-length`. Passing an unknown name to `--disable` returns
+an error listing all seventeen.
+
+One exception worth knowing: a `const` bound to `preload()`/`load()` accepts either case,
+because both are idiomatic — PascalCase when it holds a script used as a type
+(`const NodeUtils := preload(...)`, called as `NodeUtils.foo()`), CONSTANT_CASE when it
+holds an asset (`const PLAYER_SCENE := preload(...)`).
 
 ## Node references — never `get_node("../../X")`
 

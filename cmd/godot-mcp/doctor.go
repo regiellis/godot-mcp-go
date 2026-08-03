@@ -280,8 +280,16 @@ func emitDoctor(checks []doctorCheck, asJSON bool) int {
 	} else {
 		fmt.Println("godot-mcp doctor — environment preflight")
 		fmt.Println()
+		// Width from the actual names, so adding a longer check never silently
+		// breaks the column the way a fixed pad does.
+		nameWidth := 0
 		for _, c := range checks {
-			fmt.Printf("  %-6s %-16s %s\n", "["+c.Status+"]", c.Name, c.Detail)
+			if len(c.Name) > nameWidth {
+				nameWidth = len(c.Name)
+			}
+		}
+		for _, c := range checks {
+			fmt.Printf("  %-6s %-*s %s\n", "["+c.Status+"]", nameWidth, c.Name, c.Detail)
 		}
 		fmt.Println()
 		summary := fmt.Sprintf("summary: %d ok, %d warn, %d fail", okN, warnN, failN)

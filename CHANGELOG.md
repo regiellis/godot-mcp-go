@@ -6,6 +6,82 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.0] — 2026-08-03
+
+Four commands (316 total, still 49 groups) and a craft reference, from reviewing
+the public GDQuest and Brackeys repositories. Writing GDScript still needs no
+tool beyond the editor.
+
+### Added
+
+- **`node call` and `runtime call`**, a generic method-invocation primitive for the
+  edited scene and the running game. `node set`/`node get` already reached any
+  property the running build exposes; calling a method meant `editor run-script`,
+  which is arbitrary code execution to invoke one named call. Arguments coerce
+  toward the method's declared signature, so `'["Vector3(1,0,1)"]'` arrives typed
+  and a short `[5]` for a Vector3 is refused rather than silently zeroed; an
+  unknown method errors with a did-you-mean. Both are audited. `node call` is
+  **not** undoable and says so in its result, since UndoRedo cannot reverse
+  arbitrary side effects. `lighting bake`, `csg bake`, and `navigation bake-mesh`
+  are single-method wrappers that existed only because this was missing.
+- **`script lint`, a native GDScript style linter** with no external dependency
+  (`utils/gdscript_linter.gd`). All 17 rules from the official style guide: the 9
+  naming rules at severity `error`, the rest as warnings. Findings carry `path`,
+  `line`, `rule`, `severity`, and `message`; `--disable` takes rule names and
+  rejects unknown ones with the full list; `# gdlint-ignore[-next-line] rule`
+  suppresses in the source itself. The scan is comment- and string-aware, so
+  `a == a` inside a string literal or a `#` inside quotes never trips a rule.
+  Verified **identical** to GDQuest's `gdscript-formatter lint` across this
+  addon's 61 files (22 findings, same file, line, and rule), using that tool as a
+  test oracle; on a deliberately messy fixture it reports two more, both local
+  `var` names the external tool misses and the style guide covers. This closes a real gap: agents wrote
+  GDScript through `script create`/`script edit` with nothing ever judging the
+  result, so `gdscript-style.md` was guidance rather than a check.
+- **`script symbols`** reads one script's declared methods, properties, signals,
+  and constants without pulling the file into context. It reaches scripts with no
+  `class_name`, which `engine class-info` cannot — the ordinary case of a
+  `player.gd` attached to a node. `--include-inherited` walks the base-script
+  chain.
+- **`ai-steering.md` craft reference.** Agent movement that reads as a creature
+  rather than a cursor: accelerating toward a desired velocity instead of
+  assigning it, arrive/flee/pursue/separation as summable forces, blending versus
+  priority, facing, and 3D differences. Every recipe was driven against a live
+  4.7 editor and verified numerically rather than by screenshot.
+- **Input-action validation in `character-3d.md`.** A controller that reads an
+  action nobody mapped does not error — `Input.is_action_pressed` on a missing
+  action returns `false` forever, so the character silently never sprints and
+  nothing says why. The guide now takes action names as `@export`s and checks
+  them in `_ready`.
+
+There is deliberately **no** `script format`. Reformatting safely needs a real
+parser — a wrong linter prints a bad line, a wrong formatter corrupts source —
+and the tree-sitter route would mean CGO, breaking the `CGO_ENABLED=0`
+six-target cross-build. Linting was tractable without a parser; formatting is
+not.
+
+### Fixed
+
+- **`script lint` reports which files do not compile.** Style rules read source,
+  so they report on a file that does not parse — and zero findings there would
+  read as clean, which is the opposite of the truth.
+- **`no-else-return` reads the last statement, not the last line.** A
+  `return success({` spanning eight lines ends on `})`, hiding the return; and a
+  `break` nested inside a deeper `if` is not the branch's own last statement, so
+  counting it flagged an `elif` that was required.
+- **A `const` bound to `preload()`/`load()` accepts CONSTANT_CASE or
+  PascalCase.** Both are idiomatic — a type when it holds a script, an asset when
+  it holds a scene. Requiring CONSTANT_CASE flagged nine correct lines in this
+  addon alone.
+- **`engine class-info` and `script symbols` share one introspection helper.**
+  `get_script_*_list()` walks the whole script chain, so a command group
+  extending `base_command.gd` reported base_command's ~50 helpers as its own and
+  listed overrides once per level.
+- **`runtime eval`'s description said it returns a result.** The code runs inside
+  a void function, so `return <value>` is a parse error; the description now says
+  to call `emit(value)`.
+- **`doctor`'s name column derives its width from the checks**, rather than a
+  fixed pad a longer check name silently broke.
+
 ## [0.6.3] — 2026-08-01
 
 Two addon fixes found by driving shader work against a live editor, plus

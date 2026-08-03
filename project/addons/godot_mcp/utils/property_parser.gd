@@ -172,6 +172,53 @@ static func _color(value: Variant) -> Color:
 ## was passed through as a String and silently rejected on assign), and a property
 ## already holding Vector2(0,0) is indistinguishable from one holding an int.
 ## Returns {found, type, class_name}; class_name is set for Object properties.
+## The method entry from an object's own method list, or {} when absent.
+static func method_info(obj: Object, method: String) -> Dictionary:
+	if obj == null:
+		return {}
+	for m: Dictionary in obj.get_method_list():
+		if String(m["name"]) == method:
+			return m
+	return {}
+
+
+## Coerce positional arguments toward a method's declared parameter types.
+## Returns {ok, args, reason}.
+##
+## Shared by node.call (editor) and the inspector's call_node_method (game), which
+## must agree: a caller sends JSON either way, so "Vector3(1,2,3)" arrives as a
+## String and would be passed straight through as one. A TYPE_NIL parameter is an
+## untyped Variant and takes its value unchanged.
+static func coerce_call_args(info: Dictionary, raw: Array, method: String) -> Dictionary:
+	var expected: Array = info.get("args", [])
+	var defaults: Array = info.get("default_args", [])
+	var required := expected.size() - defaults.size()
+	if raw.size() < required or raw.size() > expected.size():
+		var shape := "%d" % expected.size() if defaults.is_empty() else "%d-%d" % [required, expected.size()]
+		return {
+			"ok": false,
+			"args": [],
+			"reason": "%s() takes %s argument(s), got %d" % [method, shape, raw.size()],
+		}
+
+	var out: Array = []
+	for i in range(raw.size()):
+		var want: Dictionary = expected[i]
+		var want_type := int(want["type"])
+		if want_type == TYPE_NIL:
+			out.append(raw[i])
+			continue
+		var parsed := parse_checked(raw[i], want_type, String(want.get("class_name", "")))
+		if not parsed["ok"]:
+			return {
+				"ok": false,
+				"args": [],
+				"reason": "argument %d ('%s'): %s" % [i + 1, want["name"], parsed["reason"]],
+			}
+		out.append(parsed["value"])
+	return {"ok": true, "args": out, "reason": ""}
+
+
 static func declared_type(obj: Object, property: String) -> Dictionary:
 	if obj == null:
 		return {"found": false, "type": TYPE_NIL, "class_name": ""}

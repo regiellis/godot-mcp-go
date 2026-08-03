@@ -19,6 +19,28 @@ input_map set-action --action move_forward --events '[{"type":"key","keycode":"K
 planar intent; `move_back` maps to `+y`, which becomes `+Z` (backward) below. `input_map`
 writes `project.godot` — revert throwaway actions after tests.
 
+**Name the actions in `@export`s and check they exist.** A controller that reads an action
+nobody mapped does not error: `Input.is_action_pressed("sprint")` on a missing action just
+returns `false` forever, so the character silently never sprints and nothing anywhere says
+why. Take the action names as exported strings and validate them in `_ready`, disabling the
+feature rather than leaving it mysteriously dead:
+
+```gdscript
+@export var can_sprint := true
+@export var input_sprint := "sprint"
+
+
+func _ready() -> void:
+	if can_sprint and not InputMap.has_action(input_sprint):
+		push_warning("No '%s' action in the InputMap — sprint disabled." % input_sprint)
+		can_sprint = false
+```
+
+Exported action names also make the controller reusable across projects whose maps differ,
+and the warning shows up in `editor errors` / `runtime errors` instead of costing a debugging
+session. (The pattern is the one Brackeys' CC0 proto controller uses, and it is worth copying
+for any generated controller.)
+
 ## The body: CharacterBody3D + a capsule
 
 The scene root *is* the body; add the collider under it (a `CharacterBody3D` root plus a child

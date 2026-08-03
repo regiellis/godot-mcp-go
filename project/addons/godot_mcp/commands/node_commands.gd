@@ -22,7 +22,77 @@ func get_commands() -> Dictionary:
 		"node.find_in_group": _find_in_group,
 		"node.set_meta": _set_meta,
 		"node.get_meta": _get_meta,
+		"node.call": _call_method,
 	}
+
+
+## Closest method name to `method`, for a did-you-mean on a miss. Empty below the
+## similarity floor, so a wild guess suggests nothing rather than something absurd.
+func _suggest_method(obj: Object, method: String) -> String:
+	var best := ""
+	var best_score := 0.6
+	for m: Dictionary in obj.get_method_list():
+		var name := String(m["name"])
+		var score := method.similarity(name)
+		if score > best_score:
+			best_score = score
+			best = name
+	return best
+
+
+## Call a method on a node in the edited scene.
+##
+## This closes the callable half of the design principle the property commands
+## already serve: node.set/node.get reach anything the running binary exposes as a
+## property, but a method needed editor.run_script — arbitrary code execution to
+## invoke one named call. Several existing commands (lighting.bake, csg.bake,
+## navigation.bake_mesh) are single-method wrappers that exist only because this
+## did not.
+##
+## Audited, and deliberately NOT undoable: a call is not a property write, and
+## UndoRedo cannot reverse arbitrary side effects. The result says so rather than
+## letting a caller assume Ctrl+Z covers it.
+func _call_method(params: Dictionary) -> Dictionary:
+	var ctx := _resolve_node(params)
+	if ctx[1] != null:
+		return ctx[1]
+	var node: Node = ctx[0]
+
+	var mr := require_string(params, "method")
+	if mr[1] != null:
+		return mr[1]
+	var method: String = mr[0]
+
+	if not node.has_method(method):
+		var suggestion := _suggest_method(node, method)
+		var hint := "Use engine class-info --class %s to list its methods." % node.get_class()
+		if not suggestion.is_empty():
+			hint = "Did you mean '%s'? %s" % [suggestion, hint]
+		return error_not_found("Method '%s' on %s" % [method, node.get_class()], hint)
+
+	var raw: Array = []
+	if params.has("args"):
+		var ar := require_array(params, "args")
+		if ar[1] != null:
+			return ar[1]
+		raw = ar[0]
+
+	var coerced := PropertyParser.coerce_call_args(
+		PropertyParser.method_info(node, method), raw, method
+	)
+	if not coerced["ok"]:
+		return error_invalid_params(String(coerced["reason"]))
+	var args: Array = coerced["args"]
+
+	audit_exec("node.call", "%s(%s).%s(%s)" % [node.name, node.get_class(), method, str(args)])
+	var returned: Variant = node.callv(method, args)
+
+	return success({
+		"node_path": str(get_edited_root().get_path_to(node)),
+		"method": method,
+		"result": PropertyParser.serialize_value(returned),
+		"undoable": false,
+	})
 
 
 func _find_script_by_class_name(name: String) -> Script:
@@ -785,6 +855,14 @@ func get_command_docs() -> Dictionary:
 			"params": [
 				doc_param("node_path", "NodePath", true, "Target node."),
 				doc_param("key", "String", false, "Metadata key to read; omit to list all keys."),
+			],
+		},
+		"node.call": {
+			"description": "Call a method on a node in the edited scene and return its result. The callable counterpart to node.set/node.get: anything the running build exposes as a method is reachable without editor.run_script. Arguments coerce toward the method's declared parameter types, so '\"Vector3(1,2,3)\"' arrives as a Vector3; list a class's methods with engine class-info. Audited. NOT undoable — a call is not a property write, so Ctrl+Z will not reverse its side effects.",
+			"params": [
+				doc_param("node_path", "NodePath", true, "Target node."),
+				doc_param("method", "String", true, "Method name; an unknown one errors with a did-you-mean."),
+				doc_param("args", "JSON", false, "JSON array of positional arguments, e.g. '[\"Vector3(0,1,0)\", 2.5]'."),
 			],
 		},
 	}

@@ -51,7 +51,7 @@ export function agentMarkdown(
 ): string {
   const preamble =
     `The following is documentation for ${SITE.name}. It is a Go CLI and GDScript ` +
-    `editor addon that drive a running Godot 4.7 editor over WebSocket (312 commands ` +
+    `editor addon that drive a running Godot 4.7 editor over WebSocket (316 commands ` +
     `across 49 groups), for building and playtesting games.\n\n` +
     `Page: ${title}\nSource: ${url}\n\n---\n\n`;
   return preamble + humanMarkdown(title, description, body);
