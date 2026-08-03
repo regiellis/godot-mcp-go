@@ -31,11 +31,13 @@ const installSession = [
 // against each project's repository; refresh both places together.
 const compare = [
   { axis: "Runtime dependencies", ai: "Python + uv", native: "none", us: "one Go binary, or none" },
-  { axis: "Shell-drivable CLI", ai: "no", native: "no", us: "yes, the primary surface" },
+  { axis: "Drives it from", ai: "an MCP client", native: "an MCP client", us: "any agent with a shell, or any MCP client" },
   { axis: "Command surface", ai: "~120 ops", native: "155 tools", us: "316 across 49 groups" },
   { axis: "MCP schemas carried", ai: "~43 fixed", native: "155 fixed", us: "live-built, or 1" },
   { axis: "Running-game control", ai: "editor-time only", native: "in-game probe", us: "IPC + editor-less channel" },
-  { axis: "Godot versions", ai: "4.5+", native: "4.5+", us: "4.7+ only" },
+  { axis: "C# projects", ai: "not documented", native: "symbol indexing", us: "scaffold, build, diagnostics" },
+  { axis: "New project from nothing", ai: "no", native: "no", us: "godot-mcp create" },
+  { axis: "Godot versions", ai: "4.5+", native: "4.5+", us: "4.7+" },
   // Count derived from GUIDES so it cannot drift from the craft docs actually published.
   { axis: "Craft layer", ai: "tool reference", native: "tool reference", us: `${GUIDES.length} guides + skill` },
 ];
@@ -109,10 +111,12 @@ const caps = [
             <p>
               <a href="https://github.com/hi-godot/godot-ai" target="_blank" rel="noopener">hi-godot/godot-ai</a> and
               <a href="https://github.com/yurineko73/Godot-MCP-Native" target="_blank" rel="noopener">yurineko73/Godot-MCP-Native</a> are
-              both good, both actively maintained, and all three projects are MIT. Editor-native is
-              table stakes now, so the axes worth measuring are how you drive it, how much context
-              the tool surface costs, and what happens once an agent is building and testing rather
-              than assembling a scene. Figures checked 2026-08-03.
+              both good, both actively maintained, and all three projects are MIT. godot-ai has the
+              largest community; Godot-MCP-Native has the leanest install; both run on Godot 4.5 and
+              4.6 where this one asks for 4.7. Editor-native is table stakes now, so the axes worth
+              measuring are how you drive it, how much context the tool surface costs, and what
+              happens once an agent is building and testing rather than assembling a scene.
+              Figures checked 2026-08-03.
             </p>
           </div>
           <div class="compare-table" role="table" aria-label="Comparison with godot-ai and Godot-MCP-Native">

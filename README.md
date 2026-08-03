@@ -57,20 +57,26 @@ Concretely, against the two most-used alternatives — [`hi-godot/godot-ai`](htt
 | --- | --- | --- | --- |
 | Implementation | Python (FastMCP) + GDScript plugin | GDScript only | Go CLI + GDScript addon |
 | Runtime deps | Python + `uv` | none | one Go binary, or none via the editor's own HTTP endpoint |
+| Drives it from | an MCP client | an MCP client | **any agent that can run a shell command**, plus any MCP client |
 | Shell-drivable CLI | no | no | yes — the primary surface |
 | Surface | ~43 tools / ~120 ops | 155 tools | 316 commands / 49 groups |
 | MCP tool schemas carried | ~43 fixed | 155 fixed | live-built per command, or as few as **1** (`godot_run`) |
 | MCP transports | HTTP + WebSocket | HTTP, plus a headless editor mode | stdio, editor-direct HTTP, and the CLI |
 | MCP prompts / resources | — | — | 4 prompts, 5 `godot://` resources |
 | Running-game control | editor-time only | in-game probe autoload | two-hop IPC, plus a direct channel to an editor-less debug build |
-| Godot versions | 4.5+ | 4.x (4.5+) | **4.7+ only** |
+| C# projects | not documented | symbol indexing, project inspection | `csharp` group: scaffold the csproj/sln, build, per-file diagnostics |
+| Start a project from nothing | no | no | `godot-mcp create` writes `project.godot`, icon, `.gitignore` |
+| Undo-safe mutations | — | — | `UndoRedo` across 29 command files, plus open-scene conflict refusal |
+| Extending it | in review ([#820](https://github.com/hi-godot/godot-ai/pull/820)) | — | `res://mcp_commands/*.gd`, no fork needed |
+| Godot versions | 4.5+ | 4.5+ | **4.7+** |
 | Craft layer | tool reference | tool reference | 28 craft guides + agent skill |
 | GDScript style linting | — | — | 17 rules, native |
-| Community | 1.4k stars, installs from the Asset Library, 17+ clients auto-configured | 590 stars | smaller; CLI `install`/`create`/`configure` |
+| Install | Asset Library per its README; auto-configures 17+ clients | Asset Library (`Godot MCP Native`) | Asset Library (`Godot MCP/CLI`), or `godot-mcp install` / `create` / `configure` |
+| Community | 1.4k stars | 590 stars | smaller |
 
-**Where each one wins.** godot-ai has the reach: the biggest community and the smoothest onboarding, installing straight from the Asset Library and auto-configuring 17+ clients. Godot-MCP-Native has the cleanest install story of the three — GDScript only, nothing to download, nothing to keep on PATH — and it reaches the running game through an in-game probe much as this project does, so that is no longer a dividing line. It also supports Godot 4.5 and 4.6, which this project does not.
+**Where each one wins.** godot-ai has the reach: the biggest community by some margin, and the broadest client support, auto-configuring 17+ of them. Godot-MCP-Native has the leanest install of the three — GDScript only, nothing to download, nothing on PATH — and it reaches the running game through an in-game probe much as this project does, so that is no longer a dividing line. **Both support Godot 4.5 and 4.6; this project asks for 4.7.**
 
-What this side adds is a **shell-drivable CLI** as the primary surface rather than an MCP-only server; a tool surface that is **built live from the addon** instead of shipped as fixed schemas, so it can collapse to one tool for context-tight clients; MCP prompts and resources; the `spatial`, `pcg`, `wfc`, `scatter`, `skeleton`, and `authoring` groups; and the craft layer that teaches an agent Godot's idioms rather than only listing tools. Much of the other two's tool surface maps onto generic commands here (`node.set`/`node.get`/`node.call` against the live ClassDB), which is why the command count is not a like-for-like measure of capability.
+What this side adds starts with how you drive it: a **shell-drivable CLI** is the primary surface, so any agent that can run a shell command works, with no MCP support and no tool schemas at all — the MCP modes are a second front door, not the only way in. Past that: a tool surface **built live from the addon** rather than shipped as fixed schemas, collapsible to one tool for context-tight clients; MCP prompts and `godot://` resources; real C# project support; `create` to start a project from nothing; project-local commands without forking; the `spatial`, `pcg`, `wfc`, `scatter`, `skeleton`, and `authoring` groups; and the craft layer that teaches an agent Godot's idioms rather than only listing tools. Much of the other two's tool surface maps onto generic commands here (`node.set`/`node.get`/`node.call` against the live ClassDB), which is why a raw command count is not a like-for-like measure of capability.
 
 > [!NOTE]
 > Running godot-mcp and Godot-MCP-Native side by side: both default to port **9080**. Pin one of them (`GODOT_MCP_PORT`, or the `godot_mcp/network/port` project setting here) or the second to start will pick a different port and your client will connect to whichever answers.
