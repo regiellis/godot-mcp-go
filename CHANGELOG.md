@@ -35,7 +35,7 @@ Forward-compatibility work: the addon is verified on Godot 4.8-dev, and
 ### Documentation
 
 - **A three-way comparison** in the README and on the landing page, against
-  `hi-godot/godot-ai` and `yurineko73/Godot-MCP-Native` rather than one rival.
+  `godot-ai` and `Godot-MCP-Native` rather than one rival.
   Both are actively maintained and both run on Godot 4.5 and 4.6, which this
   project does not; Godot-MCP-Native reaches the running game through an in-game
   probe much as this project does, so that is no longer a dividing line. The

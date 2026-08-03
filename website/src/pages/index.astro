@@ -37,7 +37,7 @@ const compare = [
   { axis: "Running-game control", ai: "editor-time only", native: "in-game probe", us: "IPC + editor-less channel" },
   { axis: "C# projects", ai: "not documented", native: "symbol indexing", us: "scaffold, build, diagnostics" },
   { axis: "New project from nothing", ai: "no", native: "no", us: "godot-mcp create" },
-  { axis: "Godot versions", ai: "4.5+", native: "4.5+", us: "4.7+" },
+  { axis: "Godot versions", ai: "4.5+", native: "4.5+", us: "4.7+, 4.8 verified" },
   // Count derived from GUIDES so it cannot drift from the craft docs actually published.
   { axis: "Craft layer", ai: "tool reference", native: "tool reference", us: `${GUIDES.length} guides + skill` },
 ];
@@ -55,7 +55,7 @@ const caps = [
   },
   {
     title: "Introspection instead of wrappers.",
-    body: "The live ClassDB is the feature list. engine.search, generic node.set and node.get, and runtime.eval reach any 4.7 feature the day you upgrade, with no new release of this tool.",
+    body: "The live ClassDB is the feature list. engine.search finds the name; node.set and node.get reach any property, node.call and runtime.call any method, and runtime.eval anything needing several statements. Verified against 4.8-dev, whose new classes needed no code change here.",
     cmd: "godot-mcp engine class-info --class CharacterBody3D --filter velocity",
   },
   {
@@ -109,8 +109,8 @@ const caps = [
           <div class="compare-copy">
             <h2>How it compares.</h2>
             <p>
-              <a href="https://github.com/hi-godot/godot-ai" target="_blank" rel="noopener">hi-godot/godot-ai</a> and
-              <a href="https://github.com/yurineko73/Godot-MCP-Native" target="_blank" rel="noopener">yurineko73/Godot-MCP-Native</a> are
+              <a href="https://github.com/hi-godot/godot-ai" target="_blank" rel="noopener">godot-ai</a> and
+              <a href="https://github.com/yurineko73/Godot-MCP-Native" target="_blank" rel="noopener">Godot-MCP-Native</a> are
               both good, both actively maintained, and all three projects are MIT. godot-ai has the
               largest community; Godot-MCP-Native has the leanest install; both run on Godot 4.5 and
               4.6 where this one asks for 4.7. Editor-native is table stakes now, so the axes worth

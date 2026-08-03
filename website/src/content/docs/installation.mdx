@@ -9,7 +9,9 @@ description: Add the addon to an existing project, bootstrap a new one, or build
 - **Go 1.26+** to build the CLI, or a prebuilt release binary.
 
 <Callout type="important" title="Godot 4.7+ only">
-  This is built and tested exclusively against Godot 4.7 and newer. Earlier versions (4.6 and below, and the 3.x line) are **not supported** and are not expected to work: the addon targets 4.7 APIs. There are no plans to backport.
+  Earlier versions (4.6 and below, and the 3.x line) are **not supported** and are not expected to work: the addon targets 4.7 APIs. There are no plans to backport.
+
+  **Builds this release was run against:** `4.7.1-rc` (`d6096250e`), `4.7.2-rc` (`36a04fe52`), and a `4.8-dev` build from `master` (`eda2a482e`, after dev 2). On 4.8 the addon runs unmodified, with the same 316 commands and no parse or compile errors, and `engine.search` picks up 4.8's `FuzzySearch` automatically. Note that 4.8 writes a `unique_id` attribute into saved scenes which 4.7 does not, so a project saved by 4.8 is not round-trip clean back to 4.7. That is an engine format change, not an addon one.
 </Callout>
 
 <Callout type="note" title="C# / .NET">

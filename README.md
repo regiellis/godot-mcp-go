@@ -51,7 +51,7 @@ Plenty of Godot MCP servers exist, and the good ones are editor-native — so "r
 - **A craft layer:** an agent skill plus 28 craft references (3D controllers, platformers, deckbuilders, interactive music, shaders, multiplayer, save systems…) that teach Godot's idioms, so an agent composes nodes and scenes the way a Godot developer would instead of reaching for whichever command fits.
 - **Style is checkable:** `script.lint` measures GDScript against the official style guide — 17 rules, findings carrying line, rule, and severity — so the craft layer's advice becomes something an agent can verify against rather than merely read. It runs inside the addon, with no tool to install.
 
-Concretely, against the two most-used alternatives — [`hi-godot/godot-ai`](https://github.com/hi-godot/godot-ai) and [`yurineko73/Godot-MCP-Native`](https://github.com/yurineko73/Godot-MCP-Native). Both are good, both are actively maintained, and all three are MIT. Figures checked 2026-08-03; verify them yourself before relying on any of it.
+Concretely, against the two most-used alternatives — [`godot-ai`](https://github.com/hi-godot/godot-ai) and [`Godot-MCP-Native`](https://github.com/yurineko73/Godot-MCP-Native). Both are good, both are actively maintained, and all three are MIT. Figures checked 2026-08-03; verify them yourself before relying on any of it.
 
 | | godot-ai | Godot-MCP-Native | godot-mcp |
 | --- | --- | --- | --- |
@@ -102,7 +102,9 @@ MCP client (streamable HTTP) ──POST /mcp:9100──────────�
 - [Task](https://taskfile.dev) (optional but recommended) for the dev workflow.
 
 > [!IMPORTANT]
-> **Godot 4.7+ only.** This is built and tested exclusively against Godot 4.7 and newer. Earlier versions (4.6 and below, and the 3.x line) are **not supported** and are not expected to work — the addon targets 4.7 APIs. There are no plans to backport to older releases.
+> **Godot 4.7+ only.** Earlier versions (4.6 and below, and the 3.x line) are **not supported** and are not expected to work — the addon targets 4.7 APIs. There are no plans to backport.
+>
+> **Builds this release was run against:** `4.7.1-rc` (`d6096250e`), `4.7.2-rc` (`36a04fe52`), and a `4.8-dev` build from `master` (`eda2a482e`, after dev 2). On 4.8 the addon runs unmodified — same 316 commands, no parse or compile errors — and `engine.search` picks up 4.8's `FuzzySearch` automatically. 4.8 writes a `unique_id` attribute into saved scenes that 4.7 does not, so a project saved by 4.8 is not round-trip clean back to 4.7; that is an engine format change, not an addon one.
 
 > [!NOTE]
 > **C# / .NET?** Supported. The `csharp` group scaffolds and builds .NET projects (`csharp.info` / `csharp.setup` / `csharp.build`), and `script.*` is C#-aware: `script.create` writes a C# class template for `.cs` paths, `script.validate --path X.cs` compiles with per-file structured diagnostics, and `script.list` recognizes C# classes. *Running* C# scripts in-editor requires a Godot **.NET editor build** plus the dotnet SDK (`godot-mcp doctor` checks for it); `editor.run_script` / `runtime.eval` execute GDScript either way, and the introspection layer is language-agnostic.

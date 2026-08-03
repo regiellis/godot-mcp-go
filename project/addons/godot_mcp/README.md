@@ -28,7 +28,7 @@ project settings, or the `GODOT_MCP_PORT` and `GODOT_MCP_HTTP_PORT` environment 
 
 ## Requirements
 
-Godot 4.7 or newer. The addon alone is enough for an HTTP-capable MCP client. The command line tool
+Godot 4.7 or newer, run against `4.7.1-rc`, `4.7.2-rc`, and a `4.8-dev` build from master. The addon alone is enough for an HTTP-capable MCP client. The command line tool
 and the agent skill are separate downloads from the repository releases.
 
 ## Security

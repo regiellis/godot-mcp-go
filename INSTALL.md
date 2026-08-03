@@ -1,6 +1,6 @@
 # Installing godot-mcp
 
-A release bundle has three pieces. You need **Godot 4.7+**.
+A release bundle has three pieces. You need **Godot 4.7+**. Run against `4.7.1-rc`, `4.7.2-rc`, and a `4.8-dev` build from master; 4.6 and earlier are not supported.
 
 ## Easiest: the `install` command
 
