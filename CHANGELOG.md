@@ -6,6 +6,45 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.7.1] — 2026-08-03
+
+Forward-compatibility work: the addon is verified on Godot 4.8-dev, and
+`engine search` picks up 4.8's new fuzzy matcher when it is there.
+
+### Added
+
+- **`engine search` falls back to fuzzy matching** when its substring sweep finds
+  nothing and the running build exposes `FuzzySearch` (Godot 4.8+). An
+  abbreviation an agent guessed now resolves: `linvel` reaches
+  `RigidBody2D.linear_velocity`, `angvel` reaches `PhysicalBone3D.angular_velocity`,
+  `glbpos` and `rotdeg` reach `Node3D`. `match_mode` in the result says which pass
+  produced the matches. Substring stays the first pass, so a query that already
+  worked keeps its previous speed and result, and on 4.7 the rescue is simply
+  skipped.
+
+### Verified
+
+- **The addon runs unmodified on Godot 4.8-dev and on 4.7.2-rc.** 316 commands
+  across 49 groups register on both, with no parse or compile errors. 4.8 adds a
+  `unique_id` attribute to every node in saved scenes and drops `load_steps` from
+  the header; `fs.move` is unaffected because it rewrites quoted path tokens
+  across whole file text rather than parsing lines. 4.8's embedded Game View,
+  on by default for new projects, does not affect the `runtime` channel: it
+  reparents the game's window while the game stays a separate process.
+
+### Documentation
+
+- **A three-way comparison** in the README and on the landing page, against
+  `hi-godot/godot-ai` and `yurineko73/Godot-MCP-Native` rather than one rival.
+  Both are actively maintained and both run on Godot 4.5 and 4.6, which this
+  project does not; Godot-MCP-Native reaches the running game through an in-game
+  probe much as this project does, so that is no longer a dividing line. The
+  differences that hold are structural, and each project gets its own paragraph
+  of where it wins.
+- **`discover-then-drive` documented the callable half.** The page claimed any
+  feature surfaced as a property *or a callable* is reachable, then listed only
+  the property commands; `node.call` and `runtime.call` are that missing half.
+
 ## [0.7.0] — 2026-08-03
 
 Four commands (316 total, still 49 groups) and a craft reference, from reviewing

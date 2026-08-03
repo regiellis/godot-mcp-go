@@ -22,7 +22,7 @@ import (
 // cliVersion is reported to MCP clients in the initialize handshake. Keep it in
 // step with the addon's plugin.cfg version and the CHANGELOG heading at release
 // time; the addon reads its own from plugin.cfg, so this is the only literal.
-const cliVersion = "0.7.0"
+const cliVersion = "0.7.1"
 
 func main() {
 	port := flag.Int("port", 0, "addon WebSocket port (0 = env GODOT_MCP_PORT, then discovery file, then default 9080)")

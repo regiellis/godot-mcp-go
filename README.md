@@ -44,7 +44,7 @@ Plenty of Godot MCP servers exist, and the good ones are editor-native — so "r
 - **Schemas that can't go stale:** by default `serve` exposes every command as a typed MCP tool whose schema is built **live** from the addon's own param docs, so the tool surface tracks whatever the editor registers. `serve --typed=false` collapses to the single generic `godot_run` for tool-limited clients (rivals ship ~40–160 fixed schemas either way), plus read-only `godot://` resources for pulling project, scene, and engine state without spending a tool turn.
 - **Two MCP transports, plus prompts:** stdio through the Go binary, or **editor-direct streamable HTTP**, where the addon itself hosts `POST /mcp` on `127.0.0.1` so an HTTP-capable MCP client drives the editor with **no external process at all**, same commands and same guards. The playbooks ship as first-class **MCP prompts** (`discover-then-drive`, `spatial-placement`, `launch-recovery`, `bug-hunt`), served even when the editor is down.
 - **C# projects too:** `script.create` authors C# templates, `csharp.setup` scaffolds the csproj/sln, and `csharp.build` / `script.validate` compile with structured per-file diagnostics (requires a Godot .NET editor build and the dotnet SDK).
-- **Introspection instead of wrappers:** the live `ClassDB` *is* the feature list (`engine.search`, generic `node.set`/`node.get`, `runtime.eval`), so new engine features are reachable the day you upgrade, with no new release of this tool.
+- **Introspection instead of wrappers:** the live `ClassDB` *is* the feature list — `engine.search` to find a name, then generic `node.set`/`node.get` for properties and `node.call`/`runtime.call` for methods. New engine features are reachable the day you upgrade, with no new release of this tool. That is not a claim on paper: the addon runs unmodified on **4.8-dev**, whose 6 new classes and 4 removals needed no code change, and `engine.search` picks up 4.8's `FuzzySearch` automatically to resolve abbreviations like `linvel` → `linear_velocity`.
 - **Live editor integration:** commands run against the real SceneTree with UndoRedo (Ctrl+Z safe for the human) and open-scene conflict protection, not offline `.tscn` rewriting that clobbers unsaved work.
 - **Crash-aware discovery:** per-project port discovery with `running`/`starting`/`crashed`/`closed` verdicts on every connection failure, so agents recover deliberately instead of relaunching blindly.
 - **Safety guards:** `127.0.0.1`-only, audited code execution, an unsafe-editor-IO guard, and project-path jailing on every write sink.
@@ -68,7 +68,7 @@ Concretely, against the two most-used alternatives — [`hi-godot/godot-ai`](htt
 | Start a project from nothing | no | no | `godot-mcp create` writes `project.godot`, icon, `.gitignore` |
 | Undo-safe mutations | — | — | `UndoRedo` across 29 command files, plus open-scene conflict refusal |
 | Extending it | in review ([#820](https://github.com/hi-godot/godot-ai/pull/820)) | — | `res://mcp_commands/*.gd`, no fork needed |
-| Godot versions | 4.5+ | 4.5+ | **4.7+** |
+| Godot versions | 4.5+ | 4.5+ | **4.7+**, verified on 4.7.2 and 4.8-dev |
 | Craft layer | tool reference | tool reference | 28 craft guides + agent skill |
 | GDScript style linting | — | — | 17 rules, native |
 | Install | Asset Library per its README; auto-configures 17+ clients | Asset Library (`Godot MCP Native`) | Asset Library (`Godot MCP/CLI`), or `godot-mcp install` / `create` / `configure` |

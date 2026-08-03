@@ -33,6 +33,13 @@ godot-mcp engine commands [--group node]              # the MCP's own tool surfa
 godot-mcp node set --help                             # a command's param table (name/type/required/desc)
 ```
 
+`engine search` matches by substring first. On **Godot 4.8+** a query that matches nothing is
+retried fuzzily, so a half-remembered abbreviation still lands: `linvel` reaches
+`RigidBody2D.linear_velocity`, `glbpos` reaches `Node3D.global_position`. The result's
+`match_mode` says which pass answered (`substring` or `fuzzy`). On 4.7 there is no fuzzy pass, so
+an abbreviation returns nothing — widen to a real substring (`velocity`, not `linvel`) and filter
+from there.
+
 `class-info` defaults to a class's **own** members — exactly where version-new API (like `offset_transform_*`) lives; add `--inherited` for the full set. Lead with these whenever you're unsure, then act.
 
 **These docs record what was verified against a live engine, not a version the guidance expires past.** When any statement here and the running engine disagree, **the live engine wins** — `engine version` and `engine class-info` are the ground truth.
