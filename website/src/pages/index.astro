@@ -27,20 +27,28 @@ const installSession = [
   { type: "cmd", text: "godot-mcp create --path ./mygame --install --enable" },
 ];
 
-// Real head-to-head, sourced from the README comparison.
+// Real head-to-head, sourced from the README comparison. Figures checked 2026-08-03
+// against each project's repository; refresh both places together.
 const compare = [
-  { axis: "Running-game control", them: "editor-time only", us: "full runtime + input groups" },
-  { axis: "MCP tool schemas carried", them: "~43", us: "as few as 1 (godot_run)" },
-  { axis: "Command surface", them: "~120 ops", us: "316 across 49 groups" },
-  { axis: "Runtime dependencies", them: "Python + uv", us: "single Go binary" },
+  { axis: "Runtime dependencies", ai: "Python + uv", native: "none", us: "one Go binary, or none" },
+  { axis: "Shell-drivable CLI", ai: "no", native: "no", us: "yes, the primary surface" },
+  { axis: "Command surface", ai: "~120 ops", native: "155 tools", us: "316 across 49 groups" },
+  { axis: "MCP schemas carried", ai: "~43 fixed", native: "155 fixed", us: "live-built, or 1" },
+  { axis: "Running-game control", ai: "editor-time only", native: "in-game probe", us: "IPC + editor-less channel" },
+  { axis: "Godot versions", ai: "4.5+", native: "4.5+", us: "4.7+ only" },
   // Count derived from GUIDES so it cannot drift from the craft docs actually published.
-  { axis: "Craft layer", them: "tool reference", us: `${GUIDES.length} craft docs + agent skill` },
+  { axis: "Craft layer", ai: "tool reference", native: "tool reference", us: `${GUIDES.length} guides + skill` },
 ];
 
 const caps = [
   {
+    title: "A CLI first, an MCP server second.",
+    body: "Every command runs from a shell, so a terminal-driven agent carries zero tool schemas and a human can drive the same surface by hand. The stdio and editor-direct HTTP MCP modes are a second front door onto that surface, not the only way in.",
+    cmd: "godot-mcp node add --type Sprite2D --name Player --parent-path .",
+  },
+  {
     title: "It drives the running game.",
-    body: "The runtime and input groups inspect and control the live game over a two-hop IPC: read the running scene tree, set and read node state, eval, capture frames, await signals, and inject input for deterministic playtesting. Most editor-time servers stop once the scene is assembled.",
+    body: "The runtime and input groups inspect and control the live game over a two-hop IPC: read the running scene tree, set and read node state, eval, capture frames, await signals, and inject input for deterministic playtesting. A debug build can host the channel itself, so the game is drivable with no editor open at all.",
     cmd: "godot-mcp runtime await-signal --node-path Boss --signal died --timeout 10",
   },
   {
@@ -97,25 +105,28 @@ const caps = [
       <section class="compare">
         <div class="wrap compare-grid">
           <div class="compare-copy">
-            <h2>A co-developer, not just a bridge.</h2>
+            <h2>How it compares.</h2>
             <p>
-              Calling out the big dog on the block is what a young pup does, and this is exactly
-              that. <a href="https://github.com/hi-godot/godot-ai" target="_blank" rel="noopener">hi-godot/godot-ai</a> is
-              a great framework; this project just went a different direction. Editor-native is
-              table stakes now, so the difference worth measuring is depth once an agent is
-              building and testing.
+              <a href="https://github.com/hi-godot/godot-ai" target="_blank" rel="noopener">hi-godot/godot-ai</a> and
+              <a href="https://github.com/yurineko73/Godot-MCP-Native" target="_blank" rel="noopener">yurineko73/Godot-MCP-Native</a> are
+              both good, both actively maintained, and all three projects are MIT. Editor-native is
+              table stakes now, so the axes worth measuring are how you drive it, how much context
+              the tool surface costs, and what happens once an agent is building and testing rather
+              than assembling a scene. Figures checked 2026-08-03.
             </p>
           </div>
-          <div class="compare-table" role="table" aria-label="Comparison with godot-ai">
+          <div class="compare-table" role="table" aria-label="Comparison with godot-ai and Godot-MCP-Native">
             <div class="ct-head" role="row">
               <span role="columnheader"></span>
               <span role="columnheader" class="them">godot-ai</span>
+              <span role="columnheader" class="them">Godot-MCP-Native</span>
               <span role="columnheader" class="us">godot-mcp</span>
             </div>
             {compare.map((r) => (
               <div class="ct-row" role="row">
                 <span role="cell" class="ct-axis">{r.axis}</span>
-                <span role="cell" class="them">{r.them}</span>
+                <span role="cell" class="them">{r.ai}</span>
+                <span role="cell" class="them">{r.native}</span>
                 <span role="cell" class="us"><Icon name="check" size={14} /> {r.us}</span>
               </div>
             ))}
@@ -126,7 +137,7 @@ const caps = [
       <!-- Capabilities: full-bleed band, two-column editorial grid -->
       <section class="caps">
         <div class="wrap caps-inner">
-          <h2 class="caps-title">What it does that editor-time servers don't</h2>
+          <h2 class="caps-title">What it does differently</h2>
           <div class="caps-list">
             {caps.map((c) => (
               <div class="cap">
@@ -245,7 +256,8 @@ const caps = [
       .compare-copy h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); letter-spacing: -0.02em; font-weight: 680; margin: 0 0 0.8rem; }
       .compare-copy p { color: var(--text-muted); margin: 0; line-height: 1.65; max-width: 48ch; }
       .compare-table { font-size: 0.92rem; overflow-x: auto; }
-      .ct-head, .ct-row { display: grid; grid-template-columns: 1.3fr 1fr 1.5fr; gap: 1rem; padding: 0.7rem 0.4rem; align-items: center; }
+      /* Four columns need a floor, or the cells crush before the container scrolls. */
+      .ct-head, .ct-row { display: grid; grid-template-columns: 1.15fr 0.95fr 1fr 1.35fr; gap: 1rem; padding: 0.7rem 0.4rem; align-items: center; min-width: 34rem; }
       .ct-head { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); font-weight: 650; border-bottom: 1px solid var(--border); }
       .ct-row { border-bottom: 1px solid var(--border); }
       .ct-row:last-child { border-bottom: 0; }
