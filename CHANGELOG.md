@@ -24,7 +24,7 @@ Forward-compatibility work: the addon is verified on Godot 4.8-dev, and
 
 ### Verified
 
-- **The addon runs unmodified on Godot 4.8-dev and on 4.7.2-rc.** 316 commands
+- **The addon runs unmodified on Godot 4.8-dev and on 4.7.2-rc**. 316 commands
   across 49 groups register on both, with no parse or compile errors. 4.8 adds a
   `unique_id` attribute to every node in saved scenes and drops `load_steps` from
   the header; `fs.move` is unaffected because it rewrites quoted path tokens
@@ -41,7 +41,7 @@ Forward-compatibility work: the addon is verified on Godot 4.8-dev, and
   probe much as this project does, so that is no longer a dividing line. The
   differences that hold are structural, and each project gets its own paragraph
   of where it wins.
-- **`discover-then-drive` documented the callable half.** The page claimed any
+- **`discover-then-drive` documented the callable half**. The page claimed any
   feature surfaced as a property *or a callable* is reachable, then listed only
   the property commands; `node.call` and `runtime.call` are that missing half.
 
@@ -81,12 +81,12 @@ tool beyond the editor.
   `class_name`, which `engine class-info` cannot — the ordinary case of a
   `player.gd` attached to a node. `--include-inherited` walks the base-script
   chain.
-- **`ai-steering.md` craft reference.** Agent movement that reads as a creature
+- **`ai-steering.md` craft reference**. Agent movement that reads as a creature
   rather than a cursor: accelerating toward a desired velocity instead of
   assigning it, arrive/flee/pursue/separation as summable forces, blending versus
   priority, facing, and 3D differences. Every recipe was driven against a live
   4.7 editor and verified numerically rather than by screenshot.
-- **Input-action validation in `character-3d.md`.** A controller that reads an
+- **Input-action validation in `character-3d.md`**. A controller that reads an
   action nobody mapped does not error — `Input.is_action_pressed` on a missing
   action returns `false` forever, so the character silently never sprints and
   nothing says why. The guide now takes action names as `@export`s and checks
@@ -100,10 +100,10 @@ not.
 
 ### Fixed
 
-- **`script lint` reports which files do not compile.** Style rules read source,
+- **`script lint` reports which files do not compile**. Style rules read source,
   so they report on a file that does not parse — and zero findings there would
   read as clean, which is the opposite of the truth.
-- **`no-else-return` reads the last statement, not the last line.** A
+- **`no-else-return` reads the last statement, not the last line**. A
   `return success({` spanning eight lines ends on `})`, hiding the return; and a
   `break` nested inside a deeper `if` is not the branch's own last statement, so
   counting it flagged an `elif` that was required.
@@ -111,11 +111,11 @@ not.
   PascalCase.** Both are idiomatic — a type when it holds a script, an asset when
   it holds a scene. Requiring CONSTANT_CASE flagged nine correct lines in this
   addon alone.
-- **`engine class-info` and `script symbols` share one introspection helper.**
+- **`engine class-info` and `script symbols` share one introspection helper**.
   `get_script_*_list()` walks the whole script chain, so a command group
   extending `base_command.gd` reported base_command's ~50 helpers as its own and
   listed overrides once per level.
-- **`runtime eval`'s description said it returns a result.** The code runs inside
+- **`runtime eval`'s description said it returns a result**. The code runs inside
   a void function, so `return <value>` is a parse error; the description now says
   to call `emit(value)`.
 - **`doctor`'s name column derives its width from the checks**, rather than a
@@ -136,13 +136,13 @@ shipping guidance the install docs should always have carried.
   report `hot_reload` (`updated`, `blocked` when an open Shader Editor tab
   re-applies its own buffer, or `not_loaded`) and `compiled` from a uniform
   probe, so a broken edit is visible in the reply.
-- **`editor screenshot` renders a fresh frame before capturing.** A minimized
+- **`editor screenshot` renders a fresh frame before capturing**. A minimized
   or unfocused editor stops redrawing, so the viewport texture could be hours
   old and every capture returned the same stale image while reporting success.
 
 ### Added
 
-- **"Before you ship" guidance in README, INSTALL, and the docs site.**
+- **"Before you ship" guidance in README, INSTALL, and the docs site**.
   Disable the plugin before exporting (this removes the two injected
   autoloads) and exclude `addons/godot_mcp/*` in every export preset. The
   game-side autoloads poll IPC files each frame in release builds too, and
@@ -156,7 +156,7 @@ Another CLI-only patch, from the same corner as 0.6.1. The addon is unchanged.
 
 ### Fixed
 
-- **`install` no longer copies the addon's dev context doc into your project.**
+- **`install` no longer copies the addon's dev context doc into your project**.
   It copied `addons/godot_mcp/` wholesale, so `addons/godot_mcp/CLAUDE.md` came
   along: repo-internal guidance with no business in a consumer project.
   `release.ps1` had always stripped it from packaged archives, so installing
@@ -189,7 +189,7 @@ with the bundle so Project Settings and the archive name agree.
   on purpose: a cwd walk would resolve inside the *target* project and offer that
   project's own addon as the source, copying a directory onto itself.
 
-- A binary genuinely separated from its bundle still cannot install an addon it
+- A binary separated from its bundle still cannot install an addon it
   does not carry, so that case still fails. It now lists every path it tried and
   names both remedies, instead of naming a single guess.
 
@@ -274,7 +274,7 @@ with. Use `project add-autoload` instead.
   missing setting and how to restore it. An unreadable `project.godot` is
   treated as "proceed", so the check can never block a working call.
 
-- **An initial `--properties` map no longer drops a value on the floor.**
+- **An initial `--properties` map no longer drops a value on the floor**.
   `node.add --properties '{"texture": "res://icon.png"}'` created the node, left
   `texture` null, and reported success. The map was coerced against
   `typeof(node.get(name))`, which reads the *current* value, and a null Resource
@@ -289,7 +289,7 @@ with. Use `project add-autoload` instead.
   `authoring.ensure`, `batch.add_nodes`, `csg.add`, `lighting.add`,
   `lighting.add_2d`, and `scene3d.add_mesh`.
 
-- **A script error in `runtime.eval` no longer wedges the game channel.** Under a
+- **A script error in `runtime.eval` no longer wedges the game channel**. Under a
   `--headless` editor a GDScript parse error broke into the remote debugger, which
   has no UI to resume, so the game froze and every later `runtime.*` command timed
   out with nothing surfaced anywhere. The channel simply went dead, and the usual
@@ -298,7 +298,7 @@ with. Use `project add-autoload` instead.
   compiled on a worker thread first. A bad eval returns the parse message with the
   line number in the caller's own code, and the next command still works.
 
-- **Commands no longer answer from another project's editor.** Port discovery falls
+- **Commands no longer answer from another project's editor**. Port discovery falls
   back to the default port when the project has no discovery file, so whichever
   godot-mcp editor happened to be running answered, and every write landed in *that*
   project with a success envelope each time. One session was spent chasing settings
@@ -312,7 +312,7 @@ with. Use `project add-autoload` instead.
 
 ### Added
 
-- **`node.move` reorders siblings, and `node.add` takes `--index`.** Sibling order is
+- **`node.move` reorders siblings, and `node.add` takes `--index`**. Sibling order is
   draw order in 2D, so seating a node behind existing content is routine work that
   had no CLI expression at all: `node.move` only reparented, and the fallback was
   `editor.run_script` with a hand-written `move_child`. `--new-parent-path` is now
@@ -341,7 +341,7 @@ bypassable and hardened.
   alone for tool-limited clients, `godot_mcp/network/mcp_http` turns the
   endpoint off, and the discovery file now carries `http_port`.
 
-- **MCP prompts in `serve`.** The stdio MCP server now declares the prompts
+- **MCP prompts in `serve`**. The stdio MCP server now declares the prompts
   capability and ships four static prompts distilled from the agent skill —
   `discover-then-drive`, `spatial-placement` (optional `target` argument),
   `launch-recovery`, and `bug-hunt` — embedded in the binary and served via
@@ -357,7 +357,7 @@ bypassable and hardened.
 
 ### Fixed
 
-- **Property writes no longer silently substitute a wrong value.** Three bugs in
+- **Property writes no longer silently substitute a wrong value**. Three bugs in
   `property_parser.gd`, all found by driving the typed command groups to build a
   scene rather than scripting it:
   - A numeric input with too few components **zeroed the property and reported
@@ -368,7 +368,7 @@ bypassable and hardened.
   - **JSON arrays were stringified before parsing**, so `[28,28]` became
     `Vector2(0, 28)` — `_numbers()` stripped a `Vector2(` prefix but not `[`.
     Arrays and dictionaries are now read element-wise.
-  - **Resource-typed properties silently dropped `res://` paths.**
+  - **Resource-typed properties silently dropped `res://` paths**.
     `resource create --type Sky --properties '{"sky_material":"res://…"}'`
     returned `properties_set:["sky_material"]` while saving `null`, because the
     value was coerced against `typeof(current)` (`TYPE_NIL` for an unset
@@ -390,7 +390,7 @@ bypassable and hardened.
 
 ### Security
 
-- **The `Origin` gate accepted attacker-registrable lookalike hosts.** The
+- **The `Origin` gate accepted attacker-registrable lookalike hosts**. The
   loopback test was `host.begins_with("127.")`, a prefix match on the host
   *string* rather than an address check, so an origin of
   `http://127.0.0.1.evil.example` or `https://127.evil.com` passed and had its
@@ -407,7 +407,7 @@ bypassable and hardened.
   endpoint, let alone the flawed gate. The pending Asset Library snapshot did
   carry it and has been refreshed.
 
-- **The HTTP MCP endpoint now validates `Origin`.** Binding `127.0.0.1` does not
+- **The HTTP MCP endpoint now validates `Origin`**. Binding `127.0.0.1` does not
   keep a browser out: any web page you visited while the editor was open could
   POST to `http://127.0.0.1:9100/mcp` — the wildcard `Access-Control-Allow-Origin`
   even let it read the replies — and reach `editor.run_script`, i.e. arbitrary
@@ -433,13 +433,13 @@ and `navigation.add_link` applies `navigation_layers` to 2D links.
 
 ### Fixed
 
-- **`navigation.add_link` now applies `--navigation-layers` to 2D links.** The
+- **`navigation.add_link` now applies `--navigation-layers` to 2D links**. The
   handler set it only in the `NavigationLink3D` branch; a `NavigationLink2D`
   silently ignored the param even though the class has the property. Found by
   the param-docs authoring pass (docs are extracted from handler code, so the
   asymmetry stood out); verified live by reading `navigation_layers: 5` back
   off a freshly created 2D link.
-- **Plugin disable now actually removes the addon's autoloads.** Removal used
+- **Plugin disable now actually removes the addon's autoloads**. Removal used
   session-only provenance tracking, but injection saves `ProjectSettings` — so
   from the second session on the autoloads read as project-owned and disable
   left them behind (the one manual step in every ship-the-game flow). Removal
@@ -449,7 +449,7 @@ and `navigation.add_link` applies `navigation_layers` to 2D links.
 
 ### Added
 
-- **Typed MCP tool schemas in `serve`.** The stdio MCP server now exposes every
+- **Typed MCP tool schemas in `serve`**. The stdio MCP server now exposes every
   documented command as a first-class tool with a real JSON schema — name
   (`node_add`), description, per-param types and `required` — built **live**
   from the addon's `get_command_docs()` on the first `tools/list` and cached,
@@ -495,7 +495,7 @@ and `navigation.add_link` applies `navigation_layers` to 2D links.
   text for shell pipelines: array-of-objects → header + rows, object →
   key/value rows, nested values as compact JSON, tabs/newlines escaped.
   Default `json` (pretty) is unchanged.
-- **Per-project MCP port setting.** A new project setting `godot_mcp/network/port`
+- **Per-project MCP port setting**. A new project setting `godot_mcp/network/port`
   (Project → Project Settings, int, default `0` = auto) pins the WebSocket port
   per project, persisted in that project's `project.godot` — so two concurrent
   projects listen on distinct ports deterministically. Port precedence is now
@@ -667,7 +667,7 @@ authoring for `anim_tree`, and eight new craft references. First public release.
   (106) class on 4.7 enumerated from the live ClassDB and verified covered by a
   command or a craft doc (XR deliberately excluded).
 
-- **`install-assets` subcommand.** Copies bundled **CC0 asset packs** into a
+- **`install-assets` subcommand**. Copies bundled **CC0 asset packs** into a
   project — `godot-mcp install-assets [--pack NAME] [--dest assets/vendor]
   [--list] [--force]`. Each pack is copied whole (its `License.txt`/source files
   kept, so attribution stays intact) into `<project>/assets/vendor/<pack>/` by
@@ -704,24 +704,24 @@ authoring for `anim_tree`, and eight new craft references. First public release.
 
 ### Fixed
 
-- **Packed-array properties parse and serialize correctly.** `property_parser`
+- **Packed-array properties parse and serialize correctly**. `property_parser`
   had no packed-array cases, so setting e.g. a `Polygon2D.polygon` from an array
   of `"Vector2(x,y)"` strings fell through untyped and Godot's implicit cast
   silently zeroed every element. All packed types now coerce per element in both
   directions.
-- **`scene2d.add_animated_sprite` start animation is deterministic.** JSON
+- **`scene2d.add_animated_sprite` start animation is deterministic**. JSON
   params arrive orderless from the Go CLI, so "first animation in the dict" was
   nondeterministic; the start/autoplay animation is now chosen explicitly
   ("default", else alphabetical, else the `--autoplay` name).
-- **`editor set_camera` accepts the `Vector3(x, y, z)` string form.** It only
+- **`editor set_camera` accepts the `Vector3(x, y, z)` string form**. It only
   took a `{x, y, z}` dict; the `Vector3(...)` string every other spatial command
   uses hit a hard `Dictionary` cast and made the command a silent no-op (empty
   result). It now parses both forms via `PropertyParser`.
-- **`editor run_script` no longer floods `editor errors` with its own source.**
+- **`editor run_script` no longer floods `editor errors` with its own source**.
   The exec audit logged the script body via `printerr`, which renders red as
   `ERROR:` and was then re-collected by `editor errors` as fake errors; it now
   logs via `print` (still visible in Output, not flagged as an error).
-- **Object params validate via a shared `require_dict` helper.** `resource.edit`
+- **Object params validate via a shared `require_dict` helper**. `resource.edit`
   (`properties`), `scene3d` environment (`sky`), and `theme` container (`margins`)
   now return a clear error on a present-but-malformed value instead of a generic
   message or a silent skip, and tolerate a JSON object passed as a string. (None
@@ -732,27 +732,27 @@ authoring for `anim_tree`, and eight new craft references. First public release.
   have no default library, which returns null *and* logs an error; they now guard
   with `has_animation_library("")` first. (The commands worked; the log was noise
   that polluted a subsequent `scene validate` / `editor errors`.)
-- **`node add --parent` now nests instead of silently landing at the scene root.**
+- **`node add --parent` now nests instead of silently landing at the scene root**.
   The flag is `--parent-path`; the generic CLI parser has no per-command schema, so
   a typo'd `--parent` was passed through and ignored, defaulting the node to root
   with no error. `node.add` now accepts `parent` as an alias for `parent_path`.
-- **`node get` now reports the node's `script`.** `get_node_properties_dict`
+- **`node get` now reports the node's `script`**. `get_node_properties_dict`
   explicitly skipped the `script` property, so a node with a script attached
   looked script-less through `node get` (`scene tree` already showed it). It now
   reports `script` as the resource path (or `null` when none), matching the tree.
-- **`node get --properties '[...]'` actually filters now.** The handler only
+- **`node get --properties '[...]'` actually filters now**. The handler only
   honoured `--category` (a prefix filter); a `properties` name list was silently
   ignored and the full dump returned. It now fetches exactly the named properties
   (any property, not just the editor-visible set; `script` as its path) and
   reports unknown names under `missing` rather than dropping them silently.
-- **`spatial lint --check-floating` no longer drowns in false positives.** It
+- **`spatial lint --check-floating` no longer drowns in false positives**. It
   flagged every `VisualInstance3D` that wasn't resting on something directly below
   — so lights, decals, fog, GI probes, particles, sprites, MultiMesh scatter (no
   "rests on a surface" meaning) *and* all mounted/hanging/attached geometry got
   reported. Now it only considers solid geometry (`MeshInstance3D`/`CSGShape3D`)
   and treats a piece as supported if it touches/overlaps another solid (5 cm
   contact tolerance) or rests just above one. On a fully dressed scene this drops
-  ~60 false positives to zero while still catching a genuinely isolated float.
+  ~60 false positives to zero while still catching an isolated float.
 
 ## [0.1.0] — 2026-06-18
 
@@ -761,18 +761,18 @@ editor over WebSocket, with file-IPC into the running game.
 
 ### Added
 
-- **Go CLI (`godot-mcp`).** Connects to the editor addon over JSON-RPC 2.0 on a
+- **Go CLI (`godot-mcp`)**. Connects to the editor addon over JSON-RPC 2.0 on a
   WebSocket; auto-discovers the port from `<project>/.godot/godot-mcp.json` (or
   `--port`). Maps `<group> <command> [--flags]` to dotted methods. Flag values
   accept strings (coerced engine-side), `true`/`false`, bare booleans, and JSON
   for `[...]`/`{...}`; command/flag names accept kebab- or snake-case. Prints
   JSON-RPC errors with code, message, and any `data` (suggestions, available
   methods) to stderr.
-- **`install` subcommand.** Copies the addon into `<project>/addons/godot_mcp`
+- **`install` subcommand**. Copies the addon into `<project>/addons/godot_mcp`
   and (by default) the agent skill into `<project>/.claude/skills/godot-mcp`;
   `--enable` adds the plugin to `project.godot`. Sources default to the
   release-bundle layout next to the binary.
-- **Godot 4.7 addon (`godot_mcp`).** WebSocket server hosted in the editor
+- **Godot 4.7 addon (`godot_mcp`)**. WebSocket server hosted in the editor
   (the addon is the server; the CLI is a short-lived client). Self-installs its
   game-side autoloads on enable (idempotent). All editor mutations go through
   `EditorUndoRedoManager`.
@@ -786,7 +786,7 @@ editor over WebSocket, with file-IPC into the running game.
   `search`, `singletons`) — query the live `ClassDB` so an agent can discover
   the real 4.7 API (e.g. `engine search --query offset_transform`) instead of
   relying on training knowledge.
-- **Runtime/game bridge.** Two game-side autoloads (`MCPGameInspector`,
+- **Runtime/game bridge**. Two game-side autoloads (`MCPGameInspector`,
   `MCPGameInput`) broker inspection, input simulation, frame capture, property
   monitoring, recording/replay, and signal watching over `user://` file IPC.
   `runtime.screenshot` works even under a headless editor (the game is a
