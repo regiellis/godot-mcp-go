@@ -171,6 +171,7 @@ func _dispatch(command: String, params: Dictionary) -> void:
 		"get_scene_tree": _get_scene_tree(params)
 		"get_node_properties": _get_node_properties(params)
 		"set_node_property": _set_node_property(params)
+		"call_node_method": _call_node_method(params)
 		"execute_script": _execute_script(params)
 		"screenshot": _screenshot(params)
 		"capture_frames": _capture_frames(params)
@@ -332,6 +333,42 @@ func _set_node_property(params: Dictionary) -> void:
 		"property": property,
 		"old_value": PropertyParser.serialize_value(old_value),
 		"new_value": PropertyParser.serialize_value(node.get(property)),
+	})
+
+
+## Call a method on a live node. The runtime twin of node.call, so driving a
+## running object no longer costs a runtime.eval script compile. Argument coercion
+## is PropertyParser's, shared with the editor path so the two cannot drift.
+func _call_node_method(params: Dictionary) -> void:
+	var node := _resolve(params.get("node_path", ""))
+	if node == null:
+		_respond({"error": "Node not found: %s" % params.get("node_path", "")})
+		return
+	var method: String = params.get("method", "")
+	if method.is_empty():
+		_respond({"error": "method is required"})
+		return
+	if not node.has_method(method):
+		_respond({"error": "Method '%s' not found on %s" % [method, node.get_class()]})
+		return
+
+	var raw: Variant = params.get("args", [])
+	if not raw is Array:
+		_respond({"error": "args must be a JSON array"})
+		return
+
+	var coerced := PropertyParser.coerce_call_args(
+		PropertyParser.method_info(node, method), raw, method
+	)
+	if not coerced["ok"]:
+		_respond({"error": String(coerced["reason"])})
+		return
+
+	var returned: Variant = node.callv(method, coerced["args"])
+	_respond({
+		"node_path": _rel(node),
+		"method": method,
+		"result": PropertyParser.serialize_value(returned),
 	})
 
 

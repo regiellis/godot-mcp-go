@@ -8,7 +8,7 @@ two local servers inside the running editor:
 - a streamable-HTTP MCP endpoint at `POST /mcp` on `127.0.0.1`, first free port in 9100 to 9115,
   which an HTTP-capable MCP client connects to directly with no extra process running.
 
-Both dispatch the same 312 commands across 49 groups: scenes, nodes, GDScript and C#, spatial
+Both dispatch the same 316 commands across 49 groups: scenes, nodes, GDScript and C#, spatial
 placement, materials, tilemaps, animation, physics, procedural generation, and live inspection of
 the running game. Every editor mutation goes through `UndoRedo`, so Ctrl+Z reverses it.
 

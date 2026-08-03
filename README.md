@@ -7,13 +7,13 @@
 [![Godot 4.7+](https://img.shields.io/badge/Godot-4.7%2B-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org)
 [![Go 1.26+](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![Commands](https://img.shields.io/badge/commands-312-blue)
+![Commands](https://img.shields.io/badge/commands-316-blue)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
 
-Drive a running **Godot 4.7+** editor from the command line — and from AI agents — to build scenes, write GDScript or C#, play and inspect the game, and introspect the engine's real API. A Go CLI talks to a GDScript editor addon over WebSocket. **312 commands across 49 groups**, every one verified against a live editor.
+Drive a running **Godot 4.7+** editor from the command line — and from AI agents — to build scenes, write GDScript or C#, play and inspect the game, and introspect the engine's real API. A Go CLI talks to a GDScript editor addon over WebSocket. **316 commands across 49 groups**, every one verified against a live editor.
 
 > [!TIP]
-> **One surface, three front doors — without drowning your agent's context.** This is a **CLI**, a **stdio MCP server**, and an **in-editor streamable-HTTP MCP endpoint**, all over the same 312 commands. Terminal-first agents can skip MCP entirely: the CLI is self-describing (`godot-mcp help all` lists the catalog; `godot-mcp <group> <command> --help` prints a real param table), so shell-driving costs **zero** tool schemas. Over MCP, clients that load tool schemas on demand (Claude Code does) pay only for the tools they actually use — and `serve --typed=false` (or the `http_typed` project setting on the HTTP endpoint) collapses the surface to one generic `godot_run` plus read-only `godot://` resources for clients that carry every schema eagerly. HTTP-capable clients can even skip the binary: the addon itself serves `POST /mcp` straight from the editor.
+> **One surface, three front doors — without drowning your agent's context.** This is a **CLI**, a **stdio MCP server**, and an **in-editor streamable-HTTP MCP endpoint**, all over the same 316 commands. Terminal-first agents can skip MCP entirely: the CLI is self-describing (`godot-mcp help all` lists the catalog; `godot-mcp <group> <command> --help` prints a real param table), so shell-driving costs **zero** tool schemas. Over MCP, clients that load tool schemas on demand (Claude Code does) pay only for the tools they actually use — and `serve --typed=false` (or the `http_typed` project setting on the HTTP endpoint) collapses the surface to one generic `godot_run` plus read-only `godot://` resources for clients that carry every schema eagerly. HTTP-capable clients can even skip the binary: the addon itself serves `POST /mcp` straight from the editor.
 
 > [!NOTE]
 > **This repository is a one-way public mirror**, published as a squashed snapshot — it shares no commit history with the canonical development repo, so **pull requests can't be merged directly**. For bugs, feature requests, or changes, please open an [**Issue**](../../issues) or start a [**Discussion**](../../discussions). That's where development is tracked. The **`asset-library` branch** is a packaging artifact for the [Godot Asset Library](https://godotengine.org/asset-library) (an `addons/`-rooted snapshot of just the addon) — it is never merged into `main`.
@@ -28,7 +28,7 @@ No — they do different jobs, and they compose. **Godot's own command line star
 | --- | --- | --- |
 | Process model | Launches a fresh engine process per invocation, cold start each time | Connects over WebSocket to the editor you already have open |
 | Session state | None — no open scene, no selection, no undo history | The live session: edited scene, selection, unsaved work, UndoRedo (every mutation Ctrl+Z-safe) |
-| Editing | Run a script once against project files | 312 commands against the open scene, with open-scene conflict protection |
+| Editing | Run a script once against project files | 316 commands against the open scene, with open-scene conflict protection |
 | The running game | The launched process *is* the game; nothing reaches inside it | A live channel into it: read state, `eval`, inject input, await signals, screenshot |
 | Introspection | `--doctool` dumps docs offline | `engine.*` reads the running build's ClassDB, live |
 | Built for | CI — exports, imports, batch scripts | Interactive building and playtesting, by humans at a terminal and by AI agents |
@@ -47,7 +47,8 @@ Plenty of Godot MCP servers exist, and the good ones are editor-native — so "r
 - **Live editor integration:** commands run against the real SceneTree with UndoRedo (Ctrl+Z safe for the human) and open-scene conflict protection, not offline `.tscn` rewriting that clobbers unsaved work.
 - **Crash-aware discovery:** per-project port discovery with `running`/`starting`/`crashed`/`closed` verdicts on every connection failure, so agents recover deliberately instead of relaunching blindly.
 - **Safety guards:** `127.0.0.1`-only, audited code execution, an unsafe-editor-IO guard, and project-path jailing on every write sink.
-- **A craft layer:** an agent skill plus 27 craft references (3D controllers, platformers, deckbuilders, interactive music, shaders, multiplayer, save systems…) that teach Godot's idioms, so an agent composes nodes and scenes the way a Godot developer would instead of reaching for whichever command fits.
+- **A craft layer:** an agent skill plus 28 craft references (3D controllers, platformers, deckbuilders, interactive music, shaders, multiplayer, save systems…) that teach Godot's idioms, so an agent composes nodes and scenes the way a Godot developer would instead of reaching for whichever command fits.
+- **Style is checkable:** `script.lint` measures GDScript against the official style guide — 17 rules, findings carrying line, rule, and severity — so the craft layer's advice becomes something an agent can verify against rather than merely read. It runs inside the addon, with no tool to install.
 
 Concretely, against the most popular editor-native server ([`hi-godot/godot-ai`](https://github.com/hi-godot/godot-ai)):
 
@@ -56,9 +57,9 @@ Concretely, against the most popular editor-native server ([`hi-godot/godot-ai`]
 | Editor integration | live | live |
 | Running-game control | none (editor-time only) | full `runtime` + `input` groups |
 | MCP tool schemas carried | ~43 fixed | typed per-command, live-built — or as few as 1 (`godot_run`) + `godot://` resources |
-| Surface | ~120 ops | 312 commands / 49 groups |
+| Surface | ~120 ops | 316 commands / 49 groups |
 | Runtime deps | Python + `uv` | single Go binary |
-| Craft layer | tool reference | 27 craft docs + skill |
+| Craft layer | tool reference | 28 craft docs + skill |
 | Distribution | Asset Library, multi-client auto-config, large community | CLI `install`/`create`/`configure`, self-hosted |
 
 The honest trade-off: godot-ai has the larger community and Asset Library one-click reach today. What this side adds is the running-game channel, introspection against the build you have open, the craft layer, and the `spatial`, `pcg`, `wfc`, `scatter`, `skeleton`, and `authoring` groups; most of godot-ai's tool surface maps onto generic commands here.

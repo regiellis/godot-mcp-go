@@ -549,6 +549,153 @@ func error_property_failures(result: Dictionary) -> Dictionary:
 	})
 
 
+# --- Script introspection ---------------------------------------------------
+
+## Friendly type string for a Variant type int, preferring the class name for
+## objects (TYPE_OBJECT alone tells a caller nothing useful).
+func type_name(t: int, hint_class: String = "") -> String:
+	if t == TYPE_OBJECT and not hint_class.is_empty():
+		return hint_class
+	return type_string(t)
+
+
+## One method entry (name, return type, arg names + types) for a symbol table.
+func method_brief(m: Dictionary) -> Dictionary:
+	var args: Array = []
+	for a in m["args"]:
+		args.append({"name": a["name"], "type": type_name(a["type"], a.get("class_name", ""))})
+	var ret: Dictionary = m.get("return", {})
+	return {
+		"name": m["name"],
+		"return": type_name(ret.get("type", TYPE_NIL), ret.get("class_name", "")),
+		"args": args,
+	}
+
+
+## Name → occurrence count across a script list, used to subtract a base script's
+## members from a derived one's.
+func _name_counts(entries: Array) -> Dictionary:
+	var counts := {}
+	for e in entries:
+		var n := String(e["name"])
+		counts[n] = int(counts.get(n, 0)) + 1
+	return counts
+
+
+## Keep only the members `script` itself declares, given its base script's list.
+##
+## get_script_*_list() walks the whole SCRIPT chain, so a command group extending
+## base_command.gd reports base_command's 50-odd helpers as its own. Subtracting by
+## multiset rather than by name keeps overrides: a method the child redeclares
+## appears twice in the child list and once in the base's, leaving one for the child.
+func _own_members(entries: Array, base_entries: Array) -> Array:
+	var budget := _name_counts(base_entries)
+	var own: Array = []
+	for e in entries:
+		var n := String(e["name"])
+		var left := int(budget.get(n, 0))
+		if left > 0:
+			budget[n] = left - 1
+			continue
+		own.append(e)
+	return own
+
+
+## Drop repeat names, keeping the first (most-derived) entry. An override otherwise
+## surfaces once per level of the chain.
+func _dedupe_by_name(entries: Array) -> Array:
+	var seen := {}
+	var out: Array = []
+	for e in entries:
+		var n := String(e["name"])
+		if seen.has(n):
+			continue
+		seen[n] = true
+		out.append(e)
+	return out
+
+
+## The API surface a Script exposes: properties, methods, signals, constants
+## (enums included — an enum is a constant whose value is a Dictionary).
+##
+## Shared by engine.class_info and script.symbols, which want different scopes and
+## so pass `include_inherited` differently. false answers "what does this file
+## declare", which is what a caller reading one script wants; true answers "what can
+## I call on this type", which is what a caller resolving a class wants. Neither
+## reports engine members — a script chain stops at its base ENGINE type, so those
+## come from engine.class_info on `base_type`.
+func script_symbols(
+	script: Script, filter: String = "", include_private: bool = false, include_inherited: bool = true
+) -> Dictionary:
+	var needle := filter.to_lower()
+	var base := script.get_base_script()
+
+	var raw_properties := Array(script.get_script_property_list())
+	var raw_methods := Array(script.get_script_method_list())
+	var raw_signals := Array(script.get_script_signal_list())
+	if include_inherited:
+		raw_properties = _dedupe_by_name(raw_properties)
+		raw_methods = _dedupe_by_name(raw_methods)
+		raw_signals = _dedupe_by_name(raw_signals)
+	elif base != null:
+		raw_properties = _own_members(raw_properties, Array(base.get_script_property_list()))
+		raw_methods = _own_members(raw_methods, Array(base.get_script_method_list()))
+		raw_signals = _own_members(raw_signals, Array(base.get_script_signal_list()))
+
+	var properties: Array = []
+	for p in raw_properties:
+		if not (int(p["usage"]) & PROPERTY_USAGE_SCRIPT_VARIABLE) or p["type"] == TYPE_NIL:
+			continue
+		var pname: String = p["name"]
+		if not needle.is_empty() and not pname.to_lower().contains(needle):
+			continue
+		properties.append({"name": pname, "type": type_name(p["type"], p.get("class_name", ""))})
+
+	var methods: Array = []
+	for m in raw_methods:
+		var mname: String = m["name"]
+		if not include_private and mname.begins_with("_"):
+			continue
+		if not needle.is_empty() and not mname.to_lower().contains(needle):
+			continue
+		methods.append(method_brief(m))
+
+	var signals: Array = []
+	for s in raw_signals:
+		var sname: String = s["name"]
+		if not needle.is_empty() and not sname.to_lower().contains(needle):
+			continue
+		var args: Array = []
+		for a in s["args"]:
+			args.append({"name": a["name"], "type": type_name(a["type"], a.get("class_name", ""))})
+		signals.append({"name": sname, "args": args})
+
+	# Constants are a flat map with no per-entry origin, so the base's map is
+	# subtracted by key when the caller asked for this script's own declarations.
+	var constant_map: Dictionary = script.get_script_constant_map()
+	var base_constants: Dictionary = {} if (include_inherited or base == null) else base.get_script_constant_map()
+	var constants: Dictionary = {}
+	for k in constant_map:
+		var cname := String(k)
+		if base_constants.has(k):
+			continue
+		if not needle.is_empty() and not cname.to_lower().contains(needle):
+			continue
+		constants[cname] = PropertyParser.serialize_value(constant_map[k])
+
+	return {
+		"properties": properties,
+		"methods": methods,
+		"signals": signals,
+		"constants": constants,
+		"property_count": properties.size(),
+		"method_count": methods.size(),
+		"signal_count": signals.size(),
+		"base_script": base.resource_path if base != null else "",
+		"includes_inherited": include_inherited,
+	}
+
+
 # --- Command documentation --------------------------------------------------
 
 ## One param entry for a group's get_command_docs() table. Keeps the per-command

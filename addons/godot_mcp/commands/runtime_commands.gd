@@ -12,6 +12,7 @@ func get_commands() -> Dictionary:
 		"runtime.tree": _tree,
 		"runtime.get": _get_props,
 		"runtime.set": _set_prop,
+		"runtime.call": _call_method,
 		"runtime.eval": _eval,
 		"runtime.screenshot": _screenshot,
 		"runtime.capture_frames": _capture_frames,
@@ -245,6 +246,28 @@ func _set_prop(params: Dictionary) -> Dictionary:
 	return await _send("set_node_property", {"node_path": r[0], "property": rp[0], "value": params["value"]})
 
 
+## Call a method on a node in the running game. The runtime twin of node.call:
+## before this, driving a live object meant runtime.eval, which compiles a throwaway
+## script to do what is one named call.
+func _call_method(params: Dictionary) -> Dictionary:
+	var r := require_string(params, "node_path")
+	if r[1] != null:
+		return r[1]
+	var mr := require_string(params, "method")
+	if mr[1] != null:
+		return mr[1]
+
+	var payload := {"node_path": r[0], "method": mr[0]}
+	if params.has("args"):
+		var ar := require_array(params, "args")
+		if ar[1] != null:
+			return ar[1]
+		payload["args"] = ar[0]
+
+	audit_exec("runtime.call", "%s.%s(%s)" % [r[0], mr[0], str(payload.get("args", []))])
+	return await _send("call_node_method", payload)
+
+
 func _eval(params: Dictionary) -> Dictionary:
 	var r := require_string(params, "code")
 	if r[1] != null:
@@ -342,8 +365,16 @@ func get_command_docs() -> Dictionary:
 				doc_param("value", "JSON", true, "New value."),
 			],
 		},
+		"runtime.call": {
+			"description": "Call a method on a node in the running game and return its result. The runtime twin of node.call, and lighter than runtime.eval for one named call — no script compile. Arguments coerce toward the method's declared parameter types. Audited. Requires scene.play.",
+			"params": [
+				doc_param("node_path", "NodePath", true, "Node path in the running scene."),
+				doc_param("method", "String", true, "Method name."),
+				doc_param("args", "JSON", false, "JSON array of positional arguments, e.g. '[\"Vector3(0,1,0)\", 2.5]'."),
+			],
+		},
 		"runtime.eval": {
-			"description": "Execute ad-hoc GDScript inside the running game and return its result. Audited. Requires scene.play. (A real script error under a headless editor can freeze the game — recover with scene.stop/play.)",
+			"description": "Execute ad-hoc GDScript inside the running game. Call emit(value) to return data — the code runs inside a void function, so a bare `return <value>` is a parse error. Results come back in `output` as an array of strings. Audited. Requires scene.play. (A real script error under a headless editor can freeze the game — recover with scene.stop/play.)",
 			"params": [
 				doc_param("code", "String", true, "GDScript to run in the game process."),
 			],
