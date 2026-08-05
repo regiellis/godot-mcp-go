@@ -12,13 +12,31 @@
 
 Drive a running **Godot 4.7+** editor from the command line — and from AI agents — to build scenes, write GDScript or C#, play and inspect the game, and introspect the engine's real API. A Go CLI talks to a GDScript editor addon over WebSocket. **316 commands across 49 groups**, every one verified against a live editor.
 
-> [!TIP]
-> **One surface, three front doors — without drowning your agent's context.** This is a **CLI**, a **stdio MCP server**, and an **in-editor streamable-HTTP MCP endpoint**, all over the same 316 commands. Terminal-first agents can skip MCP entirely: the CLI is self-describing (`godot-mcp help all` lists the catalog; `godot-mcp <group> <command> --help` prints a real param table), so shell-driving costs **zero** tool schemas. Over MCP, clients that load tool schemas on demand (Claude Code does) pay only for the tools they actually use — and `serve --typed=false` (or the `http_typed` project setting on the HTTP endpoint) collapses the surface to one generic `godot_run` plus read-only `godot://` resources for clients that carry every schema eagerly. HTTP-capable clients can even skip the binary: the addon itself serves `POST /mcp` straight from the editor.
+> [!WARNING]
+> **Built for big-context models.** The default MCP mode exposes every command as a typed tool, and that list measures **about 50,000 tokens** against a live editor. Frontier models with 200K–1M windows and prompt caching carry it comfortably; a small local model will not, and this project does not aim to serve one. Context-tight? The escape hatch is one flag: `serve --typed=false` collapses the surface to a single generic tool (~470 tokens), and the CLI needs no schemas at all. Numbers, method, and reasoning: [What the tool surface costs](#what-the-tool-surface-costs).
 
 > [!NOTE]
 > **This repository is a one-way public mirror**, published as a squashed snapshot — it shares no commit history with the canonical development repo, so **pull requests can't be merged directly**. For bugs, feature requests, or changes, please open an [**Issue**](../../issues) or start a [**Discussion**](../../discussions). That's where development is tracked. The **`asset-library` branch** is a packaging artifact for the [Godot Asset Library](https://godotengine.org/asset-library) (an `addons/`-rooted snapshot of just the addon) — it is never merged into `main`.
 >
 > The snapshot also omits maintainer tooling, so `scripts/` is absent here. `Taskfile.yml` ships whole and a few of its tasks call into that folder (`task test:http`, `task release`, `task mirror:audit`); those are maintainer-only and will not run from a clone of this mirror. The build, editor, and play tasks cover the user-facing workflow. Where the CHANGELOG names a path under `scripts/`, it refers to the development repo.
+
+## What the tool surface costs
+
+Tool schemas are context: an MCP client carries its tool list into every request, so the size of that list is a real cost that deserves real numbers rather than hand-waving. Measured 2026-08-05 by capturing the actual `tools/list` payload `serve` produces against a live Godot 4.7.2 editor, with tokens estimated at four characters per token:
+
+| Surface | Tools carried | Schema payload | Estimated tokens |
+| --- | --- | --- | --- |
+| The CLI (shell-driving agents) | none | none | **0** |
+| `serve` default (typed tools) | 319 | ~202 KB JSON | **~50,000** |
+| `serve --typed=false` | 1 (`godot_run`) | ~1.9 KB | **~470** |
+
+The 319 is every registered command plus the generic `godot_run` — the measured list even picked up the test project's two project-local commands, because the schemas are built live from whatever the addon registers, never shipped as a fixed catalog.
+
+What the numbers mean in practice:
+
+- **The default is sized for big-context models**. Against a 200K window the full list is a quarter of the budget; against the 1M windows current frontier models ship, it is 5%. With prompt caching the list sits in the cached prefix after the first request — on Claude, cached input bills at roughly a tenth of the base rate — so the recurring cost is a fraction of the headline number, and the list only changes mid-session in one rare case (the editor was down at connect and came back up).
+- **Nothing locks you into the default**. `serve --typed=false` keeps the same 316 commands behind one ~470-token tool (the model discovers the API with `engine.search` instead of reading schemas); the `http_typed` project setting does the same for the editor's own HTTP endpoint; clients that load schemas on demand (Claude Code does) pay only for the tools they actually use; the read-only `godot://` resources pull project and scene state without any tool turn; and the CLI is a zero-schema surface any agent with a shell can drive.
+- **The trade is deliberate**. A curated "core toolset" default is not planned: a model too small to carry the list is also too small to run the discover-then-drive and spatial-verification loops this tool is built around, and the escape hatches above already serve constrained clients. The full breakdown — which command groups carry the weight, the caching math, and the design reasoning — is on [What the tool surface costs](https://regiellis.github.io/godot-mcp-go/docs/context-cost) in the docs.
 
 ## Isn't this just Godot's built-in CLI?
 

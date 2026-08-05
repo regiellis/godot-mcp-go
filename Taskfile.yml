@@ -94,3 +94,8 @@ tasks:
     desc: Audit what is already public (github/main + asset-library) against the publish policy
     cmds:
       - pwsh -NoProfile -File scripts/mirror-audit.ps1 {{.CLI_ARGS}}
+
+  asset:check:
+    desc: Does the Asset Library entry need touching? Diffs the addon against the published tip
+    cmds:
+      - pwsh -NoProfile -File scripts/asset-library.ps1 {{.CLI_ARGS}}

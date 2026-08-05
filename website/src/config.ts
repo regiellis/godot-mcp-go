@@ -66,6 +66,7 @@ const AUTHORED: NavGroup[] = [
       { label: "Quickstart", slug: "quickstart" },
       { label: "Installation", slug: "installation" },
       { label: "Use with an AI client", slug: "mcp-setup" },
+      { label: "What the tool surface costs", slug: "context-cost" },
       { label: "Addressing AI use in game development", slug: "on-ai" },
     ],
   },

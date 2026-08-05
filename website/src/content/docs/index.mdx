@@ -9,6 +9,10 @@ description: What godot-mcp is and how the discover-then-drive loop works.
   This goes beyond scene assembly: the `runtime` and `input` groups play the game, inject input, and read live state back, so an agent builds **and tests** — it proves its work by playing it.
 </Callout>
 
+<Callout type="warning" title="Built for big-context models">
+  The default MCP tool surface measures **about 50,000 tokens** of schemas — sized for frontier models with 200K–1M windows and prompt caching, and those carry it comfortably. Context-tight clients drop to a single ~470-token tool with `serve --typed=false`, and the CLI needs no schemas at all. Full numbers in [What the tool surface costs](/docs/context-cost).
+</Callout>
+
 <Callout type="important" title="Not Godot's built-in CLI">
   Godot's own command line (`--headless`, `--export-release`, `--script`) starts a **fresh engine process** per invocation — right for CI, blind to your session. godot-mcp connects to the **editor you already have open**: the live scene, the selection, the undo history, and the running game. Different jobs; use both. Details in [How it works](/docs/how-it-works).
 </Callout>

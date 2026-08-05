@@ -11,6 +11,10 @@ By default, `serve` exposes **every command as a first-class MCP tool** with a r
 
 For clients that cap the number of tools, run `serve --typed=false` to expose only `godot_run`. One tool for 316 commands keeps the model's context lean: the model discovers the live 4.7 API with `engine.search` / `engine.class_info`, then acts, instead of carrying dozens of tool schemas into every session. Both modes are deliberate: typed for schema-guided calls, single-tool for context economy.
 
+<Callout type="warning" title="The typed list costs about 50,000 tokens">
+  The full typed surface measures ~319 tools and ~50,000 tokens of schemas — sized for big-context frontier models, which carry it comfortably with prompt caching. The single-tool mode measures ~470 tokens. Measurements, per-group breakdown, and the reasoning behind the default: [What the tool surface costs](/docs/context-cost).
+</Callout>
+
 <Callout type="note">
   If the editor is down when the client connects, `serve` starts with `godot_run` alone and upgrades automatically — once the editor becomes reachable it emits `notifications/tools/list_changed` and the typed tools appear.
 </Callout>
