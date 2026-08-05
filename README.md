@@ -22,7 +22,7 @@ Drive a running **Godot 4.7+** editor from the command line — and from AI agen
 
 ## What the tool surface costs
 
-Tool schemas are context: an MCP client carries its tool list into every request, so the size of that list is a real cost that deserves real numbers rather than hand-waving. Measured 2026-08-05 by capturing the actual `tools/list` payload `serve` produces against a live Godot 4.7.2 editor, with tokens estimated at four characters per token:
+Tool schemas are context: an MCP client carries its tool list into every request, so the size of that list is a real cost that deserves a measured number. Measured 2026-08-05 by capturing the actual `tools/list` payload `serve` produces against a live Godot 4.7.2 editor, with tokens estimated at four characters per token:
 
 | Surface | Tools carried | Schema payload | Estimated tokens |
 | --- | --- | --- | --- |
@@ -30,12 +30,12 @@ Tool schemas are context: an MCP client carries its tool list into every request
 | `serve` default (typed tools) | 319 | ~202 KB JSON | **~50,000** |
 | `serve --typed=false` | 1 (`godot_run`) | ~1.9 KB | **~470** |
 
-The 319 is every registered command plus the generic `godot_run` — the measured list even picked up the test project's two project-local commands, because the schemas are built live from whatever the addon registers, never shipped as a fixed catalog.
+The 319 is every registered command plus the generic `godot_run` — the measured list even picked up the test project's two project-local commands, because the schemas are built live from whatever the addon registers.
 
 What the numbers mean in practice:
 
 - **The default is sized for big-context models**. Against a 200K window the full list is a quarter of the budget; against the 1M windows current frontier models ship, it is 5%. With prompt caching the list sits in the cached prefix after the first request — on Claude, cached input bills at roughly a tenth of the base rate — so the recurring cost is a fraction of the headline number, and the list only changes mid-session in one rare case (the editor was down at connect and came back up).
-- **Nothing locks you into the default**. `serve --typed=false` keeps the same 316 commands behind one ~470-token tool (the model discovers the API with `engine.search` instead of reading schemas); the `http_typed` project setting does the same for the editor's own HTTP endpoint; clients that load schemas on demand (Claude Code does) pay only for the tools they actually use; the read-only `godot://` resources pull project and scene state without any tool turn; and the CLI is a zero-schema surface any agent with a shell can drive.
+- **The escape hatches ship in the box**. `serve --typed=false` keeps the same 316 commands behind one ~470-token tool (the model discovers the API with `engine.search` instead of reading schemas); the `http_typed` project setting does the same for the editor's own HTTP endpoint; clients that load schemas on demand (Claude Code does) pay only for the tools they actually use; the read-only `godot://` resources pull project and scene state without any tool turn; and the CLI is a zero-schema surface any agent with a shell can drive.
 - **The trade is deliberate**. A curated "core toolset" default is not planned: a model too small to carry the list is also too small to run the discover-then-drive and spatial-verification loops this tool is built around, and the escape hatches above already serve constrained clients. The full breakdown — which command groups carry the weight, the caching math, and the design reasoning — is on [What the tool surface costs](https://regiellis.github.io/godot-mcp-go/docs/context-cost) in the docs.
 
 ## Isn't this just Godot's built-in CLI?
