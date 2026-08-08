@@ -41,14 +41,51 @@ var _server: Node
 var _http_server: Node
 var _router: Node
 
+## Editor activity ring buffer (selection/saves/scene switches/undo bumps),
+## polled by editor.activity. Public: editor_commands reaches it via the plugin.
+var activity_log: Node
+
+## Editor debugger foothold (break state, sessions, armed breakpoints, the run
+## record), behind the debug.* commands. Public: debug_commands and scene_commands
+## reach it via the plugin. An EditorDebuggerPlugin is a RefCounted, so it is
+## registered rather than added as a child, and dropped rather than freed. Left
+## untyped like activity_log: the addon declares no global class_name, so its own
+## methods are reached dynamically.
+var debugger_bridge: Variant = null
+
+## In-editor stats dashboard, a right-side dock. Reads the router's snapshot
+## in-process. Public: commands or scripts may reach it through the plugin.
+var stats_panel: Control
+
 
 func _enter_tree() -> void:
 	_register_settings()
+
+	activity_log = preload("res://addons/godot_mcp/services/activity_log.gd").new()
+	activity_log.name = "MCPActivityLog"
+	add_child(activity_log)
+	activity_log.setup(self)
+
+	# In-memory, per-session wiring like the activity log above — NOT a project.godot
+	# write, so it belongs here rather than in _enable_plugin. Registering is the only
+	# scriptable route to EditorDebuggerSession objects.
+	debugger_bridge = preload("res://addons/godot_mcp/services/debugger_bridge.gd").new()
+	add_debugger_plugin(debugger_bridge)
+	debugger_bridge.ensure_connected()
 
 	_router = preload("res://addons/godot_mcp/command_router.gd").new()
 	_router.name = "MCPCommandRouter"
 	_router.editor_plugin = self
 	add_child(_router)
+
+	# A right-side dock: the panel is a narrow, tall instrument column that stays
+	# open beside the work, not a drawer over it. Its tab label IS the node name
+	# ("MCP", set in the panel's _init, before this add). In-memory wiring like
+	# the activity log — no project.godot write, so it does not belong in
+	# _enable_plugin. Built after the router because that is its data source.
+	stats_panel = preload("res://addons/godot_mcp/services/stats_panel.gd").new()
+	add_control_to_dock(EditorPlugin.DOCK_SLOT_RIGHT_BL, stats_panel)
+	stats_panel.setup(_router)
 
 	# Start the HTTP endpoint first (when enabled) so its bound port is known
 	# before the WebSocket server writes the shared discovery file.
@@ -72,6 +109,10 @@ func _enter_tree() -> void:
 
 
 func _exit_tree() -> void:
+	if stats_panel:
+		remove_control_from_docks(stats_panel)
+		stats_panel.queue_free()
+		stats_panel = null
 	if _http_server:
 		_http_server.stop()
 		_http_server.queue_free()
@@ -80,6 +121,11 @@ func _exit_tree() -> void:
 		_server.queue_free()
 	if _router:
 		_router.queue_free()
+	if activity_log:
+		activity_log.queue_free()
+	if debugger_bridge:
+		remove_debugger_plugin(debugger_bridge)
+		debugger_bridge = null
 
 
 ## Autoloads are injected when the plugin is ENABLED and removed only on an actual DISABLE.

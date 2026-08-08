@@ -34,6 +34,7 @@ func _ready() -> void:
 		preload("res://addons/godot_mcp/commands/script_commands.gd"),
 		preload("res://addons/godot_mcp/commands/csharp_commands.gd"),
 		preload("res://addons/godot_mcp/commands/editor_commands.gd"),
+		preload("res://addons/godot_mcp/commands/debug_commands.gd"),
 		preload("res://addons/godot_mcp/commands/runtime_commands.gd"),
 		preload("res://addons/godot_mcp/commands/engine_commands.gd"),
 		preload("res://addons/godot_mcp/commands/input_commands.gd"),

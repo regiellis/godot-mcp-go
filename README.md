@@ -10,15 +10,33 @@
 ![Commands](https://img.shields.io/badge/commands-316-blue)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
 
-Drive a running **Godot 4.7+** editor from the command line — and from AI agents — to build scenes, write GDScript or C#, play and inspect the game, and introspect the engine's real API. A Go CLI talks to a GDScript editor addon over WebSocket. **316 commands across 49 groups**, every one verified against a live editor.
+Drive a running **Godot 4.7+** editor from the command line — and from AI agents — to build scenes, write GDScript or C#, play and inspect the game, and introspect the engine's real API. A Go CLI talks to a GDScript editor addon over WebSocket. **329 commands across 50 groups**, every one verified against a live editor.
 
-> [!TIP]
-> **One surface, three front doors — without drowning your agent's context.** This is a **CLI**, a **stdio MCP server**, and an **in-editor streamable-HTTP MCP endpoint**, all over the same 316 commands. Terminal-first agents can skip MCP entirely: the CLI is self-describing (`godot-mcp help all` lists the catalog; `godot-mcp <group> <command> --help` prints a real param table), so shell-driving costs **zero** tool schemas. Over MCP, clients that load tool schemas on demand (Claude Code does) pay only for the tools they actually use — and `serve --typed=false` (or the `http_typed` project setting on the HTTP endpoint) collapses the surface to one generic `godot_run` plus read-only `godot://` resources for clients that carry every schema eagerly. HTTP-capable clients can even skip the binary: the addon itself serves `POST /mcp` straight from the editor.
+> [!WARNING]
+> **Built for big-context models.** The default MCP mode exposes every command as a typed tool, and that list measures **about 50,000 tokens** against a live editor. Frontier models with 200K–1M windows and prompt caching carry it comfortably; a small local model will not, and this project does not aim to serve one. Context-tight? The escape hatch is one flag: `serve --typed=false` collapses the surface to a single generic tool (~470 tokens), and the CLI needs no schemas at all. Numbers, method, and reasoning: [What the tool surface costs](#what-the-tool-surface-costs).
 
 > [!NOTE]
 > **This repository is a one-way public mirror**, published as a squashed snapshot — it shares no commit history with the canonical development repo, so **pull requests can't be merged directly**. For bugs, feature requests, or changes, please open an [**Issue**](../../issues) or start a [**Discussion**](../../discussions). That's where development is tracked. The **`asset-library` branch** is a packaging artifact for the [Godot Asset Library](https://godotengine.org/asset-library) (an `addons/`-rooted snapshot of just the addon) — it is never merged into `main`.
 >
 > The snapshot also omits maintainer tooling, so `scripts/` is absent here. `Taskfile.yml` ships whole and a few of its tasks call into that folder (`task test:http`, `task release`, `task mirror:audit`); those are maintainer-only and will not run from a clone of this mirror. The build, editor, and play tasks cover the user-facing workflow. Where the CHANGELOG names a path under `scripts/`, it refers to the development repo.
+
+## What the tool surface costs
+
+Tool schemas are context: an MCP client carries its tool list into every request, so the size of that list is a real cost that deserves a measured number. Measured 2026-08-07 by capturing the actual `tools/list` payload `serve` produces against a live Godot 4.7.2 editor, with tokens estimated at four characters per token:
+
+| Surface | Tools carried | Schema payload | Estimated tokens |
+| --- | --- | --- | --- |
+| The CLI (shell-driving agents) | none | none | **0** |
+| `serve` default (typed tools) | 332 | ~205 KB JSON | **~52,000** |
+| `serve --typed=false` | 1 (`godot_run`) | ~1.9 KB | **~470** |
+
+The 332 is every registered command plus the generic `godot_run` — the measured list even picked up the test project's two project-local commands, because the schemas are built live from whatever the addon registers.
+
+What the numbers mean in practice:
+
+- **The default is sized for big-context models**. Against a 200K window the full list is a quarter of the budget; against the 1M windows current frontier models ship, it is 5%. With prompt caching the list sits in the cached prefix after the first request — on Claude, cached input bills at roughly a tenth of the base rate — so the recurring cost is a fraction of the headline number, and the list only changes mid-session in one rare case (the editor was down at connect and came back up).
+- **The escape hatches ship in the box**. `serve --typed=false` keeps the same 316 commands behind one ~470-token tool (the model discovers the API with `engine.search` instead of reading schemas); the `http_typed` project setting does the same for the editor's own HTTP endpoint; clients that load schemas on demand (Claude Code does) pay only for the tools they actually use; the read-only `godot://` resources pull project and scene state without any tool turn; and the CLI is a zero-schema surface any agent with a shell can drive.
+- **The trade is deliberate**. A curated "core toolset" default is not planned: a model too small to carry the list is also too small to run the discover-then-drive and spatial-verification loops this tool is built around, and the escape hatches above already serve constrained clients. The full breakdown — which command groups carry the weight, the caching math, and the design reasoning — is on [What the tool surface costs](https://regiellis.github.io/godot-mcp-go/docs/context-cost) in the docs.
 
 ## Isn't this just Godot's built-in CLI?
 
@@ -41,10 +59,11 @@ Plenty of Godot MCP servers exist, and the good ones are editor-native — so "r
 
 - **It's a CLI first, and an MCP server second:** every command runs from a shell (`godot-mcp node add --type Sprite2D …`), so a terminal-driven agent needs **zero** tool schemas and a human can drive the same surface by hand. The MCP modes are a second front door onto it, not the only one.
 - **It drives the running game:** the `runtime` and `input` groups inspect and control it over a two-hop IPC, reading the scene tree, setting node state, `eval`, capturing frames, `await_signal`, polling `runtime.errors`, and injecting input for deterministic playtesting. A debug-build game can also host its own channel and be driven with **no editor open at all** (`--game`).
+- **It debugs the running game:** the `debug` group arms real breakpoints (they show in the gutter and hit a game already running), reads the paused game's stack and per-frame variables, steps over/into/out, and hot-reloads edited scripts into the live process with state kept — fix a bug mid-playtest without restarting the run.
 - **Schemas that can't go stale:** by default `serve` exposes every command as a typed MCP tool whose schema is built **live** from the addon's own param docs, so the tool surface tracks whatever the editor registers. `serve --typed=false` collapses to the single generic `godot_run` for tool-limited clients (rivals ship ~40–160 fixed schemas either way), plus read-only `godot://` resources for pulling project, scene, and engine state without spending a tool turn.
 - **Two MCP transports, plus prompts:** stdio through the Go binary, or **editor-direct streamable HTTP**, where the addon itself hosts `POST /mcp` on `127.0.0.1` so an HTTP-capable MCP client drives the editor with **no external process at all**, same commands and same guards. The playbooks ship as first-class **MCP prompts** (`discover-then-drive`, `spatial-placement`, `launch-recovery`, `bug-hunt`), served even when the editor is down.
 - **C# projects too:** `script.create` authors C# templates, `csharp.setup` scaffolds the csproj/sln, and `csharp.build` / `script.validate` compile with structured per-file diagnostics (requires a Godot .NET editor build and the dotnet SDK).
-- **Introspection instead of wrappers:** the live `ClassDB` *is* the feature list — `engine.search` to find a name, then generic `node.set`/`node.get` for properties and `node.call`/`runtime.call` for methods. New engine features are reachable the day you upgrade, with no new release of this tool. That is not a claim on paper: the addon runs unmodified on **4.8-dev**, whose 6 new classes and 4 removals needed no code change, and `engine.search` picks up 4.8's `FuzzySearch` automatically to resolve abbreviations like `linvel` → `linear_velocity`.
+- **Introspection instead of wrappers:** the live `ClassDB` *is* the feature list — `engine.search` to find a name, `engine.docs`/`engine.doc_search` for what it means (the running build's own documentation prose, straight from the editor's doc cache), then generic `node.set`/`node.get` for properties and `node.call`/`runtime.call` for methods. New engine features are reachable the day you upgrade, with no new release of this tool. That is not a claim on paper: the addon runs unmodified on **4.8-dev**, whose 6 new classes and 4 removals needed no code change, and `engine.search` picks up 4.8's `FuzzySearch` automatically to resolve abbreviations like `linvel` → `linear_velocity`.
 - **Live editor integration:** commands run against the real SceneTree with UndoRedo (Ctrl+Z safe for the human) and open-scene conflict protection, not offline `.tscn` rewriting that clobbers unsaved work.
 - **Crash-aware discovery:** per-project port discovery with `running`/`starting`/`crashed`/`closed` verdicts on every connection failure, so agents recover deliberately instead of relaunching blindly.
 - **Safety guards:** `127.0.0.1`-only, audited code execution, an unsafe-editor-IO guard, and project-path jailing on every write sink.
@@ -59,7 +78,7 @@ Concretely, against the two most-used alternatives — [`godot-ai`](https://gith
 | Runtime deps | Python + `uv` | none | one Go binary, or none via the editor's own HTTP endpoint |
 | Drives it from | an MCP client | an MCP client | **any agent that can run a shell command**, plus any MCP client |
 | Shell-drivable CLI | no | no | yes — the primary surface |
-| Surface | ~43 tools / ~120 ops | 155 tools | 316 commands / 49 groups |
+| Surface | ~43 tools / ~120 ops | 155 tools | 329 commands / 50 groups |
 | MCP tool schemas carried | ~43 fixed | 155 fixed | live-built per command, or as few as **1** (`godot_run`) |
 | MCP transports | HTTP + WebSocket | HTTP, plus a headless editor mode | stdio, editor-direct HTTP, and the CLI |
 | MCP prompts / resources | — | — | 4 prompts, 5 `godot://` resources |
@@ -159,6 +178,8 @@ Because the CLI talks to the *live* engine, you can ask it what your engine buil
 ```sh
 godot-mcp engine search --query offset_transform          # find members across all classes
 godot-mcp engine class-info --class Control --filter transform
+godot-mcp engine doc-search --query "wrap text"           # search the docs prose by concept
+godot-mcp engine docs --class Label --member autowrap_mode  # read what it means
 ```
 
 Even with no typed wrapper, `node.set`/`node.get` work on any property the live node exposes, and `editor.run_script` / `runtime.eval` run arbitrary GDScript — so any property or callable the running build exposes is reachable, whatever its version.
@@ -220,6 +241,8 @@ godot-mcp dashboard --port 8090     # then open http://127.0.0.1:8090
 ```
 
 Run it from inside your project dir (it discovers the addon port like the CLI), or pass `--project DIR` / `--addon-port N`. It holds a single persistent connection and polls the addon's `stats.snapshot`.
+
+The same dashboard also lives **inside the editor**: the addon docks an **MCP panel** (right side, movable like any dock) with the same numbers — stat tiles, error banner, top groups, recent errors, and the live timeline with filters — read in-process from the addon, so it needs no extra process and no port. The web UI stays for watching from outside the editor; the dock is there while you work.
 
 ## Build on it
 

@@ -172,16 +172,38 @@ func _instance(params: Dictionary) -> Dictionary:
 
 func _play(params: Dictionary) -> Dictionary:
 	var mode := optional_string(params, "mode", "main")  # "main", "current", or a scene path
+	if mode != "main" and mode != "current" and not FileAccess.file_exists(mode):
+		return error_not_found("Scene file '%s'" % mode)
+
+	# Arm the Debug menu's two hot-reload flags for the launch, so debug.reload_scripts
+	# can push edited scripts into this run. They must be on AT LAUNCH: a reload sent
+	# to a run started without them silently breaks the running scripts instead of
+	# updating them. The launched process keeps what it was launched with, so the
+	# user's own menu goes straight back afterwards.
+	var bridge: Variant = _debugger_bridge()
+	var previous_flags: Dictionary = {}
+	if bridge != null:
+		previous_flags = bridge.arm_reload_flags()
+
 	match mode:
 		"main":
 			EditorInterface.play_main_scene()
 		"current":
 			EditorInterface.play_current_scene()
 		_:
-			if not FileAccess.file_exists(mode):
-				return error_not_found("Scene file '%s'" % mode)
 			EditorInterface.play_custom_scene(mode)
-	return success({"playing": true, "mode": mode})
+
+	if bridge != null:
+		bridge.restore_reload_flags(previous_flags)
+		bridge.note_run(true)
+	return success({"playing": true, "mode": mode, "live_reload": bridge != null})
+
+
+## The debugger bridge, or null when the plugin is mid-reload or predates it.
+func _debugger_bridge() -> Variant:
+	if editor_plugin == null or not ("debugger_bridge" in editor_plugin):
+		return null
+	return editor_plugin.debugger_bridge
 
 
 func _stop(_params: Dictionary) -> Dictionary:
@@ -342,7 +364,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"scene.play": {
-			"description": "Run the project. --mode 'main' (default), 'current' (the edited scene), or a res:// scene path to run a specific scene.",
+			"description": "Run the project. --mode 'main' (default), 'current' (the edited scene), or a res:// scene path to run a specific scene. Launches with the Debug menu's two hot-reload flags armed (the user's own settings are restored right after), so debug.reload_scripts can push edited scripts into the run.",
 			"params": [
 				doc_param("mode", "String", false, "'main', 'current', or a res:// scene path (default 'main')."),
 			],
