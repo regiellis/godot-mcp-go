@@ -27,6 +27,21 @@ godot-mcp engine script-classes
   Lead with `engine.search` / `engine.class_info` before authoring. This repeatedly catches silent mistakes that training memory would introduce: for example, only `VoxelGI` exposes a script `bake()` in 4.7 (Lightmap and Occluder are toolbar-only), and `surface_get_primitive_type` is ArrayMesh-only.
 </Callout>
 
+## Read what it means
+
+Structure answers what exists; the docs answer what it does. `engine docs` serves the running build's own documentation prose — the same text as the editor's Help panel, read from the editor's doc cache — and `engine doc-search` searches it by concept, for when you know the behavior you want but not the term:
+
+```bash
+# search the prose: "make text wrap" without knowing the property name
+godot-mcp engine doc-search --query "wrap text"
+
+# then read the meaning, class-level or one member
+godot-mcp engine docs --class Label --member autowrap_mode
+godot-mcp engine docs --class Node --member queue_free
+```
+
+Member lookup walks the inheritance chain (asking `Sprite2D` about `queue_free` finds `Node`'s), reaches annotations with or without the `@` (`export` finds `@export`), and covers pages `ClassDB` has never held: `@GlobalScope`, `@GDScript`, and the Variant types. A name that only matches an enum returns that enum's values, so `engine docs --class @GlobalScope --member Key` lists the key constants.
+
 ## Then drive, generically or typed
 
 With the name confirmed, act. There is usually a typed command, but the generic path always works:

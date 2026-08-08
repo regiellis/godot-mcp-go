@@ -4,7 +4,61 @@ All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project aims to
 follow [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.8.0] — 2026-08-07
+
+The editor-side release: an interactive debugger the agent can drive, the
+engine documentation's prose to go with its structure, and the dashboard
+docked into the editor itself. 329 commands across 50 groups, every new
+command driven live before landing.
+
+### Added
+
+- **The dashboard, docked in the editor** — the addon now ships an **MCP dock**
+  (right side by default, movable like any dock) with the web dashboard's full
+  feature set — stat tiles, error banner, top groups with per-method tooltips,
+  recent errors, and the live timeline with filter chips — plus what only an
+  in-editor surface can add: stats read in-process (no extra process, no port,
+  and no polling at all while the dock is closed), full call parameters on
+  each row's tooltip, and a Reset button. The design language is the web UI's
+  instrument-cockpit look (flat blocks, hairlines, zero radius, mono numerals,
+  the Godot-blue accent) translated onto colors derived from the editor theme,
+  and every dimension scales with the editor's display scale.
+  `godot-mcp dashboard` (the web UI) is unchanged; both read the same
+  counters.
+- **The `debug` group: an interactive debugger for the editor-launched game**
+  (329 commands, 50 groups). `set_breakpoint` arms a line through the editor's
+  own script gutter — visible in the gutter and the Breakpoints list, live for
+  a game already running, kept for the next run — and refuses lines that can
+  never be hit (blanks, comments, declarations) with the first executable line
+  suggested instead; arming a per-frame callback like `_process` earns a
+  warning, since every resume would re-break immediately. `state` and `frame`
+  read the paused game's stack and variables, `step`/`resume`/`pause` drive
+  execution through the debugger's own controls, and `reload_scripts`
+  hot-reloads edited `.gd` files into the live process with state kept —
+  `scene.play` now launches every run with the editor's script-sync options
+  armed so a reload always applies. Verified end to end against a live 4.7.2
+  game: break at a line, step, read a variable change, resume, pause into
+  `_process`, and a hot-swapped function returning its new value without a
+  restart.
+- **`engine.docs` and `engine.doc_search`: the engine's documentation prose,
+  live from the editor's doc cache.** `engine.class_info` answers what exists;
+  these answer what it means, with the running build's own Help-panel text.
+  `docs --class C [--member m]` walks the inheritance chain, finds annotations
+  with or without the `@`, and covers pages ClassDB has never held
+  (`@GlobalScope`, `@GDScript`, the Variant types — an enum name like `Key`
+  returns its values). `doc_search --query "wrap text"` searches names and
+  prose by concept and ranks name hits above prose hits, so the half-known
+  term surfaces first. Unknown names come back with closest-first suggestions.
+- **`editor.activity`: poll what happened in the editor since a cursor** —
+  selection changes, scene switches, scene and resource saves, and undo/redo
+  history bumps, buffered in a 200-entry ring (`services/activity_log.gd`) and
+  read with the same `--since-seq`/`--clear` cursor contract as
+  `runtime.errors`. An agent sharing the editor with a person can now see what
+  the person just did between commands: click a node, save a scene, hit
+  undo. `edit` events include actions the MCP's own
+  commands commit, and the command's result says so. Verified live: commit,
+  undo (via an injected Ctrl+Z), selection, and save each produce exactly one
+  event.
 
 ## [0.7.2] — 2026-08-03
 

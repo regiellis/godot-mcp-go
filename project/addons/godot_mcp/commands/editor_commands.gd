@@ -34,6 +34,7 @@ func get_commands() -> Dictionary:
 		"editor.get_camera": _get_camera,
 		"editor.set_camera": _set_camera,
 		"editor.selection": _selection,
+		"editor.activity": _activity,
 	}
 
 
@@ -51,6 +52,18 @@ func _selection(_params: Dictionary) -> Dictionary:
 		if n == root or root.is_ancestor_of(n):
 			paths.append(str(root.get_path_to(n)))
 	return success({"count": paths.size(), "selected": paths})
+
+
+## Poll the editor activity buffer (services/activity_log.gd): what happened in
+## the editor since the given cursor — selection changes, scene switches, saves,
+## and undo/redo history bumps. Same pull-based cursor contract as runtime.errors.
+func _activity(params: Dictionary) -> Dictionary:
+	if editor_plugin == null or editor_plugin.get("activity_log") == null:
+		return error_internal("activity log unavailable (plugin not fully initialized)")
+	var since := optional_int(params, "since_seq", 0)
+	var limit := optional_int(params, "limit", 100)
+	var clear := optional_bool(params, "clear", false)
+	return success(editor_plugin.activity_log.poll(since, limit, clear))
 
 
 # --- Errors & output --------------------------------------------------------
@@ -525,5 +538,13 @@ func get_command_docs() -> Dictionary:
 		},
 		"editor.selection": {
 			"description": "Return the editor's currently selected nodes as paths relative to the scene root (pairs with --node-path selected).",
+		},
+		"editor.activity": {
+			"description": "Poll editor activity since a cursor: selection changes, scene switches, saves, and undo/redo history bumps. Pull-based; pass the returned next_seq as --since-seq on the following poll. 'edit' events include actions MCP commands commit.",
+			"params": [
+				doc_param("since_seq", "int", false, "Return events with seq >= this cursor (default 0, the whole buffer)."),
+				doc_param("limit", "int", false, "Cap on returned events, newest kept (default 100)."),
+				doc_param("clear", "bool", false, "Empty the buffer after reading."),
+			],
 		},
 	}

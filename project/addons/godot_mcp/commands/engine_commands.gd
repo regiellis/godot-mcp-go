@@ -3,7 +3,47 @@ extends "res://addons/godot_mcp/commands/base_command.gd"
 
 ## Introspect the running engine via ClassDB so the agent can discover the real
 ## API surface of THIS Godot build (e.g. 4.7-only members) instead of relying on
-## possibly-stale training knowledge.
+## possibly-stale training knowledge. engine.docs / engine.doc_search add the
+## PROSE half from the editor's own documentation cache.
+
+## The doc-cache sections holding named members, mapped to the `kind` a hit
+## reports. Insertion order is the order hits are collected in.
+const MEMBER_SECTIONS := {
+	"methods": "method",
+	"properties": "property",
+	"signals": "signal",
+	"constants": "constant",
+	"annotations": "annotation",
+	"constructors": "constructor",
+	"operators": "operator",
+	"theme_properties": "theme_property",
+}
+
+## doc_search weights: a query word in the entry's own name beats one in the
+## owning class name, which beats prose, so exact terminology surfaces first.
+const SCORE_NAME := 4
+const SCORE_CLASS := 2
+const SCORE_BRIEF := 2
+const SCORE_PROSE := 1
+const SCORE_EXACT_NAME := 8
+
+## Filler words a conversational query carries ("how do I make text wrap"):
+## requiring them would empty every result.
+const DOC_STOPWORDS := [
+	"how", "do", "does", "i", "a", "an", "the", "to", "in", "on", "of", "is", "it",
+	"my", "me", "you", "can", "what", "when", "with", "make", "use",
+]
+
+const DOC_SUGGESTION_CAP := 12
+const DOC_ENUM_VALUES_CAP := 40
+const DOC_SNIPPET_CHARS := 160
+
+## The editor's parsed doc cache, keyed by lower-cased page name, plus the
+## canonical names for suggestions. Loaded once per editor session on first use
+## (the docs cannot change while this build runs) and held here because the
+## router keeps this node for the plugin's lifetime.
+var _doc_pages: Dictionary = {}
+var _doc_names := PackedStringArray()
 
 
 func get_commands() -> Dictionary:
@@ -13,6 +53,8 @@ func get_commands() -> Dictionary:
 		"engine.class_info": _class_info,
 		"engine.defaults": _defaults,
 		"engine.search": _search,
+		"engine.docs": _docs,
+		"engine.doc_search": _doc_search,
 		"engine.singletons": _singletons,
 		"engine.script_classes": _script_classes,
 		"engine.commands": _list_commands,
@@ -376,6 +418,439 @@ func _singletons(_params: Dictionary) -> Dictionary:
 	return success({"singletons": names, "count": names.size()})
 
 
+# --- Engine documentation ---------------------------------------------------
+
+## Documentation prose for one doc page, or one of its members, read from the
+## editor's own documentation cache: the per-user, per-version file the editor
+## maintains and rebuilds on a version change, so the text is this build's Help
+## panel prose rather than recalled knowledge. The cache also covers pages
+## ClassDB has no entry for (@GlobalScope, @GDScript, the Variant types).
+## engine.class_info stays the structural view; this is the meaning.
+func _docs(params: Dictionary) -> Dictionary:
+	var r := require_string(params, "class")
+	if r[1] != null:
+		return r[1]
+	var load_err := _ensure_docs_loaded()
+	if not load_err.is_empty():
+		return load_err
+	var cls: String = (r[0] as String).strip_edges()
+	var page: Dictionary = _doc_pages.get(cls.to_lower(), {})
+	if page.is_empty():
+		return _unknown_doc_page(cls)
+	var member := optional_string(params, "member", "").strip_edges()
+	if member.is_empty():
+		return success(_doc_page_payload(page))
+	return _doc_member_payload(page, member)
+
+
+## Full-text search over every doc page's names and prose: the discovery step for
+## when the caller knows the concept ("wrap text") but not the term
+## (autowrap_mode), with engine.docs as the follow-up read.
+func _doc_search(params: Dictionary) -> Dictionary:
+	var r := require_string(params, "query")
+	if r[1] != null:
+		return r[1]
+	var load_err := _ensure_docs_loaded()
+	if not load_err.is_empty():
+		return load_err
+	var words := _doc_content_words(r[0])
+	if words.is_empty():
+		return error_invalid_params("Query has no searchable words: name the concept, e.g. 'wrap text'")
+	var max_results := optional_int(params, "max_results", 20)
+
+	var best: Dictionary = {}  # label -> hit, so same-name overloads collapse
+	for key: String in _doc_pages:
+		_collect_doc_hits(_doc_pages[key], words, best)
+	var hits: Array = best.values()
+	hits.sort_custom(_doc_hit_before)
+
+	var total := hits.size()
+	var truncated := max_results > 0 and total > max_results
+	if truncated:
+		hits = hits.slice(0, max_results)
+	return success({
+		"query": r[0],
+		"hits": hits,
+		"total_hits": total,
+		"truncated": truncated,
+	})
+
+
+## Load and index the doc cache on first use. Returns {} when the pages are
+## ready, else an error dict to return as-is. Nothing is cached on failure, so a
+## later call retries: a missing file is transient (the editor rebuilds the cache
+## shortly after startup).
+func _ensure_docs_loaded() -> Dictionary:
+	if not _doc_pages.is_empty():
+		return {}
+	var path := _doc_cache_path()
+	if not FileAccess.file_exists(path):
+		return error_not_found(
+			"Editor documentation cache '%s'" % path,
+			"The editor rebuilds the doc cache shortly after startup; retry in a moment."
+		)
+	# CACHE_MODE_IGNORE keeps the multi-megabyte resource out of the global
+	# resource cache: the pages are copied out and the resource is dropped.
+	var res: Resource = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
+	if res == null or not res.has_meta("classes"):
+		return _doc_cache_unreadable(path)
+	var pages: Dictionary = {}
+	var names := PackedStringArray()
+	for entry in res.get_meta("classes"):
+		if entry is Dictionary and (entry as Dictionary).has("name"):
+			var page_name := String((entry as Dictionary)["name"])
+			pages[page_name.to_lower()] = entry
+			names.append(page_name)
+	if pages.is_empty():
+		return _doc_cache_unreadable(path)
+	_doc_pages = pages
+	_doc_names = names
+	return {}
+
+
+func _doc_cache_unreadable(path: String) -> Dictionary:
+	return error_internal(
+		("documentation cache '%s' could not be read; its internal format may have changed in "
+		+ "this Godot build. engine.class_info still gives the structural API.") % path
+	)
+
+
+## The doc cache path for the running build. The editor names the file by
+## major.minor in its per-user cache dir, which is what makes a version swap pick
+## up the matching docs. EditorPaths also resolves self-contained installs, and
+## this addon only ever runs in-editor, so it needs no OS fallback.
+func _doc_cache_path() -> String:
+	var v := Engine.get_version_info()
+	var dir: String = EditorInterface.get_editor_paths().get_cache_dir()
+	return dir.path_join("editor_doc_cache-%d.%d.res" % [v.major, v.minor])
+
+
+## The class-level page: meaning, not structure. Member lists stay with
+## engine.class_info.
+func _doc_page_payload(page: Dictionary) -> Dictionary:
+	var tutorials: Array = []
+	for t in page.get("tutorials", []):
+		if t is Dictionary:
+			var tut: Dictionary = t
+			tutorials.append({
+				"title": String(tut.get("title", "")),
+				"link": _substitute_docs_url(String(tut.get("link", ""))),
+			})
+	var out := {
+		"class": String(page.get("name", "")),
+		"inherits": String(page.get("inherits", "")),
+		"brief": _clean_doc_prose(String(page.get("brief_description", ""))),
+		"description": _clean_doc_prose(String(page.get("description", ""))),
+		"tutorials": tutorials,
+	}
+	# Present only when the docs mark the page; the value is the explanation.
+	for key: String in ["deprecated", "experimental"]:
+		if page.has(key):
+			out[key] = _clean_doc_prose(String(page[key]))
+	return out
+
+
+## One member's prose, matched across every section and up the inheritance
+## chain, so overloads and an ancestor's declaration all land. A name that only
+## matches as an enum's type falls back to that enum's values.
+func _doc_member_payload(page: Dictionary, member: String) -> Dictionary:
+	# The leading "@" is stripped from both sides so "export" finds "@export".
+	var target := member.to_lower().trim_prefix("@")
+	var matches: Array = []
+	var enum_matches: Array = []
+	var current := page
+	while not current.is_empty():
+		var declaring := String(current.get("name", ""))
+		for section: String in MEMBER_SECTIONS:
+			if not (current.get(section) is Array):
+				continue
+			for raw in current[section]:
+				if not (raw is Dictionary):
+					continue
+				var item: Dictionary = raw
+				if String(item.get("name", "")).to_lower().trim_prefix("@") == target:
+					matches.append({"owner": declaring, "section": section, "item": item})
+				elif section == "constants" and _enum_short_name(String(item.get("enumeration", ""))) == target:
+					enum_matches.append({"owner": declaring, "section": section, "item": item})
+		current = _doc_pages.get(String(current.get("inherits", "")).to_lower(), {})
+
+	var values_truncated := 0
+	var from_enum := matches.is_empty() and not enum_matches.is_empty()
+	if from_enum:
+		# @GlobalScope's Key enum carries ~193 values, so an enum-name hit is capped.
+		values_truncated = maxi(0, enum_matches.size() - DOC_ENUM_VALUES_CAP)
+		matches = enum_matches.slice(0, DOC_ENUM_VALUES_CAP)
+	if matches.is_empty():
+		return _unknown_doc_member(page, member)
+
+	var hits: Array = []
+	for m in matches:
+		var match_entry: Dictionary = m
+		var item: Dictionary = match_entry["item"]
+		var section := String(match_entry["section"])
+		hits.append({
+			"kind": String(MEMBER_SECTIONS[section]),
+			"owner": String(match_entry["owner"]),
+			"signature": _doc_signature(section, item),
+			"description": _clean_doc_prose(String(item.get("description", ""))),
+		})
+	var first: Dictionary = matches[0]
+	var first_item: Dictionary = first["item"]
+	# An enum-name hit reports the enum, not whichever value happened to be first.
+	var canonical_key := "enumeration" if from_enum else "name"
+	var canonical := String(first_item.get(canonical_key, ""))
+
+	var out := {"class": String(page.get("name", "")), "member": canonical, "hits": hits}
+	if values_truncated > 0:
+		out["values_truncated"] = values_truncated
+	return success(out)
+
+
+## One member's signature line, in the shape its section calls for.
+func _doc_signature(section: String, item: Dictionary) -> String:
+	if section == "properties" or section == "theme_properties":
+		var prop := "%s: %s" % [item.get("name", ""), item.get("type", "Variant")]
+		if item.has("default_value"):
+			prop += " [default: %s]" % item["default_value"]
+		return prop
+	if section == "constants":
+		var constant := "%s = %s" % [item.get("name", ""), item.get("value", "")]
+		if not String(item.get("enumeration", "")).is_empty():
+			constant += " (enum %s)" % item["enumeration"]
+		return constant
+	return _doc_callable_signature(item)
+
+
+## "name(arg: Type = default, ...) -> Return qualifiers" for a method, signal,
+## annotation, constructor, or operator. Sections without a return type or
+## qualifiers omit them.
+func _doc_callable_signature(item: Dictionary) -> String:
+	var parts := PackedStringArray()
+	for raw in item.get("arguments", []):
+		if not (raw is Dictionary):
+			continue
+		var arg: Dictionary = raw
+		var part := "%s: %s" % [arg.get("name", ""), arg.get("type", "Variant")]
+		if arg.has("default_value"):
+			part += " = %s" % arg["default_value"]
+		parts.append(part)
+	var sig := "%s(%s)" % [item.get("name", ""), ", ".join(parts)]
+	if not String(item.get("return_type", "")).is_empty():
+		sig += " -> %s" % item["return_type"]
+	if not String(item.get("qualifiers", "")).is_empty():
+		sig += " %s" % item["qualifiers"]
+	return sig
+
+
+## An enum's unqualified lower-case name ("Node.ProcessMode" gives "processmode").
+func _enum_short_name(enumeration: String) -> String:
+	if enumeration.is_empty():
+		return ""
+	return enumeration.get_slice(".", enumeration.get_slice_count(".") - 1).to_lower()
+
+
+## Doc prose arrives with the XML source's leading-tab indentation baked in.
+## Strip the COMMON indent so a [codeblock]'s internal indent survives, and
+## resolve the $DOCS_URL placeholder. The doc markup itself ([code], [member x])
+## is left verbatim: it is ground truth.
+func _clean_doc_prose(raw: String) -> String:
+	var lines := raw.split("\n")
+	var min_tabs := -1
+	for line in lines:
+		if line.strip_edges().is_empty():
+			continue
+		var tabs := 0
+		while tabs < line.length() and line[tabs] == "\t":
+			tabs += 1
+		min_tabs = tabs if min_tabs == -1 else mini(min_tabs, tabs)
+	if min_tabs > 0:
+		for i in lines.size():
+			lines[i] = lines[i].substr(min_tabs)
+	return _substitute_docs_url("\n".join(lines).strip_edges())
+
+
+## Doc links carry a $DOCS_URL placeholder; point it at this build's manual.
+func _substitute_docs_url(text: String) -> String:
+	var v := Engine.get_version_info()
+	return text.replace("$DOCS_URL", "https://docs.godotengine.org/en/%d.%d" % [v.major, v.minor])
+
+
+func _unknown_doc_page(requested: String) -> Dictionary:
+	var lowered := requested.to_lower()
+	var suggestions: Array[String] = []
+	for n in _doc_names:
+		if n.to_lower().contains(lowered):
+			suggestions.append(n)
+	if suggestions.is_empty():
+		return error_not_found(
+			"Doc page '%s'" % requested,
+			("The engine docs cover engine classes and built-in pages (@GDScript, @GlobalScope, "
+			+ "the Variant types), not this project's own scripts. Use script.symbols or "
+			+ "script.read for those. Names match case-insensitively but must otherwise be exact.")
+		)
+	_sort_by_similarity(suggestions, lowered)
+	return error_not_found(
+		"Doc page '%s'" % requested,
+		"Did you mean: %s" % _doc_suggestion_list(suggestions)
+	)
+
+
+## Near-miss member names gathered along the inheritance chain, matching in both
+## directions so a name longer OR shorter than the request still surfaces.
+func _unknown_doc_member(page: Dictionary, member: String) -> Dictionary:
+	var target := member.to_lower().trim_prefix("@")
+	var suggestions: Array[String] = []
+	var current := page
+	while not current.is_empty():
+		for section: String in MEMBER_SECTIONS:
+			if not (current.get(section) is Array):
+				continue
+			for raw in current[section]:
+				if not (raw is Dictionary):
+					continue
+				var member_name := String((raw as Dictionary).get("name", ""))
+				var lowered := member_name.to_lower().trim_prefix("@")
+				if lowered.is_empty() or suggestions.has(member_name):
+					continue
+				if lowered.contains(target) or target.contains(lowered):
+					suggestions.append(member_name)
+		current = _doc_pages.get(String(current.get("inherits", "")).to_lower(), {})
+	var cls := String(page.get("name", ""))
+	if suggestions.is_empty():
+		return error_not_found(
+			"Member '%s' on %s (or its ancestors)" % [member, cls],
+			"Use engine.class_info --class %s to browse what it actually has." % cls
+		)
+	_sort_by_similarity(suggestions, target)
+	return error_not_found(
+		"Member '%s' on %s (or its ancestors)" % [member, cls],
+		"Did you mean: %s" % _doc_suggestion_list(suggestions)
+	)
+
+
+## Closest name first, the router's did-you-mean idiom. An alphabetical sort put
+## a dozen TEXTURE_ constants ahead of "texture" for "textur" and capped it away.
+func _sort_by_similarity(suggestions: Array[String], target: String) -> void:
+	suggestions.sort_custom(func(a: String, b: String) -> bool:
+		var sim_a := a.to_lower().similarity(target)
+		var sim_b := b.to_lower().similarity(target)
+		if sim_a != sim_b:
+			return sim_a > sim_b
+		return a < b)
+
+
+func _doc_suggestion_list(suggestions: Array[String]) -> String:
+	if suggestions.size() <= DOC_SUGGESTION_CAP:
+		return ", ".join(suggestions)
+	var shown := suggestions.slice(0, DOC_SUGGESTION_CAP)
+	return "%s (and %d more)" % [", ".join(shown), suggestions.size() - DOC_SUGGESTION_CAP]
+
+
+## Drop the filler words; if that empties the query, the original words stand.
+func _doc_content_words(query: String) -> PackedStringArray:
+	var words := query.strip_edges().to_lower().split(" ", false)
+	var kept := PackedStringArray()
+	for word in words:
+		if not DOC_STOPWORDS.has(word):
+			kept.append(word)
+	return kept if not kept.is_empty() else words
+
+
+## Score one page and each of its members, folding results into `best` by label.
+func _collect_doc_hits(page: Dictionary, words: PackedStringArray, best: Dictionary) -> void:
+	var cls := String(page.get("name", ""))
+	var brief := String(page.get("brief_description", ""))
+	var desc := String(page.get("description", ""))
+	var page_score := _doc_score(words, cls, "", brief, desc)
+	if page_score > 0:
+		_record_doc_hit(best, cls, "class", page_score, _doc_snippet(words, brief, desc))
+	for section: String in MEMBER_SECTIONS:
+		if not (page.get(section) is Array):
+			continue
+		for raw in page[section]:
+			if not (raw is Dictionary):
+				continue
+			var item: Dictionary = raw
+			var member_name := String(item.get("name", ""))
+			var member_desc := String(item.get("description", ""))
+			var score := _doc_score(words, member_name, cls, "", member_desc)
+			if score > 0:
+				_record_doc_hit(
+					best,
+					"%s.%s" % [cls, member_name],
+					String(MEMBER_SECTIONS[section]),
+					score,
+					_doc_snippet(words, "", member_desc)
+				)
+
+
+func _record_doc_hit(
+	best: Dictionary, label: String, kind: String, score: int, snippet: String
+) -> void:
+	if best.has(label) and int((best[label] as Dictionary)["score"]) >= score:
+		return
+	best[label] = {"label": label, "kind": kind, "score": score, "snippet": snippet}
+
+
+## An entry's relevance: 0 unless EVERY query word appears somewhere in it, else
+## weighted per-word hits, plus a bonus when a lone word IS the name.
+func _doc_score(
+	words: PackedStringArray, entry_name: String, cls: String, brief: String, desc: String
+) -> int:
+	var total := 0
+	for word in words:
+		var word_score := 0
+		if entry_name.findn(word) != -1:
+			word_score += SCORE_NAME
+		if not cls.is_empty() and cls.findn(word) != -1:
+			word_score += SCORE_CLASS
+		if not brief.is_empty() and brief.findn(word) != -1:
+			word_score += SCORE_BRIEF
+		if not desc.is_empty() and desc.findn(word) != -1:
+			word_score += SCORE_PROSE
+		if word_score == 0:
+			return 0
+		total += word_score
+	if words.size() == 1 and entry_name.to_lower().trim_prefix("@") == words[0].trim_prefix("@"):
+		total += SCORE_EXACT_NAME
+	return total
+
+
+## The one line of context shown with a hit: the brief description when there is
+## one, else a window around the first matched word, flattened and clipped.
+func _doc_snippet(words: PackedStringArray, brief: String, desc: String) -> String:
+	var source := brief if not brief.strip_edges().is_empty() else desc
+	if source.strip_edges().is_empty():
+		return ""
+	var pos := -1
+	for word in words:
+		pos = source.findn(word)
+		if pos != -1:
+			break
+	var start := maxi(0, pos - 40)
+	var window := _flatten_doc_prose(source.substr(start, DOC_SNIPPET_CHARS))
+	if start > 0:
+		window = "..." + window
+	if start + DOC_SNIPPET_CHARS < source.length():
+		window += "..."
+	return window
+
+
+## Prose collapsed to one plain line: markup newlines and tabs become spaces and
+## runs of spaces collapse.
+func _flatten_doc_prose(text: String) -> String:
+	var flat := text.replace("\n", " ").replace("\t", " ").strip_edges()
+	while flat.contains("  "):
+		flat = flat.replace("  ", " ")
+	return flat
+
+
+func _doc_hit_before(a: Dictionary, b: Dictionary) -> bool:
+	if int(a["score"]) != int(b["score"]):
+		return int(a["score"]) > int(b["score"])
+	return String(a["label"]) < String(b["label"])
+
+
 # --- Helpers ----------------------------------------------------------------
 
 # type_name() and method_brief() live in base_command.gd — script.symbols reports
@@ -418,6 +893,20 @@ func get_command_docs() -> Dictionary:
 			"params": [
 				doc_param("query", "String", true, "Substring to match against class/property/method names; an abbreviation also works on 4.8+."),
 				doc_param("limit", "int", false, "Max matches (default 50)."),
+			],
+		},
+		"engine.docs": {
+			"description": "Read the engine's documentation prose for a class page, or for one member of it, from the editor's own doc cache. Covers pages ClassDB has no entry for (@GlobalScope, @GDScript, Variant types like Array or Vector2). A member is matched across every section and up the inheritance chain, so overloads and an ancestor's declaration all come back; an enum name with no direct member hit returns that enum's values instead. engine.class_info gives the structure, this gives the meaning.",
+			"params": [
+				doc_param("class", "String", true, "Doc page to read: a class name, or a built-in page such as @GDScript."),
+				doc_param("member", "String", false, "One member of that page (method, property, signal, constant, annotation, constructor, operator, theme property, or an enum name). A leading @ is optional."),
+			],
+		},
+		"engine.doc_search": {
+			"description": "Search the engine documentation full-text: every class page and member whose name or prose carries all of the query's words, ranked with name matches above prose matches. Finds the term behind a concept ('wrap text' reaches autowrap_mode); read the hit with engine.docs.",
+			"params": [
+				doc_param("query", "String", true, "Words naming the concept. Filler words are dropped and every remaining word must appear in a single entry."),
+				doc_param("max_results", "int", false, "Max hits returned (default 20; 0 = no cap)."),
 			],
 		},
 		"engine.singletons": {

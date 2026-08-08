@@ -31,7 +31,14 @@ godot-mcp engine defaults --class OmniLight3D          # a class's default prope
 godot-mcp engine version                              # confirm the running version
 godot-mcp engine commands [--group node]              # the MCP's own tool surface, with param docs per command
 godot-mcp node set --help                             # a command's param table (name/type/required/desc)
+godot-mcp engine doc-search --query "wrap text"       # search the docs PROSE by concept (finds autowrap_mode)
+godot-mcp engine docs --class Label --member autowrap_mode   # what a member MEANS, from this build's own docs
 ```
+
+`engine docs`/`engine doc-search` serve the running build's documentation prose (the editor's own
+Help text): structure from `class-info`, meaning from `docs`. Member lookup walks the inheritance
+chain, finds annotations with or without the `@`, and covers pages ClassDB lacks (`@GlobalScope`,
+`@GDScript`, Variant types); an enum name like `Key` returns its values.
 
 `engine search` matches by substring first. On **Godot 4.8+** a query that matches nothing is
 retried fuzzily, so a half-remembered abbreviation still lands: `linvel` reaches
@@ -90,7 +97,7 @@ Godot conventions to reason in: **+Y up, −Z forward, right-handed, meters** (1
 
 ## Command groups
 
-Run `godot-mcp <group>` patterns; discover exact names per group by reading the addon or just trying `--help`-style exploration. Groups: `project` `scene` `node` `spatial` `authoring` `script` `editor` `runtime` `engine` `input` `animation` `anim_tree` `tilemap` `theme` `shader` `particles` `scene3d` `scene2d` `material` `mesh` `csg` `gridmap` `scatter` `lighting` `path` `pcg` `wfc` `camera` `ui` `doc` `skeleton` `physics` `navigation` `audio` `input_map` `multiplayer` `resource` `fs` `import` `localization` `analysis` `batch` `profiling` `export` `test` `android`.
+Run `godot-mcp <group>` patterns; discover exact names per group by reading the addon or just trying `--help`-style exploration. Groups: `project` `scene` `node` `spatial` `authoring` `script` `editor` `debug` `runtime` `engine` `input` `animation` `anim_tree` `tilemap` `theme` `shader` `particles` `scene3d` `scene2d` `material` `mesh` `csg` `gridmap` `scatter` `lighting` `path` `pcg` `wfc` `camera` `ui` `doc` `skeleton` `physics` `navigation` `audio` `input_map` `multiplayer` `resource` `fs` `import` `localization` `analysis` `batch` `profiling` `export` `test` `android`.
 
 Most-used:
 - `project info|tree|search|grep|settings|set_setting` — project metadata, files, settings (never edit `project.godot` directly — use `project set-setting`).
@@ -102,6 +109,7 @@ Most-used:
 - `fs mkdir|move|copy|delete` — asset/file management with **dependency fixup**, the one thing `node.*` can't reach. `move --from --to` renames/relocates a file or dir and rewrites every `res://` path reference to it (uid refs survive the move automatically); `copy` regenerates the copy's uid so it doesn't collide; `delete` refuses a referenced file (or a dir holding an open scene) unless `--force`, and reports what breaks. The safe way to reorganize a project without breaking scenes.
 - `script create|read|edit|attach|validate|symbols|lint` — GDScript authoring. `symbols` reads one script's declared methods/properties/signals/constants without spending context on the file (and reaches scripts with no `class_name`, which `engine class-info` can't). `lint` checks the official style guide.
 - `editor run_script|errors|log|screenshot|reload|signals` — editor control + diagnostics.
+- `debug set_breakpoint|state|frame|step|resume|pause|reload_scripts` — the interactive debugger for an editor-launched game. Breakpoints arm through the script gutter and hit a game **already running**; a paused game answers `state` (reason, stack, variables) and `frame --index N`; `step --mode over|into|out` then `resume`. `reload_scripts` hot-swaps edited `.gd` into the live process, state kept (runs started by `scene play` always accept it) — fix, reload, keep playing instead of restarting. It refuses unhittable lines (suggesting the first executable one) and warns on `_process`-family breakpoints, which re-break every resume: trust those refusals.
 - `runtime tree|get|set|call|eval|screenshot|...` — the **running** game (needs `scene play` first). `call` invokes a method on a live node (script methods included) and returns its result, which beats `eval` when you only need one call. A standalone debug-build game (no editor) is reachable too when the project enables `godot_mcp/runtime/direct_server`: add `--game` to route directly to it.
 - `input key|tap|click|move|action|sequence` — simulate input into the running game.
 

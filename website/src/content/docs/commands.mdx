@@ -1,6 +1,6 @@
 ---
 title: Command groups
-description: The 49 command groups, how invocation works, and how the wire coerces values.
+description: The 50 command groups, how invocation works, and how the wire coerces values.
 ---
 
 Invocation is `godot-mcp <group> <command> [--flag value …]`. Command and flag names accept kebab- or snake-case (`node set-anchor` becomes `node.set_anchor`). Values that start with `[` or `{` are parsed as JSON. On error the CLI prints the JSON-RPC code, message, and any suggestions to stderr.
@@ -13,7 +13,7 @@ Invocation is `godot-mcp <group> <command> [--flag value …]`. Command and flag
 
 | Area | Groups |
 | --- | --- |
-| **Core editing** | `project` `scene` `node` `script` `csharp` `editor` `engine` `fs` |
+| **Core editing** | `project` `scene` `node` `script` `csharp` `editor` `debug` `engine` `fs` |
 | **3D placement + authoring** | `spatial` `material` `csg` `gridmap` `mesh` `authoring` `scene3d` |
 | **Procedural** | `scatter` `pcg` `wfc` |
 | **Art + runtime** | `lighting` `path` `camera` `scene2d` `runtime` `input` `particles` `shader` |
@@ -32,7 +32,7 @@ godot-mcp help all                               # the entire catalog, grouped b
 godot-mcp engine commands --group node --docs    # the same, as JSON
 ```
 
-Every one of the 316 commands carries param docs, so `<group> <command> --help` prints a real table rather than a generic hint. `engine commands` is the JSON form — a flat `methods` list plus a `groups` map of group → command names, with `--group` to narrow and `--docs` to attach the param docs. Because help reads the live addon, it needs an editor running.
+Every one of the 329 commands carries param docs, so `<group> <command> --help` prints a real table rather than a generic hint. `engine commands` is the JSON form — a flat `methods` list plus a `groups` map of group → command names, with `--group` to narrow and `--docs` to attach the param docs. Because help reads the live addon, it needs an editor running.
 
 ## How values are coerced
 

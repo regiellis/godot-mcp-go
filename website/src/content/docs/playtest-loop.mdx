@@ -42,6 +42,35 @@ Each entry is `{ kind, message, code, backtrace[] }` with the real game-script f
   A *real* script error under a `--headless` editor trips the remote-debugger break and freezes the game before you can poll. `push_error` / `push_warning` / shader errors and any error in a windowed or standalone run are captured fine. Recover a frozen game with `scene stop` then `scene play`.
 </Callout>
 
+## Debug the running game
+
+The `debug` group turns a playtest into a debugging session. Breakpoints are armed through the editor's own script gutter, so they show in the gutter and the Breakpoints list, persist for later runs, and hit a game that is **already running** — no restart:
+
+```bash
+godot-mcp debug set-breakpoint --path res://player.gd --line 42
+godot-mcp debug state                          # paused? reason, stack, variables
+godot-mcp debug frame --index 1                # another stack frame's variables
+godot-mcp debug step --mode over               # also: into, out
+godot-mcp debug resume
+godot-mcp debug pause                          # break into a game that is running
+godot-mcp debug clear-breakpoints
+```
+
+The guardrails do the thinking with you: a line that can never be hit (a blank, a comment, a declaration) is refused with the first executable line suggested instead, and arming a per-frame callback like `_process` comes with a warning, because every resume would re-break immediately.
+
+Edited a script while the game is paused on a bug? Push the fix into the live process:
+
+```bash
+godot-mcp debug resume
+godot-mcp debug reload-scripts        # every .gd changed since the run started
+```
+
+Every live instance starts running the new code and keeps the state it had. Any run started by `scene play` accepts reloads (it launches with the editor's script-sync options armed); a run launched by hand needs both Synchronize options ticked in the editor's Debug menu.
+
+<Callout type="note" title="A reload swaps code, not state">
+  Autoload singletons keep the instance they already have, changed `@export` defaults and already-initialized `var` values do not re-apply to live nodes, and `class_name` registration updates only on a fresh run. For those, restart the run.
+</Callout>
+
 ## Direct-to-player channel
 
 Everything above brokers through the open editor. You can also drive a **standalone running game with no editor at all** — useful for QA rigs and packaged dev builds. Enable **Project → Project Settings → Godot Mcp → Runtime → Direct Server**, run a **debug build** of the game, then add the `--game` flag:
