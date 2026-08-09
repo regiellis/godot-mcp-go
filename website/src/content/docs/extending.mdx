@@ -36,6 +36,75 @@ godot-mcp custom ping
 godot-mcp custom echo --message hi
 ```
 
+## Something worth writing
+
+A ping proves the wiring; the hook earns its place on a chore the project actually has. This one
+reports every `res://` reference in the project's text files that no longer resolves — a dangling
+texture path in a scene, a script that moved — with the file and line it sits on.
+
+```gdscript
+@tool
+extends "res://addons/godot_mcp/commands/base_command.gd"
+
+const SCANNED_EXTS := ["tscn", "tres", "gd", "gdshader", "import", "cfg", "json", "godot"]
+
+func get_commands() -> Dictionary:
+    return {"custom.broken_refs": _broken_refs}
+
+func get_command_docs() -> Dictionary:
+    return {
+        "custom.broken_refs": {
+            "description": "Report res:// references that no longer resolve.",
+            "params": [doc_param("path", "String", false, "Directory to scan (default res://).")],
+        },
+    }
+
+func _broken_refs(params: Dictionary) -> Dictionary:
+    var root := normalize_project_path(optional_string(params, "path", "res://"))
+    var quoted := RegEx.create_from_string("\"[^\"]*\"|'[^']*'")
+    var broken: Array = []
+    for file_path: String in _scan(root):
+        var line_no := 0
+        for line: String in FileAccess.get_file_as_string(file_path).split("\n"):
+            line_no += 1
+            for m: RegExMatch in quoted.search_all(line):
+                var value := m.get_string().substr(1, m.get_string().length() - 2)
+                var at := value.find("res://")
+                if at < 0:
+                    continue
+                var ref := value.substr(at)
+                # prose, a path built at runtime, or a bare prefix
+                if ref.contains(" ") or ref.contains("%") or ref.get_file().get_extension().is_empty():
+                    continue
+                if not FileAccess.file_exists(ref) and not FileAccess.file_exists(ref + ".import"):
+                    broken.append({"file": file_path, "line": line_no, "ref": ref})
+    return success({"broken_count": broken.size(), "broken": broken})
+
+func _scan(dir: String) -> Array:
+    var out: Array = []
+    for f: String in DirAccess.get_files_at(dir):
+        if SCANNED_EXTS.has(f.get_extension().to_lower()):
+            out.append(dir.path_join(f))
+    for d: String in DirAccess.get_directories_at(dir):
+        if not d.begins_with(".") and d != "addons":
+            out.append_array(_scan(dir.path_join(d)))
+    return out
+```
+
+```bash
+godot-mcp custom broken-refs
+godot-mcp custom broken-refs --help    # the param table comes from get_command_docs()
+```
+
+Two details carry most of the value. **References are read out of quoted spans only, then
+shape-checked**: matching the bare `res://` scheme instead reports the prose of every comment that
+mentions it, and a quoted span still has to look like a path before it counts. And a path the game
+assembles at runtime cannot be checked from source, so it is skipped rather than called broken.
+
+A command that *writes* takes two more precautions: run every caller-supplied path through
+`guard_project_path()` before touching a file, and plan the whole edit before performing any of it,
+so a refusal partway through cannot leave the project half changed.
+
 ## Rules
 
 - **Built-ins win**. A command name that collides with a built-in is skipped, so you can't override the shipped surface.

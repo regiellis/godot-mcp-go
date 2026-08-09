@@ -12,6 +12,10 @@ extends "res://addons/godot_mcp/commands/base_command.gd"
 ## ({"result": {...}} on success, {"error": {"code": int, "message": String}} on
 ## failure). A name that collides with a built-in is skipped — built-ins win.
 ##
+## This file is the minimal shape. refs_commands.gd beside it is what the hook is FOR:
+## custom.broken_refs and custom.replace_ref, a real chore with a read-only sweep and a
+## guarded write path.
+##
 ## Editing this file needs a FULL editor restart to recompile; editor.reload_plugin
 ## re-runs registration but does not re-parse changed GDScript from disk.
 

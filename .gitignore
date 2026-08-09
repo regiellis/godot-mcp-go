@@ -23,3 +23,6 @@ Thumbs.db
 # Agent/framework runtime state — machine-local, not project config.
 .claude/scheduled_tasks.lock
 
+# transient study checkouts (see the reference-slot section in CLAUDE.md)
+reference/
+

@@ -100,7 +100,7 @@ func _echo(params: Dictionary) -> Dictionary:
     return success({"message": r[0]})
 ```
 
-Then `godot-mcp custom ping` and `godot-mcp custom echo --message hi` work. A file that fails to load or lacks `get_commands()` is skipped with a warning (it never breaks the plugin), and a name that collides with a built-in is skipped — built-ins win. Editing a command file needs a full editor restart to recompile (reloading the plugin re-runs registration but doesn't re-parse changed scripts).
+Then `godot-mcp custom ping` and `godot-mcp custom echo --message hi` work. That is the shape; the [Add your own commands](https://regiellis.github.io/godot-mcp-go/docs/extending) page carries a worked example that earns its place — a sweep for `res://` references that no longer resolve — plus the two precautions a command that writes files has to take. A file that fails to load or lacks `get_commands()` is skipped with a warning (it never breaks the plugin), and a name that collides with a built-in is skipped — built-ins win. Editing a command file needs a full editor restart to recompile (reloading the plugin re-runs registration but doesn't re-parse changed scripts).
 
 ## Driving a standalone game (optional)
 

@@ -1,11 +1,11 @@
-[gd_scene load_steps=2 format=3 uid="uid://bmcpgomain01"]
+[gd_scene format=3 uid="uid://bmcpgomain01"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_1"]
 font_size = 48
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=39741603]
 
-[node name="Label" type="Label" parent="."]
+[node name="Label" type="Label" parent="." unique_id=137853659]
 offset_left = 64.0
 offset_top = 64.0
 offset_right = 1200.0
