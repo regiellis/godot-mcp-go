@@ -12,6 +12,16 @@
 
 Drive a running **Godot 4.7+** editor from the command line — and from AI agents — to build scenes, write GDScript or C#, play and inspect the game, and introspect the engine's real API. A Go CLI talks to a GDScript editor addon over WebSocket. **329 commands across 50 groups**, every one verified against a live editor.
 
+<p align="center">
+  <a href="https://youtu.be/XnoW6EHXaBw">
+    <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/media/previews/demo-poster.png" width="860" alt="The Godot editor with the MCP dock open, a water demo running in its own window, and an agent writing GDScript in a terminal beside it">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://youtu.be/XnoW6EHXaBw"><b>Watch the three-minute demo</b></a> — a seascape built inside a live editor: water tuned while the game runs, boids for the fish and gulls, audio buses wired from a panel, and the dock counting every call as it lands.
+</p>
+
 > [!WARNING]
 > **Built for big-context models.** The default MCP mode exposes every command as a typed tool, and that list measures **about 50,000 tokens** against a live editor. Frontier models with 200K–1M windows and prompt caching carry it comfortably; a small local model will not, and this project does not aim to serve one. Context-tight? The escape hatch is one flag: `serve --typed=false` collapses the surface to a single generic tool (~470 tokens), and the CLI needs no schemas at all. Numbers, method, and reasoning: [What the tool surface costs](#what-the-tool-surface-costs).
 
