@@ -7,7 +7,7 @@
 [![Godot 4.7+](https://img.shields.io/badge/Godot-4.7%2B-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org)
 [![Go 1.26+](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![Commands](https://img.shields.io/badge/commands-316-blue)
+![Commands](https://img.shields.io/badge/commands-329-blue)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
 
 Drive a running **Godot 4.7+** editor from the command line — and from AI agents — to build scenes, write GDScript or C#, play and inspect the game, and introspect the engine's real API. A Go CLI talks to a GDScript editor addon over WebSocket. **329 commands across 50 groups**, every one verified against a live editor.
@@ -35,7 +35,7 @@ The 332 is every registered command plus the generic `godot_run` — the measure
 What the numbers mean in practice:
 
 - **The default is sized for big-context models**. Against a 200K window the full list is a quarter of the budget; against the 1M windows current frontier models ship, it is 5%. With prompt caching the list sits in the cached prefix after the first request — on Claude, cached input bills at roughly a tenth of the base rate — so the recurring cost is a fraction of the headline number, and the list only changes mid-session in one rare case (the editor was down at connect and came back up).
-- **The escape hatches ship in the box**. `serve --typed=false` keeps the same 316 commands behind one ~470-token tool (the model discovers the API with `engine.search` instead of reading schemas); the `http_typed` project setting does the same for the editor's own HTTP endpoint; clients that load schemas on demand (Claude Code does) pay only for the tools they actually use; the read-only `godot://` resources pull project and scene state without any tool turn; and the CLI is a zero-schema surface any agent with a shell can drive.
+- **The escape hatches ship in the box**. `serve --typed=false` keeps the same 329 commands behind one ~470-token tool (the model discovers the API with `engine.search` instead of reading schemas); the `http_typed` project setting does the same for the editor's own HTTP endpoint; clients that load schemas on demand (Claude Code does) pay only for the tools they actually use; the read-only `godot://` resources pull project and scene state without any tool turn; and the CLI is a zero-schema surface any agent with a shell can drive.
 - **The trade is deliberate**. A curated "core toolset" default is not planned: a model too small to carry the list is also too small to run the discover-then-drive and spatial-verification loops this tool is built around, and the escape hatches above already serve constrained clients. The full breakdown — which command groups carry the weight, the caching math, and the design reasoning — is on [What the tool surface costs](https://regiellis.github.io/godot-mcp-go/docs/context-cost) in the docs.
 
 ## Isn't this just Godot's built-in CLI?

@@ -26,3 +26,14 @@ Thumbs.db
 # transient study checkouts (see the reference-slot section in CLAUDE.md)
 reference/
 
+# Source captures and encode masters for the preview media. The stills in
+# media/previews/ are committed and serve the README and the Asset Library
+# listing; the video itself is uploaded to YouTube, because that is the only
+# video form the Asset Library takes and a clone should not carry 80 MB of it.
+media/previews/*.mp4
+
+# Redirected editor stdout/stderr. An agent launches the editor with its stdio
+# sent here (a plain launch corrupts the terminal's rendering), so these pile up
+# per session and are diagnostic only.
+editor_session/
+
