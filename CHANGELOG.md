@@ -4,6 +4,61 @@ All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project aims to
 follow [Semantic Versioning](https://semver.org/).
 
+## [0.8.1] — 2026-08-09
+
+Documentation, media, and the skill archive. No command, addon, or CLI behaviour
+changed — the binaries and the addon are functionally identical to 0.8.0 — so
+this release exists to ship a new craft guide and the pages that came with it.
+
+### Added
+
+- **A craft reference on filming a game**, `game-trailers.md`, published as
+  [Videos and trailers](https://regiellis.github.io/godot-mcp-go/docs/guides/game-trailers).
+  It covers the shot list as the source of record, a dev-only director scene and
+  the five rules that keep an unattended render honest, cutting between shots
+  through a cover while the world runs backstage under `Engine.time_scale`,
+  Godot's movie writer and its three output formats, the ffmpeg encode, and the
+  `scene play` plus `runtime screenshot` loop that proves a shot before a render
+  is spent on it. Two of its facts were measured rather than assumed: the
+  recorded resolution comes from `display/window/size/viewport_width` and
+  `viewport_height` rather than the window, since a 2560×1440 project filmed in
+  a window forced to 1280×720 (with `--resolution 1280x720` passed as well)
+  still wrote a 2560×1440 film; and under `--fixed-fps` tweens and timers
+  measure film seconds while `Time.get_ticks_msec()` measures wall clock, which
+  ran about four times longer than the footage it was writing.
+- **A worked example for project-local commands**, answering what the
+  `res://mcp_commands/` hook is actually for rather than only proving it works.
+  `custom.broken_refs` sweeps the project's text files for `res://` paths and
+  `uid://` ids that no longer resolve, with the file and line each sits on;
+  `custom.replace_ref` repoints every reference from one resource to another and
+  repairs the `ext_resource` uid beside each rewritten path, because the loader
+  prefers a uid that resolves and a path-only rewrite still loads the old file.
+  Between them they show both halves such a command may need: a read-only sweep,
+  and a write path that guards its inputs, refuses a scene open in the editor,
+  and plans every file before writing any of them.
+  [Add your own commands](https://regiellis.github.io/godot-mcp-go/docs/extending)
+  carries a compact version of the sweep.
+- **A three-minute demo video** on the README, linked from a still: a seascape
+  built inside a live editor, with water tuned while the game runs, boids for the
+  fish and gulls, and audio buses wired from a panel.
+
+### Verified
+
+- **Godot 4.8-dev3** (`51105ccbe`), with no code change needed. The plugin
+  compiled and bound both transports, all 329 commands registered, the HTTP MCP
+  conformance suite passed 37/37, and a sweep over `project`, `scene`, `node`,
+  `script`, `engine`, `runtime`, `input` and `debug` behaved as it does on 4.7.2,
+  including the two-hop runtime IPC end to end.
+
+### Fixed
+
+- **The commands badge and one line under the context-cost table still read
+  316**. The count has been 329 since the debug group landed in 0.8.0.
+- **The Asset Library record named a download commit a release behind**. The
+  `asset-library` branch was refreshed for 0.8.0 on 2026-08-07, but the record
+  still pointed at the 0.7.x snapshot. A listing is pinned to whatever commit it
+  was submitted with, so a stale note is how an old download keeps being served.
+
 ## [0.8.0] — 2026-08-07
 
 The editor-side release: an interactive debugger the agent can drive, the
