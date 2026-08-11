@@ -24,18 +24,13 @@ func runInstallAssets(args []string) int {
 	pack := fs.String("pack", "", "install only this pack folder (default: every pack in the source)")
 	list := fs.Bool("list", false, "list the bundled packs and exit (no project needed)")
 	force := fs.Bool("force", false, "overwrite a pack dir that already exists")
-	fs.Usage = func() {
-		fmt.Fprintln(os.Stderr, `godot-mcp install-assets — copy bundled CC0 asset packs into a project
-
-Usage:
-  godot-mcp install-assets [--project DIR] [--dest assets/vendor] [--pack NAME] [--force]
-  godot-mcp install-assets --list
-
-Flags:`)
-		fs.PrintDefaults()
-	}
-	if err := fs.Parse(args); err != nil {
-		return 2
+	fs.Usage = subHelp(fs, "copy bundled CC0 asset packs into a project",
+		[]string{
+			"godot-mcp install-assets [--project DIR] [--dest assets/vendor] [--pack NAME] [--force]",
+			"godot-mcp install-assets --list",
+		})
+	if rc := parseSub(fs, args); rc >= 0 {
+		return rc
 	}
 
 	// Resolve the source assets dir across both shipped layouts. The marker is

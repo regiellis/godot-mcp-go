@@ -16,12 +16,10 @@ func runDashboard(args []string) int {
 	httpPort := fs.Int("port", 8090, "dashboard HTTP port")
 	addonPort := fs.Int("addon-port", 0, "addon WebSocket port (0 = discover from --project/cwd)")
 	project := fs.String("project", "", "Godot project dir for addon discovery (default: cwd)")
-	fs.Usage = func() {
-		fmt.Fprintln(os.Stderr, "godot-mcp dashboard — live stats web dashboard\n\nUsage:\n  godot-mcp dashboard [--port 8090] [--project DIR] [--addon-port N]\n\nFlags:")
-		fs.PrintDefaults()
-	}
-	if err := fs.Parse(args); err != nil {
-		return 2
+	fs.Usage = subHelp(fs, "live stats web dashboard",
+		[]string{"godot-mcp dashboard [--port 8090] [--project DIR] [--addon-port N]"})
+	if rc := parseSub(fs, args); rc >= 0 {
+		return rc
 	}
 	cwd := *project
 	if cwd == "" {

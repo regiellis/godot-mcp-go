@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
-   godot-mcp-go docs — design system
+   godot-mcp-go docs design system
    Ollama/Mintlify-inspired: clean, rounded, soft borders, one accent, light+dark.
    Plain CSS custom properties. No framework. Edit the tokens, the site follows.
 --------------------------------------------------------------------------- */
@@ -7,7 +7,8 @@
 :root {
   /* Type */
   --font-sans: "InterVariable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  --font-display: "Manrope Variable", var(--font-sans);
+  --font-mono: "Source Code Pro Variable", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
 
   /* Accent (Godot-adjacent blue, with a cyan-leaning gradient) */
   --accent: #2b7fff;
@@ -114,5 +115,5 @@ a:hover { text-decoration: underline; }
 /* thin, quiet scrollbars */
 * { scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
 *::-webkit-scrollbar { width: 8px; height: 8px; }
-*::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
+*::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: var(--radius-sm); }
 *::-webkit-scrollbar-track { background: transparent; }

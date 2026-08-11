@@ -10,7 +10,7 @@
 
 .prose > :first-child { margin-top: 0; }
 
-/* Headings */
+/* Headings: h1/h2 carry the display face, h3 down stays the body face */
 .prose h1,
 .prose h2,
 .prose h3,
@@ -21,6 +21,8 @@
   letter-spacing: -0.014em;
   scroll-margin-top: calc(var(--topbar-h) + 1.25rem);
 }
+.prose h1,
+.prose h2 { font-family: var(--font-display); }
 .prose h1 { font-size: 2.1rem; margin: 0 0 0.6rem; letter-spacing: -0.022em; }
 .prose h2 {
   font-size: 1.45rem;
@@ -60,17 +62,19 @@
   font-size: 0.86em;
   background: var(--bg-code);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 0.12em 0.4em;
   color: var(--accent-strong);
   white-space: nowrap;
 }
 
-/* Blockquote (non-callout) */
+/* Blockquote (non-callout): a quiet full-border surface, no accent bar */
 .prose blockquote {
   margin: 1.2rem 0;
-  padding: 0.2rem 0 0.2rem 1rem;
-  border-left: 3px solid var(--border-strong);
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-subtle);
   color: var(--text-muted);
 }
 
@@ -87,14 +91,15 @@
 
 .prose img { max-width: 100%; border-radius: var(--radius); }
 
-/* --- Callouts (GitHub-style, rendered by the Callout component) --- */
+/* --- Callouts (rendered by the Callout component) ---
+   The type color carries on the icon and a tinted full hairline; no accent
+   bar. The wash stays as the surface. */
 .callout {
   display: flex;
   gap: 0.75rem;
   margin: 1.3rem 0;
   padding: 0.9rem 1rem;
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--cl, var(--note));
+  border: 1px solid color-mix(in srgb, var(--cl, var(--note)) 30%, var(--border));
   border-radius: var(--radius);
   background: var(--cl-bg, var(--note-bg));
   font-size: 0.95rem;

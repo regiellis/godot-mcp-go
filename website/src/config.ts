@@ -4,7 +4,7 @@
 // keyed by filename (see GUIDES), so they never drift from the real craft docs.
 
 export const SITE = {
-  name: "godot-mcp",
+  name: "Godot MCP CLI",
   tagline: "Drive a running Godot 4.7 editor from the CLI and from AI agents.",
   description:
     "A Go CLI and GDScript editor addon that drive a live Godot 4.7 editor over WebSocket: build scenes, write GDScript or C#, play and inspect the running game, and introspect the engine's real API. 316 commands across 49 groups.",

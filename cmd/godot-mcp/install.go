@@ -24,17 +24,10 @@ func runInstall(args []string) int {
 	skill := fs.Bool("skill", true, "install the agent skill into <project>/.claude/skills/godot-mcp (use --skill=false to skip)")
 	enable := fs.Bool("enable", false, "enable the plugin in project.godot")
 	force := fs.Bool("force", false, "overwrite an existing addon/skill install")
-	fs.Usage = func() {
-		fmt.Fprintln(os.Stderr, `godot-mcp install — copy the addon into a Godot project
-
-Usage:
-  godot-mcp install [--project DIR] [--from DIR] [--skill-from DIR] [--skill] [--enable] [--force]
-
-Flags:`)
-		fs.PrintDefaults()
-	}
-	if err := fs.Parse(args); err != nil {
-		return 2
+	fs.Usage = subHelp(fs, "copy the addon + agent skill into a Godot project",
+		[]string{"godot-mcp install [--project DIR] [--from DIR] [--skill-from DIR] [--skill] [--enable] [--force]"})
+	if rc := parseSub(fs, args); rc >= 0 {
+		return rc
 	}
 
 	start := *project

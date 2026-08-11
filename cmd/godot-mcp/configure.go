@@ -29,7 +29,7 @@ func runConfigure(args []string) int {
 	// (flag.Parse stops at the first non-flag token, so the common
 	// `configure <client> --flags` form needs the client peeled off first).
 	var clientName string
-	if len(args) >= 1 && !strings.HasPrefix(args[0], "-") {
+	if len(args) >= 1 && !strings.HasPrefix(args[0], "-") && args[0] != "help" {
 		clientName = args[0]
 		args = args[1:]
 	}
@@ -40,19 +40,11 @@ func runConfigure(args []string) int {
 	printSnippet := fs.Bool("print", false, "print the config snippet and its target path without writing anything")
 	name := fs.String("name", "godot-mcp", "MCP server key to write")
 	force := fs.Bool("force", false, "replace an existing server entry of the same name")
-	fs.Usage = func() {
-		fmt.Fprintln(os.Stderr, `godot-mcp configure — point an AI client at godot-mcp's stdio MCP server
-
-Usage:
-  godot-mcp configure <client> [--project DIR] [--global] [--print] [--name NAME] [--force]
-
-Clients: claude, cursor, vscode, codex
-
-Flags:`)
-		fs.PrintDefaults()
-	}
-	if err := fs.Parse(args); err != nil {
-		return 2
+	fs.Usage = subHelp(fs, "point an AI client at godot-mcp's stdio MCP server",
+		[]string{"godot-mcp configure <client> [--project DIR] [--global] [--print] [--name NAME] [--force]"},
+		"Clients: claude, cursor, vscode, codex")
+	if rc := parseSub(fs, args); rc >= 0 {
+		return rc
 	}
 	if clientName == "" {
 		clientName = fs.Arg(0)

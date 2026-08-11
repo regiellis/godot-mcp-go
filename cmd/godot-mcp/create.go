@@ -19,17 +19,10 @@ func runCreate(args []string) int {
 	install := fs.Bool("install", false, "also copy the MCP addon + skill into the new project")
 	enable := fs.Bool("enable", false, "enable the plugin in project.godot (requires --install)")
 	force := fs.Bool("force", false, "proceed even if the target dir exists and is non-empty (never overwrites an existing project.godot)")
-	fs.Usage = func() {
-		fmt.Fprintln(os.Stderr, `godot-mcp create — bootstrap a new Godot 4.7 project
-
-Usage:
-  godot-mcp create --path DIR [--name NAME] [--install] [--enable] [--force]
-
-Flags:`)
-		fs.PrintDefaults()
-	}
-	if err := fs.Parse(args); err != nil {
-		return 2
+	fs.Usage = subHelp(fs, "bootstrap a new Godot 4.7 project",
+		[]string{"godot-mcp create --path DIR [--name NAME] [--install] [--enable] [--force]"})
+	if rc := parseSub(fs, args); rc >= 0 {
+		return rc
 	}
 
 	if *path == "" {

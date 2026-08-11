@@ -52,12 +52,12 @@ godot-mcp node set --node-path Light --property color --value "#ff0000"
   Batch mutations are atomic. `node set` takes a singular `--property` / `--value` **or** a batch `--properties '{…}'` validated as one unit, committed through a single UndoRedo action.
 </Callout>
 
-## Output for pipelines
+## Output formats
 
-Results print as pretty JSON by default. The global `--format tsv` flag renders a success result as tab-separated text instead, for shell pipelines:
+On a terminal, a result renders for reading: an object becomes a titled key/value box, an array of objects becomes a table, and values are color-coded by type. Piped or redirected output is exact pretty-printed JSON, so scripts and agents parse the same shape as always without stripping anything. The global `--format` flag (before the group) pins one of `pretty`, `json`, `tsv`, or `ndjson` (newline-delimited compact JSON), and the `GODOT_MCP_FORMAT` environment variable does the same for a whole shell when the flag is absent:
 
 ```bash
-godot-mcp scene tree --format tsv
+godot-mcp --format tsv scene tree
 ```
 
-An array of objects becomes a header row plus one row per element; a single object becomes key/value rows; nested values are emitted as compact JSON, with tabs and newlines escaped. `--format json` (the default) is unchanged.
+TSV renders a success result as tab-separated text for shell pipelines: an array of objects becomes a header row plus one row per element; a single object becomes key/value rows; nested values are emitted as compact JSON, with tabs and newlines escaped. `NO_COLOR` drops the color from the terminal render without changing its layout.

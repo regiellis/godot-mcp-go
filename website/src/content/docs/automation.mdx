@@ -9,7 +9,7 @@ Single commands are identical in every shell — `godot-mcp project info` pastes
 
 ## Machine output
 
-Default output is pretty-printed JSON. `--format tsv` (global flags precede the group) re-renders a result for text tools: an object becomes `key<TAB>value` rows, an array of objects becomes a header row plus one row per element, and nested values stay as compact JSON.
+Piped output is pretty-printed JSON — the CLI detects the pipe and never emits color or table layout there, so a script has nothing to strip. (On a terminal, results render as tables and key/value boxes instead; `--format json` pins exact JSON anywhere.) `--format tsv` (global flags precede the group) re-renders a result for text tools: an object becomes `key<TAB>value` rows, an array of objects becomes a header row plus one row per element, and nested values stay as compact JSON. `--format ndjson` emits one compact JSON value per line when the result is a top-level array, and the whole result on a single line otherwise (most commands wrap arrays in an object, so expect one line there) — unlike TSV, nesting survives intact. The `GODOT_MCP_FORMAT` environment variable pins a format for a whole shell or CI job; the flag always wins, and an unrecognized value warns and falls back to the default.
 
 <ShellTabs>
 
@@ -67,7 +67,7 @@ godot-mcp batch find-nodes-by-type --type Label \
 
 ## Preflight, then launch
 
-`godot-mcp doctor` checks the environment (godot binary, project, addon install state, port config, dotnet) and exits `1` only on a real failure — "no editor running yet" is a warning, so it is safe to run before you have launched anything. `godot-mcp status` gives the machine-readable liveness verdict (`running` / `starting` / `crashed` / `closed`); the launch policy follows from it — never start a second editor when one is `running`.
+`godot-mcp doctor` checks the environment (godot binary, project, addon install state, port config, dotnet) and exits `1` only on a real failure — "no editor running yet" is a warning, so it is safe to run before you have launched anything. `godot-mcp status` gives the machine-readable liveness verdict (`running` / `starting` / `crashed` / `closed`); the launch policy follows from it — never start a second editor when one is `running`. `godot-mcp status --all` scans the editor auto range (9080-9095, plus any pinned port) and the game range (9200-9215) and lists every live instance with its port, project, version, and pid — the multi-instance view when two editors are open at once.
 
 ## A complete CI smoke test
 

@@ -116,3 +116,51 @@ func TestFormatTSVInvalidJSON(t *testing.T) {
 		t.Fatal("expected an error for malformed JSON")
 	}
 }
+
+func TestFormatNDJSON(t *testing.T) {
+	cases := []struct {
+		name string
+		in   string
+		want string
+	}{
+		// Array → one compact element per line, nesting intact.
+		{
+			name: "array of objects",
+			in:   `[{"name":"Player", "pos": {"x": 1}},{"name":"Enemy"}]`,
+			want: "{\"name\":\"Player\",\"pos\":{\"x\":1}}\n{\"name\":\"Enemy\"}",
+		},
+		{
+			name: "array of scalars",
+			in:   `["a", 2, true]`,
+			want: "\"a\"\n2\ntrue",
+		},
+		// Anything else → the whole result compacted onto one line.
+		{
+			name: "object on one line",
+			in:   "{\"b\": 2,\n \"a\": [1, 2]}",
+			want: `{"b":2,"a":[1,2]}`,
+		},
+		{
+			name: "scalar",
+			in:   `42`,
+			want: "42",
+		},
+		{
+			name: "empty array",
+			in:   `[]`,
+			want: "",
+		},
+	}
+
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got, err := formatNDJSON(json.RawMessage(c.in))
+			if err != nil {
+				t.Fatalf("formatNDJSON(%s) error: %v", c.in, err)
+			}
+			if got != c.want {
+				t.Errorf("formatNDJSON(%s)\n got: %q\nwant: %q", c.in, got, c.want)
+			}
+		})
+	}
+}

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/bynine/godot-mcp-go/internal/client"
+	"github.com/bynine/godot-mcp-go/internal/ui"
 )
 
 // doctorCheck is one row of the preflight table: a check name, its status
@@ -41,21 +42,13 @@ func runDoctor(args []string) int {
 	fs := flag.NewFlagSet("doctor", flag.ContinueOnError)
 	project := fs.String("project", "", "Godot project dir (default: the project containing the cwd)")
 	asJSON := fs.Bool("json", false, "emit the checks as JSON instead of a table")
-	fs.Usage = func() {
-		fmt.Fprintln(os.Stderr, `godot-mcp doctor — environment preflight
-
-Usage:
-  godot-mcp doctor [--project DIR] [--json]
-
-Reports ok/warn/fail for: the godot binary, a resolvable project, the addon
+	fs.Usage = subHelp(fs, "environment preflight",
+		[]string{"godot-mcp doctor [--project DIR] [--json]"},
+		`Reports ok/warn/fail for: the godot binary, a resolvable project, the addon
 install + enable state, the effective port source, the editor liveness verdict,
-and dotnet (for C# projects). Exit 1 only if a check fails.
-
-Flags:`)
-		fs.PrintDefaults()
-	}
-	if err := fs.Parse(args); err != nil {
-		return 2
+and dotnet (for C# projects). Exit 1 only if a check fails.`)
+	if rc := parseSub(fs, args); rc >= 0 {
+		return rc
 	}
 
 	var checks []doctorCheck
@@ -278,7 +271,7 @@ func emitDoctor(checks []doctorCheck, asJSON bool) int {
 		}
 		fmt.Println(string(b))
 	} else {
-		fmt.Println("godot-mcp doctor — environment preflight")
+		fmt.Println(ui.Out.Heading("godot-mcp doctor") + " — environment preflight")
 		fmt.Println()
 		// Width from the actual names, so adding a longer check never silently
 		// breaks the column the way a fixed pad does.
@@ -289,18 +282,42 @@ func emitDoctor(checks []doctorCheck, asJSON bool) int {
 			}
 		}
 		for _, c := range checks {
-			fmt.Printf("  %-6s %-*s %s\n", "["+c.Status+"]", nameWidth, c.Name, c.Detail)
+			fmt.Printf("  %s %s %s\n", doctorBadge(c.Status), ui.Out.Key(padRight(c.Name, nameWidth)), c.Detail)
 		}
 		fmt.Println()
-		summary := fmt.Sprintf("summary: %d ok, %d warn, %d fail", okN, warnN, failN)
-		if skipN > 0 {
-			summary += fmt.Sprintf(", %d skipped", skipN)
+		// A zero count stays dim; painting "0 fail" red would read as a failure.
+		count := func(n int, label string, paint func(string) string) string {
+			s := fmt.Sprintf("%d %s", n, label)
+			if n == 0 {
+				return ui.Out.Dim(s)
+			}
+			return paint(s)
 		}
-		fmt.Println(summary)
+		parts := []string{count(okN, "ok", ui.Out.OK), count(warnN, "warn", ui.Out.Warn), count(failN, "fail", ui.Out.Fail)}
+		if skipN > 0 {
+			parts = append(parts, ui.Out.Dim(fmt.Sprintf("%d skipped", skipN)))
+		}
+		fmt.Println("summary: " + strings.Join(parts, ", "))
 	}
 
 	if anyFail {
 		return 1
 	}
 	return 0
+}
+
+// doctorBadge renders one status as its fixed-width, traffic-light bracket tag.
+// Padding happens before painting so escape codes never skew the column.
+func doctorBadge(status string) string {
+	badge := padRight("["+status+"]", 6)
+	switch status {
+	case statusOK:
+		return ui.Out.OK(badge)
+	case statusWarn:
+		return ui.Out.Warn(badge)
+	case statusFail:
+		return ui.Out.Fail(badge)
+	default:
+		return ui.Out.Dim(badge)
+	}
 }

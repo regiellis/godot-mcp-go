@@ -4,6 +4,66 @@ All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project aims to
 follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **Readable terminal output**. On a terminal, a result renders for a human: an
+  object becomes a titled key/value box, an array of objects becomes a table,
+  values are color-coded by JSON type, and a nested value too large for one
+  line prints as an indented JSON block under its key. Help listings, `doctor`,
+  and error/diagnosis output carry the same color scheme (traffic-light badges,
+  cyan command names, red errors), and the top-level help is restructured into
+  aligned Usage / Subcommands / Examples / Flags sections. Piped or redirected output stays exact
+  pretty-printed JSON with no escape codes, so scripts and agents are
+  unaffected; `--format pretty|json|tsv` pins a format explicitly and
+  `NO_COLOR` drops the color while keeping the layout. The styling lives in a
+  new zero-dependency `internal/ui` package that also enables VT processing on
+  legacy Windows consoles.
+- **Subcommand help is uniform**. Every local subcommand renders the same
+  styled shape as the top-level help (heading, usage, notes, an aligned
+  `--flag` table) instead of the raw single-dash `flag` dump, and three routes
+  reach it: `<sub> --help`, `<sub> help`, and `help <sub>` — all exiting 0.
+  Previously `create help` tried to run and failed on the missing `--path`.
+  Section headings carry the accent, usage-line placeholders (`<group>`,
+  `DIR`, `NAME`) tint magenta so the fixed words read apart from the
+  fill-ins, and the banner carries the docs-site URL.
+- **`status --all`**. Scans the editor auto range (9080-9095, plus any env- or
+  discovery-pinned port) and the game range (9200-9215) concurrently and lists
+  every live instance — port, project name and path, Godot version, pid, and
+  whether it serves the current project. A terminal gets the table render,
+  piped output gets JSON (`editors` + `games` arrays); exit 0 when at least
+  one editor is live. Game servers report presence only — that channel
+  carries no project identity to ask for.
+- **The accent color is a burnt yellow**. Headings, command names, and the
+  banner wordmark render in 256-color amber instead of cyan, keeping the
+  traffic-light ok/warn/fail tokens as they were.
+- **Docs site type and surface pass**. Code, commands, and terminal frames
+  render in Source Code Pro; display headings (docs h1/h2, the landing hero
+  and section heads) in Manrope; body text stays Inter. Callouts trade the
+  accent side bar for a tinted full hairline on the same wash, and blockquotes
+  get the matching quiet full-border surface.
+- **The display name is Godot MCP CLI**. The docs site and README now present
+  the product under the same identity as the Asset Library listing and the
+  banner (which stylizes it GODOT MCPCLI). The command you type is still
+  `godot-mcp` everywhere.
+- **A front-door banner**. Running `godot-mcp` with no arguments at all now
+  prints the brand mark as a block-glyph tile beside the wordmark (reading
+  GODOT MCPCLI), the version, and where to go next, exiting 0 — a bare
+  invocation is a person exploring, not a script. Run inside a project it also
+  reports that project's editor on one line (running with port and pid,
+  starting, crashed, or none), from the same diagnosis `status` uses; outside
+  a project it stays silent rather than probe a port that might belong to
+  someone else's editor. Usage errors, `--help`, and
+  `help` still print the structured help; there is no banner anywhere else, so
+  no suppression flag is needed.
+- **`--format ndjson` and `GODOT_MCP_FORMAT`**. NDJSON emits one compact JSON
+  value per line for a top-level array result and the whole result on one line
+  otherwise, keeping nesting intact where TSV flattens it. The environment
+  variable pins a format for a whole shell or CI job when the flag is absent;
+  the flag wins, and an unrecognized value warns and falls back to the
+  default.
+
 ## [0.8.1] — 2026-08-09
 
 Documentation, media, and the skill archive. No command, addon, or CLI behaviour

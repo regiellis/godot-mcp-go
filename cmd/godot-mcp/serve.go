@@ -32,8 +32,11 @@ func runServe(args []string) int {
 	project := fs.String("project", "", "Godot project dir for port discovery (default: cwd)")
 	timeout := fs.Duration("timeout", 60*time.Second, "per-tool-call timeout")
 	typed := fs.Bool("typed", true, "expose per-command MCP tools built from the addon's live param docs (false = only godot_run, for tool-limited clients)")
-	if err := fs.Parse(args); err != nil {
-		return 2
+	fs.Usage = subHelp(fs, "run the stdio MCP server for AI clients",
+		[]string{"godot-mcp serve [--project DIR] [--port N] [--timeout 60s] [--typed=false]"},
+		"Speaks MCP on stdin/stdout (logs on stderr). Point a client at it with godot-mcp configure <client>.")
+	if rc := parseSub(fs, args); rc >= 0 {
+		return rc
 	}
 	cwd := *project
 	if cwd == "" {

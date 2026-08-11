@@ -17,6 +17,7 @@ import (
 
 	"github.com/bynine/godot-mcp-go/internal/client"
 	"github.com/bynine/godot-mcp-go/internal/protocol"
+	"github.com/bynine/godot-mcp-go/internal/ui"
 )
 
 // cliVersion is reported to MCP clients in the initialize handshake. Keep it in
@@ -27,44 +28,42 @@ const cliVersion = "0.8.1"
 func main() {
 	port := flag.Int("port", 0, "addon WebSocket port (0 = env GODOT_MCP_PORT, then discovery file, then default 9080)")
 	timeout := flag.Duration("timeout", 30*time.Second, "request timeout")
-	format := flag.String("format", "json", "result format for the <group> <command> path: json (pretty) or tsv")
+	format := flag.String("format", "", "result format for the <group> <command> path: pretty (tables/color, the terminal default), json (the piped default), tsv, or ndjson; env GODOT_MCP_FORMAT applies when the flag is unset")
 	game := flag.Bool("game", false, "route runtime.*/input.* to the running game's direct server (no editor); port resolves via --port, GODOT_MCP_GAME_PORT, the game discovery file, then 9200")
 	flag.Usage = usage
 	flag.Parse()
 
 	args := flag.Args()
+	// Nothing at all is a person at the front door, not a usage mistake.
+	if len(args) == 0 {
+		printBanner()
+		return
+	}
 	// Local subcommands (not <group> <command>).
-	if len(args) >= 1 && args[0] == "create" {
-		os.Exit(runCreate(args[1:]))
+	localSubs := map[string]func([]string) int{
+		"create":         runCreate,
+		"install":        runInstall,
+		"install-assets": runInstallAssets,
+		"configure":      runConfigure,
+		"serve":          runServe,
+		"dashboard":      runDashboard,
+		"status":         runStatus,
+		"doctor":         runDoctor,
 	}
-	if len(args) >= 1 && args[0] == "install" {
-		os.Exit(runInstall(args[1:]))
-	}
-	if len(args) >= 1 && args[0] == "install-assets" {
-		os.Exit(runInstallAssets(args[1:]))
-	}
-	if len(args) >= 1 && args[0] == "configure" {
-		os.Exit(runConfigure(args[1:]))
-	}
-	if len(args) >= 1 && args[0] == "serve" {
-		os.Exit(runServe(args[1:]))
-	}
-	if len(args) >= 1 && args[0] == "dashboard" {
-		os.Exit(runDashboard(args[1:]))
-	}
-	if len(args) >= 1 && args[0] == "status" {
-		os.Exit(runStatus(args[1:]))
-	}
-	if len(args) >= 1 && args[0] == "doctor" {
-		os.Exit(runDoctor(args[1:]))
+	if fn, ok := localSubs[args[0]]; ok {
+		os.Exit(fn(args[1:]))
 	}
 	// Nested help: `help [group [command]]`, `<group> --help`, `<group> help`,
-	// `<group> <command> --help`. The catalog lives in the addon, so these list
-	// it live (see runHelp).
+	// `<group> <command> --help`. A subcommand name routes to that subcommand's
+	// own help; the command catalog lives in the addon, so group help lists it
+	// live (see runHelp).
 	if len(args) >= 1 && args[0] == "help" {
 		if len(args) == 1 {
 			usage()
 			os.Exit(0)
+		}
+		if fn, ok := localSubs[args[1]]; ok {
+			os.Exit(fn([]string{"help"}))
 		}
 		cmd := ""
 		if len(args) >= 3 {
@@ -88,8 +87,28 @@ func main() {
 	command := strings.ReplaceAll(args[1], "-", "_")
 	method := group + "." + command
 
-	if *format != "json" && *format != "tsv" {
-		fmt.Fprintf(os.Stderr, "error: unknown --format %q (want json or tsv)\n", *format)
+	// Resolution: flag > GODOT_MCP_FORMAT > auto (the human render on a
+	// terminal, exact JSON when piped — so agents and pipelines never see
+	// layout or color they'd have to strip). A bad env value warns and falls
+	// through to auto rather than breaking every call in that shell.
+	if *format == "" {
+		if env := strings.TrimSpace(os.Getenv("GODOT_MCP_FORMAT")); env != "" {
+			if validFormat(env) {
+				*format = env
+			} else {
+				fmt.Fprintf(os.Stderr, "%s ignoring GODOT_MCP_FORMAT=%q (want pretty, json, tsv, or ndjson)\n", ui.Err.Warn("warning:"), env)
+			}
+		}
+	}
+	if *format == "" {
+		if ui.IsTerminal(os.Stdout) {
+			*format = "pretty"
+		} else {
+			*format = "json"
+		}
+	}
+	if !validFormat(*format) {
+		fmt.Fprintf(os.Stderr, "error: unknown --format %q (want pretty, json, tsv, or ndjson)\n", *format)
 		os.Exit(2)
 	}
 
@@ -161,6 +180,27 @@ func main() {
 		return
 	}
 
+	if *format == "ndjson" {
+		nd, nerr := formatNDJSON(result)
+		if nerr != nil {
+			fmt.Fprintln(os.Stderr, "error: rendering result as ndjson:", nerr)
+			os.Exit(1)
+		}
+		fmt.Println(nd)
+		return
+	}
+
+	if *format == "pretty" {
+		out, perr := renderPretty(method, result, ui.Out)
+		if perr != nil {
+			// A shape the renderer can't handle still prints — as the raw JSON.
+			fmt.Println(string(result))
+			return
+		}
+		fmt.Println(out)
+		return
+	}
+
 	// Pretty-print the result JSON.
 	var pretty json.RawMessage = result
 	out, err := json.MarshalIndent(pretty, "", "  ")
@@ -169,6 +209,15 @@ func main() {
 		return
 	}
 	fmt.Println(string(out))
+}
+
+// validFormat reports whether s names a result format the CLI can render.
+func validFormat(s string) bool {
+	switch s {
+	case "pretty", "json", "tsv", "ndjson":
+		return true
+	}
+	return false
 }
 
 // methodTimeout floors the per-call timeout for methods that legitimately run
@@ -224,12 +273,17 @@ func runHelp(port int, group, command string) int {
 		}
 		byGroup := groupMethods(methods)
 		names := slices.Sorted(maps.Keys(byGroup))
-		fmt.Printf("godot-mcp — %d commands in %d groups (live from the addon):\n\n", len(methods), len(names))
+		w := 14
 		for _, g := range names {
-			fmt.Printf("  %-14s %s\n", g, strings.Join(byGroup[g], ", "))
+			w = max(w, len(g))
 		}
-		fmt.Println("\nUsage: godot-mcp <group> <command> [--param value ...]")
-		fmt.Println("godot-mcp <group> --help narrows to one group; JSON form: godot-mcp engine commands.")
+		fmt.Printf("%s — %d commands in %d groups (live from the addon):\n\n",
+			ui.Out.Heading("godot-mcp"), len(methods), len(names))
+		for _, g := range names {
+			fmt.Printf("  %s %s\n", ui.Out.Key(padRight(g, w)), strings.Join(byGroup[g], ", "))
+		}
+		fmt.Println("\n" + ui.Out.Dim("Usage: godot-mcp <group> <command> [--param value ...]"))
+		fmt.Println(ui.Out.Dim("godot-mcp <group> --help narrows to one group; JSON form: godot-mcp engine commands."))
 		return 0
 	}
 
@@ -316,30 +370,31 @@ func groupMethods(methods []string) map[string][]string {
 
 func printUnknownGroup(group string, byGroup map[string][]string) {
 	names := slices.Sorted(maps.Keys(byGroup))
-	fmt.Fprintf(os.Stderr, "unknown group %q — %d groups registered (godot-mcp help all lists their commands):\n", group, len(names))
+	fmt.Fprintf(os.Stderr, "%s unknown group %q — %d groups registered (godot-mcp help all lists their commands):\n",
+		ui.Err.Fail("error:"), group, len(names))
 	for _, g := range names {
-		fmt.Fprintf(os.Stderr, "  %-14s %d commands\n", g, len(byGroup[g]))
+		fmt.Fprintf(os.Stderr, "  %s %d commands\n", ui.Err.Key(padRight(g, 14)), len(byGroup[g]))
 	}
 }
 
 // printGroupHelp lists a group's commands with one-line descriptions where the
 // addon carries docs; groups without docs keep the generic dynamic-params hint.
 func printGroupHelp(group string, cmds []string, docs map[string]commandDoc) {
-	fmt.Printf("godot-mcp %s — %d commands (live from the addon):\n\n", group, len(cmds))
+	fmt.Printf("%s — %d commands (live from the addon):\n\n", ui.Out.Heading("godot-mcp "+group), len(cmds))
 	w := 0
 	for _, c := range cmds {
 		w = max(w, len(c))
 	}
 	for _, c := range cmds {
 		if d := docs[group+"."+c].Description; d != "" {
-			fmt.Printf("  %-*s  %s\n", w, c, d)
+			fmt.Printf("  %s  %s\n", ui.Out.Key(padRight(c, w)), d)
 		} else {
-			fmt.Printf("  %s\n", c)
+			fmt.Printf("  %s\n", ui.Out.Key(c))
 		}
 	}
 	kebab := strings.ReplaceAll(group, "_", "-")
-	fmt.Printf("\nUsage: godot-mcp %s <command> [--param value ...]   (kebab-case works too)\n", kebab)
-	fmt.Printf("Per-command params: godot-mcp %s <command> --help\n", kebab)
+	fmt.Println("\n" + ui.Out.Dim(fmt.Sprintf("Usage: godot-mcp %s <command> [--param value ...]   (kebab-case works too)", kebab)))
+	fmt.Println(ui.Out.Dim(fmt.Sprintf("Per-command params: godot-mcp %s <command> --help", kebab)))
 	if len(docs) == 0 {
 		fmt.Println()
 		printParamHint()
@@ -349,7 +404,7 @@ func printGroupHelp(group string, cmds []string, docs map[string]commandDoc) {
 // printCommandHelp renders one command's param table from the addon's docs, or
 // the generic dynamic-params hint when the command has no authored docs yet.
 func printCommandHelp(group, command string, doc commandDoc) {
-	head := fmt.Sprintf("godot-mcp %s %s", group, command)
+	head := ui.Out.Heading(fmt.Sprintf("godot-mcp %s %s", group, command))
 	if doc.Description != "" {
 		fmt.Printf("%s — %s\n", head, doc.Description)
 	} else {
@@ -364,7 +419,7 @@ func printCommandHelp(group, command string, doc commandDoc) {
 		}
 		return
 	}
-	fmt.Println("\nParams:")
+	fmt.Println("\n" + ui.Out.Heading("Params:"))
 	nameW, typeW := 0, 0
 	for _, p := range doc.Params {
 		nameW = max(nameW, len(p.Name)+2) // +2 for the -- prefix
@@ -372,11 +427,12 @@ func printCommandHelp(group, command string, doc commandDoc) {
 	}
 	for _, p := range doc.Params {
 		flagName := "--" + strings.ReplaceAll(p.Name, "_", "-")
-		req := "optional"
+		req := ui.Out.Dim(padRight("optional", 8))
 		if p.Required {
-			req = "required"
+			req = ui.Out.Warn(padRight("required", 8))
 		}
-		fmt.Printf("  %-*s  %-*s  %-8s  %s\n", nameW, flagName, typeW, p.Type, req, p.Desc)
+		fmt.Printf("  %s  %s  %s  %s\n",
+			ui.Out.Key(padRight(flagName, nameW)), ui.Out.Dim(padRight(p.Type, typeW)), req, p.Desc)
 	}
 }
 
@@ -455,13 +511,13 @@ func fetchMethods(ctx context.Context, port int) ([]string, error) {
 func printError(err error) {
 	var rpc *protocol.Error
 	if !errors.As(err, &rpc) {
-		fmt.Fprintln(os.Stderr, "error:", err)
+		fmt.Fprintln(os.Stderr, ui.Err.Fail("error:"), err)
 		return
 	}
-	fmt.Fprintf(os.Stderr, "error [%d]: %s\n", rpc.Code, rpc.Message)
+	fmt.Fprintf(os.Stderr, "%s %s\n", ui.Err.Fail(fmt.Sprintf("error [%d]:", rpc.Code)), rpc.Message)
 	if len(rpc.Data) > 0 {
 		if b, e := json.MarshalIndent(rpc.Data, "", "  "); e == nil {
-			fmt.Fprintln(os.Stderr, string(b))
+			fmt.Fprintln(os.Stderr, ui.Err.Dim(string(b)))
 		}
 	}
 }
@@ -470,10 +526,26 @@ func printError(err error) {
 // stderr: a human line, the agent guidance, and the JSON status so a tool-driving
 // agent can parse the verdict instead of guessing whether to relaunch.
 func printDiagnosis(st client.Status) {
-	fmt.Fprintf(os.Stderr, "error: editor not reachable [%s] — %s\n", st.Verdict, st.Message)
+	fmt.Fprintf(os.Stderr, "%s editor not reachable [%s] — %s\n",
+		ui.Err.Fail("error:"), styleVerdict(st.Verdict, ui.Err), st.Message)
 	fmt.Fprintln(os.Stderr, st.Action)
 	if b, err := json.MarshalIndent(st, "", "  "); err == nil {
-		fmt.Fprintln(os.Stderr, string(b))
+		fmt.Fprintln(os.Stderr, ui.Err.Dim(string(b)))
+	}
+}
+
+// styleVerdict colors a liveness verdict as its severity: crashed red,
+// starting yellow, running green, closed (a clean non-state) dim.
+func styleVerdict(v client.Verdict, p ui.Palette) string {
+	switch v {
+	case client.VerdictRunning:
+		return p.OK(string(v))
+	case client.VerdictStarting:
+		return p.Warn(string(v))
+	case client.VerdictCrashed:
+		return p.Fail(string(v))
+	default:
+		return p.Dim(string(v))
 	}
 }
 
@@ -481,11 +553,11 @@ func printDiagnosis(st client.Status) {
 // A guessed port aborts the command; an explicitly targeted one warns and
 // continues, since asking for that port is a statement of intent.
 func printMismatch(mm *client.ProjectMismatch) {
-	label := "warning"
+	label := ui.Err.Warn("warning:")
 	if mm.Fatal() {
-		label = "error"
+		label = ui.Err.Fail("error:")
 	}
-	fmt.Fprintf(os.Stderr, "%s: wrong editor — %s\n", label, mm.Error())
+	fmt.Fprintf(os.Stderr, "%s wrong editor — %s\n", label, mm.Error())
 	fmt.Fprintf(os.Stderr, "port %d came from: %s\n", mm.Port, mm.Source)
 	fmt.Fprintln(os.Stderr, mm.Action())
 }
@@ -494,43 +566,67 @@ func printMismatch(mm *client.ProjectMismatch) {
 // editor channel there is no discovery-file lifecycle to derive a crash/close
 // verdict from, so it names the three things that make the game unreachable.
 func printGameDialError(port int) {
-	fmt.Fprintf(os.Stderr, "error: could not reach the game's direct server on 127.0.0.1:%d\n", port)
+	fmt.Fprintf(os.Stderr, "%s could not reach the game's direct server on 127.0.0.1:%d\n", ui.Err.Fail("error:"), port)
 	fmt.Fprintln(os.Stderr, "--game talks to a running game, not the editor. Check that:")
 	fmt.Fprintln(os.Stderr, "  - the game is actually running")
 	fmt.Fprintln(os.Stderr, "  - it was launched as a debug build (an exported release build never serves this)")
 	fmt.Fprintln(os.Stderr, "  - the godot_mcp/runtime/direct_server project setting is enabled")
 }
 
+// usage renders the top-level help: name line, usage forms, subcommand table,
+// examples, and the global flags, each section aligned and color-coded like
+// the rest of the help surfaces. It goes to stderr (usage errors exit 2).
 func usage() {
-	fmt.Fprintln(os.Stderr, `godot-mcp — drive a running Godot editor via the MCP addon
+	p := ui.Err
+	w := os.Stderr
 
-Usage:
-  godot-mcp [flags] <group> <command> [--param value ...]
+	fmt.Fprintln(w, p.Heading("godot-mcp")+" — drive a running Godot editor via the MCP addon")
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, p.Heading("Usage:"))
+	fmt.Fprintln(w, "  "+tintSlots("godot-mcp [flags] <group> <command> [--param value ...]", p))
+	fmt.Fprintln(w, "  "+tintSlots("godot-mcp <subcommand> [flags]", p))
 
-Examples:
-  godot-mcp create --path ./mygame --install   # bootstrap a new Godot 4.7 project + addon
-  godot-mcp install --project ./mygame      # copy addon + skill into a project
-  godot-mcp install-assets --pack kenney_prototype_textures  # greybox textures -> assets/vendor/
-  godot-mcp configure claude --project ./mygame   # point an AI client at the stdio MCP server
-  godot-mcp project info
-  godot-mcp scene tree
-  godot-mcp node add --type Sprite2D --name Player --parent-path .
-  godot-mcp node set --node-path Player --property position --value "Vector2(100, 200)"
-  godot-mcp node --help                     # list a group's commands (live; needs a running editor)
-  godot-mcp help <group> [<command>]        # same
-  godot-mcp help all                        # every command, grouped (JSON: godot-mcp engine commands)
-  godot-mcp --game runtime tree             # drive a STANDALONE running game directly (no editor)
+	subs := [][2]string{
+		{"create", "bootstrap a new Godot 4.7 project (--install adds the addon, --enable turns it on)"},
+		{"install", "copy the addon + agent skill into a project"},
+		{"install-assets", "copy bundled CC0 asset packs into a project (assets/vendor/)"},
+		{"configure", "write an MCP-server config for claude, cursor, vscode, or codex"},
+		{"serve", "MCP over stdio for AI clients"},
+		{"dashboard", "live stats web UI"},
+		{"status", "editor liveness preflight: running, starting, crashed, or closed (--all lists every live instance)"},
+		{"doctor", "environment preflight: binary, project, addon, port, editor, dotnet"},
+		{"help", "help all, or help <group> [<command>] (live from the addon; needs a running editor)"},
+	}
+	nameW := 0
+	for _, s := range subs {
+		nameW = max(nameW, len(s[0]))
+	}
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, p.Heading("Subcommands:"))
+	for _, s := range subs {
+		fmt.Fprintf(w, "  %s  %s\n", p.Key(padRight(s[0], nameW)), s[1])
+	}
 
-Subcommands: create (bootstrap a new Godot 4.7 project),
-install, install-assets (bundled CC0 packs -> assets/vendor/),
-configure <client> (write an MCP-server config for claude/cursor/vscode/codex),
-serve (MCP over stdio), dashboard (live stats web UI),
-status (is the editor running / crashed / closed — preflight before launching),
-doctor (environment preflight: godot binary, project, addon, port, editor, dotnet).
-Otherwise <group> <command>.
-Global flags must precede the group; --format json|tsv sets the result format
-(tsv for shell pipelines). --game routes runtime.*/input.* to a standalone
-running game's own server (no editor), resolving its port from the game
-discovery file (default 9200). Flags:`)
-	flag.PrintDefaults()
+	examples := [][2]string{
+		{"godot-mcp project info", ""},
+		{"godot-mcp scene tree", ""},
+		{"godot-mcp node add --type Sprite2D --name Player --parent-path .", ""},
+		{`godot-mcp node set --node-path Player --property position --value "Vector2(100, 200)"`, ""},
+		{"godot-mcp node --help", "one group's commands and params, live"},
+		{"godot-mcp create --path ./mygame --install", "new project with the addon in place"},
+		{"godot-mcp --game runtime tree", "drive a STANDALONE running game (no editor)"},
+	}
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, p.Heading("Examples:"))
+	for _, e := range examples {
+		if e[1] == "" {
+			fmt.Fprintf(w, "  %s\n", e[0])
+		} else {
+			fmt.Fprintf(w, "  %s   %s\n", e[0], p.Dim("# "+e[1]))
+		}
+	}
+
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, p.Heading("Flags")+" "+p.Dim("(before the group; groups and commands accept kebab-case):"))
+	printFlagTable(w, p, flag.VisitAll)
 }

@@ -10,6 +10,8 @@ export default defineEcConfig({
     borderRadius: "10px",
     borderColor: "var(--border)",
     codeFontFamily: "var(--font-mono)",
+    codeFontSize: "0.875rem",
+    codeLineHeight: "1.7",
     uiFontFamily: "var(--font-sans)",
     frames: {
       shadowColor: "transparent",

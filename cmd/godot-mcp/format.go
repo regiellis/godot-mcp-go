@@ -41,6 +41,37 @@ func formatTSV(result json.RawMessage) (string, error) {
 	}
 }
 
+// formatNDJSON renders a result as newline-delimited JSON for line-oriented
+// pipelines: a top-level array emits one compact element per line, anything
+// else emits the whole result compacted onto one line. Unlike TSV, nesting
+// survives — every line is complete JSON.
+func formatNDJSON(result json.RawMessage) (string, error) {
+	t := bytes.TrimSpace(result)
+	if len(t) == 0 {
+		return "", nil
+	}
+	if t[0] == '[' {
+		var elems []json.RawMessage
+		if err := json.Unmarshal(t, &elems); err != nil {
+			return "", err
+		}
+		lines := make([]string, len(elems))
+		for i, e := range elems {
+			var buf bytes.Buffer
+			if err := json.Compact(&buf, e); err != nil {
+				return "", err
+			}
+			lines[i] = buf.String()
+		}
+		return strings.Join(lines, "\n"), nil
+	}
+	var buf bytes.Buffer
+	if err := json.Compact(&buf, t); err != nil {
+		return "", err
+	}
+	return buf.String(), nil
+}
+
 // tsvArray renders a top-level array. When every element is an object it becomes
 // a header + rows table over the sorted union of keys; otherwise (scalars or a
 // mix) it becomes one cell per line.

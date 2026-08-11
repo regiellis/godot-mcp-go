@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/website/public/brand/mark.svg" width="104" alt="godot-mcp: a terminal prompt in a rounded tile with a live-connection dot">
+  <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/website/public/brand/mark.svg" width="104" alt="Godot MCP CLI: a terminal prompt in a rounded tile with a live-connection dot">
 </p>
 
-# godot-mcp
+# Godot MCP CLI
 
 [![Godot 4.7+](https://img.shields.io/badge/Godot-4.7%2B-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org)
 [![Go 1.26+](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](https://go.dev)
@@ -256,7 +256,7 @@ The same dashboard also lives **inside the editor**: the addon docks an **MCP pa
 
 ## Build on it
 
-The CLI is built to be scripted. The contract: results on stdout as JSON (or `--format tsv` for shell tools), errors on stderr with JSON-RPC codes, exit codes `0`/`1`/`2`, port discovery from the project directory, and `doctor`/`status` as scriptable preflights. The catalog itself is queryable JSON — `engine commands --docs` returns every command with typed params — so generators and UIs read the command list instead of hardcoding one. Underneath it all is a stable JSON-RPC-over-WebSocket wire that any language can speak: a Python script, a browser panel, a QA rig driving a standalone game via `--game`.
+The CLI is built to be scripted. The contract: piped results on stdout as JSON (`--format tsv|ndjson` for shell tools, `GODOT_MCP_FORMAT` to pin one per shell; a terminal gets color-coded tables instead, never a pipe), errors on stderr with JSON-RPC codes, exit codes `0`/`1`/`2`, port discovery from the project directory, and `doctor`/`status` as scriptable preflights. The catalog itself is queryable JSON — `engine commands --docs` returns every command with typed params — so generators and UIs read the command list instead of hardcoding one. Underneath it all is a stable JSON-RPC-over-WebSocket wire that any language can speak: a Python script, a browser panel, a QA rig driving a standalone game via `--game`.
 
 ```bash
 # hide every Label in the edited scene

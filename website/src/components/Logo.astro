@@ -4,7 +4,7 @@ interface Props { compact?: boolean }
 const { compact = false } = Astro.props;
 ---
 
-<a class="logo" href={withBase("/")} aria-label="godot-mcp home">
+<a class="logo" href={withBase("/")} aria-label="Godot MCP CLI home">
   <span class="logo-mark" aria-hidden="true">
     <svg width="26" height="26" viewBox="0 0 128 128" fill="none">
       <rect x="4" y="4" width="120" height="120" rx="28" fill="#12151a" />
@@ -19,7 +19,7 @@ const { compact = false } = Astro.props;
       </defs>
     </svg>
   </span>
-  {!compact && <span class="logo-text">godot-mcp</span>}
+  {!compact && <span class="logo-text">Godot MCP CLI</span>}
 </a>
 
 <style>
