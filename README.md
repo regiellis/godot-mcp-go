@@ -97,7 +97,7 @@ Concretely, against the two most-used alternatives — [`godot-ai`](https://gith
 | Start a project from nothing | no | no | `godot-mcp create` writes `project.godot`, icon, `.gitignore` |
 | Undo-safe mutations | — | — | `UndoRedo` across 29 command files, plus open-scene conflict refusal |
 | Extending it | in review ([#820](https://github.com/hi-godot/godot-ai/pull/820)) | — | `res://mcp_commands/*.gd`, no fork needed |
-| Godot versions | 4.5+ | 4.5+ | **4.7+**, verified on 4.7.2 and 4.8-dev |
+| Godot versions | **4.5+** | **4.5+** | 4.7+, verified on 4.7.2 and 4.8-dev |
 | Craft layer | tool reference | tool reference | 28 craft guides + agent skill |
 | GDScript style linting | — | — | 17 rules, native |
 | Install | Asset Library per its README; auto-configures 17+ clients | Asset Library (`Godot MCP Native`) | Asset Library (`Godot MCP/CLI`), or `godot-mcp install` / `create` / `configure` |

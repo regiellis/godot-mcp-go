@@ -37,7 +37,8 @@ const compare = [
   { axis: "Running-game control", ai: "editor-time only", native: "in-game probe", us: "IPC + editor-less channel" },
   { axis: "C# projects", ai: "not documented", native: "symbol indexing", us: "scaffold, build, diagnostics" },
   { axis: "New project from nothing", ai: "no", native: "no", us: "godot-mcp create" },
-  { axis: "Godot versions", ai: "4.5+", native: "4.5+", us: "4.7+, 4.8 verified" },
+  // win: "them" flips the check to the columns that earn it (they support older engines).
+  { axis: "Godot versions", ai: "4.5+", native: "4.5+", us: "4.7+, 4.8 verified", win: "them" },
   // Count derived from GUIDES so it cannot drift from the craft docs actually published.
   { axis: "Craft layer", ai: "tool reference", native: "tool reference", us: `${GUIDES.length} guides + skill` },
 ];
@@ -129,9 +130,9 @@ const caps = [
             {compare.map((r) => (
               <div class="ct-row" role="row">
                 <span role="cell" class="ct-axis">{r.axis}</span>
-                <span role="cell" class="them">{r.ai}</span>
-                <span role="cell" class="them">{r.native}</span>
-                <span role="cell" class="us"><Icon name="check" size={14} /> {r.us}</span>
+                <span role="cell" class={r.win === "them" ? "won" : "them"}>{r.win === "them" && <Icon name="check" size={14} />}{r.ai}</span>
+                <span role="cell" class={r.win === "them" ? "won" : "them"}>{r.win === "them" && <Icon name="check" size={14} />}{r.native}</span>
+                <span role="cell" class="us">{r.win !== "them" && <Icon name="check" size={14} />}{r.us}</span>
               </div>
             ))}
           </div>
@@ -270,8 +271,10 @@ const caps = [
       .ct-row:last-child { border-bottom: 0; }
       .ct-axis { color: var(--text); font-weight: 560; }
       .compare-table .them { color: var(--text-faint); }
-      .compare-table .us { color: var(--text); font-weight: 560; display: inline-flex; align-items: center; gap: 0.35rem; }
-      .compare-table .us :global(svg) { color: var(--accent); flex: none; }
+      .compare-table .us,
+      .compare-table .won { color: var(--text); font-weight: 560; display: inline-flex; align-items: center; gap: 0.35rem; }
+      .compare-table .us :global(svg),
+      .compare-table .won :global(svg) { color: var(--accent); flex: none; }
 
       /* Capabilities: two-column editorial grid with hairlines */
       .caps { border-top: 1px solid var(--border); }
