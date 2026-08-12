@@ -47,7 +47,7 @@ export const GUIDES: Guide[] = [
   { slug: "rhythm-games", group: "Systems", title: "Rhythm games", desc: "The corrected audio clock pushed down the tree, beatmap data, notes as functions of time, windowed judging." },
   { slug: "in-game-docs", group: "Systems", title: "In-game docs", desc: "Gyms, zoos, and museums: document the game in-game with doc.* recipes so it never goes stale." },
   { slug: "shipping-export", group: "Systems", title: "Shipping and export", desc: "The release pipeline: keeping dev tooling out of the pck, encrypting it, trimming the runtime, and verifying a build by receipts rather than exit codes." },
-  { slug: "game-trailers", group: "Systems", title: "Videos and trailers", desc: "Filming the game with the engine itself: a director scene, the movie writer, what rides film time, and the encode." },
+  { slug: "game-trailers", group: "Systems", title: "Videos and trailers", desc: "Filming the game with the engine itself: duration and delivery profiles from a 15 s hook to 9:16 vertical, a director scene, the movie writer, the render matrix." },
 
   { slug: "event-deck-games", group: "Genres", title: "Event / decision games", desc: "Reigns-like architecture: immutable cards plus a mutable overlay that is the save, weighted selection, condition DSLs." },
   { slug: "run-based-games", group: "Genres", title: "Run-based / roguelite", desc: "The reactive data blackboard, wave assembly under a weight budget, seeded staged worldgen with a self-audit." },
