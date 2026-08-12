@@ -1,13 +1,15 @@
 ---
 title: Overview
-description: What godot-mcp is and how the discover-then-drive loop works.
+description: The complete build, play, debug, fix, and verify workflow through one Godot interface.
 ---
 
-**godot-mcp** drives a running **Godot 4.7+** editor from the command line and from AI agents. A Go CLI (and an MCP `serve` mode for AI clients) talks to a GDScript editor addon over a local WebSocket, so you can build scenes, write GDScript or C#, play and inspect the running game, and introspect the engine's real API. **316 commands across 49 groups**, every one verified against a live editor.
+**godot-mcp** gives an AI agent the complete Godot development loop through one interface. It discovers the API exposed by the running **Godot 4.7+** build, authors the project in the open editor, plays and observes the separate game process, debugs failures, applies fixes, and verifies the result. The workflow runs from the command line or an MCP client through a Go CLI and GDScript addon.
 
 <Callout type="note">
-  This goes beyond scene assembly: the `runtime` and `input` groups play the game, inject input, and read live state back, so an agent builds **and tests**, proving its work by playing it.
+  Registered commands provide structured shortcuts through the workflow. Live ClassDB discovery and generic property, method, and script access keep engine features reachable without waiting for a dedicated wrapper.
 </Callout>
+
+The workflow is also the release gate. Every command is exercised live and read back, then an agent that did not build the tool must create and playtest a complete game slice through the public interface. See [How it's tested](/docs/testing).
 
 <Callout type="warning" title="Built for big-context models">
   The default MCP tool surface measures **about 52,000 tokens** of schemas, sized for frontier models with 200K to 1M windows and prompt caching, and those carry it comfortably. Context-tight clients drop to a single ~470-token tool with `serve --typed=false`, and the CLI needs no schemas at all. Full numbers in [What the tool surface costs](/docs/context-cost).
@@ -17,20 +19,26 @@ description: What godot-mcp is and how the discover-then-drive loop works.
   Godot's own command line (`--headless`, `--export-release`, `--script`) starts a **fresh engine process** per invocation, which is right for CI and blind to your session. godot-mcp connects to the **editor you already have open**: the live scene, the selection, the undo history, and the running game. Different jobs; use both. Details in [How it works](/docs/how-it-works).
 </Callout>
 
-## The core loop: discover, then drive
+## The working loop
 
-Because the CLI talks to the *live* engine, an agent grounds itself on what the running engine actually supports before acting, instead of guessing from training memory.
+`discover → build → run → play → observe → debug → fix → verify`
+
+Because the CLI talks to the *live* editor and game, each stage can verify the previous one against real state. The agent asks the engine instead of guessing, reads mutations back, drives gameplay through input, and moves into the debugger when behavior disagrees with intent.
 
 ```bash
 # 1. discover: ask the live ClassDB what exists
 godot-mcp engine search --query offset_transform
 
-# 2. drive: act through typed or generic commands
+# 2. build: act through typed or generic commands
 godot-mcp node set --node-path Player --property position --value "Vector2(100, 200)"
 
-# 3. prove it: play the game and read state back
+# 3. run and play
 godot-mcp scene play --mode main
+godot-mcp input action --action ui_accept --pressed true
+
+# 4. observe and verify
 godot-mcp runtime get --node-path Player --properties '["position"]'
+godot-mcp runtime errors
 ```
 
 ## Where to go next

@@ -1,11 +1,11 @@
 ---
 name: godot-mcp
-description: Drive a running Godot editor from the command line via the godot-mcp CLI: build/edit scenes and nodes, write GDScript, run and playtest the game (inspect the live tree, simulate input, screenshot), and introspect the engine's real API. Use when the task involves creating or modifying a Godot project, testing game behavior, or answering "does Godot/this node support X" against the actual engine.
+description: Use the complete Godot development loop from the godot-mcp CLI: discover the live engine API, build and edit in the open editor, run and play the game, observe state, debug failures, fix them in place, and verify the result. Use when the task involves creating or modifying a Godot project, testing game behavior, diagnosing a running game, or answering "does Godot/this node support X" against the actual engine.
 ---
 
 # Godot MCP (godot-mcp)
 
-`godot-mcp` is a CLI that drives a **running Godot editor** over a WebSocket the editor's MCP addon hosts. You create scenes, add nodes, write scripts, play the game, simulate input, and inspect both the editor and the running game, all without the user leaving the conversation. Every editor mutation goes through Godot's UndoRedo, so the user can Ctrl+Z anything.
+`godot-mcp` carries one workflow across the **running Godot editor**, the game process, and the debugger over a WebSocket the editor's MCP addon hosts. Discover the live API, create scenes, add nodes, write scripts, play the game, simulate input, inspect state, diagnose failures, apply fixes, and verify the result without leaving the interface. Every editor mutation goes through Godot's UndoRedo, so the user can Ctrl+Z anything.
 
 ## Prerequisites (check first)
 

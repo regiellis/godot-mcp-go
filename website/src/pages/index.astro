@@ -7,15 +7,16 @@ import { SITE, GUIDES } from "../config";
 import { docsHref } from "../lib/paths";
 
 const heroSession = [
-  { type: "comment", text: "# ask the live 4.7 build what it exposes, then act" },
+  { type: "comment", text: "# discover against the live build" },
   { type: "cmd", text: "godot-mcp engine search --query velocity" },
   { type: "out", text: "CharacterBody2D.velocity : Vector2" },
   { type: "out", text: "RigidBody3D.linear_velocity : Vector3" },
-  { type: "comment", text: "# build against the real SceneTree, undo-safe" },
+  { type: "comment", text: "# build in the real SceneTree" },
   { type: "cmd", text: "godot-mcp node add --type CharacterBody2D --name Player --parent-path ." },
   { type: "out", text: '{ "added": "Player", "path": "Player" }' },
-  { type: "comment", text: "# play it, then read live state back" },
+  { type: "comment", text: "# play, observe, and verify" },
   { type: "cmd", text: "godot-mcp scene play --mode main" },
+  { type: "cmd", text: "godot-mcp input action --action jump --pressed true" },
   { type: "cmd", text: "godot-mcp runtime get --node-path Player --properties '[\"position\"]'" },
   { type: "out", text: '{ "position": "Vector2(320, 180)" }' },
 ];
@@ -27,14 +28,15 @@ const installSession = [
   { type: "cmd", text: "godot-mcp create --path ./mygame --install --enable" },
 ];
 
-// Real head-to-head, sourced from the README comparison. Figures checked 2026-08-03
+// Real head-to-head, sourced from the README comparison. Figures checked 2026-08-12
 // against each project's repository; refresh both places together.
 const compare = [
   { axis: "Runtime dependencies", ai: "Python + uv", native: "none", us: "one Go binary, or none" },
   { axis: "Drives it from", ai: "an MCP client", native: "an MCP client", us: "any agent with a shell, or any MCP client" },
-  { axis: "Command surface", ai: "~120 ops", native: "155 tools", us: "329 across 50 groups" },
+  { axis: "Primary workflow", ai: "edit + game tools", native: "edit + in-game probe", us: "build → play → debug → verify" },
   { axis: "MCP schemas carried", ai: "~43 fixed", native: "155 fixed", us: "live-built, or 1" },
-  { axis: "Running-game control", ai: "editor-time only", native: "in-game probe", us: "IPC + editor-less channel" },
+  { axis: "Running-game control", ai: "live tree + synthetic input", native: "in-game probe", us: "state + input + capture + signals" },
+  { axis: "Runtime debugging", ai: "not documented", native: "not documented", us: "break, inspect, step, hot reload" },
   { axis: "C# projects", ai: "not documented", native: "symbol indexing", us: "scaffold, build, diagnostics" },
   { axis: "New project from nothing", ai: "no", native: "no", us: "godot-mcp create" },
   // win: "them" flips the check to the columns that earn it (they support older engines).
@@ -45,6 +47,16 @@ const compare = [
 
 const caps = [
   {
+    title: "One loop from build to proof.",
+    body: "The same interface discovers the live API, authors the project, runs and plays the game, observes state, diagnoses failures, applies a fix, and verifies the result. The agent keeps the context of the work as the task crosses from editor to game to debugger.",
+    cmd: "discover → build → run → play → observe → debug → fix → verify",
+  },
+  {
+    title: "Tested by finishing real work.",
+    body: "Every command is exercised against a live editor and read back. Before a release, an agent that did not build the tool must also create and playtest a complete game slice through the public interface. That catches broken sequences, states, timing, and missing steps that isolated command checks cannot produce.",
+    cmd: null,
+  },
+  {
     title: "A CLI first, an MCP server second.",
     body: "Every command runs from a shell, so a terminal-driven agent carries zero tool schemas and a human can drive the same surface by hand. The stdio and editor-direct HTTP MCP modes are a second front door onto that surface, not the only way in.",
     cmd: "godot-mcp node add --type Sprite2D --name Player --parent-path .",
@@ -53,6 +65,11 @@ const caps = [
     title: "It drives the running game.",
     body: "The runtime and input groups inspect and control the live game over a two-hop IPC: read the running scene tree, set and read node state, eval, capture frames, await signals, and inject input for deterministic playtesting. A debug build can host the channel itself, so the game is drivable with no editor open at all.",
     cmd: "godot-mcp runtime await-signal --node-path Boss --signal died --timeout 10",
+  },
+  {
+    title: "It debugs without abandoning the playtest.",
+    body: "Breakpoints, paused stacks, frame variables, stepping, and script hot reload keep diagnosis and repair inside the same session. A fix can enter the live process while its runtime state stays in place.",
+    cmd: "godot-mcp debug state",
   },
   {
     title: "Introspection instead of wrappers.",
@@ -85,13 +102,11 @@ const caps = [
       <section class="hero">
         <div class="wrap hero-grid">
           <div class="hero-copy">
-            <h1>Drive a running <span class="mono">Godot 4.7+</span> editor from your terminal, and from AI agents.</h1>
+            <h1>Give an agent the whole <span class="mono">Godot</span> development loop.</h1>
             <p class="lede">
-              A Go CLI and a GDScript addon talk to a live editor over WebSocket. Build scenes,
-              write GDScript or C#, play the game, and read its state back. <strong>316 commands</strong>,
-              every one verified against a running editor. Not Godot's batch CLI: that starts a
-              fresh engine process; this drives the editor you already have open, live scene,
-              undo history, running game and all.
+              Discover the live engine, build in the open editor, run and play the game, observe
+              state, debug failures, fix them in place, and verify the result. The same workflow
+              runs from a terminal or an MCP client against Godot 4.7+.
             </p>
             <div class="hero-actions">
               <a class="btn btn-primary" href={docsHref("quickstart")}>Get started <Icon name="arrow" size={16} /></a>
@@ -116,8 +131,8 @@ const caps = [
               largest community; Godot-MCP-Native has the leanest install; both run on Godot 4.5 and
               4.6 where this one asks for 4.7. Editor-native is table stakes now, so the axes worth
               measuring are how you drive it, how much context the tool surface costs, and what
-              happens once an agent is building and testing rather than assembling a scene.
-              Figures checked 2026-08-03.
+              happens across the full build, play, diagnose, and verify workflow.
+              Figures checked 2026-08-12.
             </p>
           </div>
           <div class="compare-table" role="table" aria-label="Comparison with godot-ai and Godot-MCP-Native">

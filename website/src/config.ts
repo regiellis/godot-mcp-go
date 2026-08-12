@@ -5,9 +5,9 @@
 
 export const SITE = {
   name: "Godot MCP CLI",
-  tagline: "Drive a running Godot 4.7 editor from the CLI and from AI agents.",
+  tagline: "Build, play, debug, and verify Godot games from the CLI or an AI agent.",
   description:
-    "A Go CLI and GDScript editor addon that drive a live Godot 4.7 editor over WebSocket: build scenes, write GDScript or C#, play and inspect the running game, and introspect the engine's real API. 316 commands across 49 groups.",
+    "Give an AI agent the complete Godot development loop: discover the live engine, build in the open editor, play and observe the game, debug failures, fix them in place, and verify the result.",
   repo: "https://github.com/regiellis/godot-mcp-go",
   editorVersion: "Godot 4.7+",
 };

@@ -7,16 +7,28 @@
 [![Godot 4.7+](https://img.shields.io/badge/Godot-4.7%2B-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org)
 [![Go 1.26+](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![Commands](https://img.shields.io/badge/commands-330-blue)
+![Workflow](https://img.shields.io/badge/workflow-build%20%7C%20play%20%7C%20debug%20%7C%20verify-blue)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
 
-Drive a running **Godot 4.7+** editor from the command line and from AI agents: build scenes, write GDScript or C#, play and inspect the game, and introspect the engine's real API. A Go CLI talks to a GDScript editor addon over WebSocket. **330 commands across 50 groups**, every one verified against a live editor.
+Give an AI agent the complete Godot development loop: discover the live engine, build in the open editor, run and play the game, observe state, debug failures, fix them in place, and verify the result. The same workflow is available from a terminal or an MCP client through a Go CLI and GDScript addon.
 
 <p align="center">
   <a href="https://youtu.be/XnoW6EHXaBw">
     <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/media/previews/demo-poster.png" width="860" alt="The Godot editor with the MCP dock open, a water demo running in its own window, and an agent writing GDScript in a terminal beside it">
   </a>
 </p>
+
+## The workflow is the product
+
+```text
+discover → build → run → play → observe → debug → fix → verify
+```
+
+The agent stays in one loop from an empty project to a proven game. It asks the running Godot build what exists, edits the real SceneTree with UndoRedo, drives the separate game process, reads state and errors back, breaks into the debugger when behavior is wrong, hot-reloads a fix, and continues the same playtest. A debug build can expose the play and observation channel with no editor open.
+
+Registered commands provide structured shortcuts through that workflow. Generic ClassDB discovery, property access, method calls, and script execution keep engine APIs reachable when no dedicated command wraps them. The CLI, typed MCP tools, and single-tool MCP mode all enter the same loop.
+
+The same loop is the release gate. Every command is exercised against a live editor and read back, then an agent that did not build the tool must create and playtest a complete game slice through the public interface. That second check found twelve sequence, state, timing, and missing-step defects after six releases had passed the command sweep. [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testing).
 
 <p align="center">
   <a href="https://youtu.be/XnoW6EHXaBw"><b>Watch the three-minute demo</b></a>. A seascape built inside a live editor: water tuned while the game runs, boids for the fish and gulls, audio buses wired from a panel, and the dock counting every call as it lands.
@@ -56,7 +68,7 @@ No. They do different jobs, and they compose. **Godot's own command line starts 
 | --- | --- | --- |
 | Process model | Launches a fresh engine process per invocation, cold start each time | Connects over WebSocket to the editor you already have open |
 | Session state | None: no open scene, no selection, no undo history | The live session: edited scene, selection, unsaved work, UndoRedo (every mutation Ctrl+Z-safe) |
-| Editing | Run a script once against project files | 330 commands against the open scene, with open-scene conflict protection |
+| Editing | Run a script once against project files | Structured operations against the open scene, with open-scene conflict protection |
 | The running game | The launched process *is* the game; nothing reaches inside it | A live channel into it: read state, `eval`, inject input, await signals, screenshot |
 | Introspection | `--doctool` dumps docs offline | `engine.*` reads the running build's ClassDB, live |
 | Built for | CI work like exports, imports, and batch scripts | Interactive building and playtesting, by humans at a terminal and by AI agents |
@@ -65,8 +77,9 @@ Keep using Godot's CLI for exports and CI; godot-mcp itself shells out to it to 
 
 ## How is this different from other Godot MCPs?
 
-Plenty of Godot MCP servers exist, and the good ones are editor-native, so "runs in the editor" isn't the differentiator. The differences show up once an agent is building and testing a game rather than assembling a scene and stopping:
+Plenty of Godot MCP servers exist, and the good ones are editor-native, so "runs in the editor" isn't the differentiator. The distinction begins after scene assembly, when the agent must play, observe, diagnose, fix, and verify:
 
+- **It closes the loop:** discover, author, run, play, observe, debug, fix, and verify all use the same interface. The agent can keep working from the first scene through a diagnosed and proven gameplay change.
 - **It's a CLI first, and an MCP server second:** every command runs from a shell (`godot-mcp node add --type Sprite2D …`), so a terminal-driven agent needs **zero** tool schemas and a human can drive the same surface by hand. The MCP modes are a second front door onto it, not the only one.
 - **It drives the running game:** the `runtime` and `input` groups inspect and control it over a two-hop IPC, reading the scene tree, setting node state, `eval`, capturing frames, `await_signal`, polling `runtime.errors`, and injecting input for deterministic playtesting. A debug-build game can also host its own channel and be driven with **no editor open at all** (`--game`).
 - **It debugs the running game:** the `debug` group arms real breakpoints (they show in the gutter and hit a game already running), reads the paused game's stack and per-frame variables, steps over/into/out, and hot-reloads edited scripts into the live process with state kept, so you fix a bug mid-playtest without restarting the run.
@@ -80,7 +93,7 @@ Plenty of Godot MCP servers exist, and the good ones are editor-native, so "runs
 - **A craft layer:** an agent skill plus 28 craft references (3D controllers, platformers, deckbuilders, interactive music, shaders, multiplayer, save systems…) that teach Godot's idioms, so an agent composes nodes and scenes the way a Godot developer would instead of reaching for whichever command fits.
 - **Style is checkable:** `script.lint` measures GDScript against the official style guide with 17 rules, each finding carrying line, rule, and severity, so the craft layer's advice becomes something an agent can verify against rather than merely read. It runs inside the addon, with no tool to install.
 
-Concretely, here it is against the two most-used alternatives, [`godot-ai`](https://github.com/hi-godot/godot-ai) and [`Godot-MCP-Native`](https://github.com/yurineko73/Godot-MCP-Native). Both are good, both are actively maintained, and all three are MIT. Figures checked 2026-08-03; verify them yourself before relying on any of it.
+Concretely, here it is against the two most-used alternatives, [`godot-ai`](https://github.com/hi-godot/godot-ai) and [`Godot-MCP-Native`](https://github.com/yurineko73/Godot-MCP-Native). Both are good, both are actively maintained, and all three are MIT. Figures checked 2026-08-12; verify them yourself before relying on any of it.
 
 | | godot-ai | Godot-MCP-Native | godot-mcp |
 | --- | --- | --- | --- |
@@ -92,7 +105,8 @@ Concretely, here it is against the two most-used alternatives, [`godot-ai`](http
 | MCP tool schemas carried | ~43 fixed | 155 fixed | live-built per command, or as few as **1** (`godot_run`) |
 | MCP transports | HTTP + WebSocket | HTTP, plus a headless editor mode | stdio, editor-direct HTTP, and the CLI |
 | MCP prompts / resources | none | none | 4 prompts, 5 `godot://` resources |
-| Running-game control | editor-time only | in-game probe autoload | two-hop IPC, plus a direct channel to an editor-less debug build |
+| Running-game control | live tree and synthetic input through a game-helper autoload | in-game probe autoload | live tree, state, input, capture, and signals, plus a direct channel to an editor-less debug build |
+| Runtime debugging | not documented | not documented | breakpoints, paused stacks, frame variables, stepping, and hot reload |
 | C# projects | not documented | symbol indexing, project inspection | `csharp` group: scaffold the csproj/sln, build, per-file diagnostics |
 | Start a project from nothing | no | no | `godot-mcp create` writes `project.godot`, icon, `.gitignore` |
 | Undo-safe mutations | no | no | `UndoRedo` across 29 command files, plus open-scene conflict refusal |
@@ -101,11 +115,11 @@ Concretely, here it is against the two most-used alternatives, [`godot-ai`](http
 | Craft layer | tool reference | tool reference | 28 craft guides + agent skill |
 | GDScript style linting | no | no | 17 rules, native |
 | Install | Asset Library per its README; auto-configures 17+ clients | Asset Library (`Godot MCP Native`) | Asset Library (`Godot MCP/CLI`), or `godot-mcp install` / `create` / `configure` |
-| Community | 1.4k stars | 590 stars | smaller |
+| Community | 1.6k stars | 685 stars | 39 stars |
 
 **Where each one wins.** godot-ai has the reach: the biggest community by some margin, and the broadest client support, auto-configuring 17+ of them. Godot-MCP-Native has the leanest install of the three (GDScript only, nothing to download, nothing on PATH), and it reaches the running game through an in-game probe much as this project does, so that is no longer a dividing line. **Both support Godot 4.5 and 4.6; this project asks for 4.7.**
 
-What this side adds starts with how you drive it: a **shell-drivable CLI** is the primary surface, so any agent that can run a shell command works, with no MCP support and no tool schemas at all. The MCP modes are a second front door, not the only way in. Past that: a tool surface **built live from the addon** rather than shipped as fixed schemas, collapsible to one tool for context-tight clients; MCP prompts and `godot://` resources; real C# project support; `create` to start a project from nothing; project-local commands without forking; the `spatial`, `pcg`, `wfc`, `scatter`, `skeleton`, and `authoring` groups; and the craft layer that teaches an agent Godot's idioms rather than only listing tools. Much of the other two's tool surface maps onto generic commands here (`node.set`/`node.get`/`node.call` against the live ClassDB), which is why a raw command count is not a like-for-like measure of capability.
+What this side adds is continuity. A **shell-drivable CLI** starts the same workflow from any agent that can run a command, with no MCP support or tool schemas required. Live-built schemas, MCP prompts and `godot://` resources, C# project support, `create`, project-local commands, spatial and procedural authoring, runtime control, the debugger, and the craft layer keep the agent inside that workflow as the job changes from building to playing to diagnosis. Much of the other two projects' surface maps onto generic commands here (`node.set`/`node.get`/`node.call` against the live ClassDB), so raw command counts are not a like-for-like measure of what an agent can finish.
 
 > [!NOTE]
 > Running godot-mcp and Godot-MCP-Native side by side: both default to port **9080**. Pin one of them (`GODOT_MCP_PORT`, or the `godot_mcp/network/port` project setting here) or the second to start will pick a different port and your client will connect to whichever answers.

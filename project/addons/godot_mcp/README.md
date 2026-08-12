@@ -1,16 +1,18 @@
 # Godot MCP/CLI
 
-Drive the Godot editor you already have open, from an AI agent or from a terminal. The addon hosts
-two local servers inside the running editor:
+Give an AI agent the complete Godot development loop from a terminal or MCP client: discover the
+live engine, build in the open editor, run and play the game, observe state, debug failures, fix
+them, and verify the result. The addon hosts two local servers inside the running editor:
 
 - a WebSocket server on `127.0.0.1`, first free port in 9080 to 9095, which the `godot-mcp` command
   line tool connects to;
 - a streamable-HTTP MCP endpoint at `POST /mcp` on `127.0.0.1`, first free port in 9100 to 9115,
   which an HTTP-capable MCP client connects to directly with no extra process running.
 
-Both dispatch the same 316 commands across 49 groups: scenes, nodes, GDScript and C#, spatial
-placement, materials, tilemaps, animation, physics, procedural generation, and live inspection of
-the running game. Every editor mutation goes through `UndoRedo`, so Ctrl+Z reverses it.
+Both enter the same workflow. Structured commands cover scenes, nodes, GDScript and C#, spatial
+placement, materials, tilemaps, animation, physics, procedural generation, live game control, and
+debugging. Generic ClassDB discovery and node access keep the workflow open to engine features
+without a dedicated command. Every editor mutation goes through `UndoRedo`, so Ctrl+Z reverses it.
 
 ## Setup
 

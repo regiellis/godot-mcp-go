@@ -3,6 +3,8 @@ title: How it's tested
 description: Every command is driven against a live editor, and a full game build precedes each release. The build gate exists because the per-command checks missed twelve real bugs.
 ---
 
+The release gate asks a broader question than whether each command works: can an agent that did not build the tool complete real work through it? That makes testing part of the product contract. The interface must carry a project across discovery, authoring, play, diagnosis, repair, and verification without a human filling in missing steps.
+
 Every one of the 330 commands is exercised against a running editor when it is added or changed, and the result is read back rather than trusted: `node get` after `node set`, `scene tree` after a structural change, a screenshot when the question is visual. The whole sweep re-runs whenever command registration or the shared helpers change, because tool bugs cluster there.
 
 That check ran clean for six releases. Then one night of real use found twelve bugs it had never seen. So there are now two checks.
