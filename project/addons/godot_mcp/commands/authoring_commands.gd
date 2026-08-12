@@ -1,13 +1,13 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## Multi-step-authoring helpers (`authoring.*`) — safeguards that make scripted,
+## Multi-step-authoring helpers (`authoring.*`): safeguards that make scripted,
 ## re-run builds robust (ported from mcp-unreal's resolve/ensure/checkpoint tier):
 ##
-## - `resolve`    — fuzzy name -> ranked node/scene/resource paths, flags ambiguity.
-## - `ensure`     — idempotent get-or-create of a node by exact name (re-running a
+## - `resolve`:    fuzzy name -> ranked node/scene/resource paths, flags ambiguity.
+## - `ensure`:     idempotent get-or-create of a node by exact name (re-running a
 ##                  build script converges instead of spawning Node2/Node3/...).
-## - `checkpoint` — capture / diff / restore a JSON snapshot of the scene's node
+## - `checkpoint`: capture / diff / restore a JSON snapshot of the scene's node
 ##                  identities + transforms (answers "what did my edits move?").
 ##
 ## A general tier, not a spatial appendix: pairs with the `spatial` group (resolve

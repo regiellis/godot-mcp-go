@@ -20,7 +20,7 @@ const (
 	VerdictClosed   Verdict = "closed"   // no discovery file: closed cleanly or never started
 )
 
-// Status is the result of Diagnose — a machine- and agent-readable verdict plus
+// Status is the result of Diagnose: a machine- and agent-readable verdict plus
 // guidance. It is emitted by `godot-mcp status` and attached to dial failures so
 // the agent can tell a crash from a deliberate close and avoid stacking editors.
 type Status struct {
@@ -82,13 +82,13 @@ func Diagnose(cwd string, flagPort int) Status {
 	st.PortSource = res.Source
 	st.ProjectPath = answering
 	st.ProjectMatch = &match
-	st.Message = fmt.Sprintf("An editor answered on port %d, but it is serving %s, not %s — this project has no editor of its own.", res.Port, answering, res.Project)
+	st.Message = fmt.Sprintf("An editor answered on port %d, but it is serving %s, not %s. This project has no editor of its own.", res.Port, answering, res.Project)
 	st.Action = (&ProjectMismatch{Port: res.Port, Source: res.Source, Expected: res.Project, Answering: answering}).Action()
 	return st
 }
 
 // classify is the pure decision from the three observable facts: whether the
-// discovery file exists (intent — a clean close deletes it), whether the server
+// discovery file exists (intent, since a clean close deletes it), whether the server
 // answers (reachable), and whether its recorded pid is alive. Kept separate from
 // the probes so the verdict logic is unit-testable.
 func classify(disc *Discovery, port int, reachable, alive bool) Status {
@@ -96,7 +96,7 @@ func classify(disc *Discovery, port int, reachable, alive bool) Status {
 		s := Status{
 			Verdict: VerdictRunning, Reachable: true, Port: port,
 			Message: "Editor is running and reachable.",
-			Action:  "Proceed. Do NOT launch another editor — a second instance would stack.",
+			Action:  "Proceed. Do NOT launch another editor: a second instance would stack.",
 		}
 		if disc != nil {
 			s.PID = disc.PID
@@ -109,20 +109,20 @@ func classify(disc *Discovery, port int, reachable, alive bool) Status {
 	if disc == nil {
 		return Status{
 			Verdict: VerdictClosed, Port: port,
-			Message: "No editor reachable and no discovery file — the editor was closed cleanly or was never started.",
+			Message: "No editor reachable and no discovery file. The editor was closed cleanly or was never started.",
 			Action:  "You may launch ONE editor (godot --path <project> --editor) if the task needs it. Never launch a second.",
 		}
 	}
 	if alive {
 		return Status{
 			Verdict: VerdictStarting, Port: port, PID: disc.PID, StartedUnix: disc.StartedUnix,
-			Message: "Editor process is alive but not accepting connections yet — it is still booting or the addon has not bound.",
+			Message: "Editor process is alive but not accepting connections yet. It is still booting or the addon has not bound.",
 			Action:  "Wait a few seconds and retry. Do NOT launch another editor.",
 		}
 	}
 	return Status{
 		Verdict: VerdictCrashed, Port: port, PID: disc.PID, StartedUnix: disc.StartedUnix,
-		Message: fmt.Sprintf("Editor appears to have crashed — a stale discovery file remains but its process (pid %d) is gone.", disc.PID),
+		Message: fmt.Sprintf("Editor appears to have crashed: a stale discovery file remains but its process (pid %d) is gone.", disc.PID),
 		Action:  "Tell the user it crashed. You may relaunch ONE editor. Never launch a second.",
 	}
 }

@@ -105,7 +105,7 @@ func (s *server) pollSession(ctx context.Context) {
 		return
 	}
 	defer conn.Close(websocket.StatusNormalClosure, "")
-	conn.SetReadLimit(8 << 20) // 8MB — well above a capped stats snapshot
+	conn.SetReadLimit(8 << 20) // 8MB, well above a capped stats snapshot
 
 	id := 0
 	for ctx.Err() == nil {

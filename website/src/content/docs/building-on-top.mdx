@@ -1,13 +1,13 @@
 ---
 title: Your own tools and UIs
-description: Speak the wire protocol directly — a Python client and a working browser panel, each under 50 lines.
+description: Speak the wire protocol directly with a Python client and a working browser panel, each under 50 lines.
 ---
 
-The CLI is one client of a boring, stable wire: **JSON-RPC 2.0 over a local WebSocket** hosted by the editor addon. Anything that can open a WebSocket can be a Godot tool — a script, a test rig, a web UI. Three facts cover the whole protocol:
+The CLI is one client of a boring, stable wire: **JSON-RPC 2.0 over a local WebSocket** hosted by the editor addon. Anything that can open a WebSocket can be a Godot tool, whether that is a script, a test rig, or a web UI. Three facts cover the whole protocol:
 
-- **Find the port** in `<project>/.godot/godot-mcp.json` — the addon writes it on bind (auto range 9080-9095).
-- **Send** `{"jsonrpc": "2.0", "id": 1, "method": "<group>.<command>", "params": {…}}` as a text frame, and **match the response by `id`** — frames without your `id` (heartbeats) are ignored.
-- **Errors** come back as `{"error": {"code", "message", "data"}}` with JSON-RPC-style codes — see [How it works](/docs/how-it-works).
+- **Find the port** in `<project>/.godot/godot-mcp.json`, which the addon writes on bind (auto range 9080-9095).
+- **Send** `{"jsonrpc": "2.0", "id": 1, "method": "<group>.<command>", "params": {…}}` as a text frame, and **match the response by `id`**. Frames without your `id` are heartbeats, so ignore them.
+- **Errors** come back as `{"error": {"code", "message", "data"}}` with JSON-RPC-style codes (see [How it works](/docs/how-it-works)).
 
 ## A Python client
 
@@ -43,7 +43,7 @@ python godot.py node.add '{"type": "Sprite2D", "name": "Player", "parent_path": 
 
 ## A browser panel
 
-A WebSocket from a page needs no server and no CORS exception — this single file is a working Godot control panel:
+A WebSocket from a page needs no server and no CORS exception, so this single file is a working Godot control panel:
 
 ```html
 <!doctype html>
@@ -76,10 +76,10 @@ A WebSocket from a page needs no server and no CORS exception — this single fi
 </script>
 ```
 
-The exchange above is verified against a live editor. Grow it in any direction — the [live dashboard](/docs/dashboard) that ships with the CLI is exactly this pattern taken further: one persistent connection polling `stats.snapshot`, an htmx UI, embedded in the Go binary.
+The exchange above is verified against a live editor. Grow it in any direction. The [live dashboard](/docs/dashboard) that ships with the CLI is exactly this pattern taken further: one persistent connection polling `stats.snapshot`, an htmx UI, embedded in the Go binary.
 
 ## Or skip the socket
 
-- **Shell out to the CLI** and parse JSON or TSV — see [Scripting and CI](/docs/automation).
-- **Speak MCP**: `godot-mcp serve` exposes every command as a typed tool for AI clients — see [Use with an AI client](/docs/mcp-setup).
-- **Generate from the catalog**: `engine commands --docs` returns every command with typed params — enough to build forms, bindings, or a command-palette UI without hardcoding a single command name.
+- **Shell out to the CLI** and parse JSON or TSV. [Scripting and CI](/docs/automation) covers it.
+- **Speak MCP**: `godot-mcp serve` exposes every command as a typed tool for AI clients. See [Use with an AI client](/docs/mcp-setup).
+- **Generate from the catalog**: `engine commands --docs` returns every command with typed params, enough to build forms, bindings, or a command-palette UI without hardcoding a single command name.

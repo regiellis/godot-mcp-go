@@ -1,4 +1,4 @@
-# Top-down 2D & sim construction — components, terrains, and clocks
+# Top-down 2D & sim construction: components, terrains, and clocks
 
 How top-down games (farming sims, RPGs, life sims) are assembled the Godot way: a component
 library glued by signals, gameplay that *paints terrain*, and systems that run off one game
@@ -12,9 +12,9 @@ One `TileMapLayer` per meaning, in draw order, under a Y-sorted root:
 ```
 Level (Node2D, y_sort_enabled)
 └── GameTilemap (Node2D, y_sort_enabled)
-    ├── Water / Grass / TilledSoil    (flat ground — no Y-sort)
+    ├── Water / Grass / TilledSoil    (flat ground, no Y-sort)
     ├── Undergrowth                   (under actors)
-    ├── Overgrowth (y_sort_enabled)   (sorts against actors — trees, posts)
+    ├── Overgrowth (y_sort_enabled)   (sorts against actors: trees, posts)
     └── Objects (y_sort_enabled)
 ```
 
@@ -23,7 +23,7 @@ Y-sort only works when **every** node in the chain from the common ancestor down
 unsorted. Gameplay layers are separate on purpose: `TilledSoil` is its own layer so tilling,
 saving, and crop placement each talk to exactly one node.
 
-## Gameplay paints terrain — `tilemap.set_terrain`
+## Gameplay paints terrain with `tilemap.set_terrain`
 
 Actions that change the ground (tilling, paths, corruption) are *terrain painting*: the engine's
 autotiler picks tiles whose peering bits connect with neighbors, so one command yields
@@ -33,16 +33,16 @@ tilemap get-info --node-path TilledSoil            # discover terrain_sets: [{id
 tilemap set-terrain --node-path TilledSoil --cells '[[4,2],[5,2],[5,3]]' --terrain-set 0 --terrain 0
 tilemap set-terrain --node-path TilledSoil --cells '[[5,2]]' --terrain-set 0 --terrain -1   # erase
 ```
-**Gotcha (live-verified):** a terrain must include an *island* tile — terrain assigned, **no**
-peering bits — or painting isolated cells places *nothing, silently*. Author terrains in the
-TileSet editor (peering bits are visual work); paint them from code/CLI.
+**Gotcha (live-verified):** a terrain must include an *island* tile, meaning terrain assigned
+with **no** peering bits. Without one, painting isolated cells places *nothing, silently*.
+Author terrains in the TileSet editor (peering bits are visual work); paint them from code/CLI.
 
 The in-game version is a **cursor component**: mouse → cell via
 `layer.local_to_map(layer.get_local_mouse_position())`, gate by
 `player.global_position.distance_to(layer.map_to_local(cell))` (reach), then
 `set_cells_terrain_connect([cell], set, terrain, true)`. Same shape for planting: instantiate
-a crop scene at `map_to_local(cell)` under a `CropFields` container — position on the grid,
-node off it.
+a crop scene at `map_to_local(cell)` under a `CropFields` container, so the position lands on
+the grid while the node lives off it.
 
 ## The component library (one Area2D, one job, one signal)
 
@@ -58,16 +58,16 @@ Build these once as saved scenes; every entity composes them (`scene.instance` +
 | GrowthCycleComponent | Node | day-tick driven; emits `crop_maturity`, `crop_harvesting` |
 
 The **tool-gating** trick makes one hit system serve axe/hoe/watering-can: HurtComponent
-compares its expected tool against the hitter's current tool — no `if` forest in the player. An
-entity is then pure wiring: a tree connects `hurt → damage.apply_damage`,
+compares its expected tool against the hitter's current tool, which keeps the `if` forest out
+of the player. An entity is then pure wiring: a tree connects `hurt → damage.apply_damage`,
 `max_damage_reached → drop log scene + queue_free`. A crop connects day-ticks to sprite frames
-(`sprite.frame = growth_state` — growth stages as spritesheet frames, no animation needed).
-Swinging a tool = enabling the HitComponent's collision shape during the swing state.
+(growth stages are spritesheet frames, so `sprite.frame = growth_state` covers it and no
+animation is needed). Swinging a tool = enabling the HitComponent's collision shape during the swing state.
 
 ## The state machine as child nodes
 
 When states own *behavior* (not just animation), make the machine a node with one child per
-state — the inspector becomes your state editor:
+state. The inspector then doubles as your state editor:
 
 ```gdscript
 class_name NodeStateMachine extends Node          # machine: collects NodeState children,
@@ -87,7 +87,7 @@ states differ only in animation. NPCs reuse the same machine with different stat
 (Timer wait) ⇄ `Walk` (pick a wander target via
 `NavigationServer2D.map_get_random_point(agent.get_navigation_map(), agent.navigation_layers, false)`,
 steer with `NavigationAgent2D`; with avoidance on, set `agent.velocity` and move in
-`velocity_computed` — the safe-velocity handshake).
+`velocity_computed`, which is the safe-velocity handshake).
 
 ## One clock, many consumers (day/night)
 
@@ -96,7 +96,7 @@ minute, so one day = one full circle) and emits three granularities: `game_time(
 frame, `time_tick(day,hour,min)` per game-minute, `time_tick_day(day)` per day. Consumers pick
 their granularity:
 
-- **Lighting**: a `CanvasModulate` component samples a `GradientTexture2D` —
+- **Lighting**: a `CanvasModulate` component samples a `GradientTexture2D` with
   `color = gradient.sample(0.5 * (sin(time - PI/2) + 1.0))`. The gradient *is* the whole
   lighting design (night blue → dawn gold → noon white → dusk); tune colors, not code.
 - **Crops**: `GrowthCycleComponent` advances one growth state per `time_tick_day` (only if
@@ -110,11 +110,11 @@ Build: `project add-autoload`, then `node add --type CanvasModulate` + attach th
 Each saveable node carries a `SaveDataComponent` (in group `save_data_component`) holding a
 typed Resource; a per-level `SaveLevelDataComponent` sweeps the group, calls `_save_data(node)`
 on each, and `ResourceSaver.save()`s the collected array to `user://game_data/save_<level>.tres`.
-Polymorphism does the heavy lifting — subclasses of a `NodeDataResource` base
+Polymorphism does the heavy lifting: subclasses of a `NodeDataResource` base
 (`_save_data(node)` / `_load_data(root)`) each know their own shape:
 
-- `SceneDataResource` — stores `scene_file_path` + position; load re-instantiates and re-parents.
-- `TilemapDataLayerResource` — stores a layer's `get_used_cells()`; load **repaints** them with
+- `SceneDataResource` stores `scene_file_path` + position; load re-instantiates and re-parents.
+- `TilemapDataLayerResource` stores a layer's `get_used_cells()`; load **repaints** them with
   `set_cells_terrain_connect`, so the autotiler rebuilds seams instead of restoring raw cells.
 
 Adding a saveable thing = new Resource subclass + drop the component on it. No central save
@@ -130,15 +130,15 @@ switch statement. (For the diff-based alternative, see `gdscript-architecture.md
   a Dictionary + `inventory_updated`. State + signals, no game logic (see `gdscript-architecture.md`
   autoload tiering).
 - **Reward juice**: chest feeding tweens each item from inventory to the chest (`position`, then
-  `scale`, then `queue_free` callback) with staggered `create_timer` delays — consumption reads
-  physically.
+  `scale`, then `queue_free` callback) with staggered `create_timer` delays, so consumption
+  reads physically.
 - **Shader feedback**: chopping sets `material.set_shader_parameter("shake_intensity", 0.5)` for a
-  second — hit feedback without touching the transform.
+  second. Hit feedback without touching the transform.
 
 ## Checklist
 
-- Ground layers flat; only layers that interleave with actors get `y_sort_enabled` — and the whole
-  ancestor chain has it.
+- Ground layers flat. Only layers that interleave with actors get `y_sort_enabled`, and the
+  whole ancestor chain needs it too.
 - Ground-changing gameplay is terrain painting; the terrain has an island tile.
 - Entities are component compositions wired by signals; tools gate hits by enum match.
 - Behavior states are child nodes emitting `transition`; animation-only states use the AnimationTree.

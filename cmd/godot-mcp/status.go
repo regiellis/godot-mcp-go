@@ -13,7 +13,7 @@ import (
 
 // runStatus is a local subcommand (it never dials through the addon) that reports
 // whether the editor is reachable and, if not, whether it crashed or was closed
-// cleanly. Agents run this as a preflight before deciding to (re)launch — so they
+// cleanly. Agents run this as a preflight before deciding to (re)launch, so they
 // never stack a second editor onto a running one, and can tell a crash from a
 // deliberate close. Exit 0 when reachable, 1 otherwise.
 func runStatus(args []string) int {
@@ -55,13 +55,13 @@ never start a second editor when one is running. Exit 0 when reachable.`)
 
 // runStatusAll lists every live godot-mcp instance on this machine: editors
 // found across the auto range and pinned ports (identified via project.info),
-// and direct game servers (TCP presence only — that channel has no identity
+// and direct game servers (TCP presence only, since that channel has no identity
 // to ask for). A terminal gets the table render; piped output is JSON, same
 // contract as command results. Exit 0 when at least one editor is live.
 func runStatusAll(cwd string) int {
 	editors, games := client.ScanInstances(context.Background(), cwd)
 
-	// Empty scans render as [] rather than null — kinder to jq and typed parsers.
+	// Empty scans render as [] rather than null, which is kinder to jq and typed parsers.
 	if editors == nil {
 		editors = []client.EditorInstance{}
 	}

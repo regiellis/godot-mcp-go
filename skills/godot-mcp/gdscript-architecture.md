@@ -1,7 +1,7 @@
 # Large-scale GDScript architecture
 
 How to structure the *runtime* of a big GDScript game so it stays decoupled and
-navigable — the layer above `project-structure.md`'s folder layout. Distilled from a
+navigable. This is the layer above `project-structure.md`'s folder layout. Distilled from a
 shipped commercial Godot narrative game (real GDScript source: ~800 scripts, ~1000
 scenes, 22 autoloads, 8 locales, console releases). Patterns are durable and map straight
 to the CLI (`project.add_autoload`, `script.create`, `node.add`). For any exact API,
@@ -9,7 +9,7 @@ confirm against the live engine with `engine class-info`/`engine search`.
 
 The throughline: **decouple by indirection, not by reaching across the tree.** Global
 *services* found by name, *state* addressed by path, *nodes* found by a query index, and
-*commands* dispatched through a handler chain — so no system hard-references another's tree
+*commands* dispatched through a handler chain, so no system hard-references another's tree
 position.
 
 ## Tier your autoloads; keep logic out of them
@@ -17,14 +17,14 @@ position.
 22 autoloads sounds like a lot, but it scales because they're *tiered by role*, not a
 junk drawer of managers:
 
-- **Core spine** — `Constants` (enums/paths/regexes), `Game` (orchestrator), `Utils`,
+- **Core spine**: `Constants` (enums/paths/regexes), `Game` (orchestrator), `Utils`,
   `Service` (locator), `Index` (node query), `Store` (state).
-- **Data/state** — the state store, the narrative/story engine, input config.
-- **Engine wrappers** — one autoload each fronting a subsystem: camera, audio (FMOD),
+- **Data/state**: the state store, the narrative/story engine, input config.
+- **Engine wrappers**, one autoload each fronting a subsystem: camera, audio (FMOD),
   environment/render toggles, controller-icon mapping. These insulate game code from
   version-specific engine APIs in one place.
-- **Persistent UI overlays** — pause screen, debug console, perf monitor, loaded as
-  `.tscn` autoloads so they carry a full node tree.
+- **Persistent UI overlays** such as the pause screen, debug console, and perf monitor,
+  loaded as `.tscn` autoloads so they carry a full node tree.
 
 Rule: an autoload holds **cross-cutting state or an adapter**, never gameplay logic.
 Gameplay lives in scenes and components. Register with `project.add_autoload`.
@@ -38,7 +38,7 @@ singletons. Reproduce them on any large project.
 
 An autoload watches the whole tree (`get_tree().node_added/removed/renamed`); any node
 **named with a `$` prefix** auto-registers under that name. Retrieve the live instance with
-`Service.of("Name")` — null-safe if absent.
+`Service.of("Name")`, which is null-safe if absent.
 
 ```gdscript
 # A node named "$SceneManager" anywhere in the tree becomes:
@@ -49,7 +49,7 @@ An autoload watches the whole tree (`get_tree().node_added/removed/renamed`); an
 No manual registration, no singleton bloat: each service is just a node living in the
 scene that owns it, discoverable in the editor (you can *see* `$ScreenNavigator`). The
 shipped game routes ~10 services (ScreenNavigator, NotificationHandler, DialogueHandler,
-Fader…) this way. **Pattern: convention-registered service locator** — decouples callers
+Fader…) this way. **Pattern: convention-registered service locator.** It decouples callers
 from where a service lives.
 
 ### 2. Node query index (`Index`)
@@ -63,8 +63,8 @@ var pivot = Index.get_with("SpeechBubblePivot", "Player")
 var skit  = Index.get_with("SkitContainer", "WakeUp")
 ```
 
-Two index kinds — unique (one node per key) and multiple (many per key, with an optional
-predicate filter). **Pattern: spatial/semantic node registry** — lets logic find "the
+Two index kinds exist: unique (one node per key) and multiple (many per key, with an optional
+predicate filter). **Pattern: spatial/semantic node registry**, which lets logic find "the
 player's speech anchor" without knowing the scene structure.
 
 ### 3. Path-addressed state store (`Store`)
@@ -78,7 +78,7 @@ Store.set_value("fb://posts/%s/liked" % id, true) # write (mutates the live dict
 ```
 
 `$`-prefixed keys hold transient per-DB config (UI state, high scores) kept separate from
-narrative content. **Pattern: central state addressed by path** — code references *data*,
+narrative content. **Pattern: central state addressed by path.** Code references *data*,
 not objects, and the store owns persistence (next section).
 
 ## Two-tier save: a Resource header + JSON-diff checkpoints
@@ -103,7 +103,7 @@ Don't serialize one giant blob. The shipped game saves in two complementary tier
    patches forward.
 
    Why diffs, for a narrative game: the databases (social feeds, emails, web pages) are
-   hundreds of KB but only a few values change per scene — a 500 KB DB becomes a ~2 KB diff.
+   hundreds of KB but only a few values change per scene, so a 500 KB DB becomes a ~2 KB diff.
    It also makes saves **scene-addressable** (rewind to any visited scene) for free.
 
 **Pattern: small verified Resource header + diff-per-checkpoint for bulk state.** Reach for
@@ -113,7 +113,7 @@ it whenever bulk state dwarfs what actually changes between save points.
 
 A single `Game` autoload owns the run: savegame/config, pause, time, platform, and **all
 scene transitions**. Scenes are addressed by **string keys** (`"1.1a"`, `"1.2"`) resolved
-through a `SceneDirectory` built from a JSON file — never by hard-coded paths:
+through a `SceneDirectory` built from a JSON file, never by hard-coded paths:
 
 ```gdscript
 Game.to_scene_key("1.1a")     # load by key (looks up path, shows loading screen)
@@ -121,8 +121,8 @@ Game.to_next_scene()          # follow the chapter chain to the next key
 ```
 
 `change_scene_to_*` is wrapped (`Game.change_scene`) to pass params, emit
-`will_change_scene`, and clear per-scene caches. **Pattern: key-addressed scene graph** —
-content authors reference `"3.2b"`, not a `res://` path; the directory owns chapter order,
+`will_change_scene`, and clear per-scene caches. **Pattern: key-addressed scene graph.**
+Content authors reference `"3.2b"`, not a `res://` path; the directory owns chapter order,
 NG+ variants, hidden/unlocked state.
 
 ## A `Scene` base class with a lifecycle contract
@@ -141,18 +141,18 @@ func exit_scene(): if auto_fade_out: await _fade_out()   # awaited by Game befor
 So `Game` can do `await last_scene.exit_scene()` and read `last_scene.key` on *any* scene.
 Fade in/out, shader pre-caching, and audio cleanup are handled once in the base; a
 `CutScene extends Scene` adds skip UI and disables pause. **Pattern: a scene base class is
-the contract between your scene-router and your content** — give every routed scene the
+the contract between your scene-router and your content.** Give every routed scene the
 same `key` + `enter/exit` shape.
 
 ## Components vs. modules
 
 Two reuse tiers, kept distinct:
 
-- **Components** (`components/`) — single-responsibility, scene-bound building blocks
+- **Components** (`components/`) are single-responsibility, scene-bound building blocks
   (`Focus`, `CameraEffects`, `AudioEventEmitter`). `class_name`, heavy `@export`
   (with `@export_group`), communicate by **signals**, instanced into scenes. A component
   may create child components.
-- **Modules** (`modules/`) — feature-complete subsystems that own their domain
+- **Modules** (`modules/`) are feature-complete subsystems that own their domain
   (a rhythm minigame, the record-replay harness), often a deep folder of tightly-coupled
   files with their own internal state machines. Modules *use* components; components never
   depend on modules.
@@ -168,11 +168,11 @@ mouse+keyboard). The shipped game uses a global **focus stack**:
 - A `FocusManager` autoload holds a stack of named focus scopes and emits `focus_changed`;
   there's always a base scope that's never popped.
 - A small `Focus` **component** (with an `@export focus_name`) sits on each input region,
-  listens to `focus_changed`, and flips its own `active` flag — input handlers consume
+  listens to `focus_changed`, and flips its own `active` flag. Input handlers consume
   input only while active.
 
 Opening dialogue pushes a `"dialogue"` scope (interactive areas go inert); closing it pops
-back. **Pattern: push/pop focus scopes + per-region focus components** — narrative code can
+back. **Pattern: push/pop focus scopes + per-region focus components.** Narrative code can
 even script focus transitions. Essential for console certification.
 
 ## Determinism & a record-replay harness
@@ -181,8 +181,8 @@ For QA and reproducibility the game seeds RNG (`seed(...)` at boot) and ships a
 **record-replay module**: an overlay that records timestamped input events (and continuous
 mouse position) to a `Resource`, then replays them frame-synced, exiting with **CI exit
 codes** (pass/timeout/fail). State systems explicitly *skip* saving while replay is active
-to eliminate nondeterminism. **Pattern: record/replay input for automated playtests** —
-worth it once a game is too large to test by hand.
+to eliminate nondeterminism. **Pattern: record/replay input for automated playtests**, worth
+it once a game is too large to test by hand.
 
 ## Transferable rules
 

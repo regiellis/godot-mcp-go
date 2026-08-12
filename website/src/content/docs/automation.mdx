@@ -1,15 +1,15 @@
 ---
 title: Scripting and CI
-description: The CLI's automation contract in bash and PowerShell — exit codes, JSON and TSV output, discovery — plus a complete CI smoke test.
+description: "The CLI's automation contract in bash and PowerShell: exit codes, JSON and TSV output, discovery, plus a complete CI smoke test."
 ---
 
-The CLI is built to live inside scripts: results go to stdout, errors go to stderr as the JSON-RPC code and message, and exit codes follow one contract — `0` success, `1` command or connection error, `2` usage error. Everything on this page is composition on top of that.
+The CLI is built to live inside scripts: results go to stdout, errors go to stderr as the JSON-RPC code and message, and exit codes follow one contract: `0` success, `1` command or connection error, `2` usage error. Everything on this page is composition on top of that.
 
-Single commands are identical in every shell — `godot-mcp project info` pastes into bash, PowerShell, or cmd unchanged. The tabs below appear where pipelines diverge; PowerShell examples use its native object pipeline (`ConvertFrom-Json`) rather than transliterated bash.
+Single commands are identical in every shell. `godot-mcp project info` pastes into bash, PowerShell, or cmd unchanged. The tabs below appear where pipelines diverge; PowerShell examples use its native object pipeline (`ConvertFrom-Json`) rather than transliterated bash.
 
 ## Machine output
 
-Piped output is pretty-printed JSON — the CLI detects the pipe and never emits color or table layout there, so a script has nothing to strip. (On a terminal, results render as tables and key/value boxes instead; `--format json` pins exact JSON anywhere.) `--format tsv` (global flags precede the group) re-renders a result for text tools: an object becomes `key<TAB>value` rows, an array of objects becomes a header row plus one row per element, and nested values stay as compact JSON. `--format ndjson` emits one compact JSON value per line when the result is a top-level array, and the whole result on a single line otherwise (most commands wrap arrays in an object, so expect one line there) — unlike TSV, nesting survives intact. The `GODOT_MCP_FORMAT` environment variable pins a format for a whole shell or CI job; the flag always wins, and an unrecognized value warns and falls back to the default.
+Piped output is pretty-printed JSON. The CLI detects the pipe and never emits color or table layout there, so a script has nothing to strip. (On a terminal, results render as tables and key/value boxes instead; `--format json` pins exact JSON anywhere.) `--format tsv` (global flags precede the group) re-renders a result for text tools: an object becomes `key<TAB>value` rows, an array of objects becomes a header row plus one row per element, and nested values stay as compact JSON. `--format ndjson` emits one compact JSON value per line when the result is a top-level array, and the whole result on a single line otherwise (most commands wrap arrays in an object, so expect one line there). Unlike TSV, nesting survives intact. The `GODOT_MCP_FORMAT` environment variable pins a format for a whole shell or CI job; the flag always wins, and an unrecognized value warns and falls back to the default.
 
 <ShellTabs>
 
@@ -38,7 +38,7 @@ godot-mcp --format tsv project info | awk -F'\t' '$1 == "main_scene" { print $2 
 
 ## Drive every node of a type
 
-Queries compose with actions — `batch find-nodes-by-type` returns paths that feed straight back into `node set`:
+Queries compose with actions. `batch find-nodes-by-type` returns paths that feed straight back into `node set`:
 
 <ShellTabs>
 
@@ -67,7 +67,7 @@ godot-mcp batch find-nodes-by-type --type Label \
 
 ## Preflight, then launch
 
-`godot-mcp doctor` checks the environment (godot binary, project, addon install state, port config, dotnet) and exits `1` only on a real failure — "no editor running yet" is a warning, so it is safe to run before you have launched anything. `godot-mcp status` gives the machine-readable liveness verdict (`running` / `starting` / `crashed` / `closed`); the launch policy follows from it — never start a second editor when one is `running`. `godot-mcp status --all` scans the editor auto range (9080-9095, plus any pinned port) and the game range (9200-9215) and lists every live instance with its port, project, version, and pid — the multi-instance view when two editors are open at once.
+`godot-mcp doctor` checks the environment (godot binary, project, addon install state, port config, dotnet) and exits `1` only on a real failure. "No editor running yet" is a warning, so it is safe to run before you have launched anything. `godot-mcp status` gives the machine-readable liveness verdict (`running` / `starting` / `crashed` / `closed`), and the launch policy follows from it: never start a second editor when one is `running`. `godot-mcp status --all` scans the editor auto range (9080-9095, plus any pinned port) and the game range (9200-9215), then lists every live instance with its port, project, version, and pid. That is the multi-instance view for when two editors are open at once.
 
 ## A complete CI smoke test
 
@@ -131,7 +131,7 @@ Every step exits non-zero on failure, so `set -e` (bash) or the explicit `$LASTE
 
 ## The catalog is data
 
-`engine commands` returns the whole tool surface as JSON — the method list, a group map, and per-command param docs (attached for `--group`, or `--docs` for the full catalog). Generators become trivial: bindings, wrappers, forms, docs that cannot drift.
+`engine commands` returns the whole tool surface as JSON: the method list, a group map, and per-command param docs (attached for `--group`, or `--docs` for the full catalog). Generators become trivial: bindings, wrappers, forms, docs that cannot drift.
 
 <ShellTabs>
 
@@ -164,5 +164,5 @@ $cat.docs.PSObject.Properties | ForEach-Object {
 With the direct-to-player channel enabled, a QA rig needs no editor at all: run a debug build, then `godot-mcp --game runtime tree`, `--game runtime eval …`, and `--game input …` drive it directly. See [Playtest loop](/docs/playtest-loop#direct-to-player-channel).
 
 <Callout type="tip">
-  Running several projects at once? Pin each project's port in its Project Settings (see [Installation](/docs/installation)) — every CLI call then routes itself by the project directory it runs in.
+  Running several projects at once? Pin each project's port in its Project Settings (see [Installation](/docs/installation)). Every CLI call then routes itself by the project directory it runs in.
 </Callout>

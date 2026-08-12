@@ -37,7 +37,7 @@ const (
 // set up to drive a Godot editor: the godot binary, a resolvable project, the
 // addon install/enable state, the effective port source, the editor's liveness
 // verdict, and dotnet for C# work. Exit 1 if any check fails, else 0 (warns do
-// not fail the run — doctor may legitimately run before an editor is launched).
+// not fail the run, since doctor may legitimately run before an editor is launched).
 func runDoctor(args []string) int {
 	fs := flag.NewFlagSet("doctor", flag.ContinueOnError)
 	project := fs.String("project", "", "Godot project dir (default: the project containing the cwd)")
@@ -53,11 +53,11 @@ and dotnet (for C# projects). Exit 1 only if a check fails.`)
 
 	var checks []doctorCheck
 
-	// 1. godot binary — absent is a warn, not a fail: the CLI can still talk to
+	// 1. godot binary. Absent is a warn, not a fail: the CLI can still talk to
 	// an already-running editor, it just cannot launch one.
 	checks = append(checks, checkGodotBinary())
 
-	// 2. project — the anchor for checks 3-6. Missing = fail.
+	// 2. project, the anchor for checks 3-6. Missing = fail.
 	start := *project
 	if start == "" {
 		start, _ = os.Getwd()
@@ -65,7 +65,7 @@ and dotnet (for C# projects). Exit 1 only if a check fails.`)
 	root, rerr := client.FindProjectRoot(start)
 	if rerr != nil {
 		checks = append(checks, doctorCheck{"project", statusFail,
-			fmt.Sprintf("no project.godot found from %s upward — pass --project or run inside a project", start)})
+			fmt.Sprintf("no project.godot found from %s upward (pass --project or run inside a project)", start)})
 		// 3-6 depend on a project root; mark them skipped explicitly.
 		for _, name := range []string{"addon installed", "addon enabled", "port config", "editor"} {
 			checks = append(checks, doctorCheck{name, statusSkip, "skipped (no project)"})
@@ -78,7 +78,7 @@ and dotnet (for C# projects). Exit 1 only if a check fails.`)
 		checks = append(checks, checkEditor(start))
 	}
 
-	// 7. dotnet — not gated on a project (a machine can be C#-ready or not
+	// 7. dotnet, not gated on a project (a machine can be C#-ready or not
 	// regardless of which project is at hand). Absent is a warn.
 	checks = append(checks, checkDotnet())
 
@@ -94,7 +94,7 @@ func checkGodotBinary() doctorCheck {
 	}
 	if err != nil {
 		return doctorCheck{"godot binary", statusWarn,
-			"godot not found on PATH — the CLI can still drive an already-running editor, but cannot launch one"}
+			"godot not found on PATH. The CLI can still drive an already-running editor, but cannot launch one"}
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -117,11 +117,11 @@ func checkAddonInstalled(root string) doctorCheck {
 		return doctorCheck{"addon installed", statusOK, "addons/godot_mcp/plugin.cfg present"}
 	}
 	return doctorCheck{"addon installed", statusFail,
-		"addon not found — run: godot-mcp install --project " + root}
+		"addon not found. Run: godot-mcp install --project " + root}
 }
 
 // checkAddonEnabled reports whether project.godot enables the plugin. The signal
-// is the plugin.cfg path appearing in [editor_plugins] enabled — the same marker
+// is the plugin.cfg path appearing in [editor_plugins] enabled, the same marker
 // enablePlugin writes (install.go).
 func checkAddonEnabled(root string) doctorCheck {
 	data, err := os.ReadFile(filepath.Join(root, "project.godot"))
@@ -133,7 +133,7 @@ func checkAddonEnabled(root string) doctorCheck {
 		return doctorCheck{"addon enabled", statusOK, "godot_mcp plugin enabled in project.godot"}
 	}
 	return doctorCheck{"addon enabled", statusWarn,
-		"plugin not enabled — run: godot-mcp install --enable, or enable Godot MCP in Project Settings > Plugins"}
+		"plugin not enabled. Run: godot-mcp install --enable, or enable Godot MCP in Project Settings > Plugins"}
 }
 
 // checkPortConfig reports the effective port source without contacting anything:
@@ -151,7 +151,7 @@ func checkPortConfig(root string) doctorCheck {
 				fmt.Sprintf("GODOT_MCP_PORT=%s (matches project pin godot_mcp/network/port)", env)}
 		}
 		return doctorCheck{"port config", statusWarn,
-			fmt.Sprintf("GODOT_MCP_PORT=%s overrides project pin godot_mcp/network/port=%d — they disagree", env, pin)}
+			fmt.Sprintf("GODOT_MCP_PORT=%s overrides project pin godot_mcp/network/port=%d (they disagree)", env, pin)}
 	case env != "":
 		return doctorCheck{"port config", statusOK, "GODOT_MCP_PORT=" + env}
 	case hasPin:
@@ -174,7 +174,7 @@ func checkEditor(start string) doctorCheck {
 		status = statusOK
 		detail = fmt.Sprintf("editor running and reachable on port %d", st.Port)
 	case client.VerdictStarting:
-		detail = fmt.Sprintf("editor booting on port %d — not accepting connections yet", st.Port)
+		detail = fmt.Sprintf("editor booting on port %d, not accepting connections yet", st.Port)
 	case client.VerdictCrashed:
 		detail = fmt.Sprintf("editor appears crashed (stale discovery file, pid %d gone, port %d)", st.PID, st.Port)
 	case client.VerdictClosed:
@@ -190,7 +190,7 @@ func checkEditor(start string) doctorCheck {
 func checkDotnet() doctorCheck {
 	path, err := exec.LookPath("dotnet")
 	if err != nil {
-		return doctorCheck{"dotnet", statusWarn, "dotnet not found on PATH — only needed for C# projects"}
+		return doctorCheck{"dotnet", statusWarn, "dotnet not found on PATH (only needed for C# projects)"}
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -271,7 +271,7 @@ func emitDoctor(checks []doctorCheck, asJSON bool) int {
 		}
 		fmt.Println(string(b))
 	} else {
-		fmt.Println(ui.Out.Heading("godot-mcp doctor") + " — environment preflight")
+		fmt.Println(ui.Out.Heading("godot-mcp doctor") + ": environment preflight")
 		fmt.Println()
 		// Width from the actual names, so adding a longer check never silently
 		// breaks the column the way a fixed pad does.

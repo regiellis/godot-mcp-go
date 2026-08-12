@@ -367,7 +367,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"runtime.call": {
-			"description": "Call a method on a node in the running game and return its result. The runtime twin of node.call, and lighter than runtime.eval for one named call — no script compile. Arguments coerce toward the method's declared parameter types. Audited. Requires scene.play.",
+			"description": "Call a method on a node in the running game and return its result. The runtime twin of node.call, and lighter than runtime.eval for one named call, with no script compile. Arguments coerce toward the method's declared parameter types. Audited. Requires scene.play.",
 			"params": [
 				doc_param("node_path", "NodePath", true, "Node path in the running scene."),
 				doc_param("method", "String", true, "Method name."),
@@ -375,7 +375,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"runtime.eval": {
-			"description": "Execute ad-hoc GDScript inside the running game. Call emit(value) to return data — the code runs inside a void function, so a bare `return <value>` is a parse error. Results come back in `output` as an array of strings. Audited. Requires scene.play. (A real script error under a headless editor can freeze the game — recover with scene.stop/play.)",
+			"description": "Execute ad-hoc GDScript inside the running game. Call emit(value) to return data, because the code runs inside a void function, so a bare `return <value>` is a parse error. Results come back in `output` as an array of strings. Audited. Requires scene.play. (A real script error under a headless editor can freeze the game; recover with scene.stop/play.)",
 			"params": [
 				doc_param("code", "String", true, "GDScript to run in the game process."),
 			],

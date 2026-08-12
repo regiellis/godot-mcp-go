@@ -36,7 +36,7 @@ func runInstall(args []string) int {
 	}
 	root, err := client.FindProjectRoot(start)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "install: no Godot project found —", err)
+		fmt.Fprintln(os.Stderr, "install: no Godot project found:", err)
 		return 1
 	}
 
@@ -245,7 +245,7 @@ func copyFile(src, dst string) error {
 const pluginEntry = "res://addons/godot_mcp/plugin.cfg"
 
 // enablePlugin adds the addon to project.godot's [editor_plugins] enabled list,
-// idempotently. Best-effort text edit — Godot rewrites the file cleanly on open.
+// idempotently. Best-effort text edit, and Godot rewrites the file cleanly on open.
 func enablePlugin(root string) error {
 	p := filepath.Join(root, "project.godot")
 	data, err := os.ReadFile(p)

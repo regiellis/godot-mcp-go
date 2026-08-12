@@ -618,7 +618,7 @@ func _get_collision_info(params: Dictionary) -> Dictionary:
 # --- 7. add_joint -----------------------------------------------------------
 
 ## Add a Joint3D/Joint2D between two physics bodies. node_a/node_b are NodePaths the joint
-## resolves relative to itself — fiddly to wire through node.set, so we do it here.
+## resolves relative to itself, which is fiddly to wire through node.set, so we do it here.
 func _add_joint(params: Dictionary) -> Dictionary:
 	var root := get_edited_root()
 	if root == null:

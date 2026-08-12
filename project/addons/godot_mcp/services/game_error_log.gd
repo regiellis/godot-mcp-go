@@ -32,7 +32,7 @@ func _log_error(function, file, line, code, rationale, editor_notify, error_type
 	# description in `rationale` and the failed condition in `code`; push_error
 	# puts its text in `code` with `rationale` empty. Prefer rationale, fall back
 	# to code, so `message` is always populated. For built-ins (push_error) the
-	# reported file/line/function is engine C++ internals — the real game-script
+	# reported file/line/function is engine C++ internals, while the real game-script
 	# location is backtrace[0].
 	var rat := str(rationale)
 	var cod := str(code)
@@ -71,7 +71,7 @@ func next_seq() -> int:
 
 
 ## Newest entry with seq >= since_seq, or {} when the operation logged nothing.
-## Lets a caller attach the real text of an error whose API returns only a code —
+## Lets a caller attach the real text of an error whose API returns only a code:
 ## a GDScript parse error reports ERR_PARSE_ERROR and prints the reason here.
 func newest_since(since_seq: int) -> Dictionary:
 	for i in range(_entries.size() - 1, -1, -1):

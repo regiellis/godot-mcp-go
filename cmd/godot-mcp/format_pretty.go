@@ -14,8 +14,8 @@ import (
 
 const (
 	// maxPrettyCell caps one table cell; longer values truncate with an
-	// ellipsis. The pretty format is a lossy human view — --format json is the
-	// exact one.
+	// ellipsis. The pretty format is a lossy human view; the exact one is
+	// --format json.
 	maxPrettyCell = 60
 	// maxBoxWidth caps the key/value box border. Body lines longer than this
 	// (a script source, a long path list) print whole and overrun the border
@@ -194,8 +194,8 @@ func prettyArray(title string, raw json.RawMessage, p ui.Palette) (string, error
 }
 
 // styleCell colors one flattened value by its JSON type: numbers yellow, bools
-// magenta, null and nested structures dim. Strings stay unpainted — they are
-// most of every result, and painting them all is noise.
+// magenta, null and nested structures dim. Strings stay unpainted, because they
+// are most of every result and painting them all is noise.
 func styleCell(raw json.RawMessage, plain string, p ui.Palette) string {
 	t := bytes.TrimSpace(raw)
 	if len(t) == 0 {

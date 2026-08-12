@@ -44,7 +44,7 @@ func formatTSV(result json.RawMessage) (string, error) {
 // formatNDJSON renders a result as newline-delimited JSON for line-oriented
 // pipelines: a top-level array emits one compact element per line, anything
 // else emits the whole result compacted onto one line. Unlike TSV, nesting
-// survives — every line is complete JSON.
+// survives, because every line is complete JSON.
 func formatNDJSON(result json.RawMessage) (string, error) {
 	t := bytes.TrimSpace(result)
 	if len(t) == 0 {
@@ -191,7 +191,7 @@ func cellFromRaw(raw json.RawMessage) (string, error) {
 		}
 		return cellEscaper.Replace(s), nil
 	default:
-		// number, bool, or null — keep the literal form verbatim.
+		// number, bool, or null: keep the literal form verbatim.
 		return cellEscaper.Replace(string(t)), nil
 	}
 }

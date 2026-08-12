@@ -12,7 +12,7 @@ MCP client (streamable HTTP) --POST /mcp :9100----------------->       |
 
 ## Not Godot's built-in CLI
 
-Godot's own command line (`godot --headless`, `--export-release`, `--script`) **starts a fresh engine process** each time — the right tool for CI exports and batch scripts, with no notion of a session. godot-mcp is the other half: it **connects to the editor already running** — the open scene, the current selection, the undo history — and to the game that editor is playing. Different jobs; use both. godot-mcp itself launches the editor through Godot's CLI when needed.
+Godot's own command line (`godot --headless`, `--export-release`, `--script`) **starts a fresh engine process** each time, which is the right tool for CI exports and batch scripts and has no notion of a session. godot-mcp is the other half: it **connects to the editor already running**, reaching the open scene, the current selection, the undo history, and the game that editor is playing. Different jobs; use both. godot-mcp itself launches the editor through Godot's CLI when needed.
 
 ## The addon is the server
 
@@ -21,7 +21,7 @@ The **addon runs a WebSocket server inside the editor**, the long-lived process 
 - The server binds `127.0.0.1` only. It is a local dev bridge.
 - The CLI resolves the port from `<project>/.godot/godot-mcp.json` (written by the addon on bind), so the common case needs no flags.
 - The message envelope is JSON-RPC 2.0 with dotted methods (`node.add`, `scene.play`, `runtime.capture_frames`).
-- The addon hosts a second transport: a [streamable-HTTP MCP endpoint](/docs/mcp-setup#or-connect-straight-to-the-editor-streamable-http) (`POST /mcp`, ports 9100–9115, recorded as `http_port` in the same discovery file), so an HTTP-capable MCP client drives the editor with no external process. Both transports dispatch through the same command router, so the safety guards below apply to each identically.
+- The addon hosts a second transport: a [streamable-HTTP MCP endpoint](/docs/mcp-setup#or-connect-straight-to-the-editor-streamable-http) (`POST /mcp`, ports 9100-9115, recorded as `http_port` in the same discovery file), so an HTTP-capable MCP client drives the editor with no external process. Both transports dispatch through the same command router, so the safety guards below apply to each identically.
 
 ## The two-hop runtime IPC
 
@@ -53,10 +53,10 @@ The discovery file doubles as a liveness signal. A clean shutdown deletes it; a 
 
 godot-mcp is a **local dev bridge on a workstation you trust**, and that assumption is load-bearing. While the editor is open with the plugin enabled:
 
-- **The ports are unauthenticated by design**. Any process on the machine can drive the editor — that is what lets `godot-mcp project info` work with no keys, config, or pairing step. Commands reach `editor.run_script`, so "can connect" means "can run code in the editor".
+- **The ports are unauthenticated by design**. Any process on the machine can drive the editor, which is what lets `godot-mcp project info` work with no keys, config, or pairing step. Commands reach `editor.run_script`, so "can connect" means "can run code in the editor".
 - **The HTTP endpoint refuses browser traffic** from anywhere but loopback (the `Origin` check above), so a page you have open cannot reach it.
 - **The WebSocket transport has no equivalent gate**. Browser WebSockets are exempt from CORS, and Godot gives a GDScript server no access to the handshake headers, so a page could open `ws://127.0.0.1:9080` while the editor is running.
 
-That last point is a **known and accepted limitation**. Closing it means putting a shared secret in the connect URL, which every client — the CLI, `serve`, and anything you script yourself — would have to carry and keep in sync; on a private-network workstation that is a lot of moving parts protecting a small surface.
+That last point is a **known and accepted limitation**. Closing it means putting a shared secret in the connect URL, and every client (the CLI, `serve`, and anything you script yourself) would have to carry it and keep it in sync. On a private-network workstation that is a lot of moving parts protecting a small surface.
 
-If your situation is different — a shared or untrusted network, a browser session you do not control — quit the editor when you are not driving it, since the servers exist only while it runs. `godot_mcp/network/mcp_http` turns the HTTP endpoint off independently, and disabling the plugin stops both.
+Some situations are different: a shared or untrusted network, or a browser session you do not control. There, quit the editor when you are not driving it, since the servers exist only while it runs. `godot_mcp/network/mcp_http` turns the HTTP endpoint off independently, and disabling the plugin stops both.

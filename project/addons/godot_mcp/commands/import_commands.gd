@@ -1,7 +1,7 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## Asset import settings — the one asset lever the agent should own (meshes/textures are authored
+## Asset import settings, the one asset lever the agent should own (meshes/textures are authored
 ## externally, but how Godot *imports* them is project config). No other command touches the
 ## `<asset>.import` ConfigFile. This reads it, edits its [params], and reimports.
 ##
@@ -40,7 +40,7 @@ func _info(params: Dictionary) -> Dictionary:
 	var imp := _import_file(path)
 	if not FileAccess.file_exists(imp):
 		return error_not_found("Import file for '%s'" % path,
-			"No <asset>.import exists — the asset isn't imported (e.g. .tscn/.gd aren't, or it's not in res://).")
+			"No <asset>.import exists, so the asset isn't imported (e.g. .tscn/.gd aren't, or it's not in res://).")
 
 	var cfg := ConfigFile.new()
 	if cfg.load(imp) != OK:
@@ -79,7 +79,7 @@ func _set_params(params: Dictionary) -> Dictionary:
 		return pr[1]
 	var to_set: Dictionary = pr[0]
 	if to_set.is_empty():
-		return error_invalid_params("'params' is empty — nothing to set")
+		return error_invalid_params("'params' is empty, so there is nothing to set")
 
 	var cfg := ConfigFile.new()
 	if cfg.load(imp) != OK:

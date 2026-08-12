@@ -17,7 +17,7 @@ import (
 // default port when the caller's project has no discovery file, so whichever
 // godot-mcp editor happens to be running answers. Every write then lands in that
 // project, silently and successfully, which once cost a whole debugging session
-// chasing settings that "wouldn't persist" — they persisted, in another project.
+// chasing settings that "wouldn't persist". They persisted, in another project.
 type ProjectMismatch struct {
 	Port      int
 	Source    PortSource
@@ -62,7 +62,7 @@ func (r Resolution) NeedsProjectCheck() bool {
 
 // CheckProject asks the editor on the resolved port which project it is serving
 // and compares that to the caller's. It returns nil when they match, when the
-// check is not warranted, or when the editor cannot answer — an unreachable or
+// check is not warranted, or when the editor cannot answer. An unreachable or
 // too-old editor is the caller's existing dial-failure path, not a mismatch.
 func CheckProject(ctx context.Context, r Resolution) *ProjectMismatch {
 	if !r.NeedsProjectCheck() {

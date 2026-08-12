@@ -13,8 +13,8 @@ import (
 // printBanner renders the bare-invocation banner: the wordmark, the version,
 // and where to go next. Running the binary with no arguments at all is a
 // person exploring, not a script (scripts always name a command), so this
-// goes to stdout and the caller exits 0. Every other path — usage errors,
-// --help, help — still gets the structured help from usage(). The lettering
+// goes to stdout and the caller exits 0. Every other path (usage errors,
+// --help, help) still gets the structured help from usage(). The lettering
 // is our own wordmark, not the Godot logo (same rule as the addon icon).
 func printBanner() {
 	p := ui.Out

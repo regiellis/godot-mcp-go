@@ -18,7 +18,7 @@ const _BODY_TYPES_3D := ["StaticBody3D", "CharacterBody3D", "RigidBody3D", "Area
 const _SHAPES_3D := ["box", "sphere", "capsule", "trimesh", "convex"]
 
 
-## A 3D physics body with its CollisionShape3D + shape resource in one call — the
+## A 3D physics body with its CollisionShape3D + shape resource in one call, the
 ## scene2d.add_body counterpart the 3D side lacked. Primitive shapes come from --size/
 ## --radius/--height; trimesh/convex build a collider from a --from-mesh MeshInstance3D
 ## (the common "make this imported geometry collidable" need).

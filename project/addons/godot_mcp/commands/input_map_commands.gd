@@ -13,7 +13,7 @@ func get_commands() -> Dictionary:
 ##
 ## Read from ProjectSettings, not from the InputMap singleton. This runs in the
 ## EDITOR process, whose InputMap holds the editor's own bindings (ui_* plus
-## spatial_editor/*, canvas_item_editor/*, ...) and NOT the game's — so the
+## spatial_editor/*, canvas_item_editor/*, ...) and NOT the game's, so the
 ## command used to answer with editor shortcuts and could not see `jump` or
 ## `beam_left` at all, while input_map.set_action (which writes ProjectSettings)
 ## persisted them correctly. project.godot is where the actions actually live,
@@ -174,7 +174,7 @@ func _parse_event(def: Dictionary) -> InputEvent:
 func get_command_docs() -> Dictionary:
 	return {
 		"input_map.get_actions": {
-			"description": "List the PROJECT's input actions (from ProjectSettings 'input/*' — where project.godot keeps them and where the running game reads them, NOT the editor process's own InputMap, which only holds editor shortcuts) with their deadzone and serialized events. Skips built-in ui_* actions unless --include-builtin, and narrows to names containing --filter. The result reports which source answered.",
+			"description": "List the PROJECT's input actions (from ProjectSettings 'input/*', where project.godot keeps them and where the running game reads them, NOT the editor process's own InputMap, which only holds editor shortcuts) with their deadzone and serialized events. Skips built-in ui_* actions unless --include-builtin, and narrows to names containing --filter. The result reports which source answered.",
 			"params": [
 				doc_param("filter", "String", false, "Only actions whose name contains this substring."),
 				doc_param("include_builtin", "bool", false, "Include the engine's ui_* actions (default false)."),

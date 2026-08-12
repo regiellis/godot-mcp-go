@@ -6,19 +6,19 @@ extends Node
 ## launched from an editor) is reachable.
 ##
 ## Created and started by MCPGameInspector._ready(), only in a debug build with
-## the godot_mcp/runtime/direct_server setting on — impossible in a release export.
+## the godot_mcp/runtime/direct_server setting on, so it is impossible in a release export.
 ##
 ## Wire contract is identical to the editor addon (websocket_server.gd): JSON-RPC
 ## 2.0 over WebSocket text frames, same error codes, 127.0.0.1 ONLY (invariant).
 ## Instead of routing to the editor command router, it maps runtime.<cmd> to the
 ## inspector's shared dispatch (run_command) and injects input.<cmd> through the
-## MCPGameInput autoload — reusing the exact game-side handlers, not copies.
+## MCPGameInput autoload, reusing the exact game-side handlers, not copies.
 
 const DEFAULT_PORT := 9200
 const PORT_RANGE := 16                        # scan DEFAULT_PORT .. DEFAULT_PORT+PORT_RANGE-1 (9200-9215)
 const BIND_ADDRESS := "127.0.0.1"
-const INBOUND_BUFFER := 1 * 1024 * 1024       # 1MB — requests are small JSON
-const OUTBOUND_BUFFER := 16 * 1024 * 1024     # 16MB — responses can be large (screenshots)
+const INBOUND_BUFFER := 1 * 1024 * 1024       # 1MB, since requests are small JSON
+const OUTBOUND_BUFFER := 16 * 1024 * 1024     # 16MB, since responses can be large (screenshots)
 const MAX_PEERS := 8
 const CONNECT_TIMEOUT := 5.0
 const IDLE_TIMEOUT := 120.0
@@ -196,7 +196,7 @@ func _relisten() -> void:
 			print("[MCP Game] Listener rebuilt on ws://%s:%d" % [BIND_ADDRESS, _port])
 			return
 	_running = false
-	push_error("[MCP Game] Could not rebind after resume — direct server stopped")
+	push_error("[MCP Game] Could not rebind after resume, direct server stopped")
 
 
 # --- Dispatch ---------------------------------------------------------------
@@ -269,7 +269,7 @@ func _pump_queue() -> void:
 	var ws: WebSocketPeer = job["ws"]
 	var id: Variant = job["id"]
 	if ws.get_ready_state() != WebSocketPeer.STATE_OPEN:
-		_pump_queue()  # peer gone before we got to it — skip and try the next
+		_pump_queue()  # peer gone before we got to it, so skip and try the next
 		return
 
 	_in_flight = true
@@ -307,7 +307,7 @@ func _handle_input(ws: WebSocketPeer, id: Variant, method: String, params: Dicti
 	_send(ws, id, built.get("result", {"sent": true}), null)
 
 
-## Build the event payload for one input.<cmd> — the same shape input_commands.gd
+## Build the event payload for one input.<cmd>, the same shape input_commands.gd
 ## writes to the file-IPC channel, which MCPGameInput.inject_payload consumes.
 ## Returns {"payload": Variant, "result": Dictionary} or {"error": {...}}.
 func _build_input(method: String, params: Dictionary) -> Dictionary:
@@ -473,7 +473,7 @@ func _remove_discovery() -> void:
 	var data: Variant = JSON.parse_string(f.get_as_text())
 	f.close()
 	if data is Dictionary and int((data as Dictionary).get("pid", 0)) != OS.get_process_id():
-		return  # not ours — leave it
+		return  # not ours, so leave it
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(DISCOVERY_PATH))
 
 

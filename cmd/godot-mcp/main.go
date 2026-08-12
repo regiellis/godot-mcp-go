@@ -88,7 +88,7 @@ func main() {
 	method := group + "." + command
 
 	// Resolution: flag > GODOT_MCP_FORMAT > auto (the human render on a
-	// terminal, exact JSON when piped — so agents and pipelines never see
+	// terminal, exact JSON when piped, so agents and pipelines never see
 	// layout or color they'd have to strip). A bad env value warns and falls
 	// through to auto rather than breaking every call in that shell.
 	if *format == "" {
@@ -193,7 +193,7 @@ func main() {
 	if *format == "pretty" {
 		out, perr := renderPretty(method, result, ui.Out)
 		if perr != nil {
-			// A shape the renderer can't handle still prints — as the raw JSON.
+			// A shape the renderer can't handle still prints, as the raw JSON.
 			fmt.Println(string(result))
 			return
 		}
@@ -255,7 +255,7 @@ func helpIndex(args []string) int {
 // runHelp prints nested help for `<group>` or `<group> <command>`, or the
 // whole catalog grouped by category for `all`. The CLI is deliberately
 // generic (adding an addon command needs no CLI change), so the command
-// catalog — and the per-command param docs, where a group carries them — lives
+// catalog (and the per-command param docs, where a group carries them) lives
 // in the addon and this lists it live, which needs a running editor.
 func runHelp(port int, group, command string) int {
 	group = strings.ReplaceAll(strings.TrimPrefix(group, "--"), "-", "_")
@@ -277,7 +277,7 @@ func runHelp(port int, group, command string) int {
 		for _, g := range names {
 			w = max(w, len(g))
 		}
-		fmt.Printf("%s — %d commands in %d groups (live from the addon):\n\n",
+		fmt.Printf("%s: %d commands in %d groups (live from the addon):\n\n",
 			ui.Out.Heading("godot-mcp"), len(methods), len(names))
 		for _, g := range names {
 			fmt.Printf("  %s %s\n", ui.Out.Key(padRight(g, w)), strings.Join(byGroup[g], ", "))
@@ -330,7 +330,7 @@ func runHelp(port int, group, command string) int {
 
 	if command != "" {
 		if !slices.Contains(cmds, command) {
-			fmt.Fprintf(os.Stderr, "unknown command %q in group %q — commands: %s\n",
+			fmt.Fprintf(os.Stderr, "unknown command %q in group %q. Commands: %s\n",
 				command, group, strings.Join(cmds, ", "))
 			return 2
 		}
@@ -370,7 +370,7 @@ func groupMethods(methods []string) map[string][]string {
 
 func printUnknownGroup(group string, byGroup map[string][]string) {
 	names := slices.Sorted(maps.Keys(byGroup))
-	fmt.Fprintf(os.Stderr, "%s unknown group %q — %d groups registered (godot-mcp help all lists their commands):\n",
+	fmt.Fprintf(os.Stderr, "%s unknown group %q. %d groups registered (godot-mcp help all lists their commands):\n",
 		ui.Err.Fail("error:"), group, len(names))
 	for _, g := range names {
 		fmt.Fprintf(os.Stderr, "  %s %d commands\n", ui.Err.Key(padRight(g, 14)), len(byGroup[g]))
@@ -380,7 +380,7 @@ func printUnknownGroup(group string, byGroup map[string][]string) {
 // printGroupHelp lists a group's commands with one-line descriptions where the
 // addon carries docs; groups without docs keep the generic dynamic-params hint.
 func printGroupHelp(group string, cmds []string, docs map[string]commandDoc) {
-	fmt.Printf("%s — %d commands (live from the addon):\n\n", ui.Out.Heading("godot-mcp "+group), len(cmds))
+	fmt.Printf("%s: %d commands (live from the addon):\n\n", ui.Out.Heading("godot-mcp "+group), len(cmds))
 	w := 0
 	for _, c := range cmds {
 		w = max(w, len(c))
@@ -406,9 +406,9 @@ func printGroupHelp(group string, cmds []string, docs map[string]commandDoc) {
 func printCommandHelp(group, command string, doc commandDoc) {
 	head := ui.Out.Heading(fmt.Sprintf("godot-mcp %s %s", group, command))
 	if doc.Description != "" {
-		fmt.Printf("%s — %s\n", head, doc.Description)
+		fmt.Printf("%s: %s\n", head, doc.Description)
 	} else {
-		fmt.Printf("%s — registered as %s.%s (live from the addon)\n", head, group, command)
+		fmt.Printf("%s: registered as %s.%s (live from the addon)\n", head, group, command)
 	}
 	if len(doc.Params) == 0 {
 		fmt.Println()
@@ -526,7 +526,7 @@ func printError(err error) {
 // stderr: a human line, the agent guidance, and the JSON status so a tool-driving
 // agent can parse the verdict instead of guessing whether to relaunch.
 func printDiagnosis(st client.Status) {
-	fmt.Fprintf(os.Stderr, "%s editor not reachable [%s] — %s\n",
+	fmt.Fprintf(os.Stderr, "%s editor not reachable [%s]: %s\n",
 		ui.Err.Fail("error:"), styleVerdict(st.Verdict, ui.Err), st.Message)
 	fmt.Fprintln(os.Stderr, st.Action)
 	if b, err := json.MarshalIndent(st, "", "  "); err == nil {
@@ -557,7 +557,7 @@ func printMismatch(mm *client.ProjectMismatch) {
 	if mm.Fatal() {
 		label = ui.Err.Fail("error:")
 	}
-	fmt.Fprintf(os.Stderr, "%s wrong editor — %s\n", label, mm.Error())
+	fmt.Fprintf(os.Stderr, "%s wrong editor: %s\n", label, mm.Error())
 	fmt.Fprintf(os.Stderr, "port %d came from: %s\n", mm.Port, mm.Source)
 	fmt.Fprintln(os.Stderr, mm.Action())
 }
@@ -580,7 +580,7 @@ func usage() {
 	p := ui.Err
 	w := os.Stderr
 
-	fmt.Fprintln(w, p.Heading("godot-mcp")+" — drive a running Godot editor via the MCP addon")
+	fmt.Fprintln(w, p.Heading("godot-mcp")+": drive a running Godot editor via the MCP addon")
 	fmt.Fprintln(w)
 	fmt.Fprintln(w, p.Heading("Usage:"))
 	fmt.Fprintln(w, "  "+tintSlots("godot-mcp [flags] <group> <command> [--param value ...]", p))

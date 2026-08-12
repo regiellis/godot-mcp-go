@@ -44,7 +44,7 @@ Each entry is `{ kind, message, code, backtrace[] }` with the real game-script f
 
 ## Debug the running game
 
-The `debug` group turns a playtest into a debugging session. Breakpoints are armed through the editor's own script gutter, so they show in the gutter and the Breakpoints list, persist for later runs, and hit a game that is **already running** — no restart:
+The `debug` group turns a playtest into a debugging session. Breakpoints are armed through the editor's own script gutter, so they show in the gutter and the Breakpoints list, persist for later runs, and hit a game that is **already running**, with no restart:
 
 ```bash
 godot-mcp debug set-breakpoint --path res://player.gd --line 42
@@ -73,7 +73,7 @@ Every live instance starts running the new code and keeps the state it had. Any 
 
 ## Direct-to-player channel
 
-Everything above brokers through the open editor. You can also drive a **standalone running game with no editor at all** — useful for QA rigs and packaged dev builds. Enable **Project → Project Settings → Godot Mcp → Runtime → Direct Server**, run a **debug build** of the game, then add the `--game` flag:
+Everything above brokers through the open editor. You can also drive a **standalone running game with no editor at all**, which suits QA rigs and packaged dev builds. Enable **Project → Project Settings → Godot Mcp → Runtime → Direct Server**, run a **debug build** of the game, then add the `--game` flag:
 
 ```bash
 godot-mcp --game runtime tree

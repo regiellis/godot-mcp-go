@@ -107,7 +107,7 @@ func userDataDir(cfg projectConfig, goos, dataRoot string) string {
 
 // safeDirName mirrors Godot's OS::get_safe_dir_name: strip surrounding whitespace
 // and replace characters invalid in a filename with '_'. With allowPaths, path
-// separators survive (but ".." does not) — used for custom_user_dir_name.
+// separators survive (but ".." does not), which is what custom_user_dir_name needs.
 func safeDirName(s string, allowPaths bool) string {
 	var invalid []string
 	if allowPaths {

@@ -2,14 +2,14 @@
 extends Node
 
 ## Streamable-HTTP MCP endpoint hosted inside the editor, a sibling transport to
-## websocket_server.gd that reuses the SAME command router (so every guard —
-## audit_exec, _guard_unsafe_io, guard_project_path — applies unchanged). An MCP
+## websocket_server.gd that reuses the SAME command router, so every guard
+## (audit_exec, _guard_unsafe_io, guard_project_path) applies unchanged. An MCP
 ## client that speaks streamable HTTP (Claude Code with a `url` server entry, …)
 ## connects directly to the running editor with no external Go process.
 ##
 ## Godot 4 has no high-level HTTP server, so we drive a TCPServer, wrap each
 ## accepted stream in a StreamPeerTCP, and parse HTTP/1.1 by hand. 127.0.0.1 ONLY
-## (a hard invariant — never 0.0.0.0). POST /mcp carries a JSON-RPC 2.0 body and
+## (a hard invariant: never 0.0.0.0). POST /mcp carries a JSON-RPC 2.0 body and
 ## we reply with a plain application/json response (no SSE in v1).
 ##
 ## Binding loopback is NOT sufficient on its own: a page in the user's browser can
@@ -53,8 +53,8 @@ const LATEST_PROTOCOL := "2025-06-18"
 ## carries the detail; this is the durable minimum that rides along without it.
 const INSTRUCTIONS := "This endpoint drives a running Godot editor (4.7+) through the godot-mcp addon. " + \
 	"Each typed tool is a <group>_<command> method with dots turned to underscores; the generic godot_run tool reaches any method by its dotted name. " + \
-	"Discover before you act — your training may predate this build, so confirm a class, property, or method against it with engine_search or engine_class_info instead of guessing; engine_commands lists every method. " + \
-	"Placing 3D objects: anchor one piece, read its REAL world bounds back (node_get global_position, or get_aabb via global_transform), then derive neighbours from that — a node's position is LOCAL to its parent, so span objects via global_transform. " + \
+	"Discover before you act. Your training may predate this build, so confirm a class, property, or method against it with engine_search or engine_class_info instead of guessing; engine_commands lists every method. " + \
+	"Placing 3D objects: anchor one piece, read its REAL world bounds back (node_get global_position, or get_aabb via global_transform), then derive neighbours from that. A node's position is LOCAL to its parent, so span objects via global_transform. " + \
 	"Seat things on surfaces with a downward raycast and face with look_at rather than hand-computing heights or Euler angles; verify by reading positions back, not by trusting one screenshot. " + \
 	"Godot is +Y up, -Z forward, right-handed, meters. Editor edits are undoable; runtime_* and input_* need a scene playing (scene_play)."
 
@@ -118,7 +118,7 @@ func _candidate_ports() -> Array:
 ## server's resume guard: polling an OS-invalidated socket handle across a
 ## suspend/resume can take Godot down in C++ with no GDScript trace.
 func _relisten() -> void:
-	push_warning("[MCP-HTTP] Resume detected — rebuilding the HTTP listener")
+	push_warning("[MCP-HTTP] Resume detected, rebuilding the HTTP listener")
 	for conn in _conns:
 		(conn["peer"] as StreamPeerTCP).disconnect_from_host()
 	_conns.clear()
@@ -132,12 +132,12 @@ func _relisten() -> void:
 		if _tcp.listen(port, BIND_ADDRESS) == OK:
 			_port = port
 			print("[MCP-HTTP] Listener rebuilt on http://%s:%d%s" % [BIND_ADDRESS, _port, MCP_PATH])
-			# The port may have changed — refresh the shared discovery file.
+			# The port may have changed, so refresh the shared discovery file.
 			if ws_server != null and ws_server.has_method("rewrite_discovery"):
 				ws_server.rewrite_discovery()
 			return
 	_running = false
-	push_error("[MCP-HTTP] Could not rebind after resume — HTTP endpoint stopped")
+	push_error("[MCP-HTTP] Could not rebind after resume, HTTP endpoint stopped")
 
 
 func _process(delta: float) -> void:
@@ -145,7 +145,7 @@ func _process(delta: float) -> void:
 		return
 
 	# Sleep/resume guard (see _relisten). A large wall-clock gap between frames
-	# means we just resumed — rebuild the listener on fresh sockets.
+	# means we just resumed, so rebuild the listener on fresh sockets.
 	var now := Time.get_ticks_msec()
 	if _last_tick != 0 and (now - _last_tick > RESUME_GAP_MS or delta > float(RESUME_GAP_MS) / 1000.0):
 		_last_tick = now
@@ -193,7 +193,7 @@ func _process(delta: float) -> void:
 				var st := String(req.get("status", ""))
 				if st == "ok":
 					conn["busy"] = true
-					_service(conn, req)  # async — parks the connection until the result lands
+					_service(conn, req)  # async: parks the connection until the result lands
 				elif st == "error":
 					# HTTP framing error (bad request line, missing length, too large):
 					# reply and close, per "close on parse errors".
@@ -227,9 +227,9 @@ func _process(delta: float) -> void:
 
 
 ## Parse one complete HTTP request from the connection buffer. Returns one of:
-##   {status:"incomplete"}                              — need more bytes
-##   {status:"error", code, text, ...}                  — framing error (reply + close)
-##   {status:"ok", method, path, body, keep_alive}      — a full request (bytes consumed)
+##   {status:"incomplete"}                              need more bytes
+##   {status:"error", code, text, ...}                  framing error (reply + close)
+##   {status:"ok", method, path, body, keep_alive}      a full request (bytes consumed)
 func _try_extract_request(conn: Dictionary) -> Dictionary:
 	var buf: PackedByteArray = conn["buf"]
 	var header_end := _find_header_end(buf)
@@ -329,7 +329,7 @@ func _handle_post(peer: StreamPeerTCP, body: PackedByteArray, keep_alive: bool, 
 		return
 	var msg: Dictionary = json.data
 
-	# A JSON-RPC notification (no id — e.g. notifications/initialized) is accepted
+	# A JSON-RPC notification (no id, e.g. notifications/initialized) is accepted
 	# with an empty 202 and no body.
 	if not (msg.has("id") and msg["id"] != null):
 		_send_status(peer, 202, "Accepted", keep_alive, origin)
@@ -373,7 +373,7 @@ func _initialize_result(params: Variant) -> Dictionary:
 
 
 ## tools/list: godot_run always first (the generic escape hatch, mirroring
-## serve.go), then — unless godot_mcp/network/http_typed is false — every typed
+## serve.go), then, unless godot_mcp/network/http_typed is false, every typed
 ## per-command tool. http_typed=false is the tool-limited-client mode (serve
 ## --typed=false's role): godot_run alone.
 func _list_tools() -> Array:
@@ -397,9 +397,9 @@ func _handle_tools_call(params: Variant, id: Variant) -> Dictionary:
 		var run_params_val: Variant = arguments.get("params", {})
 		var run_params: Dictionary = run_params_val if run_params_val is Dictionary else {}
 		# `game` is accepted for schema parity with serve.go's godot_run, but the
-		# addon IS the editor and has no separate game channel to route to — the
+		# addon IS the editor and has no separate game channel to route to. The
 		# runtime.*/input.* commands broker to the running game the same way
-		# regardless — so it is ignored here.
+		# regardless, so it is ignored here.
 		return await _dispatch_command(method, run_params, id)
 
 	_ensure_typed_tools()
@@ -439,7 +439,7 @@ func _ensure_typed_tools() -> void:
 	var tools: Array = []
 	var name_map: Dictionary = {}
 	for method: String in methods:
-		# MCP tool names must match ^[a-zA-Z0-9_-]{1,64}$ — no dots. Mirror serve.go:
+		# MCP tool names must match ^[a-zA-Z0-9_-]{1,64}$, so no dots. Mirror serve.go:
 		# dotted method → name with '.' replaced by '_'. First (sorted) wins a
 		# collision; the rest are skipped and still reachable via godot_run.
 		var tool_name := method.replace(".", "_")
@@ -461,7 +461,7 @@ func _build_tool(tool_name: String, method: String, doc: Variant) -> Dictionary:
 			"description": String(d.get("description", "")),
 			"inputSchema": _schema_from_params(d.get("params", [])),
 		}
-	# No docs metadata — a permissive object schema; params are addon-defined.
+	# No docs metadata, so a permissive object schema; params are addon-defined.
 	return {
 		"name": tool_name,
 		"description": "Godot MCP command '%s'. Parameters are addon-defined; discover them via engine_commands (group '%s') or the generic godot_run tool." % [method, method.get_slice(".", 0)],
@@ -516,7 +516,7 @@ func _json_schema_type(godot_type: String) -> String:
 
 ## The generic escape hatch, always present and always first, mirroring the tool
 ## serve.go exposes: `method` (dotted "<group>.<command>", required), `params`
-## (object), and `game` (accepted for parity, ignored in-addon — see
+## (object), and `game` (accepted for parity, ignored in-addon, as described in
 ## _handle_tools_call). It reaches EVERY method, including undocumented and
 ## project-local commands, so a tool-limited client (http_typed=false) can drive
 ## the whole surface through this one tool.
@@ -524,7 +524,7 @@ func _godot_run_tool() -> Dictionary:
 	return {
 		"name": "godot_run",
 		"description": "Run any godot-mcp command against the running Godot editor (4.7+) and return its JSON result. " + \
-			"`method` is \"<group>.<command>\" (e.g. node.add, engine.search) and `params` mirrors that command's parameters, so it reaches EVERY method — including commands without a typed tool and project-local commands. " + \
+			"`method` is \"<group>.<command>\" (e.g. node.add, engine.search) and `params` mirrors that command's parameters, so it reaches EVERY method, including commands without a typed tool and project-local commands. " + \
 			"Discover the live API with method \"engine.search\" {query} or \"engine.class_info\" {class}; \"engine.commands\" {group?} lists this server's own methods. " + \
 			"Editor mutations are undoable; runtime.*/input.* require a scene to be playing (method \"scene.play\").",
 		"inputSchema": {
@@ -565,7 +565,7 @@ func _tool_result(text: String, is_error: bool) -> Dictionary:
 
 
 ## True when a request may proceed: no Origin at all (a native MCP client, curl, the
-## Go CLI — none of them set one) or a loopback origin, which is a dev tool running
+## Go CLI, none of which set one) or a loopback origin, which is a dev tool running
 ## on this machine. A page served from any real site is refused, as is an opaque
 ## origin (file:// and sandboxed iframes send the literal "null", which has no
 ## "://" and so falls through to false).
@@ -645,7 +645,7 @@ func _send_http(peer: StreamPeerTCP, code: int, reason: String, content_type: St
 	# A 204 carries no body and (per RFC 7230) no Content-Length; everything else does.
 	if code != 204:
 		head += "Content-Length: %d\r\n" % body.size()
-	# Echo an allowed origin, never "*" — a wildcard would let any page read the
+	# Echo an allowed origin, never "*", because a wildcard would let any page read the
 	# reply. Requests without an Origin (the normal MCP client) get no CORS header,
 	# which is correct: CORS only governs browsers.
 	if not origin.strip_edges().is_empty():

@@ -44,7 +44,7 @@ func _suggest_method(obj: Object, method: String) -> String:
 ##
 ## This closes the callable half of the design principle the property commands
 ## already serve: node.set/node.get reach anything the running binary exposes as a
-## property, but a method needed editor.run_script — arbitrary code execution to
+## property, but a method needed editor.run_script, meaning arbitrary code execution to
 ## invoke one named call. Several existing commands (lighting.bake, csg.bake,
 ## navigation.bake_mesh) are single-method wrappers that exist only because this
 ## did not.
@@ -677,7 +677,7 @@ func _signal_pair(params: Dictionary) -> Array:
 	return [source, target, null]
 
 
-## Set arbitrary node metadata (node.set_meta) — the general-purpose store that
+## Set arbitrary node metadata (node.set_meta), the general-purpose store that
 ## node.set (properties only) can't reach; drives many Godot patterns and our own
 ## doc.note. Undoable; --value is auto-parsed (JSON / Godot literal / scalar).
 func _set_meta(params: Dictionary) -> Dictionary:
@@ -843,7 +843,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"node.set_meta": {
-			"description": "Set arbitrary node metadata (--key to --value) — the general store node.set can't reach. --value is auto-parsed (JSON / Godot literal / scalar). Undoable.",
+			"description": "Set arbitrary node metadata (--key to --value), the general store node.set can't reach. --value is auto-parsed (JSON / Godot literal / scalar). Undoable.",
 			"params": [
 				doc_param("node_path", "NodePath", true, "Target node."),
 				doc_param("key", "String", true, "Metadata key."),
@@ -858,7 +858,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"node.call": {
-			"description": "Call a method on a node in the edited scene and return its result. The callable counterpart to node.set/node.get: anything the running build exposes as a method is reachable without editor.run_script. Arguments coerce toward the method's declared parameter types, so '\"Vector3(1,2,3)\"' arrives as a Vector3; list a class's methods with engine class-info. Audited. NOT undoable — a call is not a property write, so Ctrl+Z will not reverse its side effects.",
+			"description": "Call a method on a node in the edited scene and return its result. The callable counterpart to node.set/node.get: anything the running build exposes as a method is reachable without editor.run_script. Arguments coerce toward the method's declared parameter types, so '\"Vector3(1,2,3)\"' arrives as a Vector3; list a class's methods with engine class-info. Audited. NOT undoable: a call is not a property write, so Ctrl+Z will not reverse its side effects.",
 			"params": [
 				doc_param("node_path", "NodePath", true, "Target node."),
 				doc_param("method", "String", true, "Method name; an unknown one errors with a did-you-mean."),

@@ -32,8 +32,8 @@ type GameInstance struct {
 // ScanInstances probes the editor auto range (9080-9095) plus any env- or
 // discovery-pinned port for live editors, and the game auto range (9200-9215)
 // for direct game servers, all concurrently. cwd anchors the this_project
-// marker. Ports that accept TCP but do not answer project.info are dropped —
-// whatever is listening there is not an editor of ours.
+// marker. Ports that accept TCP but do not answer project.info are dropped,
+// because whatever is listening there is not an editor of ours.
 func ScanInstances(ctx context.Context, cwd string) ([]EditorInstance, []GameInstance) {
 	ports := map[int]struct{}{}
 	for p := 9080; p <= 9095; p++ {

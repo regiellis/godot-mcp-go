@@ -36,7 +36,7 @@ func Call(ctx context.Context, port int, method string, params map[string]any) (
 		return nil, &DialError{Port: port, Err: err}
 	}
 	defer conn.Close(websocket.StatusNormalClosure, "")
-	conn.SetReadLimit(64 << 20) // 64MB — responses (screenshots, trees) exceed the 32KB default
+	conn.SetReadLimit(64 << 20) // 64MB, since responses (screenshots, trees) exceed the 32KB default
 
 	const id = 1
 	req := protocol.NewRequest(id, method, params)

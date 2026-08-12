@@ -1,6 +1,6 @@
 // Package ui holds the CLI's terminal styling: role-named ANSI color tokens
-// gated on the stream actually being an interactive terminal. Piped output —
-// the agent/pipeline case — always renders plain, so nothing downstream ever
+// gated on the stream actually being an interactive terminal. Piped output,
+// the agent/pipeline case, always renders plain, so nothing downstream ever
 // has to strip escape codes. The serve path never writes through this package;
 // its stdout is the MCP transport.
 package ui
@@ -38,8 +38,8 @@ func For(f *os.File) Palette {
 
 // IsTerminal reports whether f is an interactive terminal (a character
 // device). A pipe or file is not, which is what keeps agent-captured output
-// plain. Note Git Bash's mintty presents as a pipe, so it renders plain too —
-// accepted; PowerShell and Windows Terminal are the interactive surfaces here.
+// plain. Note Git Bash's mintty presents as a pipe, so it renders plain too.
+// That is accepted: PowerShell and Windows Terminal are the interactive surfaces here.
 func IsTerminal(f *os.File) bool {
 	fi, err := f.Stat()
 	return err == nil && fi.Mode()&os.ModeCharDevice != 0
@@ -56,7 +56,7 @@ func (p Palette) wrap(code, s string) string {
 }
 
 // Tokens are named for role, not color, so every surface stays consistent:
-// headings and keys/identifiers in the accent (a burnt yellow, 256-color 172 —
+// headings and keys/identifiers in the accent (a burnt yellow, 256-color 172,
 // distinct from the plain-yellow warn/number tokens), ok/warn/fail
 // traffic-light, numbers yellow, bools magenta, secondary text dim. 256-color
 // works everywhere the VT gate lets escapes through (Windows 10+, any modern

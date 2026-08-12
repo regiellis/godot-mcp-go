@@ -1,9 +1,9 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## CSG authoring — the greybox workhorse. node.add can create CSG nodes and node.set
+## CSG authoring, the greybox workhorse. node.add can create CSG nodes and node.set
 ## can poke their props, but this group gives the operations those don't do ergonomically:
-## boolean operation by name, wrapping a set of shapes in a CSGCombiner3D, and — the payoff —
+## boolean operation by name, wrapping a set of shapes in a CSGCombiner3D, and, the payoff,
 ## baking a proven CSG tree down to a static MeshInstance3D (+ collision), the graybox→mesh
 ## handoff. Bake uses the live 4.7 API: CSGShape3D.bake_static_mesh()/bake_collision_shape().
 

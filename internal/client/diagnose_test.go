@@ -5,7 +5,7 @@ import "testing"
 func TestClassify(t *testing.T) {
 	disc := &Discovery{Port: 9081, PID: 4242, StartedUnix: 1000}
 
-	// classify reports the port it was handed — Diagnose resolves the port once
+	// classify reports the port it was handed. Diagnose resolves the port once
 	// (flag > env > discovery > default) before probing, so the probed port and the
 	// reported port never diverge. Passing 9080 alongside a disc on 9081 models a
 	// flag/env-pinned port: the verdict must name 9080, the port actually probed.

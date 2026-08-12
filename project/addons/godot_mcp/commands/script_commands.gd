@@ -2,7 +2,7 @@
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
 ## Script authoring (GDScript + C#): list, read, create, edit, attach, validate,
-## symbols, lint. Every command here is self-contained — no external tool.
+## symbols, lint. Every command here is self-contained, needing no external tool.
 
 const CSharpCommands := preload("res://addons/godot_mcp/commands/csharp_commands.gd")
 const GDScriptLinter := preload("res://addons/godot_mcp/utils/gdscript_linter.gd")
@@ -100,7 +100,7 @@ func _read(params: Dictionary) -> Dictionary:
 	var result := {"path": path, "content": content, "line_count": total, "size": content.length()}
 
 	# --start-line/--end-line (1-based, inclusive) return a slice instead of the
-	# whole file — the same line addressing script.edit already uses, so a read
+	# whole file, using the same line addressing script.edit already uses, so a read
 	# around a reported error line doesn't cost the file. Out-of-range values clamp.
 	if params.has("start_line") or params.has("end_line"):
 		var lines := content.split("\n")
@@ -178,7 +178,7 @@ func _cs_template(path: String, params: Dictionary) -> Array:
 			"Invalid C# class name '%s'. It must match ^[A-Za-z_][A-Za-z0-9_]*$ and should match the file name so Godot can find the class." % class_name_str
 		)]
 	var base_type := optional_string(params, "extends", "Node")
-	# 4-space indentation in the C# body — C# convention (GDScript files use tabs).
+	# 4-space indentation in the C# body, per C# convention (GDScript files use tabs).
 	var lines: PackedStringArray = [
 		"using Godot;",
 		"",
@@ -360,13 +360,13 @@ func _validate(params: Dictionary) -> Dictionary:
 	return success(_validate_one(path))
 
 
-## Validate a single .cs file. There is no per-file C# compile — the csproj is the
-## unit — so this runs the same `dotnet build` csharp.build uses (shared via the
+## Validate a single .cs file. There is no per-file C# compile, since the csproj is
+## the unit, so this runs the same `dotnet build` csharp.build uses (shared via the
 ## static CSharpCommands.run_build), then filters diagnostics to this file.
 func _validate_cs(path: String) -> Dictionary:
 	var csproj := CSharpCommands.find_file_at_root("csproj")
 	if csproj == null:
-		return error_invalid_params("C# validation builds the project; no .csproj found — run csharp.setup first")
+		return error_invalid_params("C# validation builds the project; no .csproj found, so run csharp.setup first")
 
 	var out: Array = []
 	if OS.execute("dotnet", ["--version"], out, true) != 0:
@@ -598,7 +598,7 @@ func _list_open(_params: Dictionary) -> Dictionary:
 ## The API surface one script declares: methods, properties, signals, constants.
 ##
 ## engine.class_info covers only scripts registered as a global class_name, which
-## leaves the ordinary case — a player.gd attached to a node — with no answer but
+## leaves the ordinary case, a player.gd attached to a node, with no answer but
 ## script.read and a few hundred lines of context spent to learn six signatures.
 func _symbols(params: Dictionary) -> Dictionary:
 	var r := require_string(params, "path")
@@ -658,7 +658,7 @@ func _collect_gd_files(path: String, include_addons: bool, out: Array) -> void:
 	dir.list_dir_end()
 
 
-## Lint GDScript against the official style guide. Native — no external binary, so
+## Lint GDScript against the official style guide. Native, with no external binary, so
 ## this works wherever the addon does.
 func _lint(params: Dictionary) -> Dictionary:
 	var path := optional_string(params, "path", "res://")
@@ -714,7 +714,7 @@ func _lint(params: Dictionary) -> Dictionary:
 			else:
 				warnings += 1
 
-		# Style rules read source, so they report on a file that does not compile —
+		# Style rules read source, so they report on a file that does not compile,
 		# and "no findings" would then read as "fine", which is the opposite of the
 		# truth. Only single-file runs pay for the compile check: it builds a
 		# throwaway GDScript per file, and every one of those writes its diagnostics
@@ -744,7 +744,7 @@ func _lint(params: Dictionary) -> Dictionary:
 			)
 	else:
 		payload["syntax_checked"] = false
-		payload["note"] = "Style only — run script.validate --all to compile-check these files."
+		payload["note"] = "Style only. Run script.validate --all to compile-check these files."
 	return success(payload)
 
 
@@ -780,7 +780,7 @@ func get_command_docs() -> Dictionary:
 			"params": [
 				doc_param("path", "String", true, "res:// path to the script."),
 				doc_param("replacements", "Array", false, "List of {search, replace, regex?} edits."),
-				doc_param("content", "String", false, "Replacement text — a line range (with --start-line/--end-line) or the whole file."),
+				doc_param("content", "String", false, "Replacement text: a line range (with --start-line/--end-line) or the whole file."),
 				doc_param("start_line", "int", false, "1-based first line to replace (with --content)."),
 				doc_param("end_line", "int", false, "1-based last line to replace (default start_line)."),
 				doc_param("insert_at_line", "int", false, "Line index to insert --text at."),
@@ -807,7 +807,7 @@ func get_command_docs() -> Dictionary:
 			"description": "List scripts currently open in the editor's script editor.",
 		},
 		"script.symbols": {
-			"description": "Read one GDScript's declared API — methods, properties, signals, constants — without reading the file. Works on any .gd path, including scripts with no class_name (which engine.class_info cannot reach). Reports what this file declares; --include-inherited adds members from the scripts it extends. Engine members are never included — get those from engine.class_info on the reported base_type.",
+			"description": "Read one GDScript's declared API (methods, properties, signals, constants) without reading the file. Works on any .gd path, including scripts with no class_name (which engine.class_info cannot reach). Reports what this file declares; --include-inherited adds members from the scripts it extends. Engine members are never included, so get those from engine.class_info on the reported base_type.",
 			"params": [
 				doc_param("path", "String", true, "res:// path to a .gd file."),
 				doc_param("filter", "String", false, "Case-insensitive substring filter over member names."),
@@ -816,7 +816,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"script.lint": {
-			"description": "Lint GDScript against the official style guide. Native — needs no external tool. Returns structured findings: path, line, rule, severity, message. --path may be a file or a directory (default 'res://', skipping addons/). 17 rules: the 9 naming rules are severity 'error', the rest ('duplicated-load', 'unnecessary-pass', 'unused-argument', 'comparison-with-itself', 'private-access', 'no-else-return', 'standalone-expression', 'max-line-length') are warnings. Style rules read source, so they also report on a file that does not compile: a single-file run therefore also compile-checks it and reports `syntax_valid`, since zero findings on a broken file would otherwise read as clean. A directory run is style-only (`syntax_checked: false`) — use script.validate --all to compile-check a tree. Suppress inline with `# gdlint-ignore[-next-line] rule[,rule]`.",
+			"description": "Lint GDScript against the official style guide. Native, needing no external tool. Returns structured findings: path, line, rule, severity, message. --path may be a file or a directory (default 'res://', skipping addons/). 17 rules: the 9 naming rules are severity 'error', the rest ('duplicated-load', 'unnecessary-pass', 'unused-argument', 'comparison-with-itself', 'private-access', 'no-else-return', 'standalone-expression', 'max-line-length') are warnings. Style rules read source, so they also report on a file that does not compile: a single-file run therefore also compile-checks it and reports `syntax_valid`, since zero findings on a broken file would otherwise read as clean. A directory run is style-only (`syntax_checked: false`), so use script.validate --all to compile-check a tree. Suppress inline with `# gdlint-ignore[-next-line] rule[,rule]`.",
 			"params": [
 				doc_param("path", "String", false, "File or directory to lint (default 'res://')."),
 				doc_param("disable", "String", false, "Comma-separated rule names to skip, e.g. 'max-line-length,unused-argument'. An unknown name is an error listing the known ones."),

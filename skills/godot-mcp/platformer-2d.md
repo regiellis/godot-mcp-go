@@ -1,4 +1,4 @@
-# 2D platformer construction — the component-actor way
+# Building a 2D platformer the component-actor way
 
 How to assemble a 2D platformer character, its animation, and its level the Godot way:
 composition over inheritance, physics as the single source of truth, and almost no glue code.
@@ -11,21 +11,21 @@ Don't subclass `CharacterBody2D` into a god-object player. The actor root is a p
 whose children each own one job; the physics body is just one component among peers:
 
 ```
-Actor2D (Node2D — tiny script, wiring only)
-├── KeyboardController (Node — input → intent calls on the body)
-├── JoyController (Node — same intents from a different device)
-├── MovingCharacter2D (CharacterBody2D — physics, intent API, predicates)
+Actor2D (Node2D: tiny script, wiring only)
+├── KeyboardController (Node: input becomes intent calls on the body)
+├── JoyController (Node: same intents from a different device)
+├── MovingCharacter2D (CharacterBody2D: physics, intent API, predicates)
 │   ├── CollisionShape2D
 │   ├── GraphicsRemoteTransform2D   → ../Graphics
 │   └── CameraRemoteTransform2D     → the level's camera (rotation/scale updates OFF)
-├── Graphics (Node2D — sprites; follows the body, never leads it)
+├── Graphics (Node2D: sprites; follows the body, never leads it)
 ├── AnimationPlayer + AnimationTree (reads the body's predicates)
 └── InteractionArea2D (Area2D beacon; follows via its own RemoteTransform2D)
 ```
 
 Why: controllers swap without touching physics (keyboard/gamepad/AI/replay are siblings, not
 subclasses); graphics can lag, squash, or flip without moving colliders; the body scene is a
-reusable system you instance into any actor. **Physics leads, everything else follows** — the
+reusable system you instance into any actor. **Physics leads, everything else follows**. The
 one-way `RemoteTransform2D` links make that structural, not a convention someone must remember.
 
 ## The body: intent API + query predicates
@@ -63,10 +63,10 @@ func is_running() -> bool: return look_direction != 0
 Tune the body scene itself: `node set --node-path Player --properties
 '{"floor_constant_speed":true,"floor_snap_length":16.0}'` (constant speed on slopes; snap keeps
 `is_on_floor()` true over slope crests and platform seams). Flip facing with a signal, not code:
-`node connect --node-path Player --signal look_direction_changed --target-path Graphics --method set_scale`
-— emitting `Vector2(-1, 1)` mirrors the whole rig.
+`node connect --node-path Player --signal look_direction_changed --target-path Graphics --method set_scale`.
+Emitting `Vector2(-1, 1)` mirrors the whole rig.
 
-## Physics drives the AnimationTree — no glue code
+## Physics drives the AnimationTree with no glue code
 
 The payoff of the predicate API: state-machine transitions advance **themselves** by evaluating
 expressions against the body every frame. No `travel()` calls, no animation code anywhere.
@@ -83,7 +83,7 @@ anim-tree add-transition --node-path Tree --from-state fall --to-state idle \
     --advance-mode auto --advance-expression 'get_node("Player").is_on_floor()' --xfade-time 0.1
 node set --node-path Tree --properties '{"advance_expression_base_node":"..","active":true}'
 ```
-`advance_expression_base_node` is where `get_node()` resolves from — point it at the actor root.
+`advance_expression_base_node` is where `get_node()` resolves from, so point it at the actor root.
 Full graph for a platformer: idle ⇄ run (`is_running()`), any-ground → jump (`is_jumping()`,
 switch-mode `at_end` off looping states), jump → fall (`is_falling()`), fall → idle/run on
 `is_on_floor()`. Verify in-game, numerically:
@@ -116,13 +116,13 @@ never knows it's moving; the rider never knows it's on a platform.
 The level owns `Camera2D` (limits are level knowledge); the actor only *feeds* it, via a
 `RemoteTransform2D` on the body with `update_rotation=false, update_scale=false`. Inject the
 camera as an exported NodePath on the actor. Use built-in smoothing
-(`position_smoothing_enabled`, `limit_smoothed`) — never hand-lerp.
+(`position_smoothing_enabled`, `limit_smoothed`) and never hand-lerp.
 
 Per-region framing: invisible Area2D **trip lines** (a `SegmentShape2D` across a doorway) that
 rewrite `camera.limit_left/right/top/bottom` on `area_entered`, with `-1` meaning "leave as is".
 Room-based cameras fall out of level layout, no camera manager.
 
-## Collision layers are a contract — write it down
+## Collision layers are a contract, so write it down
 
 | layer | who | notes |
 |---|---|---|
@@ -134,12 +134,12 @@ Room-based cameras fall out of level layout, no camera manager.
 Player body: `layer 8, mask 1|2|4`. The interaction pair is deliberately asymmetric: the actor
 carries a dumb **beacon** (`Area2D`, layer 8, `monitoring=false`), the world carries **sensors**
 (`Area2D`, layer 0, mask 8, `monitorable=false`) that own the response. A sensor enables its
-input handling only while overlapped (`set_process_unhandled_input` on enter/exit) — no global
-"can I interact?" state. Set with `physics set-layers` or `node set` on `collision_layer`/`collision_mask`.
+input handling only while overlapped (`set_process_unhandled_input` on enter/exit), so there is
+no global "can I interact?" state. Set with `physics set-layers` or `node set` on `collision_layer`/`collision_mask`.
 
 ## Blockout the level as scene tiles
 
-Registering *prefab scenes* as tiles gives painted cells real collision, visuals, and behavior —
+Registering *prefab scenes* as tiles gives painted cells real collision, visuals, and behavior:
 the fastest greybox that still plays. **Build** (verified live):
 ```
 tilemap create --parent-path . --name Ground --tile-size 'Vector2(128,128)'
@@ -158,8 +158,8 @@ Two details worth stealing: the label text holds an `{input}` placeholder replac
 with a keyboard or gamepad glyph depending on `Input.get_connected_joypads()` (store both glyph
 paths as node metadata via `node set-meta`); and the dismiss animation is the pop animation
 *played backwards* (`play_mode` backward on a second state), so one clip serves both. Even this
-UI runs on expression-driven transitions (`get_overlapping_areas().size() > 0`) — the same
-pattern as the character, applied to presentation. See `in-game-docs.md` for the 3D equivalents.
+UI runs on expression-driven transitions (`get_overlapping_areas().size() > 0`), the same
+pattern as the character applied to presentation. See `in-game-docs.md` for the 3D equivalents.
 
 ## Checklist
 

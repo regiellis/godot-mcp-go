@@ -29,7 +29,7 @@ func subHelp(fs *flag.FlagSet, oneLiner string, usageLines []string, notes ...st
 	return func() {
 		p := ui.Err
 		w := os.Stderr
-		fmt.Fprintln(w, p.Heading("godot-mcp "+fs.Name())+" — "+oneLiner)
+		fmt.Fprintln(w, p.Heading("godot-mcp "+fs.Name())+": "+oneLiner)
 		fmt.Fprintln(w)
 		fmt.Fprintln(w, p.Heading("Usage:"))
 		for _, u := range usageLines {

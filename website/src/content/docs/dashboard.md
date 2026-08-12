@@ -15,6 +15,6 @@ It holds a single persistent connection and polls the addon's `stats.snapshot`, 
 
 ## The in-editor panel
 
-The same dashboard is built into the addon as an editor dock named **MCP**, on the right side by default and movable like any dock. It shows the same numbers — the stat tiles, an error banner when a recent call failed, the top command groups, recent errors, and the live timeline with filter chips — and adds what only an in-editor surface can: it reads the stats in-process (no extra process, no port, no polling cost while the dock is closed), full call parameters ride on each row's tooltip, and a Reset button clears the counters. The panel follows your editor theme; the one constant is the blue.
+The same dashboard is built into the addon as an editor dock named **MCP**, on the right side by default and movable like any dock. It shows the same numbers: the stat tiles, an error banner when a recent call failed, the top command groups, recent errors, and the live timeline with filter chips. Living inside the editor also buys it things the web page cannot have. It reads the stats in-process (no extra process, no port, no polling cost while the dock is closed), full call parameters ride on each row's tooltip, and a Reset button clears the counters. The panel follows your editor theme; the one constant is the blue.
 
 Use whichever fits the moment: the dock while you work in the editor, the web page when you watch a session from outside it. Both read the same counters, so they always agree.

@@ -1,9 +1,9 @@
-# Steering and agent movement — building with godot-mcp
+# Steering and agent movement: building with godot-mcp
 
 How to move an AI character so it reads as a creature rather than a cursor. Read
 `game-patterns.md` for scene composition and `gdscript-style.md` for language idioms.
 **Verify signatures against the live engine** (`engine class-info --class CharacterBody2D`,
-`engine class-info --class NavigationAgent2D`) — the patterns here are stable, the API is
+`engine class-info --class NavigationAgent2D`). The patterns here are stable, but the API is
 what the running binary says it is.
 
 ## The one idea
@@ -28,8 +28,8 @@ vibrates on arrival.
 
 Two numbers per agent, both `@export`ed so they are tunable from the inspector:
 
-- `max_speed` — how fast it may travel.
-- `max_force` — how hard it may change direction. This is the feel dial.
+- `max_speed` sets how fast it may travel.
+- `max_force` sets how hard it may change direction. This is the feel dial.
 
 ## Steering vs NavigationAgent
 
@@ -63,7 +63,7 @@ scene save
 `--property target_path --value "../Target"` is not a typo. `get_node_or_null(target_path)`
 resolves **relative to the node holding it**, so a sibling needs the `../`. Passing the bare
 name silently yields null, `_physics_process` returns early, and the agent sits still with
-no error anywhere — the exact failure this line exists to prevent.
+no error anywhere. That is the exact failure this line exists to prevent.
 
 The script (compiles clean, `script lint` reports zero findings):
 
@@ -114,7 +114,7 @@ func arrive(target: Vector2) -> Vector2:
 ```
 
 Seek is this without the taper. Seek overshoots the target, turns around, overshoots
-again, and orbits forever — the classic "enemy vibrating on the player" bug. Reach for
+again, and orbits forever, which is the classic "enemy vibrating on the player" bug. Reach for
 arrive by default and only drop the taper when the agent should not slow down.
 
 ### Flee
@@ -131,7 +131,7 @@ func flee(threat: Vector2, panic_distance := 200.0) -> Vector2:
 `panic_distance` is what stops every enemy on the map fleeing forever once the player
 picks up the scary weapon.
 
-### Pursue — lead the target
+### Pursue leads the target
 
 ```gdscript
 func pursue(target: Node2D, target_velocity: Vector2) -> Vector2:
@@ -143,7 +143,7 @@ Without the lead the chaser aims at where the target *was* and permanently tails
 moving across its path. Scaling the lead by distance means a far-off interceptor predicts
 further ahead, which is also what looks intelligent.
 
-### Separation — keeps a crowd from stacking
+### Separation keeps a crowd from stacking
 
 ```gdscript
 func separation(radius := 80.0) -> Vector2:
@@ -183,8 +183,8 @@ func _physics_process(delta: float) -> void:
 ```
 
 Clamp the **sum**, not each term, or the weights stop meaning anything. When two
-behaviours conflict (flee-from-fire vs seek-objective) prefer priority — take
-the first behaviour that returns a non-zero force — over blending, which averages the two
+behaviours conflict (flee-from-fire vs seek-objective) prefer priority over blending.
+Priority takes the first behaviour that returns a non-zero force; blending averages the two
 into walking straight into the fire.
 
 ## Facing
@@ -197,7 +197,7 @@ if velocity.length_squared() > 1.0:
 ```
 
 In 3D use `look_at` with an up vector, or `Basis.looking_at`, and interpolate with
-`Quaternion.slerp` — assigning a basis every frame produces the same snap that assigning
+`Quaternion.slerp`. Assigning a basis every frame produces the same snap that assigning
 velocity does.
 
 ## 3D
@@ -234,7 +234,7 @@ func _on_velocity_computed(safe_velocity: Vector2) -> void:
 `velocity_computed(safe_velocity)` signal all exist on 4.7 and the signal fires once per
 physics frame. **Verify the returned `safe_velocity` numerically before building on it.**
 In a two-agent head-on test here it came back `(0, 0)` on every frame in both headless and
-windowed editors, with the agent registered on a valid map — so the wiring firing is not
+windowed editors, with the agent registered on a valid map, so the wiring firing is not
 evidence that avoidance is steering anything. Check with `runtime eval` and read the value:
 
 ```
@@ -254,22 +254,22 @@ scene play --mode res://ai/steer_demo.tscn
 runtime get --node-path Agent --properties '["position","velocity"]'
 ```
 
-What a correct arrive looks like, from a real run — agent starting at `(0, 0)`, target at
-`(400, 200)`:
+What a correct arrive looks like, from a real run with the agent starting at `(0, 0)` and the
+target at `(400, 200)`:
 
 | Time | position | velocity |
 | --- | --- | --- |
 | ~2 s | `(124.4, 62.2)` | `(182.8, 91.4)` |
 | ~6 s | `(420.0, 200.9)` | `(0.0, -18.2)` |
 
-Two things to read off that. The heading is right — `124:62` is the same 2:1 ratio as
+Two things to read off that. The heading is right, since `124:62` is the same 2:1 ratio as
 `400:200`. And it settles with velocity near zero instead of orbiting, which is the arrive
 taper doing its job. The final `x` of 420 rather than 400 is the two collision radii
 touching (12 + 8), not an error.
 
 For separation, check pair distances rather than positions. Three agents all seeking
-`(0, 0)` from overlapping starts settled at `56.0`, `57.0`, and `57.7` units apart — a
-stable triangle, which is the equilibrium between seek pulling in and separation pushing
+`(0, 0)` from overlapping starts settled at `56.0`, `57.0`, and `57.7` units apart. That is a
+stable triangle, the equilibrium between seek pulling in and separation pushing
 out. All three converging on one number is the signal that it works; a collapsing set
 means `separation_weight` is too low.
 
@@ -278,7 +278,7 @@ means `separation_weight` is too low.
 - **A sibling `NodePath` needs `../`**. Silent null, no error, agent never moves.
 - **Steer in `_physics_process`, not `_process`**. `move_and_slide` is physics-frame work.
 - **Clamp the summed force, not each behaviour**, or blending weights do nothing.
-- **`max_force` too high erases the effect** — it becomes velocity assignment again with
+- **`max_force` too high erases the effect**, leaving velocity assignment again with
   extra steps. If motion looks snappy, lower it before adding more behaviours.
 - **Separation over a whole-tree group scan is O(n²)**. Fine for a squad; for hundreds,
   bucket by grid cell or use an `Area2D` neighbour list.

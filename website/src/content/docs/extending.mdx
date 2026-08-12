@@ -3,7 +3,7 @@ title: Add your own commands
 description: Extend the MCP with project-local commands, no fork of the addon required.
 ---
 
-You can add project-specific commands without forking the addon: drop a `.gd` file into a **`res://mcp_commands/`** folder in your project. On plugin enable the addon scans that folder and registers your commands next to the built-ins, so they appear everywhere the built-ins do — the CLI, nested help (`godot-mcp <group> --help`), `godot-mcp engine commands`, and, over MCP, as a [typed tool](/docs/mcp-setup) with its own schema. No Go or addon changes.
+You can add project-specific commands without forking the addon: drop a `.gd` file into a **`res://mcp_commands/`** folder in your project. On plugin enable the addon scans that folder and registers your commands next to the built-ins, so they appear everywhere the built-ins do: the CLI, nested help (`godot-mcp <group> --help`), `godot-mcp engine commands`, and, over MCP, as a [typed tool](/docs/mcp-setup) with its own schema. No Go or addon changes.
 
 ## The shape of a command file
 
@@ -39,8 +39,8 @@ godot-mcp custom echo --message hi
 ## Something worth writing
 
 A ping proves the wiring; the hook earns its place on a chore the project actually has. This one
-reports every `res://` reference in the project's text files that no longer resolves — a dangling
-texture path in a scene, a script that moved — with the file and line it sits on.
+reports every `res://` reference in the project's text files that no longer resolves, such as a
+dangling texture path in a scene or a script that moved, and gives the file and line it sits on.
 
 ```gdscript
 @tool

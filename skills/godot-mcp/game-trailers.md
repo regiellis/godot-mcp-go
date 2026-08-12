@@ -1,15 +1,15 @@
-# Game videos and trailers — filming a Godot game with the engine itself
+# Game videos and trailers: filming a Godot game with the engine itself
 
 How an agent plans, stages, films, and cuts trailers and feature videos for a Godot game across
-multiple lengths and delivery formats. The same rig should be able to produce a 15–30 second hook,
-a 30–60 second store trailer, a 60–90 second extended cut, or a 2–3 minute feature/gameplay
-trailer, then restage that cut for landscape, near-square, feed portrait, square, or full vertical
-delivery.
+multiple lengths and delivery formats. The same rig should be able to produce a 15 to 30 second
+hook, a 30 to 60 second store trailer, a 60 to 90 second extended cut, or a 2 to 3 minute
+feature/gameplay trailer, then restage that cut for landscape, near-square, feed portrait, square,
+or full vertical delivery.
 
 The game renders its own footage: Godot's **movie writer** runs the project offline at a fixed
 frame rate and writes every frame plus the master audio bus to a file, so the capture is
-frame-perfect however slow the machine is. Screen-recording software is the wrong tool here — it
-films a game fighting for frames, and it cannot be re-run when a line of dialogue changes.
+frame-perfect however slow the machine is. Screen-recording software is the wrong tool here,
+because it films a game fighting for frames and cannot be re-run when a line of dialogue changes.
 
 Because the film is rendered rather than captured, a trailer here is a **deterministic scene,
 re-authored and re-rendered at will**. Duration, aspect ratio, camera framing, UI placement,
@@ -26,10 +26,10 @@ render is spent only on footage already known to be right.
 
 The finished output is a matrix:
 
-- **Editorial cut** — short hook, store trailer, extended trailer, or 2–3 minute feature.
-- **Delivery profile** — 16:9, 5:4, 4:5, 1:1, 9:16, or another explicitly supported viewport.
-- **Quality profile** — fast review render, final working render, or final encode.
-- **Language/version profile** — optional alternate dialogue, localized cards, ratings card, or CTA.
+- **Editorial cut**: short hook, store trailer, extended trailer, or 2 to 3 minute feature.
+- **Delivery profile**: 16:9, 5:4, 4:5, 1:1, 9:16, or another explicitly supported viewport.
+- **Quality profile**: fast review render, final working render, or final encode.
+- **Language/version profile**: optional alternate dialogue, localized cards, ratings card, or CTA.
 
 The director owns editorial intent. The delivery profile owns composition. The render script owns
 resolution and filenames. Keeping those concerns separate is what lets the same trailer concept
@@ -67,40 +67,40 @@ These are starting structures. The track and the game bend them:
 
 | Profile | Typical job | Editorial shape |
 | --- | --- | --- |
-| **Hook** — 15–30 s | short-form promo, teaser, announcement | one idea, one escalation, one payoff |
-| **Store** — 30–60 s | store page, launch trailer, compact social cut | hook → premise → core loop → escalation → close |
-| **Extended** — 60–90 s | feature-heavy trailer, publisher/social post | hook → premise → loop → depth → payoff → close |
-| **Feature** — 120–180 s | gameplay overview, feature trailer, longer showcase | hook → setup → loop → depth → variation → climax → close |
+| **Hook** (15 to 30 s) | short-form promo, teaser, announcement | one idea, one escalation, one payoff |
+| **Store** (30 to 60 s) | store page, launch trailer, compact social cut | hook → premise → core loop → escalation → close |
+| **Extended** (60 to 90 s) | feature-heavy trailer, publisher/social post | hook → premise → loop → depth → payoff → close |
+| **Feature** (120 to 180 s) | gameplay overview, feature trailer, longer showcase | hook → setup → loop → depth → variation → climax → close |
 
 A useful timing sketch:
 
-**15–30 seconds**
-- 0–3 s — immediate hook.
-- 3–10 s — establish the verb, threat, character, or fantasy.
-- 10–22 s — one or two escalating beats.
-- final 3–6 s — payoff and end card.
+**15 to 30 seconds**
+- 0 to 3 s: immediate hook.
+- 3 to 10 s: establish the verb, threat, character, or fantasy.
+- 10 to 22 s: one or two escalating beats.
+- final 3 to 6 s: payoff and end card.
 
-**30–60 seconds**
-- 0–4 s — hook.
-- 4–15 s — premise and visual identity.
-- 15–40 s — core loop shown through a continuous mini-story.
-- 40–52 s — escalation, surprise, or strongest feature.
-- final 6–10 s — payoff, title, CTA.
+**30 to 60 seconds**
+- 0 to 4 s: hook.
+- 4 to 15 s: premise and visual identity.
+- 15 to 40 s: core loop shown through a continuous mini-story.
+- 40 to 52 s: escalation, surprise, or strongest feature.
+- final 6 to 10 s: payoff, title, CTA.
 
-**60–90 seconds**
-- 0–5 s — hook.
-- 5–20 s — premise.
-- 20–50 s — core loop with enough continuity to understand cause and effect.
-- 50–72 s — systems, variation, rival/character beat, or secondary mechanic.
-- final 10–18 s — climax and close.
+**60 to 90 seconds**
+- 0 to 5 s: hook.
+- 5 to 20 s: premise.
+- 20 to 50 s: core loop with enough continuity to understand cause and effect.
+- 50 to 72 s: systems, variation, rival/character beat, or secondary mechanic.
+- final 10 to 18 s: climax and close.
 
-**120–180 seconds**
-- 0–8 s — hook that earns the longer watch.
-- 8–35 s — world, goal, stakes, or player fantasy.
-- 35–85 s — core loop shown clearly enough that the viewer understands what they do.
-- 85–135 s — depth: variation, progression, secondary systems, characters, modes, or a change of pace.
-- 135–160 s — strongest escalation or showcase sequence.
-- final 10–20 s — release of tension, title, CTA, platform/date information.
+**120 to 180 seconds**
+- 0 to 8 s: hook that earns the longer watch.
+- 8 to 35 s: world, goal, stakes, or player fantasy.
+- 35 to 85 s: core loop shown clearly enough that the viewer understands what they do.
+- 85 to 135 s: depth through variation, progression, secondary systems, characters, modes, or a change of pace.
+- 135 to 160 s: strongest escalation or showcase sequence.
+- final 10 to 20 s: release of tension, title, CTA, platform/date information.
 
 **The long form needs breathing room.** Do not turn three minutes into a three-minute montage. Let
 a few shots run long enough for an action to begin, resolve, and produce a consequence. The viewer
@@ -123,8 +123,8 @@ The shot-list file should carry enough information for both duration and aspect-
 | `audio` | music hit, SFX priority, silence, or transition |
 | `landscape` | framing notes for 16:9 / 5:4 |
 | `portrait` | framing notes for 4:5 / 9:16 |
-| `short_cut` | whether/how the shot appears in 15–60 s versions |
-| `long_cut` | whether/how the shot expands in 60–180 s versions |
+| `short_cut` | whether/how the shot appears in 15 to 60 s versions |
+| `long_cut` | whether/how the shot expands in 60 to 180 s versions |
 | `exit` | visual/audio condition that makes the cut safe |
 
 A shot can therefore be the same event without being the same composition. The winning throw may
@@ -145,7 +145,7 @@ godot-mcp script attach --node-path . --script-path res://trailers/trailer_direc
 
 One scene plus one script per film. It is dev-only tooling and never ships: add `trailers/*` to
 every export preset's `exclude_filter`, beside whatever holds the project's other tools. A second
-film gets its own scene and script rather than a shared base class — keeping a finished film
+film gets its own scene and script rather than a shared base class. Keeping a finished film
 byte-identical outranks avoiding duplication, and a shared helper puts every later change to film
 two into film one's render path.
 
@@ -236,7 +236,7 @@ func _until(cond: Callable) -> void:
 		if cond.call():
 			return
 		await get_tree().process_frame
-	push_warning("trailer: a wait hit its ceiling — footage may be off")
+	push_warning("trailer: a wait hit its ceiling, footage may be off")
 ```
 
 Predicates read the game's own idle state (not busy, player's turn, match not over), and anything
@@ -407,10 +407,10 @@ next beat. Restaging is not optional when the composition depends on width.
 
 Some shots can share staging across profiles. Classify them:
 
-- **aspect-safe** — the important action already lives near center and survives every profile;
-- **reframe** — same event, different camera/zoom/anchors;
-- **relayout** — same game camera, but UI/dialogue/card positions change;
-- **replace** — the landscape shot's visual idea does not work vertically, so use another shot.
+- **aspect-safe**: the important action already lives near center and survives every profile;
+- **reframe**: same event, different camera/zoom/anchors;
+- **relayout**: same game camera, but UI/dialogue/card positions change;
+- **replace**: the landscape shot's visual idea does not work vertically, so use another shot.
 
 Put that classification in `script.md`. It prevents the vertical pass from turning into a late
 list of surprises.
@@ -491,7 +491,7 @@ godot-mcp runtime capture-frames --count 8 --frame-interval 30
 ```
 
 - **Screenshot the shot, not the film.** Play the director scene, grab frames at the moments the
-  shot list names, and look at what is actually on screen — a bubble on a face, a card over a
+  shot list names, and look at what is actually on screen: a bubble on a face, a card over a
   button, a hand frozen over dead space.
 - **To catch a sub-second beat, drive `Engine.time_scale` from `runtime eval`.** A CLI round trip
   is around a second, so a 0.3 s flight is over before the next command lands. Slow the game,
@@ -514,7 +514,7 @@ before blaming pacing.
 
 ## Filming a performance instead of scripting one
 
-Some footage is easier played than written — a fight, a platforming line, a drag across a map.
+Some footage is easier played than written: a fight, a platforming line, a drag across a map.
 Record a real take through the CLI, then replay the events inside the film.
 
 ```
@@ -563,7 +563,7 @@ The same editorial idea can exist in all of them, but the shot count does not ha
 identical. If a wide reveal only works in 16:9, the 9:16 cut can reach the same story beat with
 two faster shots: subject first, consequence second.
 
-**Long-form structure.** For a 2–3 minute feature trailer, preserve continuity across several
+**Long-form structure.** For a 2 to 3 minute feature trailer, preserve continuity across several
 beats:
 
 1. establish what the player is trying to do;
@@ -596,7 +596,7 @@ fact unless the shot was explicitly marked aspect-safe.
 - **The title card wraps differently on mobile.** Automatic wrapping was allowed to make an
   editorial decision. Set per-profile width and authored line breaks.
 - **The short cut feels slow even though the long cut works.** A setup or recovery beat intended
-  for the 2–3 minute version leaked into the short editorial profile.
+  for the 2 to 3 minute version leaked into the short editorial profile.
 - **The film runs long and a screen sits idle in it.** A wait predicate is wrong and burned its
   ceiling. Check the stalled frame.
 - **An object was read before it settled.** A fixed sleep after a staggered animation races the

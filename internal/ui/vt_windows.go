@@ -18,7 +18,7 @@ const enableVirtualTerminalProcessing = 0x0004
 
 // enableVT turns on ANSI escape processing for f's console. Windows Terminal
 // ships with it on; legacy conhost needs the mode bit set. Returns whether
-// escapes are safe to emit — false means the caller must stay plain.
+// escapes are safe to emit; false means the caller must stay plain.
 func enableVT(f *os.File) bool {
 	h := f.Fd()
 	var mode uint32

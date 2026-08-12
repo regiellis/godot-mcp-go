@@ -1,9 +1,9 @@
-# Godot game patterns — building with godot-mcp
+# Godot game patterns, built with godot-mcp
 
 How to build games the Godot way, mapped to the CLI. Read `gdscript-style.md` for
 language idioms. **Verify exact APIs against the live engine** (`engine class-info
---class CharacterBody2D`, `engine search --query <thing>`) — patterns below are stable,
-signatures evolve.
+--class CharacterBody2D`, `engine search --query <thing>`). The patterns below are stable,
+but signatures evolve.
 
 ## Principles
 
@@ -21,13 +21,13 @@ signatures evolve.
 ## Recommended build order for a new game
 
 1. `project info`; set viewport/window via `project set-setting`.
-2. **Input map first** — `input_map set-action` for every action (`move_left`, `jump`, …).
-3. **Player scene** — its own `.tscn`, movement script, collision.
-4. **One level scene** — instance the player, build the world (TileMapLayer / 3D meshes).
-5. **Core loop** — enemies, pickups, win/lose, via component scenes.
-6. **UI/HUD** — Control nodes bound to gameplay by signals.
-7. **Playtest** — `scene play` → `input.*` → `runtime.get`/`screenshot` → fix → repeat.
-8. **Polish** — animation, particles, audio, juice (tweens).
+2. **Input map first**: `input_map set-action` for every action (`move_left`, `jump`, …).
+3. **Player scene** in its own `.tscn`, with a movement script and collision.
+4. **One level scene**. Instance the player, then build the world (TileMapLayer / 3D meshes).
+5. **Core loop**: enemies, pickups, win/lose, all via component scenes.
+6. **UI/HUD**, Control nodes bound to gameplay by signals.
+7. **Playtest**: `scene play` → `input.*` → `runtime.get`/`screenshot` → fix → repeat.
+8. **Polish**. Animation, particles, audio, juice (tweens).
 
 ## Top-down movement (CharacterBody2D)
 
@@ -71,32 +71,33 @@ func _physics_process(delta: float) -> void:
     move_and_slide()
 ```
 
-For how the platformer *actor and level* are assembled — component actor, physics-driven
-`AnimationTree`, moving platforms, cameras, collision layers, scene-tile blockouts — read
-`platformer-2d.md`; this file owns the movement code and its feel.
+Read `platformer-2d.md` for how the platformer *actor and level* are assembled: component
+actor, physics-driven `AnimationTree`, moving platforms, cameras, collision layers, and
+scene-tile blockouts. This file owns the movement code and its feel.
 
-## Game feel vs juice — two different layers
+## Game feel vs juice: two different layers
 
 **They live in different code.** Conflating them is the common mistake.
 
-- **Game feel** is the quality of *control* — the input→avatar loop: responsiveness, weight,
+- **Game feel** is the quality of *control* in the input→avatar loop: responsiveness, weight,
   momentum, camera. It lives in the **movement/simulation code**. Strip every visual effect and
   it's still there (or still missing); you tune it with physics constants and input handling.
-- **Juice** is the *feedback* layer — the avatar→audiovisual reaction fired on events to make an
+- **Juice** is the *feedback* layer, the avatar→audiovisual reaction fired on events to make an
   action satisfying and legible. It lives in the **presentation layer** (tweens, particles,
   signals→effects). Remove all of it and the mechanics are unchanged.
 
 One feels good in the **hands**, the other reads well to the **eyes/ears**. Build **game feel
-first** (it's core mechanics — belongs in the designer greybox); add **juice second** (cheap,
-works on grey cubes — for a stakeholder prototype). See `level-design.md` "Presentation stages".
+first** (core mechanics, so it belongs in the designer greybox); add **juice second** (cheap,
+works on grey cubes, right for a stakeholder prototype). See `level-design.md`
+"Presentation stages".
 
-**Tier it Big → Medium → Small** (risk order): **Big feel** = movement, jump, camera, combat — get
+**Tier it Big → Medium → Small** (risk order): **Big feel** = movement, jump, camera, combat. Get
 these right first; if they feel bad nothing else matters. **Medium feel** = landing effects, hit
 reactions, camera shake, recoil. **Small feel** = dust, sparks, shell casings, UI flourishes. Big
 feel is mostly *game feel* (control); Medium/Small are mostly *juice*. (See `level-design.md`
 "Big → Medium → Small".)
 
-### Game feel — make the control feel good (movement code)
+### Game feel makes the control feel good (movement code)
 
 Augment the platformer above; all verified against the live engine.
 
@@ -131,7 +132,7 @@ func _physics_process(delta: float) -> void:
         velocity.y *= 0.4                            # variable height: cut the rise short
 ```
 
-**Midair (double) jump** (aerial correction — consumes a charge, refilled on landing):
+**Midair (double) jump** (aerial correction that consumes a charge, refilled on landing):
 ```gdscript
 @export var max_air_jumps := 1
 @export var air_jump_velocity := -340.0   # weaker than the ground jump keeps commitment
@@ -148,21 +149,21 @@ Layering: **cutoff shapes** the arc (micro), the **midair jump rescues** it (mac
 makes the *first* jump reliable so the second stays a deliberate tool, and the buffer keeps fast
 land→jump→air-jump chains consistent. To preserve high-stakes jumps, constrain it: lower
 `air_jump_velocity`, one charge, or gate it as a progression unlock (flip `max_air_jumps` from a
-pickup). Level design: midair jump enables **commit-vs-correct** patterns — gaps the first jump
-almost clears, layered vertical routes, rescue ledges under hazards.
+pickup). Level design: midair jump enables **commit-vs-correct** patterns such as gaps the first
+jump almost clears, layered vertical routes, and rescue ledges under hazards.
 
-**Air control** (steering after takeoff — a second jump is only fair if you can aim it):
+**Air control** (steering after takeoff, since a second jump is only fair if you can aim it):
 ```gdscript
 @export var air_accel := 1100.0           # < ground ACCEL: drifty but steerable
 var rate := (ACCEL if is_on_floor() else air_accel) if dir != 0.0 else FRICTION
 ```
 
-**Asymmetric gravity** (snappier arc — float up, fall fast):
+**Asymmetric gravity** (a snappier arc: float up, fall fast):
 ```gdscript
 velocity.y += (fall_gravity if velocity.y > 0.0 else rise_gravity) * delta
 ```
 
-**Camera that follows with weight** — built-in smoothing (don't hand-roll a lerp):
+**Camera that follows with weight**, using built-in smoothing (don't hand-roll a lerp):
 ```
 node add --type Camera2D --name Cam --parent-path .
 node set --node-path Cam --properties '{"position_smoothing_enabled":true,"position_smoothing_speed":8.0}'
@@ -170,15 +171,16 @@ node set --node-path Cam --properties '{"position_smoothing_enabled":true,"posit
 (`position_smoothing_speed` confirmed on `Camera2D`; for lookahead, offset the camera toward the
 `velocity.x` direction.) Also game feel, not juice: read input every frame, snappy turnarounds,
 sub-pixel movement, low latency. The 3D third-person equivalent is **`SpringArm3D`**: parent the
-`Camera3D` to it and set `length` — the arm raycasts back from the pivot and shortens when
+`Camera3D` to it and set `length`. The arm raycasts back from the pivot and shortens when
 geometry intrudes, so the camera never clips walls (`margin` pads the hit;
 `add_excluded_object` ignores the player's own collider).
 
-### Juice — make the action satisfying (presentation, fired on events)
+### Juice makes the action satisfying (presentation, fired on events)
 
-None of these need final art — they work on cubes/spheres. Fire them from gameplay **signals**.
+None of these need final art, since they work on cubes and spheres. Fire them from gameplay
+**signals**.
 
-**Squash & stretch** (the workhorse — jump, land, hit, collect):
+**Squash & stretch** (the workhorse for jump, land, hit, and collect):
 ```gdscript
 func pop(sx: float, sy: float, t := 0.12) -> void:
     var tw := create_tween()
@@ -187,31 +189,31 @@ func pop(sx: float, sy: float, t := 0.12) -> void:
 # jump: pop(0.7, 1.3)    land: pop(1.3, 0.7)
 ```
 
-**Combat-VFX shader grammar** (from a shipped commercial deck-builder's 2D VFX library — the
+**Combat-VFX shader grammar** (from a shipped commercial deck-builder's 2D VFX library, the
 system behind every impact/burst/ring effect, built on `GPUParticles2D` + `canvas_item` shaders):
 - **Lifetime drives everything**. In the shader, `INSTANCE_CUSTOM.y / INSTANCE_CUSTOM.w` is the
   particle's 0→1 age; sample **authored 1D curve textures** at that value (`CurveTexture` for
-  erosion threshold, flipbook frame, hue shift) instead of hardcoding math — artists tune curves,
-  not code.
+  erosion threshold, flipbook frame, hue shift) instead of hardcoding math, so artists tune
+  curves rather than code.
 - **Grayscale + LUT**. Particle textures are grayscale masks; color comes from
-  `texture(lut, mask.rr)` — one texture serves every palette, recolored per effect.
+  `texture(lut, mask.rr)`, so one texture serves every palette, recolored per effect.
 - **Erosion dissolve**: `smoothstep(threshold, threshold + softness, noise.r)` with the threshold
-  read from the lifetime curve — the standard burn-away for smoke/impact sprites.
+  read from the lifetime curve. That is the standard burn-away for smoke/impact sprites.
 - **Flipbook UVs in-shader** (grid size + frame from lifetime, per-instance offset via
   `INSTANCE_CUSTOM.z` so instances desync).
 - **Polar UV remap** (`radius, angle` from center, optional twist) turns any linear gradient into
   rings and radial shockwaves.
 - **Screen distortion**: offset `hint_screen_texture` UVs along the direction to the sprite's
-  center, masked by the particle texture, with intensity riding the particle's **color alpha** —
-  the particle system animates the shader parameter for free. When a shader must read what was
+  center, masked by the particle texture, with intensity riding the particle's **color alpha**,
+  so the particle system animates the shader parameter for free. When a shader must read what was
   drawn *below it* mid-frame (refraction over a specific region, frosted panels), place a
-  `BackBufferCopy` node above it in draw order — it snapshots the backbuffer (`copy_mode`
+  `BackBufferCopy` node above it in draw order, which snapshots the backbuffer (`copy_mode`
   rect or viewport) so `hint_screen_texture` reads are defined at that point.
 - **CanvasGroup** renders its children as one image first: fade a whole multi-sprite character
   with a single `self_modulate` alpha (no per-part overlap artifacts), or run one outline/
   silhouette shader over the merged shape (pad `fit_margin` so the outline isn't clipped).
 
-**Hit-stop** (freeze a few frames on impact — huge for perceived weight):
+**Hit-stop** (freeze a few frames on impact, huge for perceived weight):
 ```gdscript
 func hit_stop(seconds := 0.08) -> void:
     Engine.time_scale = 0.0
@@ -229,11 +231,12 @@ func _process(delta: float) -> void:
     _shake = move_toward(_shake, 0.0, 40.0 * delta)
 ```
 
-Others, same spirit: **particle burst** — a `GPUParticles2D` with `one_shot=true`, `emitting=true`
-at the event, freed on finish. **Hit flash** — a shader that mixes albedo→white by a uniform you
-tween 1→0 (plain `modulate` *multiplies*, so it can't turn a textured sprite uniformly white). **Screen flash** — a full-rect `ColorRect`
-on a top `CanvasLayer`, alpha tweened down. **Floating text** — a `Label` that tweens up and fades.
-**Sound on every action** — even a placeholder beep sells the feedback.
+Others, same spirit. **Particle burst**: a `GPUParticles2D` with `one_shot=true`,
+`emitting=true` at the event, freed on finish. **Hit flash** is a shader that mixes albedo→white
+by a uniform you tween 1→0 (plain `modulate` *multiplies*, so it can't turn a textured sprite
+uniformly white). **Screen flash** is a full-rect `ColorRect` on a top `CanvasLayer` with alpha
+tweened down. **Floating text** is a `Label` that tweens up and fades. **Sound on every action**
+counts too, and even a placeholder beep sells the feedback.
 
 ### A reusable stack (build once)
 
@@ -282,31 +285,32 @@ func _physics_process(delta: float) -> void:
         State.CHASE:  _do_chase(delta)
         State.ATTACK: _do_attack(delta)
 ```
-Three enemy/encounter shapes worth keeping (from shipped-shooter devlogs): **onboarding aggro**
-— intro enemies idle until provoked (proximity *or* first shot), giving new players a
-low-pressure window; **boss phases gated by counts and thresholds, not timers** — "after the
+Three enemy/encounter shapes worth keeping (from shipped-shooter devlogs). **Onboarding aggro**
+has intro enemies idle until provoked (proximity *or* first shot), giving new players a
+low-pressure window. **Boss phases gated by counts and thresholds, not timers**: "after the
 turret fires 3 times, unlock the blast; below half HP, swap to ramming + homing" reads as
-telegraphed escalation and survives pause/lag where timelines drift; **the charge ultimate** — hold N seconds to
-charge, massive payoff (screen-wipe) at a real resource cost (1 HP), with one authored risk
-knob: either damage interrupts the charge *or* charging grants invulnerability — never both.
-Every number here is an `@export`.
+telegraphed escalation and survives pause/lag where timelines drift. **The charge ultimate**
+takes N seconds of holding to charge, with a massive payoff (screen-wipe) at a real resource
+cost (1 HP), and one authored risk knob: either damage interrupts the charge *or* charging
+grants invulnerability, never both. Every number here is an `@export`.
 
 For complex behavior, go node-based: a `StateMachine` node with a child `Node` per state;
-the machine calls `enter()/update()/exit()` and switches `current` — full pattern with the
-`transition` signal contract in `topdown-2d.md`. (Godot also has `AnimationTree` state
-machines for *animation* — use `anim_tree.*`; expression-driven recipe in `platformer-2d.md`.)
+the machine calls `enter()/update()/exit()` and switches `current`. The full pattern, with the
+`transition` signal contract, is in `topdown-2d.md`. (Godot also has `AnimationTree` state
+machines for *animation*, reached with `anim_tree.*`; expression-driven recipe in
+`platformer-2d.md`.)
 
 ### Turn-based match loop + CPU personalities
 
 For alternating-turn games (dice/card duels), the loop is a handful of flags, not a framework:
 `_turn` ("player"/"cpu"), per-side `_done` flags recomputed from board state each pass
 (`played >= cap or hand empty`), one `_busy` input lock, and a single `_advance_turn()` that
-resolves when both sides are done. Give the CPU a **personality drawn per match** — an enum of
+resolves when both sides are done. Give the CPU a **personality drawn per match**, an enum of
 *picking strategies* over a shared `gain(piece)` function (greedy = max, balanced = median,
 adaptive = smallest that retakes the lead else shed the lowest, gambler = random). Personality
-decides *which* piece; the rolls stay pure luck — the CPU never rigs. Rank by **gain, not raw
-value** (a strike is worth `min(strike, their_total)` — never fire a -6 at an empty board), and
-estimate conservatively so the CPU holds its bombs. Gate narration on information: name the
+decides *which* piece, and the rolls stay pure luck, so the CPU never rigs. Rank by **gain, not
+raw value** (a strike is worth `min(strike, their_total)`, so never fire a -6 at an empty
+board), and estimate conservatively so the CPU holds its bombs. Gate narration on information: name the
 leader only when the mode doesn't conceal totals. Full worked example in `ui-polish-2d.md`'s
 source study; UI feel in that doc's juice grammar.
 
@@ -314,37 +318,37 @@ source study; UI feel in that doc's juice grammar.
 
 A war story that repeats across devlogs: enemies prototyped ad hoc end up with mixed roots
 (`CharacterBody2D` here, `Area2D` there, `StaticBody2D` somewhere else) and suddenly damage is
-inconsistent — some never register hits, some take double. Two rules prevent it:
+inconsistent: some never register hits, some take double. Two rules prevent it:
 - **One root type per family**. Everything that shares behavior ("takes damage") shares a root
   type and child layout, decided the moment the *second* variant exists. Prefer `Area2D` roots
-  for enemies that don't need physics resolution — cheaper than `CharacterBody2D`.
+  for enemies that don't need physics resolution, which is cheaper than `CharacterBody2D`.
 - **One generic hurtbox scene** (an `Area2D` child) that only detects and forwards to the
-  root's `take_damage()`; the root owns health. One shared script, not N per-enemy copies —
+  root's `take_damage()`; the root owns health. One shared script, not N per-enemy copies. It is
   the same hit/hurt/damage component split as `topdown-2d.md`.
 Prototype fast and messy to find the fun, then run the consistency refactor once patterns
-emerge — but *do* run it.
+emerge, and *do* run it.
 
 ## Spawning & projectiles
 
 A `Bullet` is its own scene; the shooter instances it at runtime and gives it velocity.
-Don't pool prematurely: pooling pays off only at hundreds of concurrent projectiles — pool the
-player's rapid-fire stream, not the boss's occasional volley. **Hitscan vs projectile is a feel
+Don't pool prematurely: pooling pays off only at hundreds of concurrent projectiles, so pool the
+player's rapid-fire stream and not the boss's occasional volley. **Hitscan vs projectile is a feel
 choice**: an instant raycast reads as "a real gun" (miniguns, rifles); a travelling node reads
 as energy/arcing shots.
 
 **Offscreen lifecycle** (APIs verified live): give every projectile/pickup a
-`VisibleOnScreenNotifier2D` child and `queue_free()` on its `screen_exited` signal — the
-standard leak-proof despawn, no manual bounds math. For persistent world objects that should
+`VisibleOnScreenNotifier2D` child and `queue_free()` on its `screen_exited` signal. That is the
+standard leak-proof despawn, with no manual bounds math. For persistent world objects that should
 *sleep* offscreen (patrolling enemies, animated props), `VisibleOnScreenEnabler2D` pauses the
-target's processing automatically (`enable_node_path`, mode inherit/always/when-paused) —
-free culling, no code. The same pair exists as `VisibleOnScreenNotifier3D`/`Enabler3D`.
+target's processing automatically (`enable_node_path`, mode inherit/always/when-paused), which is
+free culling with no code. The same pair exists as `VisibleOnScreenNotifier3D`/`Enabler3D`.
 
 **Specialty 3D physics** (teach-level; all reachable via `node.add` + `node.set`, verified):
-`VehicleBody3D` + one `VehicleWheel3D` per wheel is a complete arcade car — per wheel set
+`VehicleBody3D` + one `VehicleWheel3D` per wheel is a complete arcade car. Per wheel set
 `use_as_traction`/`use_as_steering`, `wheel_radius`, suspension (`suspension_travel`,
 `wheel_friction_slip`); drive by writing `engine_force`/`steering`/`brake` on the body each
-frame. `SoftBody3D` turns a mesh into cloth/jelly — pin anchor vertices with
-`set_point_pinned(i, true)`, raise `simulation_precision` before blaming the solver.
+frame. `SoftBody3D` turns a mesh into cloth/jelly: pin anchor vertices with
+`set_point_pinned(i, true)`, and raise `simulation_precision` before blaming the solver.
 ```gdscript
 @export var bullet: PackedScene   # set in inspector to res://entities/bullet.tscn
 
@@ -370,7 +374,7 @@ func _on_body_entered(body: Node) -> void:
         queue_free()
 ```
 Build: `node add --type Area2D`, add a `CollisionShape2D` child with a shape. **Make the
-shape generous** — tiny radii are nearly impossible to hit with simulated input.
+shape generous**, because tiny radii are nearly impossible to hit with simulated input.
 
 ## Input setup
 
@@ -382,11 +386,11 @@ input_map set-action --action move_left --events '[{"type":"key","keycode":"KEY_
 Then in playtesting prefer `input action --action jump` over `input key`.
 
 Mobile: `TouchScreenButton` (a 2D node, not a Control) fires an input-map `action` from a
-screen region and can multi-press alongside other touches — set
+screen region and can multi-press alongside other touches. Set
 `visibility_mode = TOUCHSCREEN_ONLY` so on-screen controls vanish on desktop. Because it maps
 to actions, the same gameplay code serves both inputs.
 
-## UI / HUD — signal-bound, never polling
+## UI / HUD is signal-bound, never polling
 
 `CanvasLayer` → `Control` nodes. The HUD listens to gameplay signals and updates; it does
 not read player state every frame.
@@ -419,14 +423,14 @@ Manage via `node.set_groups` / `node.find_in_group`.
 
 - 2D frames / property tracks: `AnimationPlayer` (`animation.*`). Spritesheet characters:
   `scene2d add-animated-sprite --texture sheet.png --hframes 4 --vframes 4 --autoplay walk
-  --animations '{"walk":{"frames":[0,1,2,3],"fps":8}}'` — one call builds the `SpriteFrames`
+  --animations '{"walk":{"frames":[0,1,2,3],"fps":8}}'`, where one call builds the `SpriteFrames`
   (frame indices are row-major over the grid).
 - Blending/state (idle↔run↔jump): `AnimationTree` + state machine (`anim_tree.*`).
 - **Locomotion blend spaces** are the other `AnimationTree` tool. A **BlendSpace1D**
-  interpolates poses along one axis — speed-based idle→walk→run; a **BlendSpace2D** blends
-  across a plane — 8-way top-down locomotion, `blend_position` is the movement `Vector2`.
+  interpolates poses along one axis for speed-based idle→walk→run; a **BlendSpace2D** blends
+  across a plane for 8-way top-down locomotion, where `blend_position` is the movement `Vector2`.
   Neighbouring clips cross-fade on their own; there are no per-clip transitions to author.
-  - **Build a 2D 8-way blend as the tree root** — the `anim_tree` group authors blend spaces
+  - **Build a 2D 8-way blend as the tree root**. The `anim_tree` group authors blend spaces
     directly (`--root-type blend_space_2d` on `create`, then one `set-blend-point` per clip;
     every call verified live, `walk_*` clips already on an `AnimationPlayer`):
     ```
@@ -440,14 +444,14 @@ Manage via `node.set_groups` / `node.find_in_group`.
     ```
     `set-blend-point` wraps the named clip in an `AnimationNodeAnimation` at the blend-space
     position (2D: `--pos-x`/`--pos-y` or `--position "Vector2(x,y)"`; 1D: `--pos <float>`).
-    `--sync true` sets the `AnimationNodeSync` flag both blend spaces carry — it locks the
+    `--sync true` sets the `AnimationNodeSync` flag both blend spaces carry, locking the
     blended clips to one shared playback ratio so a slow walk and a fast run don't foot-slide;
     2D `--auto-triangles` (on by default) triangulates the points for you. The **1D** form is
     the same with `--root-type blend_space_1d` and float `--min-space`/`--max-space` (`0`→top
     speed). `remove-blend-point --index N` drops one. To nest the blend space inside a state
     machine instead of as the root, `add-state --state-type blend_space_2d --state-name
     Locomotion`, then target it with `set-blend-point --blend-space-state Locomotion`.
-  - **Drive `blend_position` from velocity** in `_physics_process` — the one axis a blend space
+  - **Drive `blend_position` from velocity** in `_physics_process`, the one axis a blend space
     exposes as a runtime parameter:
     ```gdscript
     @onready var _tree: AnimationTree = $Tree
@@ -465,37 +469,37 @@ Manage via `node.set_groups` / `node.find_in_group`.
     at edit time with `anim-tree set-parameter --node-path Tree --parameter blend_position
     --value "Vector2(1,0)"`; confirm in-game with `runtime eval --code
     'emit(get_node("Tree").get("parameters/blend_position"))'`.
-- **3D character motion stack** (the `SkeletonModifier3D` family — children of the
+- **3D character motion stack** (the `SkeletonModifier3D` family, children of the
   `Skeleton3D`, run after animation each frame; all `node.add` + `node.set`, APIs verified):
-  `LookAtModifier3D` turns a bone toward a `target_node` (heads/eyes — set `bone_name` +
+  `LookAtModifier3D` turns a bone toward a `target_node` (heads and eyes; set `bone_name` +
   `forward_axis`); `TwoBoneIK3D` plants limbs (indexed settings: `setting_count = 1`, then
-  `set_target_node(0, …)` + `set_pole_node(0, …)` for the elbow/knee direction — one modifier
+  `set_target_node(0, …)` + `set_pole_node(0, …)` for the elbow/knee direction, so one modifier
   can drive several limbs); `FABRIK3D`/`CCDIK3D`/`SplineIK3D` solve longer chains
   (tentacles, spines). **Secondary motion**: `SpringBoneSimulator3D` makes tails/hair/cloth
   bones lag and jiggle (`set_root_bone_name(0, …)`/`set_end_bone_name(0, …)` per chain), with
   `SpringBoneCollisionSphere3D/Capsule/Plane` children keeping them out of the body.
   **Ragdolls**: `PhysicalBoneSimulator3D` +  a `PhysicalBone3D` per major bone (generate via
   the editor's Skeleton3D toolbar, then tune shapes); flip live with
-  `physical_bones_start_simulation()` / `stop` — death = animation off, simulation on.
+  `physical_bones_start_simulation()` / `stop`, where death = animation off, simulation on.
   Modifier order matters: they apply top-to-bottom, so IK before spring bones.
-- Cutout / skeletal 2D (verified live): `skeleton create-2d --bones '[{"name":"shoulder","position":[0,0]},{"name":"elbow","parent":"shoulder","position":[96,0]}]'` builds the `Bone2D` chain with rests; `skeleton skin-2d --node-path Rig --polygon-path Arm` auto-weights a `Polygon2D` by inverse distance (`--max-influences`, `--falloff`; explicit `--weights` per bone also accepted). Pose bones with plain `node.set` on `rotation_degrees`, bake a new bind pose with `set_rest_2d`, animate bone rotations with `animation.*` tracks. Chain-tip bones without children warn about length auto-calc — expected; set `length` if it matters.
-- Juice (squash/stretch, punches, shake, hit-stop): built with tweens — see **Game feel vs
+- Cutout / skeletal 2D (verified live): `skeleton create-2d --bones '[{"name":"shoulder","position":[0,0]},{"name":"elbow","parent":"shoulder","position":[96,0]}]'` builds the `Bone2D` chain with rests; `skeleton skin-2d --node-path Rig --polygon-path Arm` auto-weights a `Polygon2D` by inverse distance (`--max-influences`, `--falloff`; explicit `--weights` per bone also accepted). Pose bones with plain `node.set` on `rotation_degrees`, bake a new bind pose with `set_rest_2d`, animate bone rotations with `animation.*` tracks. Chain-tip bones without children warn about length auto-calc, which is expected; set `length` if it matters.
+- Juice (squash/stretch, punches, shake, hit-stop) is built with tweens; see **Game feel vs
   juice** above. Distinct from game feel (the control itself).
 
 ## Positional audio (2D & 3D)
 
 `AudioStreamPlayer` is flat (music, UI); **`AudioStreamPlayer2D` pans and attenuates by
 distance to the listener** (the current `Camera2D`, or an `AudioListener2D`). The knobs that
-matter (verified live): `max_distance` (beyond it, silent — default 2000px is small for
+matter (verified live): `max_distance` (beyond it, silent; the default 2000px is small for
 zoomed-out games), `attenuation` (falloff exponent), `panning_strength`, `bus` (route world
-SFX to their own bus for the pause-menu duck — `audio.*` commands manage buses), and
-`max_polyphony` (one player can voice N overlapping shots — no per-shot player nodes).
+SFX to their own bus for the pause-menu duck, with `audio.*` commands managing buses), and
+`max_polyphony` (one player can voice N overlapping shots, so no per-shot player nodes).
 Positional audio is spatial *information*: an offscreen enemy you can hear approaching is
 gameplay, not polish.
 
 **3D** (`AudioStreamPlayer3D`) swaps the model: `attenuation_model` (inverse / inverse-square /
 logarithmic / disabled) with `unit_size` scaling how fast falloff bites, `max_distance` as a
-hard cutoff (0 = audible forever — set it, it's also a perf cull), and optional
+hard cutoff (0 = audible forever, so set it; it's also a perf cull), and optional
 `doppler_tracking` for fast movers. Same bus/polyphony discipline as 2D.
 
 ## Scene management
@@ -508,12 +512,12 @@ a fade) centralizes transitions. Register it with `project add-autoload`.
 Small saves: a `Resource` or JSON written to `user://`. Resource approach: a `SaveData`
 `class_name extends Resource`, `ResourceSaver.save(data, "user://save.tres")`.
 
-## Networking — HTTP (leaderboards, telemetry)
+## Networking over HTTP (leaderboards, telemetry)
 
 `HTTPRequest` is a **node**, not a blocking call: add one, fire `request()`, react to the
 `request_completed` signal. Signature (verified): `request_completed(result: int,
 response_code: int, headers: PackedStringArray, body: PackedByteArray)`, and
-`request(url, custom_headers, method, body)` returns an error you **must** check — a
+`request(url, custom_headers, method, body)` returns an error you **must** check: a
 malformed URL never reaches the socket, so the signal never fires. Wrap it in a thin autoload
 with a **serial queue** (one request in flight); leaderboard posts and telemetry pings don't
 need concurrency, and a queue makes ordering and retries trivial:
@@ -545,13 +549,13 @@ func _pump() -> void:
     var headers := PackedStringArray(["Content-Type: application/json"])
     var err := _http.request(job["url"], headers, HTTPClient.METHOD_POST, job["body"])
     if err != OK:
-        _finish(false, null)            # never left the socket — drain and move on
+        _finish(false, null)            # never left the socket: drain and move on
 
 func _on_completed(result: int, code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
     var ok := result == HTTPRequest.RESULT_SUCCESS and code >= 200 and code < 300
     var data: Variant = null
     if ok:
-        data = JSON.parse_string(body.get_string_from_utf8())   # null on malformed JSON — check it
+        data = JSON.parse_string(body.get_string_from_utf8())   # null on malformed JSON, so check it
     _finish(ok, data)
 
 func _finish(ok: bool, data: Variant) -> void:
@@ -563,22 +567,22 @@ func _finish(ok: bool, data: Variant) -> void:
 
 Build: `project add-autoload --name Net --path res://systems/net.gd`, then call
 `Net.post_json("https://api.example.com/score", {"name": n, "score": s}, "leaderboard")`
-and listen on `Net.completed`. **HTTPS just works on desktop** — Godot ships Mozilla's CA
+and listen on `Net.completed`. **HTTPS just works on desktop**. Godot ships Mozilla's CA
 bundle, so `https://` validates against system certs with no setup (`set_tls_options` is only
 for certificate pinning or a private CA). `use_threads` keeps the transfer off the main
 thread on desktop; on other platforms confirm threading before enabling it.
 
 ## Measuring performance (frame-delta, not a single readout)
 
-A single FPS / frame-time sample is noisy and misleading. Measure over a **window** — count
-frames advanced across a known interval and report an average *and* a worst frame — and be
-explicit about **which world** you're sampling: the running game and the editor viewport behave
-differently, and only the game's number matters for "does it run well."
+A single FPS / frame-time sample is noisy and misleading. Measure over a **window**: count
+frames advanced across a known interval and report an average *and* a worst frame. Be
+explicit about **which world** you're sampling, because the running game and the editor viewport
+behave differently, and only the game's number matters for "does it run well."
 
 **Build (sample the running game over a window):**
 ```
 scene play --mode main
-# capture_frames already advances N frames at a fixed interval — use it as the window:
+# capture_frames already advances N frames at a fixed interval. Use it as the window:
 runtime capture-frames --count 60 --frame-interval 1
 # read engine timing from inside the game over that window:
 runtime eval --code '
@@ -588,8 +592,8 @@ var prims = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TO
 emit({"fps": fps, "draw_calls": draw, "primitives": prims})'
 scene stop
 ```
-Sample several times and keep the **worst** frame, not just the mean — a stutter is what players
-feel. The `profiling` group exposes deeper monitors; confirm exact names with `engine class-info
+Sample several times and keep the **worst** frame, not just the mean, because a stutter is what
+players feel. The `profiling` group exposes deeper monitors; confirm exact names with `engine class-info
 --class Performance` / `engine search --query RENDERING_INFO` against the live build before relying
 on them (the constants evolve between engine releases). Don't trust the editor viewport's frame rate
 as the game's.
@@ -599,10 +603,10 @@ as the game's.
 - One giant scene + one 1000-line script. Split into entity scenes + components.
 - Movement/physics in `_process` instead of `_physics_process`.
 - Polling another node's state every frame instead of connecting a signal.
-- `get_node("../../Thing")` chains — use `@export`/`%unique`/groups.
+- `get_node("../../Thing")` chains. Use `@export`/`%unique`/groups.
 - Hard-coding values in `_ready()` that should be `@export`s.
 - Untyped GDScript.
 - Forgetting `delta` (frame-rate-dependent movement).
-- Confusing **game feel** (the control) with **juice** (the feedback) — or shipping a prototype
+- Confusing **game feel** (the control) with **juice** (the feedback), or shipping a prototype
   with neither. Game feel goes in the movement code; juice is fired on signals.
-- Trusting remembered API signatures — confirm against the running engine with `engine class-info`/`search`.
+- Trusting remembered API signatures. Confirm against the running engine with `engine class-info`/`search`.

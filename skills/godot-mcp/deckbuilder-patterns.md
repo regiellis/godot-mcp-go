@@ -4,12 +4,12 @@ The engine architecture a turn-based deck-builder needs (Slay-the-Spire-like: a 
 combat where cards queue effects, stackable powers/relics that modify those effects,
 seeded runs). Reverse-engineered from a shipped commercial Godot deck-builder's compiled
 code, so the *patterns* are verified against real shipping software. They're
-**language-agnostic** — the game ships in C#, but each pattern maps cleanly to GDScript
+**language-agnostic**: the game ships in C#, but each pattern maps cleanly to GDScript
 (mappings inline). Build the visuals/scenes with `scene.*`/`node.*` as usual; this file is
 about the *logic layer* underneath.
 
 The one idea to internalize: **gameplay effects are data-driven and resolved through a
-queue, not executed inline.** A card doesn't "deal damage" directly — it *enqueues a
+queue, not executed inline.** A card doesn't "deal damage" directly. It *enqueues a
 damage action*, which passes through every power/relic that wants to modify it. That
 indirection is what makes "Strength +3", "Vulnerable ×1.5", and "double your next attack"
 compose without if-spaghetti.
@@ -53,9 +53,9 @@ changes combat state is an action; actions are ordered and resolve serially.**
 
 Don't conflate the queue with the mutation helpers. The shipped game separates:
 
-- **Actions** (`GameAction`, queued) — *orchestration*: the ordered, awaitable steps
+- **Actions** (`GameAction`, queued) handle *orchestration*: the ordered, awaitable steps
   ("play this card", "end turn", "begin enemy turn").
-- **Commands** (`CreatureCmd.Damage(...)`, `CardPileCmd.Add(...)`) — *the actual mutation +
+- **Commands** (`CreatureCmd.Damage(...)`, `CardPileCmd.Add(...)`) are *the actual mutation +
   hook dispatch*. A command directly changes state (HP, block, pile contents), fires the
   before/after hooks around that change, and triggers VFX. Commands are **called from
   inside an action's `execute()`**; they are not themselves queued.
@@ -87,8 +87,8 @@ VulnerablePower : ModifyDamageMultiplicative -> returns 1.5      (only if owner 
 ```
 
 `CombatState` exposes `IterateHookListeners()` that gathers **every** active modifier in
-one pass — powers on all creatures, the player's relics, equipped potions, channeled orbs,
-and even per-card afflictions/enchantments — so a hook fires across all of them uniformly.
+one pass (powers on all creatures, the player's relics, equipped potions, channeled orbs,
+and even per-card afflictions/enchantments), so a hook fires across all of them uniformly.
 There are many hook points beyond damage: `BeforeDamageReceived`, `AfterCardPlayed`,
 `AfterTurnEnd`, `ModifyShuffleOrder`, `AfterCreatureAdded`, etc. A power decrements its own
 duration in `AfterTurnEnd`.
@@ -111,7 +111,7 @@ func compute_damage(base: int, ctx: DamageContext) -> int:
 ```
 
 **Pattern: open/closed via hooks.** Adding a new relic/power means adding a listener that
-overrides a hook — never editing the damage/turn code. This is the one pattern to get
+overrides a hook, never editing the damage/turn code. This is the one pattern to get
 right first: every later relic and power depends on it.
 
 ## 4. Cards are data + one behavior method
@@ -133,7 +133,7 @@ class AshenStrike : CardModel {            // declarative vars
 ```
 
 Note the **fluent command builder** (`DamageCmd.Attack(n).FromCard(c).Targeting(t)
-.WithHitFx(...).Execute()`) — readable, and it threads source/target/VFX through to the
+.WithHitFx(...).Execute()`). It reads well, and it threads source/target/VFX through to the
 hook pipeline so modifiers know who dealt what.
 
 **GDScript mapping.** A `Card` base `class_name` with exported stat vars and a
@@ -158,7 +158,7 @@ DSL early; per-card code that calls shared commands scales further than it looks
 
 ## 5. Piles and the deck
 
-Cards move between **piles** — Draw, Hand, Discard, Exhaust, Play, plus the persistent
+Cards move between **piles**: Draw, Hand, Discard, Exhaust, Play, plus the persistent
 Deck. A pile is a thin ordered list wrapper that emits `card_added`/`card_removed`/
 `contents_changed` and integrates with hooks (shuffling fires `ModifyShuffleOrder`; adding
 to a combat pile subscribes the card to the combat state tracker). Hand is capped (10).
@@ -171,7 +171,7 @@ Moving a card = remove from its current pile, add to the target pile (top/bottom
 
 ## 6. Seeded RNG and determinism
 
-A roguelike must be reproducible — same seed → same run (for daily challenges, leaderboard
+A roguelike must be reproducible, meaning same seed → same run (for daily challenges, leaderboard
 fairness, multiplayer lockstep, and bug repro). The shipped game wraps a PRNG with an
 explicit **call counter** and seeds **multiple independent streams**:
 
@@ -201,15 +201,15 @@ state with the save.
 
 ## 7. Combat state, history, and saves (event sourcing)
 
-`CombatState` is the mutable snapshot of a fight — ally/enemy creature lists, round number,
-whose turn, encounter, modifiers — mutated in place, emitting events on change. A
+`CombatState` is the mutable snapshot of a fight (ally/enemy creature lists, round number,
+whose turn, encounter, modifiers), mutated in place and emitting events on change. A
 `Creature` holds HP/block/powers and emits `BlockChanged`/`HpChanged`/`PowerApplied` so the
 view updates reactively (the node never polls).
 
 Above combat, the **run** records *history entries* (cards drawn/played, damage received,
 powers applied, choices made) rather than only snapshotting state. This **event-sourcing**
-gives you: deterministic replay, undo (rewind one entry), multiplayer verification
-(checksum the action stream), and analytics — for free, because every change already went
+gives you deterministic replay, undo (rewind one entry), multiplayer verification
+(checksum the action stream), and analytics, all for free, because every change already went
 through the action queue.
 
 **GDScript mapping.** A `CombatState` object with creature arrays + `signal` per stat; a
@@ -219,24 +219,24 @@ signals; **never** read combat numbers every frame.
 
 ## 8. Model / entity / view separation
 
-Three distinct layers — keep them apart:
+Three distinct layers, kept apart:
 
-- **Definition** (`CardModel`, `MonsterModel`, …) — static template, looked up by id from a
-  central registry/db.
-- **Runtime entity** (`Creature`, the live `Card` in a pile) — mutable per-run state
-  (current HP, applied powers, pile location), emits change events.
-- **View node** (the `.tscn` + its script) — listens to the entity's events and renders;
+- **Definition** (`CardModel`, `MonsterModel`, …) is the static template, looked up by id
+  from a central registry/db.
+- **Runtime entity** (`Creature`, the live `Card` in a pile) holds mutable per-run state
+  (current HP, applied powers, pile location) and emits change events.
+- **View node** (the `.tscn` + its script) listens to the entity's events and renders; it
   holds no game rules.
 
 Data flows id → registry → entity (created/mutated by actions) → view (reacts to events).
 The view can be regenerated or restyled without touching rules; rules can be unit-tested
 without a scene tree.
 
-## Cheat-sheet — the 10 patterns to replicate
+## Cheat-sheet: the 10 patterns to replicate
 
 1. **Action queue.** Every effect is a queued action; the executor drains serially, awaiting each.
 2. **Two layers.** Actions orchestrate order; commands apply one mutation + fire hooks.
-3. **Hook pipeline.** Powers/relics override damage/turn hooks in additive→multiplicative→cap layers — never edit core math to add a modifier.
+3. **Hook pipeline.** Powers/relics override damage/turn hooks in additive→multiplicative→cap layers, so adding a modifier never edits core math.
 4. **One listener gather.** Combat state yields *all* active modifiers (powers, relics, potions, orbs, card afflictions) in one pass.
 5. **Cards = data + `on_play`.** Declarative stat vars plus one imperative effect method calling shared commands; upgrades tweak vars.
 6. **Fluent command builders.** `damage(n).from(card).at(target).with_fx(...)` threads source/target/VFX into the pipeline.
@@ -245,6 +245,7 @@ without a scene tree.
 9. **Event-sourced history.** Record actions, not just snapshots → replay, undo, verify, analytics.
 10. **Model/entity/view split.** Definition (registry) → runtime entity (events) → view node (reacts), data flowing one way.
 
-Build order: hook pipeline + action queue first (1–4), then cards (5–6), then piles/RNG
-(7–8), then history/save and the reactive view (9–10). The view is last — it should be a
-thin reaction to entity events, addable once the logic layer resolves a fight headlessly.
+Build order: hook pipeline + action queue first (1 to 4), then cards (5 and 6), then piles/RNG
+(7 and 8), then history/save and the reactive view (9 and 10). The view comes last, and it
+should be a thin reaction to entity events, addable once the logic layer resolves a fight
+headlessly.

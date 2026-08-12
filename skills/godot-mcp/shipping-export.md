@@ -1,10 +1,10 @@
-# Shipping & Export — the release pipeline
+# Shipping & Export: the release pipeline
 
 When a project leaves the editor for players, three problems appear that the build-and-playtest
 loop never surfaces: dev tooling riding along inside the pck, the pck itself being an open book
 (stock tools list and extract every script and scene), and an oversized runtime. The pipeline
 below closes all three, proven end to end on a real desktop release. Throughout it,
-**verify by receipts, not by exit codes** — a green export means the exporter ran, not that
+**verify by receipts, not by exit codes**. A green export means the exporter ran, not that
 the build is right.
 
 ## Pick your target
@@ -43,11 +43,11 @@ player build.
    other dev-only trees). `.gdignore`d folders never export, but plain `.gd`/`.tscn`/`.tres`
    under an addon all do unless excluded.
 2. **Disable the plugin before exporting.** Disabling removes the `MCPGameInspector` /
-   `MCPGameInput` autoloads from `project.godot` — removal matches entries by the addon's own
+   `MCPGameInput` autoloads from `project.godot`. Removal matches entries by the addon's own
    script paths, so autoloads persisted into the file by an earlier session are cleaned too, and
    any unrelated autoload a project declares itself is untouched. Re-enabling self-installs them
-   again; there is nothing to restore by hand. (Disabling kills the CLI's own server —
-   expected; the export step below runs headless without it.)
+   again; there is nothing to restore by hand. (Disabling also kills the CLI's own server, which
+   is expected: the export step below runs headless without it.)
 3. **Receipts.** After exporting, string-scan the pck: the excluded paths and autoload names must
    score zero hits, and known-good game paths must be present:
 
@@ -70,8 +70,8 @@ godot --headless --path . --export-release "Windows Desktop" "out/Game.exe"
 - Exit 0 plus a final `[ DONE ] savepack` line is the transport signal; the receipts above and a
   boot test are the real verdict.
 - Templates resolve from `%APPDATA%/Godot/export_templates/<major.minor.patch.status>/` unless
-  the preset's `custom_template/*` points elsewhere (which is how keyed/size-optimized templates
-  ship — below).
+  the preset's `custom_template/*` points elsewhere, which is how the keyed and size-optimized
+  templates below ship.
 - Boot the exe and let it hold past its first scene: a window with the right title that survives
   ~10s is the cheapest whole-pipeline receipt there is.
 - **When the pck is buried, export one on its own to scan**. `--export-pack "<preset>"
@@ -82,13 +82,13 @@ godot --headless --path . --export-release "Windows Desktop" "out/Game.exe"
 
 ## PCK encryption: keyed custom templates
 
-Godot encrypts the pck (AES-256) only when the **export templates themselves carry the key** —
-official templates cannot do it. Understand what it buys: casual extraction is blocked, but the
+Godot encrypts the pck (AES-256) only when the **export templates themselves carry the key**,
+which official templates cannot do. Understand what it buys: casual extraction is blocked, but the
 key necessarily lives inside the shipped exe, so a determined reverse-engineer can dig it out.
 Deterrence, not DRM.
 
-1. **Generate a 256-bit key once** (64 hex chars) and keep it **outside the repo** — never
-   commit it, never print it into a log or chat transcript:
+1. **Generate a 256-bit key once** (64 hex chars) and keep it **outside the repo**. Never commit
+   it, and never print it into a log or chat transcript:
 
    ```powershell
    $b = [byte[]]::new(32); [Security.Cryptography.RandomNumberGenerator]::Fill($b)
@@ -106,8 +106,8 @@ Deterrence, not DRM.
    scons target=template_release arch=x86_64 production=yes   # + d3d12=yes etc. to match
    ```
 
-   On a warm build tree this is an incremental recompile-and-relink measured in **seconds, not
-   minutes** — the key lands in one generated file. Copy the built template (and its `.console`
+   The key lands in one generated file, so on a warm build tree this is an incremental
+   recompile-and-relink measured in **seconds, not minutes**. Copy the built template (and its `.console`
    sibling) somewhere stable next to the key; later builds overwrite `bin/`.
 
 3. **Wire the preset**: `encrypt_pck=true`, `encrypt_directory=true`,
@@ -115,38 +115,39 @@ Deterrence, not DRM.
    `custom_template/release` pointing at the keyed template.
 
 4. **Supply the key at export time via `GODOT_SCRIPT_ENCRYPTION_KEY`** (verified working live)
-   in the environment of the headless export. The preset's key field works too but persists the
-   key in plaintext into `export_presets.cfg` — a committed file. The env var keeps it out.
+   in the environment of the headless export. The preset's key field works too, but it persists
+   the key in plaintext into `export_presets.cfg`, a committed file. The env var keeps it out.
 
 5. **Receipts.** The plaintext scan from above flips: game paths and `gd_scene` markers drop to
-   **zero** hits in an encrypted pck. Then boot the exe — **a booting game IS the key-match
-   proof**; `ERR_FILE_CORRUPT` at startup means the template's baked key and the export-time key
-   disagree (or the template is an unkeyed one).
+   **zero** hits in an encrypted pck. Then boot the exe, because **a booting game IS the
+   key-match proof**. `ERR_FILE_CORRUPT` at startup means the template's baked key and the
+   export-time key disagree (or the template is an unkeyed one).
 
 ## Size-optimized templates
 
 The same custom-template slot takes size work. The scons knobs, in descending order of value for
 a typical 2D game (official numbers, condensed):
 
-- `production=yes` — the baseline for anything shipped (implies dead-code stripping and sane
-  defaults); `debug_symbols=no` alone is a 5–10× binary reduction when not already implied.
-- `optimize=size` (or `size_extra`) — high savings, mild CPU cost; what web builds already do.
-- `lto=full` — high savings; slow links and 12–16 GB RAM at build time. Release-only.
-- `disable_3d=yes` — ~15% off a 2D-only game. **Template targets only** (the editor cannot build
-  without 3D); grep the project for 3D node types first.
-- `module_text_server_adv_enabled=no module_text_server_fb_enabled=yes` — high savings; loses
-  RTL text, ligatures and OpenType features. Only for Latin/Greek/Cyrillic-only games.
-- `disable_advanced_gui=yes` — moderate; deletes Tree, ItemList, TextEdit, GraphEdit,
-  ColorPicker, FileDialog and friends. Many UI-heavy games can't take this — audit first.
-- `build_profile=<file>.gdbuild` — moderate-to-high, project-derived class stripping. The sharp
+- `production=yes` is the baseline for anything shipped (it implies dead-code stripping and sane
+  defaults); `debug_symbols=no` alone is a 5 to 10× binary reduction when not already implied.
+- `optimize=size` (or `size_extra`): high savings, mild CPU cost, and what web builds already do.
+- `lto=full` also gives high savings, at the cost of slow links and 12 to 16 GB RAM at build
+  time. Release-only.
+- `disable_3d=yes` takes ~15% off a 2D-only game. **Template targets only** (the editor cannot
+  build without 3D); grep the project for 3D node types first.
+- `module_text_server_adv_enabled=no module_text_server_fb_enabled=yes`: high savings, but it
+  loses RTL text, ligatures and OpenType features. Only for Latin/Greek/Cyrillic-only games.
+- `disable_advanced_gui=yes` is moderate, and deletes Tree, ItemList, TextEdit, GraphEdit,
+  ColorPicker, FileDialog and friends. Many UI-heavy games can't take this, so audit first.
+- `build_profile=<file>.gdbuild` is moderate-to-high, project-derived class stripping. The sharp
   edge: it can strip classes only reached via reflection/`load()` at runtime.
 - Per-module `module_*_enabled=no` (see `scons --help`) and physics you don't use
-  (`module_jolt_enabled=no`, `disable_physics_3d=yes`) — small each, additive.
-- Distribution: 7-Zip Ultra for desktop zips typically shaves another 1–5 MB.
+  (`module_jolt_enabled=no`, `disable_physics_3d=yes`) are small each, additive.
+- Distribution: 7-Zip Ultra for desktop zips typically shaves another 1 to 5 MB.
 
 **Every knob gets the same gate:** export, run the receipts, boot the game, and run the
 project's own regression suite against a restored dev environment. A build that lost a module it
-actually needed usually still boots — it fails at the moment the feature is touched, which is
+actually needed usually still boots. It fails at the moment the feature is touched, which is
 exactly what a playtest suite catches and a boot test does not.
 
 ## Android
@@ -163,19 +164,19 @@ the debug keystore trio falls back to `export/android/debug_keystore`, `..._user
 
 **Preset fields that decide the build shape:**
 
-- `package/unique_name` — the reverse-DNS identifier. Permanent per listing, like the keystore.
+- `package/unique_name` is the reverse-DNS identifier. Permanent per listing, like the keystore.
 - `version/code` (machine-readable, must increment every Play upload) and `version/name`.
 - `keystore/debug`, `keystore/debug_user`, `keystore/debug_password`; `keystore/release`,
   `keystore/release_user`, `keystore/release_password`; `package/signed` gates signing at all.
-- `gradle_build/use_gradle_build` — off packages the prebuilt template APK, on compiles a real
+- `gradle_build/use_gradle_build`: off packages the prebuilt template APK, on compiles a real
   Gradle project from `gradle_build/gradle_build_directory` (default `res://android`). Plugins,
   GDExtension, and custom manifest entries need it on, and `gradle_build/min_sdk` /
   `gradle_build/target_sdk` apply only on that path. Install the template once with
   `godot --headless --path . --install-android-build-template`.
-- `gradle_build/export_format` — APK or AAB. AAB is the Play upload; APK is what installs on a
+- `gradle_build/export_format` picks APK or AAB. AAB is the Play upload; APK is what installs on a
   device. Keep two presets rather than flipping one, since the device loop below needs the APK.
-- `architectures/arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64` — arm64 alone covers current phones and
-  is the smallest; x86_64 buys emulator testing.
+- `architectures/arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64`: arm64 alone covers current phones
+  and is the smallest, while x86_64 buys emulator testing.
 
 **Keystore passwords stay out of `export_presets.cfg`**, which is a committed file. Every keystore
 field has an environment override that wins over it, so a headless release export signs like this:
@@ -220,7 +221,7 @@ past its first scene, with `adb logcat` open for the stack trace when it does no
 
 Note what that `Expand-Archive` also proves: an APK is a zip anyone can open, and the pck inside
 it reads like any other pck. `encrypt_pck` from the encryption section applies to Android exports
-unchanged and is the only thing standing between a curious player and the scripts — the receipts
+unchanged and is the only thing standing between a curious player and the scripts. The receipts
 above check content, not protection, so run the plaintext string scan against the pck pulled from
 the APK when encryption is on.
 
@@ -286,8 +287,8 @@ the signed app may do, so grant the few that are needed and leave the rest off:
   controllers, `files_downloads`, `files_movies`, `files_music`, and friends). Required for the App
   Store; unnecessary weight for direct distribution.
 - `allow_jit_code_execution`, `allow_unsigned_executable_memory`,
-  `allow_dyld_environment_variables` — only for a GDExtension that needs dynamic or self-modifying
-  native code. Each one relaxes the runtime protections signing exists to assert.
+  `allow_dyld_environment_variables`. Grant these only for a GDExtension that needs dynamic or
+  self-modifying native code. Each one relaxes the runtime protections signing exists to assert.
 - `codesign/entitlements/additional` takes raw plist for anything the fields do not cover.
 
 **What a Windows dev machine cannot do.** Apple's signing tools and the notarization submission are

@@ -38,7 +38,7 @@ func _plugins(_params: Dictionary) -> Dictionary:
 				var cfg := ConfigFile.new()
 				cfg.load(cfg_path)
 				plugins.append({
-					"name": name,  # the folder name — pass this to enable/disable
+					"name": name,  # the folder name, passed to enable/disable
 					"display_name": cfg.get_value("plugin", "name", name),
 					"version": str(cfg.get_value("plugin", "version", "")),
 					"enabled": cfg_path in enabled,
@@ -341,7 +341,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"project.set_setting": {
-			"description": "Set a project setting (--key to --value, auto-parsed) and save project.godot. The safe way to change settings — never hand-edit project.godot.",
+			"description": "Set a project setting (--key to --value, auto-parsed) and save project.godot. The safe way to change settings: never hand-edit project.godot.",
 			"params": [
 				doc_param("key", "String", true, "Setting key (e.g. 'display/window/size/viewport_width')."),
 				doc_param("value", "JSON", true, "Value, auto-parsed to the right type."),

@@ -6,11 +6,11 @@ phone/social-media OS). Reverse-engineered from a shipped commercial Godot narra
 (real GDScript source), plus a studied graph-dialogue addon for the node-graph family and
 the VN quality-of-life layer. Patterns are durable and language-agnostic in spirit; build
 them via the CLI (`script.create`, `scene.*`, `project.add_autoload`). Read
-`gdscript-architecture.md` first — narrative leans on its Store/Service/Index spine.
+`gdscript-architecture.md` first, because narrative leans on its Store/Service/Index spine.
 
 The core idea: **keep the story in a branching-script format, keep effects in code, and
-bridge them with two narrow seams** — *external functions* (script ↔ game state) and a
-*command bus* (script → game actions). Everything else hangs off those seams.
+bridge them with two narrow seams**. The seams are *external functions* (script ↔ game state)
+and a *command bus* (script → game actions). Everything else hangs off them.
 
 ## Run branching script with Ink (or an equivalent runner)
 
@@ -32,9 +32,9 @@ runner.choose_choice_index(i); runner.get_global_tags()
 
 **Pattern: story-as-data in a runner.** Branching/state logic lives in the script language;
 GDScript only drives the runner and renders output. (If not Ink: any line-emitting branching
-format works — the rest of this file is runner-agnostic.)
+format works, and the rest of this file is runner-agnostic.)
 
-### Seam 1 — external functions (script ↔ game state)
+### Seam 1: external functions (script ↔ game state)
 
 Ink calls back into GDScript through **bound external functions**, which the game wires to
 the Store. Reflect over methods with a prefix and auto-bind them:
@@ -66,8 +66,8 @@ match header.type:
     _:          return Substory.new(id, runner, header, ctx)      # plain narrative
 ```
 
-**Pattern: declare presentation mode in the story header**, route to a handler — one story
-format, several on-screen treatments.
+**Pattern: declare presentation mode in the story header**, then route to a handler. One story
+format carries several on-screen treatments.
 
 ## A line format + a command bus (the heart of scripted scenes)
 
@@ -103,7 +103,7 @@ func _run_command(cmd):
 In the shipped game dozens of components self-register: `DialogueHandler` owns `say`,
 `StateContainer` owns flag/dict commands (`F`, `D`), `AudioUtils` owns sound commands, the
 scene manager owns `start_skit`, and `Story` owns global ones (`wait`, `change_scene`,
-`unlock_ach`…). **Pattern: a command bus with chain-of-responsibility handlers** — adding a
+`unlock_ach`…). **Pattern: a command bus with chain-of-responsibility handlers.** Adding a
 new `$ verb` means a component registering a handler, never editing a central dispatcher.
 This is the narrative-game analogue of the deck-builder's hook pipeline.
 
@@ -125,20 +125,20 @@ Choices flow back into the runner: `runner.get_choices()` → render → player 
 fallback index for time-pressure beats.
 
 Story-wide coordination uses a tiny **event bus** on the `Story` autoload: `Story.emit(name)`
-and `await Story.wait_for(name)` — so a scene can block until a narrative beat fires without
+and `await Story.wait_for(name)`, so a scene can block until a narrative beat fires without
 direct references. **Pattern: dialogue UI as a state machine + a story event bus for
 loosely-coupled sequencing.**
 
 ### Skits: embedded interactive scenes
 
-A `SkitContainer` (with an `id`, indexed) runs a sub-story scoped to its own subtree — it
-resolves pivots/commands locally unless allowed global access. Triggered from script
+A `SkitContainer` (with an `id`, indexed) runs a sub-story scoped to its own subtree, resolving
+pivots and commands locally unless allowed global access. Triggered from script
 (`$ start_skit --wait WakeUp`), it emits `skit_started`/`skit_finished`. **Pattern: scope a
 sub-story to a container** so the same dialogue machinery drives small in-world vignettes.
 
 ## The graph-dialogue family (when you don't want a script language)
 
-The alternative to Ink: dialogue as a **JSON node graph** — typed nodes keyed by id, each
+The alternative to Ink: dialogue as a **JSON node graph** of typed nodes keyed by id, each
 carrying `next` (or a `branches` map), interpreted by a walker. Same two seams as above, just
 wearing different clothes. Distilled from a studied dialogue addon; core verified against the live engine.
 
@@ -158,11 +158,11 @@ match node.type:
 
 Writers get non-linearity (chance/repeat/conditions) without touching code, and the format is
 diffable, generatable, and migratable. **Version the format**: a `version` field, per-node
-converters that upgrade old files on load, and a migration tool — dialogue data outlives code.
+converters that upgrade old files on load, and a migration tool. Dialogue data outlives code.
 
-**Seam A — a safe evaluator, not `eval`.** Conditions and `@var@` text interpolation go through
+**Seam A: a safe evaluator, not `eval`.** Conditions and `@var@` text interpolation go through
 Godot's `Expression` class with an allowlisted context (the dialogue's local variables plus a
-few globals) — writers get `gold >= 10 and not met_guide`, never arbitrary code:
+few globals), so writers get `gold >= 10 and not met_guide` and never arbitrary code:
 
 ```gdscript
 var expression := Expression.new()
@@ -170,33 +170,33 @@ expression.parse(input, PackedStringArray(context.keys()))
 var result: Variant = expression.execute(context.values(), self)
 ```
 
-**Seam B — an action registry.** Dialogue triggers game effects only by name through registered
+**Seam B: an action registry.** Dialogue triggers game effects only by name through registered
 callables; namespaced *variable providers* (`"player"` → callable answering `"health"`) expose
 game state read-only. The graceful-degradation detail worth copying: an **unregistered** action
 emits `action_requested(name, params)` instead of erroring, so a scene can handle one-off
 actions by signal without registering globally. This is the graph-family's command bus.
 
 **VN quality-of-life is a small, separable layer** (players expect all four):
-- **Skip**: hold-to-skip that only fast-forwards *visited* nodes — keep a
-  `"path:node_id"` visited set; never skip through choices.
+- **Skip**: hold-to-skip that only fast-forwards *visited* nodes. Keep a
+  `"path:node_id"` visited set, and never skip through choices.
 - **Auto-advance**: arm a one-shot timer only when the message finished revealing *and* no
   choice is pending; cancel on any manual input.
 - **Backlog**: a capped ring buffer of typed entries (message vs choice, speaker, node id),
   searchable; feed it from the same place that shows messages.
 - **Resume**: a `DialogueState` Resource (current path + node id, variables, flags, visited,
-  repeat counters) — `resume_from_state()` is just "load file, `next_id = saved`, step".
+  repeat counters). With it, `resume_from_state()` is just "load file, `next_id = saved`, step".
 
 **Presentation: one Message contract, N skins.** Box (bottom panel) and Bubble (speech balloon)
 both implement `show_new_message(text)` / `finish_message()` + `started/finished` signals; each
 node picks its skin (`is_box`), a global override forces one. Mechanics worth stealing:
 - **World-anchored bubbles**: 2D follows `speaker.get_global_transform_with_canvas().origin`;
-  3D follows `camera.unproject_position(speaker.global_position)` — same bubble, both worlds.
+  3D follows `camera.unproject_position(speaker.global_position)`. Same bubble, both worlds.
 - **Typewriter over BBCode**: pair an invisible `Label` (gets the tag-stripped text, drives
   layout) with a `RichTextLabel` (gets the BBCode), and advance `visible_characters` on both.
 - **Measure-then-wrap**: show the bubble with autowrap off, wait one frame, and only if it
-  exceeds max width flip autowrap on and clamp — short lines get tight bubbles.
-- **Conditional choices stay visible but disabled** with the unmet condition as tooltip —
-  players see the door they couldn't open.
+  exceeds max width flip autowrap on and clamp, so short lines get tight bubbles.
+- **Conditional choices stay visible but disabled**, with the unmet condition as tooltip.
+  Players see the door they couldn't open.
 - A per-character `CharacterData` Resource (portraits by emotion, name/text colors, voice
   blip pitch, preferred skin) in a `CharacterDatabase` keeps styling out of the graph.
 
@@ -211,7 +211,7 @@ scattered through scenes.
 ## Data-driven in-world apps (the fake phone/PC OS)
 
 The social feed, web browser, email, and forum are **entirely data-driven** off the Store's
-JSON databases — no bespoke code per post.
+JSON databases, with no bespoke code per post.
 
 - **Domain objects are live JSON proxies**. A class wraps a dict from the Store; its
   properties get/set straight into that dict, so mutations persist with no explicit save:
@@ -226,7 +226,7 @@ JSON databases — no bespoke code per post.
   wraps it in a domain object, instances a view per item. A like button just flips the
   proxy property; a dirty-checker re-renders.
 - **References as strings** (`author_ref = "fb://profiles/alice"`) model the social graph
-  and lazy-load via the Store — circular relationships without deep copies.
+  and lazy-load via the Store, which buys circular relationships without deep copies.
 - **URLs parse to Store paths** (`https://site/2014/11/article` → a nested lookup), so a
   "web" is just addressable data, and a `content_type` field selects which view scene to
   instance (text / picture / album / video) through one pipeline.
@@ -238,8 +238,8 @@ Content authors add posts/emails by editing JSON, not code.
 
 ## The product shell (everything around the story)
 
-Mined from a VN engine's starter game; the save/settings core validated against the live engine. The shell —
-boot, title, saves, settings, extras — is where "demo" and "shippable" diverge, and it
+Mined from a VN engine's starter game; the save/settings core validated against the live engine.
+The shell (boot, title, saves, settings, extras) is where "demo" and "shippable" diverge, and it
 generalizes far beyond VNs. The organizing idea: **the shell is data-driven from manifests**,
 so re-skinning the product never touches code.
 
@@ -247,22 +247,22 @@ so re-skinning the product never touches code.
   the whole shell: window title, splash entries, which scenes are title/settings/extras, music.
   A ~100-line TOML-subset parser (sections, scalars, flat arrays) is all it takes; parse once
   at boot and stash on the tree (`get_tree().set_meta`) for every screen to read.
-- **Boot flow**: play splash images/videos from the manifest — or, with none configured,
-  *procedural text cards* from the project's own metadata (studio name, title), so the flow is
-  complete on day one. Fade in → wait-or-skip → fade out → a short **black dwell** between
+- **Boot flow**: play splash images/videos from the manifest. With none configured, fall back to
+  *procedural text cards* built from the project's own metadata (studio name, title), so the flow
+  is complete on day one. Fade in → wait-or-skip → fade out → a short **black dwell** between
   cards (cuts without it read as flashes). Skip is one flag checked by every wait.
 - **Saves: version + wrap, never introspect**. The payload is
   `{version, slot_id, saved_at_unix, snapshot_json, custom_state, custom_meta}` where
-  `snapshot_json` is the story runner's own **opaque** state export — the save system never
+  `snapshot_json` is the story runner's own **opaque** state export, so the save system never
   knows story internals. External systems register as *providers* contributing custom state
   under namespaced keys (with key-collision detection). Before overwriting a slot, copy it to
   `.bak`; loads that fail fall back to the backup, and every failure path returns a *named
   reason* (`slot_not_found`, `backup_write_failed`) surfaced by signal, never a crash. Slot UI
-  is powered by `list_slots_metadata()` — enumerate, validate, sort by recency.
+  is powered by `list_slots_metadata()`: enumerate, validate, sort by recency.
 - **Settings are a table, not a screen of code**. Each setting is one registration row
   (`key, control, kind, options, default, section`); load/apply/persist (`ConfigFile`) iterate
   the table. Four tabs is the shipped shape: General, Display, Sound, **Accessibility**
-  (subtitle size/background, colorblind overlay, QTE-off) — plan the a11y tab from the start.
+  (subtitle size/background, colorblind overlay, QTE-off). Plan the a11y tab from the start.
 - **Chapter select and extras read TOML too**: `episodes.toml`/`chapters.toml` feed the episode
   carousel + scene gallery; `extras.toml` is a card grid (thumbnail, badge, lock state, target
   scene or URL). Content unlocks are data rows, not screens.
@@ -272,7 +272,7 @@ so re-skinning the product never touches code.
 ## Localize narrative content, not just UI strings
 
 Two layers: Godot `tr()` + `.translation` files for chrome (menus, settings), and
-**per-locale data files** for narrative — localized `.inkb` under `locales/<lang>/` and
+**per-locale data files** for narrative, meaning localized `.inkb` under `locales/<lang>/` and
 localized JSON DBs (`state_ja.json`, `fb_ja.json`), each falling back to the default
 locale. A `locale_changed` signal makes the store **reload all databases** live. Remember
 **font remapping** per locale for CJK. **Pattern: localize the data layer with
@@ -292,6 +292,6 @@ default-locale fallback**, and reload state on locale change.
 10. Build in-world apps as **JSON data + proxy objects + view-per-item**; localize the data layer with fallback.
 11. Or skip the script language: dialogue as a **versioned JSON node graph** + a `match` interpreter; flow control as node types.
 12. Gate writer-facing logic behind a **safe `Expression` evaluator** and an **action registry** (unhandled → signal, never error).
-13. Ship the VN QoL layer — visited-gated skip, choice-aware auto-advance, backlog, resumable `DialogueState` — it's small and players expect it.
+13. Ship the VN QoL layer: visited-gated skip, choice-aware auto-advance, backlog, resumable `DialogueState`. It's small and players expect it.
 14. One **Message contract, N skins** (box/bubble); anchor bubbles via canvas transform (2D) or `unproject_position` (3D).
 15. Drive the product shell from **manifests** (project/episodes/extras as TOML); saves wrap an opaque story snapshot with version + `.bak` fallback + named failure reasons; settings are a registration table with an Accessibility tab from day one.

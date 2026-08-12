@@ -14,7 +14,7 @@ import (
 // runInstall, not duplicating the copy logic).
 func runCreate(args []string) int {
 	fs := flag.NewFlagSet("create", flag.ContinueOnError)
-	path := fs.String("path", "", "target project dir (created if missing) — required")
+	path := fs.String("path", "", "required: target project dir (created if missing)")
 	name := fs.String("name", "", "project name (default: base name of the target dir)")
 	install := fs.Bool("install", false, "also copy the MCP addon + skill into the new project")
 	enable := fs.Bool("enable", false, "enable the plugin in project.godot (requires --install)")
@@ -43,7 +43,7 @@ func runCreate(args []string) int {
 
 	// Never overwrite an existing project, even with --force.
 	if pathExists(filepath.Join(dir, "project.godot")) {
-		fmt.Fprintf(os.Stderr, "create: %q already contains a project.godot — refusing to overwrite an existing project\n", dir)
+		fmt.Fprintf(os.Stderr, "create: %q already contains a project.godot. Refusing to overwrite an existing project.\n", dir)
 		return 1
 	}
 	// Refuse a non-empty target dir unless --force.

@@ -19,7 +19,7 @@ import (
 
 // runServe runs godot-mcp as a Model Context Protocol server over stdio. It
 // always exposes a generic `godot_run` tool that proxies `<group>.<command>`
-// calls to the running Godot editor addon, and — unless --typed=false — also
+// calls to the running Godot editor addon and, unless --typed=false, also
 // exposes one first-class typed tool per command, built lazily from the addon's
 // live param docs. MCP clients (Claude Desktop, etc.) can then build and inspect
 // Godot projects directly.
@@ -94,7 +94,7 @@ type rpcErr struct {
 
 func (s *mcpServer) reply(id json.RawMessage, result any, e *rpcErr) {
 	if id == nil {
-		return // notification — no response
+		return // notification, so no response
 	}
 	resp := map[string]any{"jsonrpc": "2.0", "id": id}
 	if e != nil {
@@ -109,7 +109,7 @@ func (s *mcpServer) reply(id json.RawMessage, result any, e *rpcErr) {
 	}
 	s.out.Write(b)
 	s.out.WriteByte('\n')
-	// A flush error means stdout (the MCP transport) is broken — surface it to stderr
+	// A flush error means stdout (the MCP transport) is broken, so surface it to stderr
 	// instead of silently spinning the read loop against a dead client.
 	if err := s.out.Flush(); err != nil {
 		logf("write response to stdout transport: %v", err)
@@ -159,11 +159,11 @@ func (s *mcpServer) initializeResult(params json.RawMessage) map[string]any {
 	return map[string]any{
 		"protocolVersion": version,
 		// listChanged: typed tools are fetched lazily, so the tool list can grow
-		// after the first tools/list — we emit notifications/tools/list_changed.
+		// after the first tools/list, and we emit notifications/tools/list_changed.
 		"capabilities": map[string]any{
 			"tools":     map[string]any{"listChanged": true},
 			"resources": map[string]any{},
-			// Prompts are static, embedded text — the list never changes at runtime.
+			// Prompts are static, embedded text, so the list never changes at runtime.
 			"prompts": map[string]any{"listChanged": false},
 		},
 		"serverInfo":   map[string]any{"name": "godot-mcp", "version": cliVersion},
@@ -172,8 +172,8 @@ func (s *mcpServer) initializeResult(params json.RawMessage) map[string]any {
 }
 
 // serverInstructions is surfaced to the MCP client at every connect (MCP
-// InitializeResult.instructions). Keep it short — the durable, always-present
-// steer; the godot-mcp skill carries the detail.
+// InitializeResult.instructions). Keep it short: the durable, always-present
+// steer, with the godot-mcp skill carrying the detail.
 const serverInstructions = "Drives a running Godot editor (4.7+) via the godot-mcp addon. " +
 	"Per-command tools (node_add, scene_tree, runtime_eval, …) appear when the editor was reachable; " +
 	"the generic godot_run tool (method \"<group>.<command>\", params) reaches ANY method, including ones without a typed tool. " +
@@ -181,7 +181,7 @@ const serverInstructions = "Drives a running Godot editor (4.7+) via the godot-m
 	"(method \"engine.search\" {query} / \"engine.class_info\" {class}) instead of guessing. " +
 	"Spatial placement: do NOT position dependent 3D objects with parallel absolute coordinates. " +
 	"Place an anchor, read its REAL world bounds back (a node's get_aabb() via global_transform, or node.get global_position), " +
-	"then derive the next piece from that. node.set position is LOCAL to the parent — anchor across objects via global_position/global_transform. " +
+	"then derive the next piece from that. node.set position is LOCAL to the parent, so anchor across objects via global_position/global_transform. " +
 	"Seat objects on surfaces with a downward raycast (works at edit time against CSG use_collision; via the game's physics at runtime) rather than computing heights; " +
 	"face with Node3D.look_at, never hand-computed Euler. Verify by reading bounds/positions back, not by trusting one screenshot. " +
 	"Godot is +Y up, -Z forward, right-handed, meters. Editor mutations are undoable; runtime.*/input.* need a scene playing (scene.play), " +
@@ -198,7 +198,7 @@ const gamePropDesc = "Route to a standalone debug-build game's direct server ins
 var godotRunTool = map[string]any{
 	"name": "godot_run",
 	"description": "Run any command against a running Godot editor, 4.7 or newer (via the godot-mcp addon) and return the JSON result. " +
-		"This is the generic escape hatch: `method` is \"<group>.<command>\" and `params` mirror the command's parameters, so it reaches EVERY method — " +
+		"This is the generic escape hatch: `method` is \"<group>.<command>\" and `params` mirror the command's parameters, so it reaches EVERY method, " +
 		"including commands without a typed tool and project-local commands. When the editor was reachable at list time, first-class per-command tools " +
 		"(node_add, scene_tree, runtime_eval, …) are offered too; prefer one of those when it fits. " +
 		"Set `game`:true to route a runtime.*/input.* method to a standalone debug-build game's direct server instead of the editor. " +
@@ -206,7 +206,7 @@ var godotRunTool = map[string]any{
 		"Discover the live API with method \"engine.search\" {query} or \"engine.class_info\" {class}; \"engine.commands\" {group?} lists this server's own methods, and calling an unknown method returns the same list. " +
 		"Editor mutations are undoable. `runtime.*`/`input.*` require a scene to be playing (method \"scene.play\") or game:true. " +
 		"Placing 3D geometry: anchor to realized bounds and read them back (node.get global_position / get_aabb via run_script), " +
-		"raycast to seat on surfaces, and verify numerically — never trust one screenshot. " +
+		"raycast to seat on surfaces, and verify numerically. Never trust one screenshot. " +
 		"Requires the Godot editor open with the plugin enabled.",
 	"inputSchema": map[string]any{
 		"type": "object",
@@ -267,7 +267,7 @@ func (s *mcpServer) fetchTypedTools() bool {
 
 // maybeUpgradeTypedTools is called after a successful *editor* call (tools/call
 // or resources/read): if typed tools were never fetched, fetch them now
-// (non-fatally — a failure never affects the call that triggered it) and, on
+// (non-fatally, since a failure never affects the call that triggered it) and, on
 // success, emit notifications/tools/list_changed so the client re-lists.
 func (s *mcpServer) maybeUpgradeTypedTools() {
 	if !s.typed || s.typedFetched {
@@ -481,7 +481,7 @@ func (s *mcpServer) toolsCall(msg rpcMsg) {
 			return
 		}
 		// `game` is a top-level argument, a sibling of params, so the forwarded
-		// params never contain it — no stripping needed here.
+		// params never contain it, so no stripping is needed here.
 		method, params, isGame = args.Method, args.Params, args.Game
 	default:
 		m, ok := s.nameToMethod[call.Name]
@@ -548,7 +548,7 @@ func (s *mcpServer) toolsCall(msg rpcMsg) {
 // replyCallError renders a failed tool call as a tool-error result: a reachable
 // server's protocol.Error passes through verbatim; a dial failure attaches the
 // editor diagnosis (crashed / closed / starting) or, for a --game call, the
-// game-unreachable checklist. Never emits free text to stdout — always a frame.
+// game-unreachable checklist. Never emits free text to stdout, always a frame.
 func (s *mcpServer) replyCallError(id json.RawMessage, err error, port int, isGame bool) {
 	var rpc *protocol.Error
 	var de *client.DialError
@@ -581,7 +581,7 @@ func gameDialErrorPayload(port int) map[string]any {
 	return map[string]any{
 		"game_unreachable": true,
 		"port":             port,
-		"message":          fmt.Sprintf("could not reach the game's direct server on 127.0.0.1:%d — --game talks to a running game, not the editor.", port),
+		"message":          fmt.Sprintf("could not reach the game's direct server on 127.0.0.1:%d. --game talks to a running game, not the editor.", port),
 		"checks": []string{
 			"the game is actually running",
 			"it was launched as a debug build (an exported release build never serves this)",

@@ -357,8 +357,8 @@ func _describe_break(bridge: Variant, state: Dictionary, params: Dictionary) -> 
 	return out
 
 
-## A stack variable's value as JSON. A live object arrives as an id stub — the
-## debugger encodes objects without their contents — so it is reported as an id
+## A stack variable's value as JSON. A live object arrives as an id stub, since the
+## debugger encodes objects without their contents, so it is reported as an id
 ## rather than printed as if it were the object.
 func _render_value(value: Variant) -> Variant:
 	if value is Object and (value as Object).has_method("get_object_id"):

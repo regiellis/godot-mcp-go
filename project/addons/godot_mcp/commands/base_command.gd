@@ -103,7 +103,7 @@ func require_dict(params: Dictionary, key: String) -> Array:
 
 
 ## Optional counterpart to require_dict: absent means an empty map, which is not an
-## error. A value that is present but not an object still is — a malformed
+## error. A value that is present but not an object still is: a malformed
 ## --properties used to be iterated as a String and drop every key without a word.
 func optional_dict(params: Dictionary, key: String) -> Array:
 	if not params.has(key):
@@ -186,7 +186,7 @@ func get_game_user_dir() -> String:
 ## memory does not exist in the game.
 ##
 ## Worth checking rather than discovering by timeout. plugin.gd injects these on
-## enable and saves, but the on-disk file can lose them between then and now — a
+## enable and saves, but the on-disk file can lose them between then and now: a
 ## git revert or checkout of project.godot (common in projects that keep dev-only
 ## autoloads out of version control), a branch switch, an external edit. The
 ## editor keeps its in-memory copy either way, so `project.info` still lists the
@@ -195,11 +195,11 @@ func get_game_user_dir() -> String:
 ##
 ## Without the check the failure is both expensive and mute: runtime.* burns its
 ## entire timeout and then GUESSES at this cause in a suggestion string, and
-## input.* — fire-and-forget, with no response to wait on — reports
+## input.*, fire-and-forget with no response to wait on, reports
 ## `{"sent": true}` for an event nothing will ever read.
 ##
 ## Returns {} when the channel can work (including when project.godot cannot be
-## read at all — better to attempt the call than to block on a guess), or an
+## read at all, since attempting the call beats blocking on a guess), or an
 ## error dict ready to return.
 func game_autoload_error(autoload_name: String) -> Dictionary:
 	var cfg := ConfigFile.new()
@@ -223,7 +223,7 @@ func game_autoload_error(autoload_name: String) -> Dictionary:
 
 ## Read a game IPC response file, tolerating the moment right after it appears.
 ## The game publishes the file by rename so a torn read should be impossible, but
-## the OS can still hold it locked for an instant — and treating that as fatal is
+## the OS can still hold it locked for an instant, and treating that as fatal is
 ## what produced the intermittent "-32603 Could not read game response file" that
 ## an immediate retry always cured. Returns the text, or "" after `attempts`
 ## tries. The caller deletes the file.
@@ -243,7 +243,7 @@ func read_game_response(response_path: String, attempts: int = 10) -> Array:
 
 
 ## The debugger bridge's current break, or {} when nothing is paused (also when
-## the bridge is unavailable — a plugin mid-reload, or an older install).
+## the bridge is unavailable, such as a plugin mid-reload or an older install).
 func debugger_break() -> Dictionary:
 	if editor_plugin == null or not ("debugger_bridge" in editor_plugin):
 		return {}
@@ -257,7 +257,7 @@ func debugger_break() -> Dictionary:
 ## The error for a game command that never answered. A game stopped at a DEBUGGER
 ## BREAK is the common cause and the one the old message got wrong: it blamed a
 ## missing autoload (already ruled out on disk by game_autoload_error) while the
-## game sat paused with its _process loop — and so the IPC poll — frozen. The
+## game sat paused, with its _process loop and so the IPC poll frozen. The
 ## debugger bridge knows the break state, so ask it instead of guessing.
 func game_timeout_error(timeout_sec: float) -> Dictionary:
 	var brk := debugger_break()
@@ -269,7 +269,7 @@ func game_timeout_error(timeout_sec: float) -> Dictionary:
 				"debugger_breaked": true,
 				"break_reason": reason,
 				"can_debug": brk.get("can_debug", false),
-				"suggestion": "Read the stop with debug.state, then debug.resume (or debug.step) to let the game run — runtime.* and input.* cannot be served while it is stopped.",
+				"suggestion": "Read the stop with debug.state, then debug.resume (or debug.step) to let the game run. runtime.* and input.* cannot be served while it is stopped.",
 			})
 	return error(-32000, "Game command timed out after %.1fs" % timeout_sec,
 		{"suggestion": "Ensure the game is running with the MCPGameInspector autoload active"})
@@ -341,7 +341,7 @@ func find_node_by_path(node_path: String) -> Node:
 	var root := get_edited_root()
 	if root == null:
 		return null
-	# "selected" resolves to the editor's current selection (first node) — lets the
+	# "selected" resolves to the editor's current selection (first node), which lets the
 	# user click a node and the agent act on it without guessing the path.
 	if node_path == "selected":
 		var sel := EditorInterface.get_selection().get_selected_nodes()
@@ -417,7 +417,7 @@ func find_descendants_of_type(root: Node, klass: String) -> Array:
 
 
 ## World-space AABB of `node`: union of its own and descendants' VisualInstance3D
-## AABBs, each transformed to global via all 8 corners (correct under rotation —
+## AABBs, each transformed to global via all 8 corners (correct under rotation, so
 ## do NOT use `global_transform * get_aabb()`, which only moves the origin).
 ## Returns {has: bool, aabb: AABB}.
 func world_aabb(node: Node) -> Dictionary:
@@ -553,7 +553,7 @@ func set_property_with_undo(obj: Object, prop: String, value: Variant, action_na
 
 
 ## Set several properties in ONE undoable action. Values must be fully resolved
-## before calling — the action is created and committed here with no early exit, so
+## before calling, since the action is created and committed here with no early exit, so
 ## callers can't leave a dangling uncommitted action (the failure mode this fixes).
 func set_properties_with_undo(obj: Object, props: Dictionary, action_name: String) -> void:
 	var undo_redo := get_undo_redo()
@@ -572,7 +572,7 @@ func set_properties_with_undo(obj: Object, props: Dictionary, action_name: Strin
 ## `failures` coercions parse_checked refused.
 ##
 ## Use this for every `--properties` / `--mesh_properties` map. The shortcut it
-## replaces — `obj.set(name, parse_value(raw, typeof(obj.get(name))))` — failed
+## replaces, `obj.set(name, parse_value(raw, typeof(obj.get(name))))`, failed
 ## silently twice over: `typeof` on a null Resource property reads TYPE_NIL, so a
 ## `res://` path was assigned as text and dropped, and the lenient parse zero-pads
 ## a short numeric literal instead of refusing it. Both returned success.
@@ -675,13 +675,13 @@ func _dedupe_by_name(entries: Array) -> Array:
 
 
 ## The API surface a Script exposes: properties, methods, signals, constants
-## (enums included — an enum is a constant whose value is a Dictionary).
+## (enums included, since an enum is a constant whose value is a Dictionary).
 ##
 ## Shared by engine.class_info and script.symbols, which want different scopes and
 ## so pass `include_inherited` differently. false answers "what does this file
 ## declare", which is what a caller reading one script wants; true answers "what can
 ## I call on this type", which is what a caller resolving a class wants. Neither
-## reports engine members — a script chain stops at its base ENGINE type, so those
+## reports engine members, because a script chain stops at its base ENGINE type, so those
 ## come from engine.class_info on `base_type`.
 func script_symbols(
 	script: Script, filter: String = "", include_private: bool = false, include_inherited: bool = true

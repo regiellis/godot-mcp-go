@@ -1,25 +1,25 @@
-# Audio & music — buses, SFX, interactive scores
+# Audio & music: buses, SFX, interactive scores
 
 Building a game's sound the Godot way, mapped to the CLI. Audio is a resource pipeline:
 `AudioStream` resources feed `AudioStreamPlayer` nodes routed through `AudioServer`
 buses. **Verify every class against the live engine** (`engine class-info --class
-AudioStreamInteractive`) — the names below came from that check, but signatures evolve.
+AudioStreamInteractive`). The names below came from that check, but signatures evolve.
 
 Two rules thread through everything here:
 - **The multi-clip stream resources (`Interactive`, `Synchronized`, `Playlist`,
-  `Randomizer`) can't be fully built with `node set` / `resource create`** — their clips,
+  `Randomizer`) can't be fully built with `node set` / `resource create`**, because their clips,
   stems, and transitions live behind indexed *method* calls (`set_clip_stream`,
   `add_transition`). Author them with `editor run-script` + `ResourceSaver.save`, then reference
   the saved `.tres`. Scalar-only streams (`Polyphonic`) do build with `resource create`.
-- **`audio add-bus-effect` covers the common effects** (reverb, chorus, delay, compressor —
-  including `sidechain` — limiter, hardlimiter, phaser, distortion, low/high/band-pass filter,
+- **`audio add-bus-effect` covers the common effects** (reverb, chorus, delay, compressor
+  including `sidechain`, limiter, hardlimiter, phaser, distortion, low/high/band-pass filter,
   amplify, eq, pitchshift, spectrum, record, capture). Anything beyond its param sets is an
   `editor run-script` on `AudioServer` away.
 
 For **timing-critical** work (rhythm games, beat-locked gameplay), the audio *clock* is a
-separate problem — read `rhythm-games.md`. This doc owns the mixer, SFX juice, and music.
+separate problem, covered in `rhythm-games.md`. This doc owns the mixer, SFX juice, and music.
 
-## Bus architecture — the mixer is the foundation
+## Bus architecture: the mixer is the foundation
 
 Route every sound through a named bus *before* you place a single player, so volume, ducking,
 and a pause-menu mute all have somewhere to attach. A standard layout: **Master** ← **Music**,
@@ -30,7 +30,7 @@ process in chain order, then the send carries the result upstream.
 (`db_to_linear()` inverts it); roughly −6 dB ≈ half power, −80 dB ≈ silence. Never assign a
 0..1 value straight to `volume_db`.
 
-Build the layout (note: `audio add-bus` **persists `default_bus_layout.tres`** — revert it if
+Build the layout (note: `audio add-bus` **persists `default_bus_layout.tres`**, so revert it if
 this was a throwaway test):
 ```
 audio add-bus --name Music --send Master --volume-db -6
@@ -58,8 +58,8 @@ pitch and volume. Point one player's `stream` at it and every trigger sounds fre
 
 Knobs (verified): `random_pitch` (a scale, e.g. `1.1` = ±10%), `random_pitch_semitones`,
 `random_volume_offset_db`, `playback_mode` (`PLAYBACK_RANDOM_NO_REPEATS` avoids repeating the
-last pick — use it; `PLAYBACK_RANDOM`, `PLAYBACK_SEQUENTIAL`). `add_stream(index, stream,
-weight)` appends at `index = -1`; `weight` biases the pick.
+last pick, so use it; the others are `PLAYBACK_RANDOM` and `PLAYBACK_SEQUENTIAL`).
+`add_stream(index, stream, weight)` appends at `index = -1`; `weight` biases the pick.
 
 **Build** (streams need method calls, so `editor run-script`):
 ```gdscript
@@ -98,23 +98,24 @@ func fire() -> void:
 
 ## Interactive music (the flagship): AudioStreamInteractive
 
-The engine's built-in adaptive-music system — no custom crossfade code. You author named
+The engine's built-in adaptive-music system, with no custom crossfade code. You author named
 **clips** (explore / combat / boss) and **transitions** between them; at runtime you request a
 clip and the engine handles the musical crossfade. It replaces the old "two players + a manual
 tween" hack.
 
 Per clip: `set_clip_name`, `set_clip_stream`, and `set_clip_auto_advance` +
 `set_clip_auto_advance_next_clip` (a clip set `AUTO_ADVANCE_ENABLED` flows into another when it
-ends — the loop-and-continue backbone; `AUTO_ADVANCE_DISABLED`, `AUTO_ADVANCE_RETURN_TO_HOLD`).
+ends, which is the loop-and-continue backbone; also `AUTO_ADVANCE_DISABLED` and
+`AUTO_ADVANCE_RETURN_TO_HOLD`).
 
 `add_transition(from, to, from_time, to_time, fade_mode, fade_beats, use_filler, filler, hold_previous)`:
-- **`from_time`** — when to leave the current clip, quantized to the musical grid:
+- **`from_time`** sets when to leave the current clip, quantized to the musical grid:
   `TRANSITION_FROM_TIME_IMMEDIATE` / `NEXT_BEAT` / `NEXT_BAR` / `END`. Quantized values need the
   source clip's **bpm/bar metadata** (see Formats below) or they fall back to immediate.
-- **`to_time`** — where the destination starts: `TRANSITION_TO_TIME_START` / `SAME_POSITION`.
-- **`fade_mode`** — `FADE_DISABLED` / `FADE_IN` / `FADE_OUT` / `FADE_CROSS` / `FADE_AUTOMATIC`;
-  `fade_beats` is the crossfade length in beats.
-- **filler** — an optional stinger clip played between the two (`CLIP_ANY` = −1 = none);
+- **`to_time`** picks where the destination starts: `TRANSITION_TO_TIME_START` / `SAME_POSITION`.
+- **`fade_mode`** is one of `FADE_DISABLED` / `FADE_IN` / `FADE_OUT` / `FADE_CROSS` /
+  `FADE_AUTOMATIC`; `fade_beats` is the crossfade length in beats.
+- **filler** is an optional stinger clip played between the two (`CLIP_ANY` = −1 = none);
   `hold_previous` keeps the old clip under the new one.
 
 **Build the score:**
@@ -133,7 +134,7 @@ m.add_transition(1, 0, AudioStreamInteractive.TRANSITION_FROM_TIME_NEXT_BAR,
     AudioStreamInteractive.FADE_CROSS, 4.0, false, AudioStreamInteractive.CLIP_ANY, false)
 ResourceSaver.save(m, "res://music/score.tres")
 ```
-**Switch clips at runtime** through the player's playback object — the resource holds the map,
+**Switch clips at runtime** through the player's playback object. The resource holds the map and
 the playback drives it:
 ```gdscript
 @onready var music: AudioStreamPlayer = $Music   # stream = res://music/score.tres, autoplay on
@@ -146,7 +147,7 @@ func enter_combat() -> void:
 
 The other adaptive approach: one song split into **stems** (drums, bass, lead, pads) that always
 play sample-locked, and you raise/mute layers to track intensity. `AudioStreamSynchronized`
-guarantees the lock — `set_stream_count`, `set_sync_stream(i, stream)`, and per-stem
+guarantees the lock through `set_stream_count`, `set_sync_stream(i, stream)`, and per-stem
 `set_sync_stream_volume(i, db)` (start inactive layers near −60 dB).
 ```gdscript
 var s := AudioStreamSynchronized.new()
@@ -158,8 +159,8 @@ s.set_sync_stream_volume(2, -60.0)                                 # silent unti
 ResourceSaver.save(s, "res://music/layered.tres")
 ```
 For **smooth live crossfades** between intensities, give each stem its own player on its own bus
-and *tween the bus volumes* — bus automation is continuous, whereas a resource's stem volume is
-read at play time. Use `Synchronized` for guaranteed sample-lock; separate players + bus tweens
+and *tween the bus volumes*, since bus automation is continuous whereas a resource's stem volume
+is read at play time. Use `Synchronized` for guaranteed sample-lock; separate players + bus tweens
 when you need to slide a layer in over seconds.
 
 ## Shuffle/loop a soundtrack: AudioStreamPlaylist
@@ -211,35 +212,35 @@ func _process(_delta: float) -> void:
     var energy := (bass.x + bass.y) * 0.5     # default mode is MAGNITUDE_MAX
     scale = Vector2.ONE * (1.0 + energy * 8.0)  # thump on the kick
 ```
-This is *reactive juice* — it reads the audio and follows. For gameplay that must be **on** the
+This is *reactive juice*. It reads the audio and follows. For gameplay that must be **on** the
 beat (notes, judging, spawns), that's a clock problem, not an FFT problem: use `rhythm-games.md`.
 
 ## Formats & loop points: WAV / Ogg / MP3
 
 Pick by role, and put the loop settings where that format keeps them:
-- **WAV** — short SFX. Uncompressed, zero decode cost, sample-accurate loops. Loop lives on the
-  stream: `loop_mode` (`LOOP_DISABLED` / `LOOP_FORWARD` / `LOOP_PINGPONG` / `LOOP_BACKWARD`),
+- **WAV** is for short SFX. Uncompressed, zero decode cost, sample-accurate loops. Loop lives on
+  the stream: `loop_mode` (`LOOP_DISABLED` / `LOOP_FORWARD` / `LOOP_PINGPONG` / `LOOP_BACKWARD`),
   `loop_begin` / `loop_end` (in frames). Usually set via the `.wav`'s **import options**; reach
   the resource directly with `AudioStreamWAV.load_from_file(path, {})`.
-- **OggVorbis** — music and long loops. Compressed (small), gapless looping: `loop = true`,
-  `loop_offset` (seconds — where the loop restarts). Also carries `bpm` / `bar_beats` /
-  `beat_count` — **set these for `AudioStreamInteractive`'s bar/beat-quantized transitions**.
-- **MP3** — same `loop` / `loop_offset` / `bpm` fields as Ogg; prefer Ogg unless a source is
-  MP3-only (patent-free, generally better at size/quality for game music).
+- **OggVorbis** carries music and long loops. Compressed (small), gapless looping: `loop = true`,
+  `loop_offset` (in seconds, where the loop restarts). It also carries `bpm` / `bar_beats` /
+  `beat_count`. **Set those for `AudioStreamInteractive`'s bar/beat-quantized transitions.**
+- **MP3** exposes the same `loop` / `loop_offset` / `bpm` fields as Ogg; prefer Ogg unless a
+  source is MP3-only (patent-free, generally better at size/quality for game music).
 
 Default to **Ogg for music, WAV for SFX**. Confirm import-time loop settings with `import info
 --path <asset>.import`; flip stream-level fields (`loop_offset`, `bpm`) via run-script.
 
 ## Positional audio (2D & 3D)
 
-Spatial SFX — panning, distance attenuation, 3D falloff models, `max_polyphony`, per-world-SFX
-bus routing — is already covered in **`game-patterns.md`** ("Positional audio (2D & 3D)"). Use
+**`game-patterns.md`** already covers spatial SFX in "Positional audio (2D & 3D)": panning,
+distance attenuation, 3D falloff models, `max_polyphony`, and per-world-SFX bus routing. Use
 `AudioStreamPlayer2D` / `3D`, set `max_distance` and the attenuation model, and route to the
-`SFX` bus so the ducking and pause-menu mute above apply. Don't duplicate that here — read it there.
+`SFX` bus so the ducking and pause-menu mute above apply. Don't duplicate that here. Read it there.
 
 ## Procedural & capture, briefly
 
-- **`AudioStreamGenerator`** — synthesize samples at runtime (tones, retro blips). Set it as a
+- **`AudioStreamGenerator`** synthesizes samples at runtime (tones, retro blips). Set it as a
   player's stream, then push frames into its playback each frame while buffer space is free:
   ```gdscript
   var pb := player.get_stream_playback() as AudioStreamGeneratorPlayback
@@ -247,21 +248,23 @@ bus routing — is already covered in **`game-patterns.md`** ("Positional audio 
       pb.push_frame(Vector2(sample, sample))   # one stereo frame, values in −1..1
   ```
   Reach for it only when a sound is computed at runtime (parametric SFX, a chiptune synth).
-- **`AudioEffectRecord`** — a bus effect that captures its input to an `AudioStreamWAV`
+- **`AudioEffectRecord`** is a bus effect that captures its input to an `AudioStreamWAV`
   (`set_recording_active(true)` → `get_recording()`); for a mic/voice-memo or capturing gameplay
   audio.
-- **`AudioEffectCapture`** — pulls the bus's raw frames into a ring buffer
+- **`AudioEffectCapture`** pulls the bus's raw frames into a ring buffer
   (`can_get_buffer(n)` → `get_buffer(n)`) for analysis or streaming; the read side of
   `AudioServer` DSP.
 
 ## Common mistakes to avoid
 
-- Assigning a 0..1 value to `volume_db`. It's decibels — convert with `linear_to_db()`.
+- Assigning a 0..1 value to `volume_db`. It's decibels, so convert with `linear_to_db()`.
 - Authoring `Interactive`/`Synchronized`/`Playlist`/`Randomizer` streams with `node set`. Their
-  clips/stems/transitions are method-driven — build with `editor run-script` + `ResourceSaver.save`.
+  clips/stems/transitions are method-driven, so build with `editor run-script` +
+  `ResourceSaver.save`.
 - A player node per rapid one-shot. Use one `AudioStreamPolyphonic` player, or `max_polyphony`.
-- Hand-rolling music crossfades with two players and a tween — that's `AudioStreamInteractive`.
+- Hand-rolling music crossfades with two players and a tween. That is what
+  `AudioStreamInteractive` is for.
 - Forgetting bar/beat metadata on the music stream, then wondering why `NEXT_BAR` fires immediately.
 - Routing everything to `Master`. Give Music/SFX/UI/VO their own buses so ducking, muting, and
   per-category volume have somewhere to attach.
-- Trusting a remembered signature — confirm against the running engine with `engine class-info` / `engine search`.
+- Trusting a remembered signature. Confirm against the running engine with `engine class-info` / `engine search`.

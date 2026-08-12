@@ -1,10 +1,10 @@
-# 3D character controllers — FPS, third-person, platformer
+# 3D character controllers for FPS, third-person, and platformer games
 
 How to build a `CharacterBody3D` controller the Godot way, driven from godot-mcp: one
 movement core shared by all three genres, then the rig and feel that make each distinct.
 Verified live. Jump-*feel* timers (coyote, buffer, double, cutoff) are the 2D
-ones from `game-patterns.md`/`platformer-2d.md` with the vertical sign flipped — this doc
-reuses them, it does not re-derive them. Read `spatial` discipline in `SKILL.md` before
+ones from `game-patterns.md`/`platformer-2d.md` with the vertical sign flipped. This doc
+reuses them rather than re-deriving them. Read `spatial` discipline in `SKILL.md` before
 placing anything: seat the body with a raycast, verify numerically, don't eyeball one frame.
 
 ## Input actions first (never raw keys)
@@ -17,7 +17,7 @@ input_map set-action --action move_forward --events '[{"type":"key","keycode":"K
 ```
 `Input.get_vector("move_left","move_right","move_forward","move_back")` returns the normalized
 planar intent; `move_back` maps to `+y`, which becomes `+Z` (backward) below. `input_map`
-writes `project.godot` — revert throwaway actions after tests.
+writes `project.godot`, so revert throwaway actions after tests.
 
 **Name the actions in `@export`s and check they exist.** A controller that reads an action
 nobody mapped does not error: `Input.is_action_pressed("sprint")` on a missing action just
@@ -32,7 +32,7 @@ feature rather than leaving it mysteriously dead:
 
 func _ready() -> void:
 	if can_sprint and not InputMap.has_action(input_sprint):
-		push_warning("No '%s' action in the InputMap — sprint disabled." % input_sprint)
+		push_warning("No '%s' action in the InputMap, sprint disabled." % input_sprint)
 		can_sprint = false
 ```
 
@@ -44,29 +44,29 @@ controller.)
 ## The body: CharacterBody3D + a capsule
 
 The scene root *is* the body; add the collider under it (a `CharacterBody3D` root plus a child
-`CollisionShape3D` — not a nested second body):
+`CollisionShape3D`, rather than a nested second body):
 ```
 scene create --path res://actors/player.tscn --root-type CharacterBody3D --root-name Player
 scene open --path res://actors/player.tscn
 node add --type CollisionShape3D --name Col --parent-path .
 node add-resource --node-path Col --property shape --resource-type CapsuleShape3D
 ```
-The default `CapsuleShape3D` is `radius 0.5`, `height 2.0` — humanoid; resize by editing the
-shape resource. `scene3d add-body --type CharacterBody3D --shape capsule --radius 0.4 --height
+The default `CapsuleShape3D` is `radius 0.5`, `height 2.0`, which is humanoid scale; resize by
+editing the shape resource. `scene3d add-body --type CharacterBody3D --shape capsule --radius 0.4 --height
 1.8` is the one-call form for dropping a *standalone* body into a level (it nests body + sized
 shape under a parent), not for a root that is already the body.
 
 **Why a capsule, not a box.** The rounded bottom slides over small ledges, floor seams, and step
-edges that a box catches on, and its single curved side never snags on a wall corner mid-slide —
-the standard collider for anything that walks. `height` is the *full* height including both caps;
-the shape centers on the body origin, so raising `Col.position` to `y = height/2` puts the body
-origin at the feet, convenient for `spatial place_on`.
+edges that a box catches on, and its single curved side never snags on a wall corner mid-slide.
+It is the standard collider for anything that walks. `height` is the *full* height including
+both caps; the shape centers on the body origin, so raising `Col.position` to `y = height/2`
+puts the body origin at the feet, convenient for `spatial place_on`.
 
 **Two properties set the body's contract** (both verified on `CharacterBody3D`):
-- `motion_mode` — `MOTION_MODE_GROUNDED` (`0`, default) gives you `is_on_floor()`, slopes,
-  snapping, and stairs behavior: for anything that walks. `MOTION_MODE_FLOATING` (`1`) drops
-  all floor logic — for swimmers, flyers, zero-g.
-- `up_direction` — `Vector3.UP` by default; the axis `is_on_floor()`/floor angle measure
+- `motion_mode` selects the floor model. `MOTION_MODE_GROUNDED` (`0`, default) gives you
+  `is_on_floor()`, slopes, snapping, and stairs behavior, which is what anything that walks
+  needs. `MOTION_MODE_FLOATING` (`1`) drops all floor logic, for swimmers, flyers, and zero-g.
+- `up_direction` defaults to `Vector3.UP`, the axis `is_on_floor()` and the floor angle measure
   against. Change it only for wall-walking or planet gravity.
 
 ## The movement core (shared by all three genres)
@@ -100,47 +100,48 @@ func _physics_process(delta: float) -> void:
 **The classic bug: forward is world `-Z`, not where the camera looks.** Feeding
 `Vector3(input.x, 0, input.y)` straight into `velocity` makes "forward" always drive world `-Z`
 no matter which way the player faces. Multiply the input by a **basis** to make it relative:
-- **FPS** — the body yaws with the mouse, so use the body's own basis: `global_transform.basis
+- In an **FPS** the body yaws with the mouse, so use the body's own basis: `global_transform.basis
   * Vector3(input.x, 0, input.y)`. `dir.y = 0` before normalizing so looking up/down never
   changes ground speed.
-- **Third-person** — the body does *not* yaw with the camera, so use the **camera pivot's**
+- In **third-person** the body does *not* yaw with the camera, so use the **camera pivot's**
   basis (`_cam_yaw` above). Movement follows the camera; the body turns to face it separately.
 
 Keep `speed`/`accel`/`friction` as `@export`s (inspector data over hard-coded values). Instant
-`velocity.x = dir.x * speed` feels robotic; `move_toward` gives weight — lower `accel` and higher
-`friction` reads heavier.
+`velocity.x = dir.x * speed` feels robotic; `move_toward` gives weight, and lower `accel` with
+higher `friction` reads heavier.
 
 ## Floor behavior: slopes, snapping, stairs
 
 Four `CharacterBody3D` properties (all verified) shape how the body meets the ground; set them
 in `_ready()` or the inspector via `node set`:
-- `floor_max_angle` (radians, default `deg_to_rad(45)`) — steeper than this counts as a wall,
-  not walkable floor. `node set --node-path . --property floor_max_angle --value 0.8`.
-- `floor_snap_length` (default `0.1`) — how far below the feet `move_and_slide` looks for floor
+- `floor_max_angle` (radians, default `deg_to_rad(45)`) decides what counts as walkable. Anything
+  steeper is a wall. `node set --node-path . --property floor_max_angle --value 0.8`.
+- `floor_snap_length` (default `0.1`) sets how far below the feet `move_and_slide` looks for floor
   to stick to. **Raise it (e.g. `0.5`) to walk *down* slopes and stairs without launching off
   the crest**; too small and the body ski-jumps every downhill. Snapping is skipped the frame
   you jump.
-- `floor_stop_on_slope` (default `true`) — hold position on a slope with no input; off for ice.
-- `floor_constant_speed` (default `false`) — keep ground speed constant up/down slopes (the slope
-  otherwise steals horizontal speed); on for a snappy platformer.
+- `floor_stop_on_slope` (default `true`) holds position on a slope with no input; turn it off
+  for ice.
+- `floor_constant_speed` (default `false`) keeps ground speed constant up/down slopes, since the
+  slope otherwise steals horizontal speed; turn it on for a snappy platformer.
 
 **Stairs, honestly.** Vanilla `move_and_slide()` does **not** step up stairs. The capsule rolls
 over lips smaller than its radius and a generous `floor_snap_length` keeps you glued going down,
 but a real step taller than the capsule's curve stops the body dead. Two vanilla-only fixes:
 model stairs as a ramp `StaticBody3D` under the visual steps (cheapest, most reliable), or add a
-step-up pass — a shin-height forward `RayCast3D` that, on a hit with walkable floor just above,
-nudges `global_position.y` up by the step height before `move_and_slide`. Don't claim built-in
-stair-stepping the engine doesn't have.
+step-up pass built from a shin-height forward `RayCast3D` that, on a hit with walkable floor
+just above, nudges `global_position.y` up by the step height before `move_and_slide`. Don't
+claim built-in stair-stepping the engine doesn't have.
 
 ## Moving platforms: velocity inheritance for free
 
 `AnimatableBody3D` (the 3D twin of `platformer-2d.md`'s `AnimatableBody2D`: a kinematic body
-driven by animation, `sync_to_physics = true`) carries riders correctly — `move_and_slide()`
+driven by animation, `sync_to_physics = true`) carries riders correctly. `move_and_slide()`
 reads the platform's motion and adds it to the body automatically, no code on the character. Two
 `CharacterBody3D` knobs govern the hand-off:
-- `platform_on_leave` — what happens to inherited velocity when you step off: `ADD_VELOCITY`
+- `platform_on_leave` decides what happens to inherited velocity when you step off: `ADD_VELOCITY`
   (default; a moving floor flings you naturally), `ADD_UPWARD_VELOCITY`, or `DO_NOTHING`.
-- `platform_floor_layers` — which collision layers count as velocity-inheriting floor.
+- `platform_floor_layers` lists which collision layers count as velocity-inheriting floor.
 
 **Build:** author the platform as its own scene, animate its `position` on an `AnimationPlayer`
 (or a `PathFollow3D` + `RemoteTransform3D`, mirroring the 2D recipe), and instance it into the
@@ -149,7 +150,7 @@ level. Reading `velocity` off the Player while it rides confirms the inheritance
 ## FPS rig: head, camera, mouse-look, interaction ray
 
 Tree: a `Head` `Node3D` at eye height owns pitch; the `Camera3D` and interaction `RayCast3D`
-hang under it. The **body** yaws (whole capsule turns), the **head** pitches — never pitch the
+hang under it. The **body** yaws (whole capsule turns) and the **head** pitches. Never pitch the
 body (see Common mistakes).
 ```
 node add --type Node3D    --name Head --parent-path .
@@ -184,7 +185,7 @@ func interact() -> void:                            # called on the "interact" a
 `InputEventMouseMotion.relative` is the per-frame delta. Clamp pitch to just under ±90° so the
 view never flips. Expose `sensitivity` and an invert-Y toggle as `@export`s bound from a settings
 screen (`menus-settings.md`). The `RayCast3D` casts along its local `-Z` toward `target_position`;
-`get_collider()` returns the hit node — a duck-typed `use()` keeps the door/lever/pickup
+`get_collider()` returns the hit node, and a duck-typed `use()` keeps the door/lever/pickup
 decoupled from the player.
 
 ## Third-person rig: pivot, SpringArm3D, face-the-movement
@@ -199,16 +200,16 @@ node add --type SpringArm3D --name SpringArm --parent-path CameraPivot
 node add --type Camera3D    --name Camera3D  --parent-path CameraPivot/SpringArm
 node add --type Node3D      --name Skin      --parent-path .
 ```
-`game-patterns.md` owns the **SpringArm3D** mechanics — it raycasts back from the pivot and
+`game-patterns.md` owns the **SpringArm3D** mechanics. It raycasts back from the pivot and
 shortens when geometry intrudes so the camera never clips walls; set `spring_length` (rest
 distance), `margin` (pad the hit), and `add_excluded_object` (a collider **RID**) so the arm
 ignores the player. Don't re-teach it; wire it:
 ```
 node set --node-path CameraPivot/SpringArm --properties '{"spring_length":4.0,"margin":0.2}'
 ```
-Exclude the player in `_ready()` with `_spring.add_excluded_object(get_rid())` — the body's own
-physics RID, from `CollisionObject3D.get_rid()` (or drop the player's layer from
-`SpringArm3D.collision_mask`).
+Exclude the player in `_ready()` with `_spring.add_excluded_object(get_rid())`, passing the
+body's own physics RID from `CollisionObject3D.get_rid()`. Dropping the player's layer from
+`SpringArm3D.collision_mask` works too.
 
 **Mouse orbits the pivot; the character turns to face where it moves** (not where the camera
 looks). Movement is camera-relative via the pivot basis (movement core, third-person branch);
@@ -237,7 +238,7 @@ verified to compile).
 ## 3D platformer feel
 
 The forgiving-jump timers are identical to the 2D versions in `game-patterns.md` (coyote time,
-jump buffer) and its double-jump / variable-height blocks — **only the sign flips**: 3D up is
+jump buffer) and its double-jump / variable-height blocks. **Only the sign flips**: 3D up is
 `+Y`, so the jump sets `velocity.y = +jump_velocity` and the cutoff fires while `velocity.y >
 0.0` (rising), the mirror of 2D's negative-Y up. One `_physics_process`, all four layers:
 ```gdscript
@@ -270,9 +271,9 @@ func _physics_process(delta: float) -> void:
 ```
 Layering reads the same as 2D: cutoff shapes the arc, the midair jump rescues it, coyote makes
 the first jump reliable, the buffer keeps land→jump chains consistent. Fire a **landing squash**
-on the touchdown edge (`was_airborne and is_on_floor()`) — a `pop(1.2, 0.8)` tween on the `Skin`,
-per the juice grammar in `game-patterns.md` / `ui-polish-2d.md`. That is juice, not control —
-keep it out of the physics.
+on the touchdown edge (`was_airborne and is_on_floor()`) with a `pop(1.2, 0.8)` tween on the
+`Skin`, per the juice grammar in `game-patterns.md` / `ui-polish-2d.md`. That is juice, not
+control, so keep it out of the physics.
 
 ## Verify by driving (the payoff)
 
@@ -293,25 +294,26 @@ runtime eval --code 'emit(get_tree().current_scene.get_node("Player").is_on_floo
 runtime screenshot --save-path user://char3d.png                    # visual sanity (works headless)
 scene stop
 ```
-Input is fire-and-forget (`sent:true` ≠ applied) — confirm every claim ("it moved", "it jumped",
-"it's grounded") with a `runtime get`/`eval` read, never with the input's own success. To prove
-the movement is camera-relative, yaw the camera, then check that `move_forward` changes the
-world-space heading of `velocity`.
+Input is fire-and-forget (`sent:true` ≠ applied), so confirm every claim ("it moved", "it
+jumped", "it's grounded") with a `runtime get`/`eval` read, never with the input's own success.
+To prove the movement is camera-relative, yaw the camera, then check that `move_forward`
+changes the world-space heading of `velocity`.
 
 ## Common mistakes
 
-- **World-basis forward**. Raw input into `velocity` ignores facing — multiply by the body basis
+- **World-basis forward**. Raw input into `velocity` ignores facing, so multiply by the body basis
   (FPS) or camera-pivot basis (third-person). The most common 3D-controller bug.
-- **Pitching the whole body**. Pitch the *head* `Node3D`, yaw the body — never `rotate_x` the
-  `CharacterBody3D`, which tilts the collider and gimbals the character.
+- **Pitching the whole body**. Pitch the *head* `Node3D` and yaw the body. `rotate_x` on the
+  `CharacterBody3D` tilts the collider and gimbals the character.
 - **Gravity in `_process`**. All movement goes in `_physics_process` with `delta`; `_process` is
   frame-rate-dependent and desyncs from collision.
 - **Mouse not captured**. Without `MOUSE_MODE_CAPTURED` the cursor leaves the window and
   mouse-look dies at the edge; restore `MOUSE_MODE_VISIBLE` for menus.
 - **SpringArm colliding with the player**. The arm raycasts into the player's own capsule and
-  slams the camera to the face — `add_excluded_object(get_rid())` (the body's RID) or drop its layer.
+  slams the camera to the face. Fix it with `add_excluded_object(get_rid())` (the body's RID),
+  or drop its layer.
 - **`floor_snap_length` too small**. The body launches off every downhill and stair crest; raise
   it until walking down is glued.
 - **Hard-coded `9.8`** instead of reading `physics/3d/default_gravity`.
 - **Remembered signatures**. Confirm properties/methods against the running engine (`engine class-info`/`search`)
-  before writing — CharacterBody3D's floor API has evolved across engine versions.
+  before writing, because CharacterBody3D's floor API has evolved across engine versions.

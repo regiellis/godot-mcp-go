@@ -18,8 +18,8 @@ func TestJSONSchemaType(t *testing.T) {
 		"bool":       "boolean",
 		"Array":      "array",
 		"Dictionary": "object",
-		"JSON":       "", // any — the type key is omitted
-		"Mystery":    "", // unknown — also omitted
+		"JSON":       "", // any, so the type key is omitted
+		"Mystery":    "", // unknown, also omitted
 	}
 	for in, want := range cases {
 		if got := jsonSchemaType(in); got != want {
@@ -99,7 +99,7 @@ func TestBuildToolTypeMappingAndRequired(t *testing.T) {
 		t.Errorf("required = %#v, want [type]", req)
 	}
 
-	// node.add is not a runtime/input method — no game property.
+	// node.add is not a runtime/input method, so it gets no game property.
 	if _, ok := props["game"]; ok {
 		t.Errorf("node.add must not get a game property")
 	}
@@ -116,7 +116,7 @@ func TestBuildToolGamePropertyInjection(t *testing.T) {
 		if g["type"] != "boolean" || g["description"] != gamePropDesc {
 			t.Errorf("%s game property = %#v", method, g)
 		}
-		// game is optional — never in required.
+		// game is optional, never in required.
 		req := schemaOf(tool)["required"].([]string)
 		for _, r := range req {
 			if r == "game" {

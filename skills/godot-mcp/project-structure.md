@@ -2,7 +2,7 @@
 
 How to lay out a real Godot project so it stays navigable past a few dozen scenes.
 Distilled from a shipped commercial Godot game (a deck-builder, ~900 scenes, ~2400
-code files). The principles are engine-version-durable and language-agnostic — they hold
+code files). The principles are engine-version-durable and language-agnostic, holding
 whether you write GDScript or C#. Map every action below to the CLI (`scene.create`,
 `project.set_setting`, `project.add_autoload`, …).
 
@@ -16,7 +16,7 @@ Two top-level rules that scale:
 2. **Group code by *feature/domain*, not by *type*.** Prefer `combat/`, `cards/`,
    `map/`, `rewards/` over `controllers/`, `views/`, `models/`. A folder per game system,
    each holding everything that system needs. The shipped game has ~45 domain folders
-   (`Combat`, `Cards`, `Commands`, `Map`, `Rewards`, `Saves`, …) — a contributor working
+   (`Combat`, `Cards`, `Commands`, `Map`, `Rewards`, `Saves`, …), so a contributor working
    on combat finds it all in one place.
 
 A useful sub-split *within* a domain is **data vs. view**:
@@ -44,15 +44,15 @@ instantly distinct from a data model in any file list.
 
 ## Naming
 
-- **Scenes & resources** (`.tscn`, `.tres`) — `snake_case`: `card_grid.tscn`,
+- **Scenes & resources** (`.tscn`, `.tres`) take `snake_case`: `card_grid.tscn`,
   `card_frame_red.tres`. (Godot's own convention.)
-- **GDScript files** — `snake_case`: `health_component.gd`.
-- **`class_name` / node names in the tree / enums** — `PascalCase`.
-- **Asset folders** — `snake_case`, grouped by feature then variant:
+- **GDScript files**, `snake_case` again: `health_component.gd`.
+- **`class_name` / node names in the tree / enums** take `PascalCase`.
+- **Asset folders**: `snake_case`, grouped by feature then variant:
   `materials/cards/frames/`, not a flat `materials/`.
 
-Pick the convention once and hold it everywhere — mixed casing is the first thing that
-rots in a large tree.
+Pick the convention once and hold it everywhere, because mixed casing is the first thing
+that rots in a large tree.
 
 ## Compose scenes; don't hand-build mega-trees
 
@@ -70,21 +70,21 @@ own `.tscn` with its own script:
 
 Build this with `scene.instance` (compose) rather than `node.add` of 200 raw children.
 A reusable visual (a card frame, a particle burst, a tooltip) becomes a sub-scene you
-instance everywhere — fix it once, every use updates. See `game-patterns.md` for the
+instance everywhere: fix it once, every use updates. See `game-patterns.md` for the
 component pattern and SKILL.md "Build with composition, not monoliths".
 
 ### Node-setup conventions inside a scene
 
 - **Script on the root only**. Children are pure visuals/structure; the root's one script
   owns the logic. Don't sprinkle scripts down the tree (a reusable child *is* a sub-scene
-  with its own root script — that's different).
+  with its own root script, which is different).
 - **Expose children by unique name, not by path**. Mark a node "Access as Unique Name"
-  and reach it as `%HealthBar` — survives reparenting. The shipped game uses `%`-access
+  and reach it as `%HealthBar`, which survives reparenting. The shipped game uses `%`-access
   pervasively and almost never hard-codes `$A/B/C` chains. (GDScript: `@onready var bar :=
   %HealthBar`. The CLI sets unique-name access on a node via `node.set`.)
 - **Pass child references as exported `NodePath`s** when the root must drive specific
-  children (e.g. a VFX root controlling four particle emitters) — wired in the inspector,
-  not looked up by string.
+  children (e.g. a VFX root controlling four particle emitters). They are wired in the
+  inspector, not looked up by string.
 - **Keep visuals data-driven**. Colors, textures, offsets, materials belong on the nodes
   (set via `node.set`), so they stay inspector-editable; logic in script reads/updates
   them. Don't bake visual constants into code.
@@ -102,7 +102,7 @@ A central registry/loader that maps an id → resource keeps lookups in one plac
 > resources for *data-shaped* content (stat blocks, drop tables); use code/script types
 > when each entry carries unique behavior. Most games want both.
 
-## Autoloads — for cross-cutting services only
+## Autoloads, for cross-cutting services only
 
 Register singletons (`project.add_autoload`) for things that are
 project-global and have no natural owner in the scene tree:
@@ -110,26 +110,26 @@ project-global and have no natural owner in the scene tree:
 - asset/preload manager, audio manager, scene/transition manager, run/game state,
   save manager, a dev console.
 
-The shipped game has ~7 autoloads — not dozens. Everything else is owned by the scene
+The shipped game has ~7 autoloads, not dozens. Everything else is owned by the scene
 that uses it. Reaching for an autoload to avoid passing a reference creates hidden
-coupling; resist it. (See `gdscript-style.md` "class_name and autoloads — sparingly".)
+coupling; resist it. (See `gdscript-style.md` "Use class_name and autoloads sparingly".)
 
-## project.godot — drive it through the CLI
+## project.godot: drive it through the CLI
 
 Never hand-edit `project.godot`; use `project.set_setting` / `project.add_autoload` /
 `project.enable_plugin`. Settings worth establishing early on a new project:
 
 - `application/run/main_scene`, window/viewport size and stretch mode,
-- the **input map** (define every action *before* writing movement — see
+- the **input map** (define every action *before* writing movement, per the
   `game-patterns.md` build order),
 - rendering driver, default clear color,
 - autoloads and enabled plugins.
 
 A real shipped `[application]` block also pins `config/features=PackedStringArray("4.5",
-"C#", "Mobile")` and a custom user dir — confirm your engine/features with
+"C#", "Mobile")` and a custom user dir. Confirm your engine/features with
 `engine.version` and set them deliberately.
 
-## `.uid` and `.import` files — commit, never edit
+## `.uid` and `.import` files: commit, never edit
 
 Every script/resource has a companion `.uid`; every imported asset a `.import`. These are
 Godot-generated reference/metadata files. **Commit them** (they keep `uid://` references

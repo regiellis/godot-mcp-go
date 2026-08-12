@@ -6,12 +6,12 @@ description: Measured token cost of the MCP tool list, which command groups carr
 godot-mcp exposes every command as a typed MCP tool by default, and tool schemas are context: an MCP client carries its tool list into every request. That makes the size of the list a real cost, and a project that ships 330 commands owes its users a measured number. This page is that number, how it was measured, and what it means for the model you drive this with.
 
 <Callout type="important" title="The short version">
-  The full typed surface measures **about 52,000 tokens**. That is sized for big-context frontier models — 200K to 1M token windows, with prompt caching — and those carry it comfortably. A small local model will not, and this project does not aim to serve one. If your client is context-tight, `serve --typed=false` collapses the surface to a single ~470-token tool, and the CLI needs no schemas at all.
+  The full typed surface measures **about 52,000 tokens**. That is sized for big-context frontier models with 200K to 1M token windows and prompt caching, and those carry it comfortably. A small local model will not, and this project does not aim to serve one. If your client is context-tight, `serve --typed=false` collapses the surface to a single ~470-token tool, and the CLI needs no schemas at all.
 </Callout>
 
 ## The numbers
 
-Measured 2026-08-07 by driving `serve` as a real MCP client would — `initialize`, then `tools/list` — against a live Godot 4.7.2 editor, and capturing the exact payload. Tokens are estimated at four characters per token; at 3.5 characters per token the top row reads closer to 60,000.
+Measured 2026-08-07 by driving `serve` against a live Godot 4.7.2 editor the way a real MCP client would (`initialize`, then `tools/list`), and capturing the exact payload. Tokens are estimated at four characters per token; at 3.5 characters per token the top row reads closer to 60,000.
 
 | Surface | Tools carried | Schema payload | Estimated tokens |
 | --- | --- | --- | --- |
@@ -19,7 +19,7 @@ Measured 2026-08-07 by driving `serve` as a real MCP client would — `initializ
 | `serve` default (typed tools) | 332 | ~205 KB JSON | **~52,000** |
 | `serve --typed=false` | 1 (`godot_run`) | ~1.9 KB | **~470** |
 
-The 332 is every registered command plus the generic `godot_run` escape hatch. The measured list even included two project-local commands from the project it ran against, because the schemas are [built live from whatever the addon registers](/docs/mcp-setup#two-tool-modes) — so the number will drift as commands are added. Treat it as a dated snapshot and expect it to move.
+The 332 is every registered command plus the generic `godot_run` escape hatch. The measured list even included two project-local commands from the project it ran against, because the schemas are [built live from whatever the addon registers](/docs/mcp-setup#two-tool-modes), so the number will drift as commands are added. Treat it as a dated snapshot and expect it to move.
 
 ## What carries the weight
 
@@ -38,7 +38,7 @@ The average tool costs about 160 tokens. The spread by command group, largest fi
 | `material` | 4 | ~1,630 |
 | `script` | 9 | ~1,500 |
 
-The remaining 39 groups each cost less than that. Two things stand out. First, cost follows **parameter depth**: `pcg` spends ~1,850 tokens on three tools while `scene` spends ~840 on ten, because procedural-generation commands take rich structured parameters and scene commands mostly take a path and a name. Second, no single group dominates — the heaviest is 7% of the total — so there is no one group whose removal would meaningfully change the headline number.
+The remaining 39 groups each cost less than that. Two things stand out. First, cost follows **parameter depth**: `pcg` spends ~1,850 tokens on three tools while `scene` spends ~840 on ten, because procedural-generation commands take rich structured parameters and scene commands mostly take a path and a name. Second, no single group dominates. The heaviest is 7% of the total, so there is no one group whose removal would meaningfully change the headline number.
 
 ## What it costs in practice
 
@@ -46,7 +46,7 @@ The headline number is the worst case: a client that carries every schema eagerl
 
 **Context windows are large.** Against a 200K window the full list is a quarter of the budget; against the 1M windows current frontier models ship, it is 5%. The list is paid out of a budget that, on the models this tool targets, has room for it.
 
-**Prompt caching absorbs the recurring cost.** The tool list is part of the stable request prefix, so after the first request it is served from cache — on Claude's API, cached input bills at roughly a tenth of the base input rate (checked 2026-08-05; other providers price caching similarly). The list changes mid-session in exactly one case: the editor was unreachable when the client connected, so `serve` started with `godot_run` alone and upgraded when the editor came back. Sessions with long idle gaps can re-pay the cache write, which bills a fraction above the uncached rate for that one request.
+**Prompt caching absorbs the recurring cost.** The tool list is part of the stable request prefix, so after the first request it is served from cache. On Claude's API, cached input bills at roughly a tenth of the base input rate (checked 2026-08-05; other providers price caching similarly). The list changes mid-session in exactly one case: the editor was unreachable when the client connected, so `serve` started with `godot_run` alone and upgraded when the editor came back. Sessions with long idle gaps can re-pay the cache write, which bills a fraction above the uncached rate for that one request.
 
 **Schema-on-demand clients skip most of it.** Clients that defer tool schemas and load them as needed (Claude Code does this) pay only for the tools a session actually uses. The read-only `godot://` [resources](/docs/mcp-setup#read-only-resources) also let a client pull project, scene, and engine state without spending any tool turn.
 
@@ -56,19 +56,19 @@ The headline number is the worst case: a client that carries every schema eagerl
 | --- | --- |
 | A frontier model in an MCP client | The default: typed tools, full schemas, schema-guided calls |
 | A client that caps tool count, or a smaller model | `serve --typed=false` (stdio) or the `godot_mcp/network/http_typed` setting (HTTP endpoint): one generic tool, ~470 tokens |
-| A terminal-capable agent, no MCP at all | The CLI — self-describing via `godot-mcp help all` and per-command `--help`, zero schemas |
+| A terminal-capable agent, no MCP at all | The CLI, self-describing via `godot-mcp help all` and per-command `--help`, zero schemas |
 | An HTTP-capable client with no Go binary | The [editor's own MCP endpoint](/docs/mcp-setup#or-connect-straight-to-the-editor-streamable-http), same two modes |
 
-The single-tool mode still reaches all 330 commands: `godot_run` proxies any of them, and the model grounds itself with `engine.search` / `engine.class_info` instead of reading schemas — the same [discover-then-drive loop](/docs/discover-then-drive) the typed mode uses. What it gives up is the schema hints.
+The single-tool mode still reaches all 330 commands: `godot_run` proxies any of them, and the model grounds itself with `engine.search` / `engine.class_info` instead of reading schemas. That is the same [discover-then-drive loop](/docs/discover-then-drive) the typed mode uses. What it gives up is the schema hints.
 
 ## Why the default stays whole
 
-A middle tier — a curated "core" toolset on by default, with the rest opt-in — would cut the headline number to something like a quarter of the full list. It is not planned, for three reasons.
+A middle tier is imaginable: a curated "core" toolset on by default, with the rest opt-in. That would cut the headline number to something like a quarter of the full list. It is not planned, for three reasons.
 
-First, the surface is **introspection-first by design**. Schemas are built live from the addon's own param docs, so the tool list tracks whatever the editor registers — new commands, project-local commands, whatever a newer engine exposes — with no fixed catalog to maintain. A hand-curated core set would reintroduce exactly the kind of catalog this design exists to avoid, and it would need re-curating every time the surface grows.
+First, the surface is **introspection-first by design**. Schemas are built live from the addon's own param docs, so the tool list tracks whatever the editor registers (new commands, project-local commands, whatever a newer engine exposes) with no fixed catalog to maintain. A hand-curated core set would reintroduce exactly the kind of catalog this design exists to avoid, and it would need re-curating every time the surface grows.
 
 Second, **the model this tool assumes can carry the list**. The discover-then-drive loop and the spatial-verification workflow ask real reasoning of the model driving them. A model small enough to be hurt by 52,000 tokens of schemas is also too small to use the tool well, and trimming the list would not change that.
 
 Third, **the escape hatches already exist**. One flag reaches ~470 tokens; the CLI reaches zero. Between those and schema-on-demand clients, a constrained client has a working answer today, without a new configuration surface to document, test, and keep honest.
 
-If a client limitation makes both escape hatches insufficient in practice, [open an issue](https://github.com/regiellis/godot-mcp-go/issues) naming the client and model — a real reproduction is the thing that would reopen this decision.
+If a client limitation makes both escape hatches insufficient in practice, [open an issue](https://github.com/regiellis/godot-mcp-go/issues) naming the client and model. A real reproduction is the thing that would reopen this decision.

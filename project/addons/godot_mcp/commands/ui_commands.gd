@@ -1,7 +1,7 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## UI layout — the gap node.set_anchor (anchors) and theme (styling) leave open: responsive
+## UI layout, the gap node.set_anchor (anchors) and theme (styling) leave open: responsive
 ## CONTAINERS that auto-arrange children, and the size_flags that govern how a child fills/expands
 ## inside one. size_flags are bitmask enums that node.set handles clumsily, so this names them.
 ## (For anchors use node.set_anchor; for colors/fonts/styleboxes use the theme group.)
@@ -65,7 +65,7 @@ func _add_container(params: Dictionary) -> Dictionary:
 		c.columns = optional_int(params, "columns", 1)
 	if params.has("separation"):
 		var sep := optional_int(params, "separation", 4)
-		# Box/Flow use "separation"; Grid uses h/v separation — set all, harmless extras.
+		# Box/Flow use "separation"; Grid uses h/v separation, so set all, harmless extras.
 		c.add_theme_constant_override("separation", sep)
 		c.add_theme_constant_override("h_separation", sep)
 		c.add_theme_constant_override("v_separation", sep)

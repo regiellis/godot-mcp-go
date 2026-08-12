@@ -1,15 +1,15 @@
-# Menus & settings screens — structure and the meta-game the Godot way
+# Menus & settings screens: structure and the meta-game the Godot way
 
-How to build the screens *around* the game — title, pause, settings, remap, dialogs — with the CLI.
+How to build the screens *around* the game (title, pause, settings, remap, dialogs) with the CLI.
 This doc owns **structure and the widget family**; `ui-polish-2d.md` owns the *look* (Design tokens,
-drawn controls, juice, transitions) — build the skeleton here, polish there. Every widget, signal, and
+drawn controls, juice, transitions). Build the skeleton here, polish there. Every widget, signal, and
 enum below was verified against the live build. A menu only tells the truth when you **play it**
 (`scene play` → `input click` / drive focus with a gamepad action → read back); ground anything
 unfamiliar with `engine class-info --class OptionButton` before wiring it.
 
 ## The skeleton every menu shares
 
-A menu is a `Control` scene laid out by **containers**, not absolute coordinates — containers re-flow
+A menu is a `Control` scene laid out by **containers**, not absolute coordinates. Containers re-flow
 on any resolution, offsets don't. Three commands do it: `ui.add_container` (auto-arranging parent),
 `ui.add_control` (a leaf widget), `ui.set_sizing` (how a child fills its slot). Anchor the outer
 container `full_rect`; a `CenterContainer` then centers the button column at any window size.
@@ -34,7 +34,7 @@ func _on_play() -> void:
 `change_scene_to_file` frees the current scene and loads the new one next frame;
 `change_scene_to_packed(preloaded)` avoids the load hitch, `reload_current_scene()` restarts.
 
-## Pause menu — an overlay that lives while the tree is frozen
+## Pause menu: an overlay that lives while the tree is frozen
 
 Pause is two facts: `get_tree().paused = true` stops every node whose `process_mode` is the default
 `PROCESS_MODE_INHERIT`/`PROCESS_MODE_PAUSABLE`, and the pause UI must keep running to un-pause. Put
@@ -60,9 +60,9 @@ Process-mode ladder: `INHERIT`(0) follows the parent, `PAUSABLE`(1) stops on pau
 runs *only* while paused, `ALWAYS`(3) never stops, `DISABLED`(4) never runs. Gate Quit behind a
 `ConfirmationDialog` (below) so a mis-click is recoverable.
 
-## The settings screen — the full widget family
+## The settings screen and its full widget family
 
-Group settings into `TabContainer` pages — its direct-child Controls **become the tabs** (title each
+Group settings into `TabContainer` pages, whose direct-child Controls **become the tabs** (title each
 with `set_tab_title(idx, title)`); a bare `TabBar` is the strip alone when you page content yourself.
 Each row pairs a `Label` with the right widget. The family, each with the signal you bind:
 
@@ -100,7 +100,7 @@ func _on_music(value: float) -> void:                 # HSlider (linear) → aud
 desktop-app top strip; each child `PopupMenu` is one menu, wired via `get_menu_popup(i).id_pressed`,
 and a `MenuButton`'s dropdown is `get_popup().id_pressed`.
 
-## Persist settings — ConfigFile + apply-on-boot
+## Persist settings with ConfigFile + apply-on-boot
 
 Save to `user://settings.cfg` with `ConfigFile` (INI-style, human-readable, no schema). One
 **autoload** loads it and applies every value *before the first scene draws*, so the game starts in
@@ -122,13 +122,13 @@ func _ready() -> void:                                # apply-on-boot
 
 func put(section: String, key: String, value: Variant) -> void:
 	var cfg := ConfigFile.new()
-	cfg.load(PATH)                                     # merge — don't clobber sibling keys
+	cfg.load(PATH)                                     # merge, don't clobber sibling keys
 	cfg.set_value(section, key, value)
 	cfg.save(PATH)
 ```
-`get_value(section, key, default)` returns the default when absent — fresh installs and partial configs need no special-casing.
+`get_value(section, key, default)` returns the default when absent, so fresh installs and partial configs need no special-casing.
 
-## Input remapping — rebind actions at runtime
+## Input remapping: rebind actions at runtime
 
 Remapping edits the live `InputMap`: `action_erase_events(action)` clears an action's bindings,
 `action_add_event(action, event)` adds the captured one. The UI enters a **listening** state, grabs
@@ -158,15 +158,15 @@ the label string ("Space", "A").
 ## Window & display
 
 Runtime changes go through `DisplayServer`; layout-time scaling through project settings. Never write
-`project.godot` by hand — use `project set-setting`.
+`project.godot` by hand. Use `project set-setting`.
 
-- **Fullscreen / windowed:** `DisplayServer.window_set_mode(mode)` — `WINDOW_MODE_WINDOWED`,
-  `WINDOW_MODE_FULLSCREEN` (borderless), `WINDOW_MODE_EXCLUSIVE_FULLSCREEN`.
-- **VSync:** `DisplayServer.window_set_vsync_mode(mode)` — `VSYNC_ENABLED`, `VSYNC_DISABLED`,
-  `VSYNC_ADAPTIVE`, `VSYNC_MAILBOX`.
+- **Fullscreen / windowed:** `DisplayServer.window_set_mode(mode)` takes `WINDOW_MODE_WINDOWED`,
+  `WINDOW_MODE_FULLSCREEN` (borderless), or `WINDOW_MODE_EXCLUSIVE_FULLSCREEN`.
+- **VSync:** `DisplayServer.window_set_vsync_mode(mode)` takes `VSYNC_ENABLED`, `VSYNC_DISABLED`,
+  `VSYNC_ADAPTIVE`, or `VSYNC_MAILBOX`.
 - **Resolution:** `DisplayServer.window_set_size(Vector2i(w, h))` (windowed only).
 - **Content scale** (UI crispness across resolutions): set the stretch policy once as project
-  settings, then the engine scales the UI for you —
+  settings, and the engine scales the UI for you:
   ```sh
   project set-setting --name display/window/stretch/mode --value canvas_items
   project set-setting --name display/window/stretch/aspect --value keep
@@ -188,26 +188,26 @@ func confirm_quit(d: ConfirmationDialog) -> void:
 	d.popup_centered(Vector2i(320, 140))              # a FileDialog: same popup_centered, + add_filter
 ```
 
-## Gamepad & keyboard navigation — the couch-compat checklist
+## Gamepad & keyboard navigation (the couch-compat checklist)
 
 A mouse-only menu is broken on a controller. Exactly one Control holds focus; `ui_up`/`ui_down`/
 `ui_left`/`ui_right`/`ui_accept`/`ui_cancel` (built-in actions) move and activate it. On every screen:
 
-- **Grab focus on open** — `first_button.grab_focus()` when it shows; re-grab after a sub-dialog closes. No focus → a controller does nothing.
-- **Every interactive Control is focusable** — Buttons default to `focus_mode = FOCUS_ALL`(2); custom Controls must set it (`FOCUS_NONE`=0, `FOCUS_CLICK`=1).
-- **Fix auto-routing where it's wrong** — `focus_neighbor_top/bottom/left/right` (or `set_focus_neighbor(SIDE_BOTTOM, path)`) and `focus_next`/`focus_previous`.
-- **Verify by driving** — `scene play`, then `input action --action ui_down` / `ui_accept`, and `runtime get` the focused path: reach *and trigger* mouse-free.
-- **Touch builds** may want an on-screen stick — see *VirtualJoystick*.
+- **Grab focus on open**. `first_button.grab_focus()` when it shows; re-grab after a sub-dialog closes. No focus → a controller does nothing.
+- **Every interactive Control is focusable**. Buttons default to `focus_mode = FOCUS_ALL`(2); custom Controls must set it (`FOCUS_NONE`=0, `FOCUS_CLICK`=1).
+- **Fix auto-routing where it's wrong** with `focus_neighbor_top/bottom/left/right` (or `set_focus_neighbor(SIDE_BOTTOM, path)`) and `focus_next`/`focus_previous`.
+- **Verify by driving**. `scene play`, then `input action --action ui_down` / `ui_accept`, and `runtime get` the focused path: reach *and trigger* mouse-free.
+- **Touch builds** may want an on-screen stick. See *VirtualJoystick* below.
 
-## Skinning with 9-slice — NinePatchRect vs StyleBoxTexture
+## Skinning with 9-slice: NinePatchRect vs StyleBoxTexture
 
 Both stretch a bordered texture without distorting corners; **their margin properties differ, and
 mixing them up silently does nothing** (verified live):
 
-- **`NinePatchRect`** — a *node*, a standalone stretchable image (a framed panel you place). Margins
+- **`NinePatchRect`** is a *node*, a standalone stretchable image (a framed panel you place). Margins
   are **`patch_margin_left/top/right/bottom`** (`int`, px); `axis_stretch_horizontal/vertical` pick
   tile vs stretch on the edges.
-- **`StyleBoxTexture`** — a *resource* fed to a Control's theme (a Button's `normal`/`hover`/
+- **`StyleBoxTexture`** is a *resource* fed to a Control's theme (a Button's `normal`/`hover`/
   `pressed`, a Panel's `panel`), so the widget draws itself skinned with correct content padding.
   Margins are **`texture_margin_left/…`** (`float`); `set_texture_margin_all(n)` sets all four.
 
@@ -222,8 +222,8 @@ $Panel.add_theme_stylebox_override("panel", sb)       # or a Button's "normal"/"
 
 ## Font pipeline
 
-A `.ttf`/`.otf` dropped in the project **auto-imports as a `FontFile`** — reference its `res://` path
-directly. Set it as a `Theme`'s `default_font` (+ `default_font_size`), or per control:
+A `.ttf`/`.otf` dropped in the project **auto-imports as a `FontFile`**, so reference its `res://`
+path directly. Set it as a `Theme`'s `default_font` (+ `default_font_size`), or per control:
 ```gdscript
 var f := load("res://ui/Inter.ttf")                   # FontFile
 $Title.add_theme_font_override("font", f)             # one control
@@ -232,35 +232,35 @@ menu_theme.default_font_size = 20
 ```
 `SystemFont` pulls from the OS with a fallback chain (`font_names = ["Segoe UI", "Arial"]`,
 `allow_system_fallback = true`) for glyphs a bundled font lacks. For weight/spacing/italic off one
-base file, `FontVariation` — its axis-pinning and letter-spacing traps are in `ui-polish-2d.md`
-("Typography facts"); don't re-solve them. Bulk theme sizing: `theme create --default-font-size 18` /
-`theme set-font-size --node-path X --name font_size --size 24`.
+base file, reach for `FontVariation`. Its axis-pinning and letter-spacing traps are in
+`ui-polish-2d.md` ("Typography facts"); don't re-solve them. Bulk theme sizing:
+`theme create --default-font-size 18` / `theme set-font-size --node-path X --name font_size --size 24`.
 
 ## GraphEdit family (when a game needs a node editor)
 
-`GraphEdit` + `GraphNode` build in-game/tool **node graphs** — a skill-tree builder, dialogue
+`GraphEdit` + `GraphNode` build in-game/tool **node graphs**: a skill-tree builder, dialogue
 debugger, visual crafting bench. Use it only when the game edits a graph; a static skill tree
-is better as `TextureButton`s + `Line2D`s. `GraphEdit` doesn't connect wires itself — it emits
+is better as `TextureButton`s + `Line2D`s. `GraphEdit` doesn't connect wires itself. It emits
 `connection_request(from, from_port, to, to_port)` and you decide, calling `connect_node(from,
 from_port, to, to_port)` to accept the wire (`disconnection_request` is the tear-down half). Each
 `GraphNode`'s ports come from **slots**: `set_slot(idx, enable_left, type_left, color_left,
 enable_right, type_right, color_right)` turns a child row into an input (left) / output (right) port.
 
-## VideoStreamPlayer — cutscenes & attract screens
+## VideoStreamPlayer for cutscenes & attract screens
 
 `VideoStreamPlayer` is a `Control` that plays a `VideoStream`: set `stream`, call `play()`, react to
-`finished`. The caveat: **Godot ships only the Theora codec** (`.ogv` → `VideoStreamTheora`) — no
-MP4/H.264 out of the box, so transcode to `.ogv` (or add a GDExtension decoder).
+`finished`. The caveat: **Godot ships only the Theora codec** (`.ogv` → `VideoStreamTheora`), with
+no MP4/H.264 out of the box, so transcode to `.ogv` (or add a GDExtension decoder).
 ```gdscript
 $Intro.finished.connect(func(): get_tree().change_scene_to_file("res://ui/main_menu.tscn"))
 $Intro.play()                                          # set autoplay + loop for an attract loop
 ```
 
-## VirtualJoystick — on-screen touch stick
+## VirtualJoystick, the on-screen touch stick
 
-`VirtualJoystick` is a `Control` **in the running build's ClassDB** (it's engine-level, not a project
-addon — verified: no plugin registers it here). It's newer than most training data and builds can
-differ, so confirm with `engine class-info --class VirtualJoystick` before relying on it; if absent,
+`VirtualJoystick` is a `Control` **in the running build's ClassDB**, engine-level rather than a
+project addon (verified: no plugin registers it here). It's newer than most training data and
+builds can differ, so confirm with `engine class-info --class VirtualJoystick` before relying on it; if absent,
 fall back to the Control-stick pattern in `mobile-touch.md`. It drives four InputMap actions, so
 gameplay reads it as ordinary `Input.get_vector(...)`:
 - Actions (`StringName`, point at your movement actions): `action_left/right/up/down`.
@@ -276,5 +276,5 @@ gameplay reads it as ordinary `Input.get_vector(...)`:
 - Remaps edit `InputMap` at runtime and persist `physical_keycode` ints; `input_map` ships defaults.
 - Display via `DisplayServer` (mode/vsync/size); content scale via `project set-setting display/window/stretch/*`.
 - Couch test: reachable + triggerable by `ui_*` actions alone (verify via `input action` + `runtime get`).
-- 9-slice: `NinePatchRect.patch_margin_*` (int) vs `StyleBoxTexture.texture_margin_*` (float) — don't cross them.
+- 9-slice: `NinePatchRect.patch_margin_*` (int) vs `StyleBoxTexture.texture_margin_*` (float). Don't cross them.
 - Motion/transitions → `ui-polish-2d.md`; product-shell (boot/splash, settings-as-registration, a11y tab) → `narrative-game-patterns.md`.

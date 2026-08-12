@@ -14,8 +14,8 @@ import (
 // runInstallAssets copies bundled CC0 asset packs (e.g. Kenney prototype
 // textures for greyboxing) from the addon's assets/ dir into a target project.
 // Default destination is <project>/assets/vendor/; --dest overrides (relative to
-// the project root, or an absolute path). Each pack folder is copied whole —
-// License/source files included — so the CC0 attribution stays intact.
+// the project root, or an absolute path). Each pack folder is copied whole,
+// License and source files included, so the CC0 attribution stays intact.
 func runInstallAssets(args []string) int {
 	fs := flag.NewFlagSet("install-assets", flag.ContinueOnError)
 	project := fs.String("project", "", "target Godot project dir (default: the project containing the cwd)")
@@ -82,7 +82,7 @@ func runInstallAssets(args []string) int {
 	}
 	root, err := client.FindProjectRoot(start)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "install-assets: no Godot project found —", err)
+		fmt.Fprintln(os.Stderr, "install-assets: no Godot project found:", err)
 		return 1
 	}
 	destDir := *dest

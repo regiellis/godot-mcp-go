@@ -1,7 +1,7 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## Path3D / Curve3D authoring — splines for patrol routes, rails, camera dollies, and as a
+## Path3D / Curve3D authoring: splines for patrol routes, rails, camera dollies, and as a
 ## sampler domain for pcg. Editing a Curve3D's points/handles through node.set is impractical
 ## (no property surface for per-point in/out tangents), so this group does it directly, plus
 ## even-by-length sampling (the placement primitive) and PathFollow3D setup. 3D-only, like spatial.
@@ -140,7 +140,7 @@ func _get_points(params: Dictionary) -> Dictionary:
 
 # --- sample -----------------------------------------------------------------
 
-## Even-by-length samples along the baked curve — the placement primitive (feeds pcg / manual
+## Even-by-length samples along the baked curve, the placement primitive (feeds pcg / manual
 ## set-dressing along a road or rail). Returns world-or-local positions, optionally full
 ## transforms (with path-aligned rotation) for orienting instances.
 func _sample(params: Dictionary) -> Dictionary:

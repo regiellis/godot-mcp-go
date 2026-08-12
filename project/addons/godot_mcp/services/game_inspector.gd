@@ -3,7 +3,7 @@ extends Node
 ## Autoload that runs INSIDE the played game (declared in project.godot). It
 ## brokers inspection commands from the editor over file IPC: it polls
 ## user://mcp_game_request, runs the command against the live scene tree, and
-## writes user://mcp_game_response. Not @tool — it does nothing in the editor.
+## writes user://mcp_game_response. Not @tool, so it does nothing in the editor.
 ##
 ## Most commands respond immediately. A handful are STATEFUL: they set internal
 ## state and only call _respond() once the operation completes over several
@@ -107,7 +107,7 @@ func _process(delta: float) -> void:
 	match _state:
 		State.IDLE:
 			# Don't read a file-IPC request while a direct-server command holds the
-			# response sink — that would clobber it (_respond routes by _sink).
+			# response sink, which would clobber it (_respond routes by _sink).
 			if not _sink.is_valid() and FileAccess.file_exists(REQUEST_PATH):
 				_handle_request()
 		State.CAPTURING_FRAMES:
@@ -150,7 +150,7 @@ func _handle_request() -> void:
 ## Shared entry for the in-game direct WebSocket server (game_server.gd). Runs the
 ## same game-side command handlers used over file IPC, but delivers the result to
 ## `sink` (a Callable taking one Dictionary) instead of the response file. The
-## caller MUST serialize calls — one command is in flight at a time (see is_busy).
+## caller MUST serialize calls: one command is in flight at a time (see is_busy).
 func run_command(command: String, params: Dictionary, sink: Callable) -> void:
 	if _state != State.RECORDING:
 		_state = State.IDLE
@@ -159,7 +159,7 @@ func run_command(command: String, params: Dictionary, sink: Callable) -> void:
 
 
 ## True while a command is in flight (a response is still pending or a stateful
-## operation is running). RECORDING is not "busy" — it is a resting state that
+## operation is running). RECORDING is not "busy": it is a resting state that
 ## still accepts new commands. Lets game_server.gd avoid clobbering a file-IPC
 ## command in an editor-launched game where both channels are live at once.
 func is_busy() -> bool:
@@ -234,15 +234,15 @@ func _compare(actual: Variant, expected: Variant, op: String) -> bool:
 
 
 func _respond(data: Dictionary) -> void:
-	# Direct server: hand the result to the pending sink (one-shot) and stop —
-	# never also write the file. Editor file-IPC: write the response file.
+	# Direct server: hand the result to the pending sink (one-shot) and stop,
+	# never also writing the file. Editor file-IPC: write the response file.
 	if _sink.is_valid():
 		var sink := _sink
 		_sink = Callable()
 		sink.call(data)
 		return
 	# Write to a scratch name and rename it into place. The editor polls for the
-	# response file's EXISTENCE, and FileAccess.open(WRITE) creates it empty — so a
+	# response file's EXISTENCE, and FileAccess.open(WRITE) creates it empty, so a
 	# poll landing between the open and the close read a half-written (or
 	# still-locked) file and the command failed with "Could not read game response
 	# file", which an immediate retry then made succeed. The rename publishes the
@@ -431,7 +431,7 @@ static func _compile_source(src: String) -> GDScript:
 
 
 ## Compile eval source on a WORKER thread, never the main one. A GDScript parse
-## error calls debug_break_parse, which breaks into the remote debugger — but only
+## error calls debug_break_parse, which breaks into the remote debugger, but only
 ## when the compile runs on the main thread. Under a --headless editor there is no
 ## UI to resume that break, so the game froze and every later runtime command timed
 ## out with nothing surfaced anywhere; the channel just went dead. Compiling
@@ -1043,11 +1043,11 @@ func _click_button_by_text(params: Dictionary) -> void:
 	var center := rect.get_center()
 	var btn_text_value := btn.text
 
-	# Capture path before clicking — the click may trigger a scene transition
+	# Capture path before clicking, because the click may trigger a scene transition
 	# that removes the node from the tree.
 	var btn_path := _rel(btn) if btn.is_inside_tree() else ""
 
-	# Emit pressed directly — more reliable than Input.parse_input_event for GUI.
+	# Emit pressed directly, which is more reliable than Input.parse_input_event for GUI.
 	btn.emit_signal("pressed")
 
 	if not is_instance_valid(btn) or not btn.is_inside_tree():

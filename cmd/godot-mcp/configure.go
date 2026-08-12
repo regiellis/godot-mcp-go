@@ -57,12 +57,12 @@ func runConfigure(args []string) int {
 
 	label, ok := clientLabels[clientName]
 	if !ok {
-		fmt.Fprintf(os.Stderr, "configure: unknown client %q — valid clients: claude, cursor, vscode, codex\n", clientName)
+		fmt.Fprintf(os.Stderr, "configure: unknown client %q. Valid clients: claude, cursor, vscode, codex\n", clientName)
 		fmt.Fprintln(os.Stderr, "Use --print to see the config snippet for a client without writing it.")
 		return 2
 	}
 
-	// Resolve the target project to an absolute path — used both as serve's
+	// Resolve the target project to an absolute path, used both as serve's
 	// --project arg and to locate project-scoped config files.
 	proj := *project
 	if proj == "" {
@@ -89,7 +89,7 @@ func runConfigure(args []string) int {
 			// merging into it programmatically is risky, so print instead.
 			path := homePath(".claude.json")
 			fmt.Fprintf(os.Stderr, "configure: the global %s config (%s) also stores unrelated Claude Code state; writing it automatically is risky.\n", label, path)
-			fmt.Fprintln(os.Stderr, "Printing the snippet instead — add it under the top-level \"mcpServers\" object, or drop --global to use the project-scoped .mcp.json.")
+			fmt.Fprintln(os.Stderr, "Printing the snippet instead. Add it under the top-level \"mcpServers\" object, or drop --global to use the project-scoped .mcp.json.")
 			return configureJSON(path, "mcpServers", *name, exe, srvArgs, false, false, true, label)
 		}
 		path := filepath.Join(absProj, ".mcp.json")
@@ -112,9 +112,9 @@ func runConfigure(args []string) int {
 	case "vscode":
 		if *global {
 			// VS Code's global MCP config lives inside the user settings.json, not a
-			// standalone file we can safely locate/merge — print instead.
+			// standalone file we can safely locate/merge, so print instead.
 			fmt.Fprintln(os.Stderr, "configure: VS Code's global MCP config lives in your user settings.json (run \"MCP: Open User Configuration\"), not a standalone file.")
-			fmt.Fprintln(os.Stderr, "Printing the snippet instead — paste it there, or drop --global to use the project-scoped .vscode/mcp.json.")
+			fmt.Fprintln(os.Stderr, "Printing the snippet instead. Paste it there, or drop --global to use the project-scoped .vscode/mcp.json.")
 			return configureJSON("<VS Code user settings.json>", "servers", *name, exe, srvArgs, true, false, true, label)
 		}
 		path := filepath.Join(absProj, ".vscode", "mcp.json")
@@ -124,8 +124,8 @@ func runConfigure(args []string) int {
 		// Codex has no project-scoped MCP config; it is global-only (~/.codex/config.toml).
 		path := homePath(filepath.Join(".codex", "config.toml"))
 		if !*global {
-			fmt.Fprintf(os.Stderr, "configure: Codex has no project-scoped MCP config — it is configured globally in %s.\n", path)
-			fmt.Fprintln(os.Stderr, "Printing the snippet instead — re-run with --global to write it.")
+			fmt.Fprintf(os.Stderr, "configure: Codex has no project-scoped MCP config. It is configured globally in %s.\n", path)
+			fmt.Fprintln(os.Stderr, "Printing the snippet instead. Re-run with --global to write it.")
 			return configureTOML(path, *name, exe, srvArgs, false, true, label)
 		}
 		return configureTOML(path, *name, exe, srvArgs, *force, *printSnippet, label)
@@ -315,7 +315,7 @@ func tomlRemoveSection(content, name string) string {
 		t := strings.TrimSpace(line)
 		if inSection {
 			if strings.HasPrefix(t, "[") {
-				inSection = false // next section starts — stop skipping
+				inSection = false // next section starts, so stop skipping
 			} else {
 				continue // skip the removed section's body
 			}

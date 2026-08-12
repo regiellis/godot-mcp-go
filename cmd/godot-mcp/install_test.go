@@ -56,7 +56,7 @@ func TestResolveAssetOverride(t *testing.T) {
 
 func TestResolveAssetReportsEveryCandidate(t *testing.T) {
 	// With no override and nothing on disk, resolution fails and must report
-	// each path it considered — this is the "binary copied onto PATH alone"
+	// each path it considered. This is the "binary copied onto PATH alone"
 	// case, where naming a single guess is what made the failure confusing.
 	got, tried := resolveAsset("", "plugin.cfg",
 		[]string{"addons", "godot_mcp"},

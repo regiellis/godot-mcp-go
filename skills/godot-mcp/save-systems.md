@@ -1,31 +1,32 @@
-# Save/load systems — building with godot-mcp
+# Save/load systems with godot-mcp
 
 The unifying reference for persistence. Four other docs cover a *slice* of saving from their
-genre's angle — this one owns the shared architecture and the format decisions. **Verify exact
-APIs against the live engine** (`engine class-info --class FileAccess`) before writing — the
+genre's angle. This one owns the shared architecture and the format decisions. **Verify exact
+APIs against the live engine** (`engine class-info --class FileAccess`) before writing: the
 serializer flags below came from that check, but signatures evolve.
 
 Where to jump instead of reading here:
-- **`gdscript-architecture.md`** — big game, bulk mutable state: the *two-tier save* (small
-  checksummed Resource header + JSON-diff-per-checkpoint), when bulk state dwarfs the delta.
-- **`topdown-2d.md`** — component game: saveables carry a `SaveDataComponent` holding a
+- **`gdscript-architecture.md`** covers the big game with bulk mutable state: the *two-tier save*
+  (small checksummed Resource header + JSON-diff-per-checkpoint), for when bulk state dwarfs the delta.
+- **`topdown-2d.md`** is the component game, where saveables carry a `SaveDataComponent` holding a
   *polymorphic Resource*; adding a saveable type = a new Resource subclass, no central switch.
-- **`narrative-game-patterns.md`** — story game: the save *wraps an opaque story snapshot*
+- **`narrative-game-patterns.md`** is the story game, whose save *wraps an opaque story snapshot*
   (`{version, slot_id, snapshot_json, ...}`) with a `.bak` fallback and never introspects it.
-- **`menus-settings.md`** — *settings* (audio, video, keybinds) persist to `user://settings.cfg`
-  via `ConfigFile`. Keep them out of the save game; the two have different lifetimes.
+- **`menus-settings.md`** handles *settings* (audio, video, keybinds), which persist to
+  `user://settings.cfg` via `ConfigFile`. Keep them out of the save game; the two have different
+  lifetimes.
 
 ## What to save: authoritative state, not derived state
 
 Save the **inputs to your simulation, not its outputs.** Player position, inventory, quest
 flags, RNG seed, current scene key are *authoritative*. Health bars, pathfinding results,
-particle state are *derived* — recomputed on load. Saving derived state bloats the file and
+particle state are *derived* and recomputed on load. Saving derived state bloats the file and
 rots the moment the derivation changes.
 
 - **The "everything in one dict" trap**. Dumping `get_tree()` into one nested Dictionary feels
   fast and rots fast: private fields leak into the format, a refactor breaks old saves, and you
   can't reason about what a slot holds. Save a *deliberate* per-type projection of each entity.
-- **Granularity**. Persist at the coarsest unit that still reloads correctly — a puzzle game
+- **Granularity**. Persist at the coarsest unit that still reloads correctly. A puzzle game
   saves "level N, moves so far"; an open-world game saves per-region deltas. Finer is wasted
   bytes and migration surface; coarser loses progress players expect kept.
 
@@ -33,7 +34,7 @@ rots the moment the derivation changes.
 
 Each saveable node joins a `"persist"` group and exposes `save_state() -> Dictionary` /
 `load_state(d)`. A `SaveManager` autoload sweeps the group, keys each record by a stable
-identity, and never knows an entity's internals — each owns its own shape.
+identity, and never knows an entity's internals, because each owns its own shape.
 
 ```gdscript
 # on each saveable node (player, chest, door, enemy)
@@ -50,7 +51,7 @@ func load_state(d: Dictionary) -> void:
 ```
 
 ```gdscript
-# SaveManager autoload — keys each record by scene_file_path + node path
+# SaveManager autoload: keys each record by scene_file_path + node path
 func collect() -> Dictionary:
 	var nodes := {}
 	for node in get_tree().get_nodes_in_group("persist"):
@@ -66,12 +67,12 @@ func collect() -> Dictionary:
 	return {"version": VERSION, "nodes": nodes}
 ```
 
-**The respawned-node identity problem — be honest about it.** Keying by `scene_file_path` +
+**Be honest about the respawned-node identity problem.** Keying by `scene_file_path` +
 node path is stable *only for nodes authored into the scene*. The moment something is
 `queue_free()`d (an enemy dies) or `instantiate()`d at runtime (a dropped item, a spawned
 pickup), that identity breaks: a freed node has no state to patch, a runtime-spawned one has no
 authored path to match. A "patch each node's state" loop silently loses both. Store **spawn
-records, not just state patches** — the collector keeps each record's `scene` + `parent`, so
+records, not just state patches**: the collector keeps each record's `scene` + `parent`, so
 restore *re-instantiates* what isn't already in the tree. Record deaths too (a "dead" set, or
 free-on-load anything the save omits), or they resurrect.
 
@@ -81,7 +82,7 @@ func restore(data: Dictionary) -> void:
 	for key in data.get("nodes", {}):
 		var rec: Dictionary = data["nodes"][key]
 		var node := tree.root.get_node_or_null(NodePath(rec["path"]))
-		if node == null:                                    # was spawned at runtime — re-create it
+		if node == null:                                    # was spawned at runtime, so re-create it
 			var parent := tree.root.get_node_or_null(NodePath(rec["parent"]))
 			if parent == null or rec.get("scene", "") == "":
 				continue
@@ -98,30 +99,30 @@ res://systems/save_manager.gd`; each saveable gets `add_to_group("persist")` + t
 
 | Format | Types preserved | Human-readable | Notes |
 |---|---|---|---|
-| `ConfigFile` | Variants (typed) | yes (INI) | **Settings only** — see `menus-settings.md`. Not save games. |
+| `ConfigFile` | Variants (typed) | yes (INI) | **Settings only** (see `menus-settings.md`). Not save games. |
 | `JSON` | no (numbers/strings/arrays/dicts) | yes, diffable | Portable, tool-friendly. **Vectors/floats need care** (below). |
 | `var_to_str`/`str_to_var` | full Variant incl. Vector2/Color | yes | Text *and* type-faithful. Godot-only reader. |
 | `FileAccess.store_var`/`get_var` | full Variant | no (binary) | Fast, compact, opaque. |
 | `Resource` + `ResourceSaver` (`.tres`) | typed, `@export`ed | `.tres` yes / `.res` no | Editor-inspectable. **Security caveat below.** |
 
 - **JSON is the portable default but loses types**. `JSON.parse_string` returns every number as
-  a `float` and has no `Vector2`/`Color` — a naive `Vector2(10, 20)` errors on read. Two fixes:
-  (a) **serialize helpers** — flatten to arrays out, rebuild in (`[v.x, v.y]` / `Vector2(a[0],
-  a[1])`), the pattern the collector uses; (b) `JSON.from_native(v, false)` /
+  a `float` and has no `Vector2`/`Color`, so a naive `Vector2(10, 20)` errors on read. Two fixes:
+  (a) **serialize helpers** that flatten to arrays out and rebuild in (`[v.x, v.y]` /
+  `Vector2(a[0], a[1])`), the pattern the collector uses; (b) `JSON.from_native(v, false)` /
   `JSON.to_native(j, false)` tag engine types into a JSON-safe structure and back.
 - **`var_to_str` is the underrated middle**. It writes `Vector2(10, 20)` as literal text and
-  `str_to_var` reads it back with the Vector intact — full Variant fidelity, still diffable and
-  hand-editable, no serialize helpers. Cost: only Godot reads it.
+  `str_to_var` reads it back with the Vector intact. That is full Variant fidelity, still
+  diffable and hand-editable, with no serialize helpers. Cost: only Godot reads it.
 - **Binary `store_var`/`get_var` is fastest and smallest**, opaque on disk. Pass
-  `store_var(data, false)` / `get_var(false)` — the `false` keeps arbitrary object
+  `store_var(data, false)` / `get_var(false)`, where the `false` keeps arbitrary object
   instantiation out of the reader (same risk as below).
 - **`Resource` + `ResourceSaver` is inspectable but unsafe for untrusted saves**. A `@export`ed
   `SaveData extends Resource` saved via `ResourceSaver.save(data, "user://save.tres")` is typed
-  and inspector-editable — great for *authored* data. But **loading a `.tres`/`.res` instantiates
+  and inspector-editable, which is great for *authored* data. But **loading a `.tres`/`.res` instantiates
   whatever types and scripts the file declares**, so a tampered save can run code on load.
   `FileAccess.get_var` and `JSON.to_native` gate this behind an `allow_objects` flag;
   `ResourceLoader.load` has **none**. Standing community guidance: **never `load()` a save a
-  player could swap** — use JSON or `store_var(..., false)` there, reserve Resource saves for
+  player could swap**. Use JSON or `store_var(..., false)` there, and reserve Resource saves for
   shipped content and local headers. (`open_encrypted_with_pass` only obfuscates: the key ships
   in your binary.)
 
@@ -131,7 +132,7 @@ They solve different problems, and encryption alone is often sold as both.
 
 **Encryption stops casual editing.** `FileAccess.open_encrypted` takes a binary key,
 `open_encrypted_with_pass` a passphrase, and `ConfigFile` mirrors both
-(`save_encrypted`/`load_encrypted` and the `_pass` variants — all confirmed on the live 4.7
+(`save_encrypted`/`load_encrypted` plus the `_pass` variants, all confirmed on the live 4.7
 build). The same honesty as pck encryption applies: the key ships in the binary, so this deters a
 player with a text editor, not one with a debugger. Worth it when a visible plaintext save invites
 fiddling; decorative against anything determined.
@@ -139,8 +140,8 @@ fiddling; decorative against anything determined.
 **Validation detects tampering, including by someone who found the key.** Store an HMAC beside the
 payload and compare on load: `Crypto.new().hmac_digest(HashingContext.HASH_SHA256, key, payload)`
 (live-verified signature: `hmac_digest(hash_type, key, msg) -> PackedByteArray`). A mismatch means
-the file changed outside the game — corrupt it gracefully into the backup-fallback path rather
-than crashing. The same caveat about shipped keys applies to the HMAC key; for a single-player
+the file changed outside the game, so treat it as corrupt and fall into the backup-fallback path
+rather than crashing. The same caveat about shipped keys applies to the HMAC key; for a single-player
 game that is fine, because the goal is catching accidents and casual edits, not defeating an
 adversary. Anything that must survive a hostile player belongs on a server, which is a
 `multiplayer-patterns.md` concern.
@@ -168,13 +169,13 @@ func migrate(data: Dictionary) -> Dictionary:
 	return data
 ```
 
-Stepwise (each `if v < N` upgrades one version) migrates a v1 save 1→2→3 in one pass — never a
+Stepwise (each `if v < N` upgrades one version) migrates a v1 save 1→2→3 in one pass, with no
 v1→v3 jump. `gdscript-architecture.md`'s Resource header does the same with `match save.version`.
 
 ## Slots and metadata
 
 Lay out `user://saves/slot_N/` with the payload plus a **sidecar meta** the load menu reads
-*without* deserializing the whole game — timestamp, playtime, a thumbnail.
+*without* deserializing the whole game: timestamp, playtime, a thumbnail.
 
 ```gdscript
 func slot_dir(slot: int) -> String:
@@ -208,7 +209,7 @@ slot loads only on click.
 
 ## Async and threaded saves
 
-Most saves are a small Dictionary that finishes **sub-frame** — write them synchronously.
+Most saves are a small Dictionary that finishes **sub-frame**, so write them synchronously.
 **Don't thread until a save visibly hitches** (large worlds, thumbnail encode, big blobs):
 
 - **`WorkerThreadPool`** runs the write off the main thread. `add_task` returns an id; poll
@@ -223,17 +224,18 @@ Most saves are a small Dictionary that finishes **sub-frame** — write them syn
   		WorkerThreadPool.wait_for_task_completion(_task_id); _task_id = -1; saved.emit()
   ```
   **Build the snapshot on the main thread**, hand the worker only plain data (the serialized
-  string / a duplicated dict) — never touch the scene tree from a worker.
+  string / a duplicated dict). Never touch the scene tree from a worker.
 - **Simpler alternative: `call_deferred` + chunking**. Serialize a slice per idle callback so no
-  single frame does all the work — no thread, no data-race surface. Enough for big-but-not-huge.
+  single frame does all the work, with no thread and no data-race surface. Enough for
+  big-but-not-huge.
 
 ## Autosave and crash-safe writes
 
 - **Trigger on checkpoints, plus a low-frequency timer** (a `Timer` node firing every ~120 s).
-  **Never autosave mid-combat** — a save that captures a half-resolved fight reloads broken;
+  **Never autosave mid-combat**: a save that captures a half-resolved fight reloads broken, so
   gate it (`if _in_combat: return`) and let the next checkpoint catch it.
 - **Write atomically: temp then rename**. A crash *during* a write leaves a truncated, wiped
-  slot. Write to `save.json.tmp`, `close()`, then `DirAccess.rename_absolute(tmp, final)` — the
+  slot. Write to `save.json.tmp`, `close()`, then `DirAccess.rename_absolute(tmp, final)`. The
   rename is atomic on every desktop filesystem, so the slot is only ever the last *complete*
   write. Keep a `.bak` of the prior slot too (as the other two docs' headers do).
 
@@ -256,18 +258,18 @@ runtime eval --code 'SaveManager.load_from_slot(0); emit(get_node("Player").posi
 scene stop
 ```
 
-The load must restore the *saved* position, not the corrupted one — proof the write, format,
-and `load_state` agree. Extend it: kill an enemy, save, reload, confirm it stays dead; bump
+The load must restore the *saved* position, not the corrupted one, which proves the write,
+format, and `load_state` agree. Extend it: kill an enemy, save, reload, confirm it stays dead; bump
 `version`, reload an old slot, confirm `migrate` ran. `runtime eval` runs in the game's own
-process, so it reads the real `user://` and autoloads — not the editor's.
+process, so it reads the real `user://` and autoloads, not the editor's.
 
 ## Common mistakes
 
-- **Floats/Vectors through raw JSON** — use serialize helpers, `JSON.from_native`, or `var_to_str`.
-- **`load()`ing an untrusted Resource save** — runs embedded scripts; use JSON / `store_var(..., false)`.
-- **Saving node references** — save *data* (path, id, scene string) and rebuild the node on load.
-- **Patching state without spawn records** — freed/spawned nodes desync; store `scene` + `parent`.
-- **No `version` field** — the first format change orphans every existing save.
-- **Non-atomic writes** — a crash mid-write corrupts the slot. Temp-then-rename, keep a `.bak`.
-- **Autosaving mid-combat**, or threading a save that was already sub-frame — risk, no win.
-- **Trusting remembered API signatures** — confirm against the running engine with `engine class-info`/`search`.
+- **Floats/Vectors through raw JSON**. Use serialize helpers, `JSON.from_native`, or `var_to_str`.
+- **`load()`ing an untrusted Resource save** runs embedded scripts; use JSON / `store_var(..., false)`.
+- **Saving node references**. Save *data* (path, id, scene string) and rebuild the node on load.
+- **Patching state without spawn records**: freed/spawned nodes desync; store `scene` + `parent`.
+- **No `version` field**, so the first format change orphans every existing save.
+- **Non-atomic writes**. A crash mid-write corrupts the slot. Temp-then-rename, keep a `.bak`.
+- **Autosaving mid-combat**, or threading a save that was already sub-frame. Risk, no win.
+- **Trusting remembered API signatures**. Confirm against the running engine with `engine class-info`/`search`.

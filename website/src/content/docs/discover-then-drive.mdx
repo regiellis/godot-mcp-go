@@ -29,7 +29,7 @@ godot-mcp engine script-classes
 
 ## Read what it means
 
-Structure answers what exists; the docs answer what it does. `engine docs` serves the running build's own documentation prose — the same text as the editor's Help panel, read from the editor's doc cache — and `engine doc-search` searches it by concept, for when you know the behavior you want but not the term:
+Structure answers what exists; the docs answer what it does. `engine docs` serves the running build's own documentation prose, the same text as the editor's Help panel, read from the editor's doc cache. `engine doc-search` searches that prose by concept, for when you know the behavior you want but not the term:
 
 ```bash
 # search the prose: "make text wrap" without knowing the property name
@@ -55,5 +55,5 @@ godot-mcp editor run-script --code "print(ProjectSettings.get_setting('applicati
 ```
 
 <Callout type="note">
-  When a command returns something surprising, re-check the API with `engine search` / `engine class-info` before assuming the write landed — most "it didn't work" moments are a property or signature that 4.7 spells differently. See [Live-engine gotchas](/docs/gotchas) for the known ones.
+  When a command returns something surprising, re-check the API with `engine search` / `engine class-info` before assuming the write landed. Most "it didn't work" moments are a property or signature that 4.7 spells differently. See [Live-engine gotchas](/docs/gotchas) for the known ones.
 </Callout>

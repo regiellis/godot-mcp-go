@@ -101,19 +101,19 @@ func _register(command_classes: Array) -> void:
 ## instantiates to a Node exposing get_commands() -> {"group.command": Callable};
 ## a bad file (fails to load, not a Node, no get_commands) is skipped with a
 ## push_warning and never breaks startup, and a name that collides with a
-## built-in (or an earlier project command) is skipped — built-ins win.
+## built-in (or an earlier project command) is skipped, since built-ins win.
 ## Editing a file here needs a full editor restart to recompile (reload_plugin
 ## re-runs registration but does not re-parse changed GDScript from disk).
 func _register_project_commands() -> void:
 	const PROJECT_DIR := "res://mcp_commands"
 	var dir := DirAccess.open(PROJECT_DIR)
 	if dir == null:
-		return  # no project-local commands — silently skip
+		return  # no project-local commands, so skip silently
 	var registered := 0
 	dir.list_dir_begin()
 	var file_name := dir.get_next()
 	while not file_name.is_empty():
-		# Only .gd files: Godot 4.7 writes a .uid sidecar per script — ignore it.
+		# Only .gd files: Godot 4.7 writes a .uid sidecar per script, ignored here.
 		if not dir.current_is_dir() and file_name.get_extension() == "gd":
 			registered += _register_project_file(PROJECT_DIR.path_join(file_name))
 		file_name = dir.get_next()
@@ -199,7 +199,7 @@ func execute(method: String, params: Dictionary) -> Dictionary:
 
 # A param the command's docs don't declare is almost always a typo or a
 # flag borrowed from a sibling command, and a handler reads only the keys it
-# knows — the call "succeeds" while the value goes nowhere. Annotate the
+# knows, so the call "succeeds" while the value goes nowhere. Annotate the
 # success payload so the miss is visible in the result itself, with the
 # closest declared name as a hint. Annotation, not an error: docs are the
 # best available map of a handler's params, not a proven-complete one.
@@ -232,7 +232,7 @@ func _flag_unknown_params(method: String, params: Dictionary, result: Dictionary
 				best_score = score
 				best = str(d)
 		if best_score >= 0.4:
-			hints.append("'%s' is not a %s param — did you mean '%s'?" % [k, method, best])
+			hints.append("'%s' is not a %s param. Did you mean '%s'?" % [k, method, best])
 		else:
 			hints.append("'%s' is not a %s param (see %s --help)" % [k, method, method])
 	if unknown.is_empty():

@@ -144,7 +144,7 @@ func _class_info(params: Dictionary) -> Dictionary:
 	var cls: String = r[0]
 	if ClassDB.class_exists(cls):
 		return _classdb_info(cls, params)
-	# Not a built-in/GDExtension class — try a global class_name script (addons).
+	# Not a built-in/GDExtension class, so try a global class_name script (addons).
 	var entry := _global_class_entry(cls)
 	if not entry.is_empty():
 		return _script_class_info(cls, entry, params)
@@ -152,7 +152,7 @@ func _class_info(params: Dictionary) -> Dictionary:
 
 
 func _classdb_info(cls: String, params: Dictionary) -> Dictionary:
-	# Default to this class's OWN members — that's where version-new API lives.
+	# Default to this class's OWN members, where version-new API lives.
 	var no_inherit := not optional_bool(params, "inherited", false)
 	var filter := optional_string(params, "filter", "").to_lower()
 
@@ -199,7 +199,7 @@ func _classdb_info(cls: String, params: Dictionary) -> Dictionary:
 
 
 ## Read a class's property DEFAULT values without instantiating it (answers "what
-## would I get if I added this node / created this resource") — ClassDB classes only.
+## would I get if I added this node / created this resource"). ClassDB classes only.
 func _defaults(params: Dictionary) -> Dictionary:
 	var r := require_string(params, "class")
 	if r[1] != null:
@@ -253,7 +253,7 @@ func _fuzzy_matcher() -> Object:
 ##
 ## Deliberately ONE search over every candidate rather than per-class calls: the
 ## point of fuzzy matching is the ranking, and matching class by class in ClassDB
-## order throws it away — the answer becomes alphabetical, so AccessibilityServer
+## order throws it away: the answer becomes alphabetical, so AccessibilityServer
 ## outranks the class you meant. Names are grouped back onto their owning class in
 ## score order, so the first entry is the best hit.
 func _fuzzy_search_matches(query: String) -> Array:
@@ -350,7 +350,7 @@ func _search(params: Dictionary) -> Dictionary:
 	# agent guessed ("linvel" for linear_velocity, "gpos" for global_position).
 	# 4.8's FuzzySearch resolves those; 4.7 has no such class and keeps the empty
 	# result. Running it only as a rescue keeps the common path at its old speed
-	# and makes the fuzzy pass strictly additive — it can never change a result
+	# and makes the fuzzy pass strictly additive, so it can never change a result
 	# the substring sweep already found.
 	if matches.is_empty():
 		var fuzzy := _fuzzy_search_matches(query)
@@ -853,7 +853,7 @@ func _doc_hit_before(a: Dictionary, b: Dictionary) -> bool:
 
 # --- Helpers ----------------------------------------------------------------
 
-# type_name() and method_brief() live in base_command.gd — script.symbols reports
+# type_name() and method_brief() live in base_command.gd, since script.symbols reports
 # the same shapes, and two copies drifted apart is exactly the bug class the
 # shared-helper rule exists to prevent.
 

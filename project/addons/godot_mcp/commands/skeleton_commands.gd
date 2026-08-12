@@ -1,13 +1,13 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## Skeleton3D — bones, poses, and bone attachments. Bone indices/poses (Quaternion rotations,
+## Skeleton3D: bones, poses, and bone attachments. Bone indices/poses (Quaternion rotations,
 ## per-component pose setters) aren't reachable through node.set, so this exposes them directly.
-## Pose edits are undoable; structural ops (add_bone — Skeleton3D has no remove_bone) are direct.
+## Pose edits are undoable; structural ops (add_bone, since Skeleton3D has no remove_bone) are direct.
 ## IK in 4.7 is SkeletonModifier3D-based: add those via node.add and configure with node.set.
 ##
 ## 2D (cutout) rigs: Skeleton2D bones are Bone2D *nodes*, so posing is plain node.set on
-## position/rotation — the 2D commands here cover what node.set can't: building the hierarchy
+## position/rotation. The 2D commands here cover what node.set can't: building the hierarchy
 ## with rests (create_2d), re-baking rests from the current pose (set_rest_2d), and binding a
 ## Polygon2D with per-vertex weights (skin_2d). list_bones handles both skeleton types.
 
@@ -128,7 +128,7 @@ func _create_2d(params: Dictionary) -> Dictionary:
 	})
 
 
-## Re-bake every Bone2D's rest from its CURRENT transform — the "pose it, then
+## Re-bake every Bone2D's rest from its CURRENT transform: the "pose it, then
 ## make that the rest" workflow after adjusting bones via node.set.
 func _set_rest_2d(params: Dictionary) -> Dictionary:
 	var ctx := _resolve_skeleton_2d(params)

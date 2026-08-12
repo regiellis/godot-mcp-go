@@ -83,7 +83,7 @@ func _create(params: Dictionary) -> Dictionary:
 
 	# Open what we just made. Creating a scene and then working on it is the whole
 	# point of the command, and leaving the editor on the previous scene meant every
-	# following node.* call silently targeted THAT scene — or, with nothing open,
+	# following node.* call silently targeted THAT scene, or, with nothing open,
 	# failed with "no scene open, use scene.open or scene.create first" right after
 	# scene.create had been used. --open=false keeps the old behaviour for a batch
 	# that writes many files and doesn't want the editor churning through tabs.
@@ -122,7 +122,7 @@ func _open(params: Dictionary) -> Dictionary:
 
 	# force=true on an open scene reloads from disk, discarding unsaved edits.
 	# reload_scene_from_path does NOT change which tab is current, so a scene that
-	# was open but inactive used to stay inactive while this reported opened=true —
+	# was open but inactive used to stay inactive while this reported opened=true,
 	# and every later command then targeted the previously-active scene instead.
 	# Reload first (that is the documented discard), then switch to it.
 	if force and was_open and EditorInterface.has_method("reload_scene_from_path"):
@@ -139,12 +139,12 @@ func _open(params: Dictionary) -> Dictionary:
 ##
 ## The counterpart every other scene command assumed existed. `scene.delete` and
 ## `fs.delete` both refuse a scene that is open and told the caller to close the
-## tab — which nothing could do, so a throwaway scene could not be cleaned up
+## tab, which nothing could do, so a throwaway scene could not be cleaned up
 ## without a human at the editor or a restart. `scene.create` opening what it
 ## writes made that the default path, which is what surfaced it.
 ##
 ## `EditorInterface.close_scene()` is the public 4.7 API and closes the CURRENT
-## scene, so a named path is made current first — and the switch is verified
+## scene, so a named path is made current first, and the switch is verified
 ## before the close, because closing the wrong tab is unrecoverable. It discards
 ## unsaved changes SILENTLY (no prompt, verified live on 4.7.2), so the refusal
 ## below is the only thing standing between a caller and lost work: unsaved
@@ -184,7 +184,7 @@ func _close(params: Dictionary) -> Dictionary:
 	var was_active := is_active_scene_path(target)
 	# Closing a BACKGROUND tab must not move the editor. Godot picks the neighbour
 	# of the closed tab, so closing tab 0 while tab 2 was current left the editor on
-	# tab 1 — and every following node.* command silently targets the current scene,
+	# tab 1, and every following node.* command silently targets the current scene,
 	# which is the same trap scene.create's missing open was.
 	var previous_active := ""
 	if not was_active:
@@ -267,14 +267,14 @@ func _instance(params: Dictionary) -> Dictionary:
 	if packed == null:
 		return error_internal("Failed to load scene: %s" % scene_path)
 	# GEN_EDIT_STATE_INSTANCE makes the editor treat this as a real scene
-	# instance (collapsed, internal nodes owned by the instance — not local).
+	# instance (collapsed, internal nodes owned by the instance, not local).
 	var instance := packed.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
 	var instance_name := optional_string(params, "name", "")
 	if not instance_name.is_empty():
 		instance.name = instance_name
 
 	# Only the instance root is owned by the edited scene. Do NOT recurse owners
-	# into the instance's internal nodes — that flattens them into duplicated
+	# into the instance's internal nodes, which flattens them into duplicated
 	# local nodes that clash with the instance's own content on reload.
 	add_child_with_undo(parent, instance, root, "MCP: Instance %s" % scene_path)
 	return success({
@@ -363,7 +363,7 @@ func _save(params: Dictionary) -> Dictionary:
 
 # --- Scene integrity validation (read-only) ---------------------------------
 
-## Scan the open scene for integrity problems that don't surface until play —
+## Scan the open scene for integrity problems that don't surface until play,
 ## chiefly AnimationPlayer tracks whose node path doesn't resolve ("track doesn't
 ## lead to a Node") and exported/stored NodePath references that point nowhere.
 ## Returns {valid, issue_count, issues:[...]}. Never mutates the scene; script
@@ -472,7 +472,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"scene.delete": {
-			"description": "Delete a scene file from disk (refuses a scene currently open in the editor — close it with scene.close first).",
+			"description": "Delete a scene file from disk (refuses a scene currently open in the editor; close it with scene.close first).",
 			"params": [
 				doc_param("path", "String", true, "res:// path to the scene."),
 			],

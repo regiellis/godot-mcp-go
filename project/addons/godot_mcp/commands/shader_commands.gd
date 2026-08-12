@@ -141,7 +141,7 @@ func _create_visual(params: Dictionary) -> Dictionary:
 	if err != OK:
 		return error_internal("Failed to save VisualShader: %s" % error_string(err))
 	EditorInterface.get_resource_filesystem().update_file(path)
-	return success({"path": path, "mode": mode, "created": true, "note": "Empty VisualShader graph — assign it to a ShaderMaterial; author nodes in the editor's VisualShader graph, or write a text shader with shader.create for code-first work."})
+	return success({"path": path, "mode": mode, "created": true, "note": "Empty VisualShader graph. Assign it to a ShaderMaterial; author nodes in the editor's VisualShader graph, or write a text shader with shader.create for code-first work."})
 
 
 const _SHADER_TEMPLATES := {
@@ -186,12 +186,12 @@ func _create(params: Dictionary) -> Dictionary:
 	var out := {"path": path, "shader_type": shader_type, "created": true}
 	out["hot_reload"] = _refresh_loaded_shader(path, content)
 	if out["hot_reload"] == "blocked":
-		out["suggestion"] = "The Shader Editor has this file open and overrides programmatic reloads with its own buffer — close that tab (or reopen the file there), then re-run."
+		out["suggestion"] = "The Shader Editor has this file open and overrides programmatic reloads with its own buffer. Close that tab (or reopen the file there), then re-run."
 	var compiled: Variant = _compile_status(content)
 	if compiled != null:
 		out["compiled"] = compiled
 		if compiled == false:
-			out["suggestion"] = "The shader failed to parse — read the tail of editor.errors for the line and reason."
+			out["suggestion"] = "The shader failed to parse. Read the tail of editor.errors for the line and reason."
 	return success(out)
 
 
@@ -257,12 +257,12 @@ func _edit(params: Dictionary) -> Dictionary:
 		file.close()
 		out["hot_reload"] = _refresh_loaded_shader(path, content)
 		if out["hot_reload"] == "blocked":
-			out["suggestion"] = "The Shader Editor has this file open and overrides programmatic reloads with its own buffer — close that tab (or reopen the file there), then re-run."
+			out["suggestion"] = "The Shader Editor has this file open and overrides programmatic reloads with its own buffer. Close that tab (or reopen the file there), then re-run."
 		var compiled: Variant = _compile_status(content)
 		if compiled != null:
 			out["compiled"] = compiled
 			if compiled == false:
-				out["suggestion"] = "The shader failed to parse — read the tail of editor.errors for the line and reason."
+				out["suggestion"] = "The shader failed to parse. Read the tail of editor.errors for the line and reason."
 	return success(out)
 
 
@@ -384,7 +384,7 @@ func _get_shader_material(node: Node) -> ShaderMaterial:
 
 # Push new source into the loaded shader and report what happened:
 # "updated" (the cached shader now runs this content), "blocked" (the set
-# did not stick — the editor's Shader Editor holds the file open and
+# did not stick, because the editor's Shader Editor holds the file open and
 # re-applies its own buffer synchronously), or "not_loaded" (nothing
 # references the file yet, so the next load reads the new source).
 func _refresh_loaded_shader(path: String, content: String) -> String:
@@ -394,8 +394,8 @@ func _refresh_loaded_shader(path: String, content: String) -> String:
 	var status := "not_loaded"
 	if ResourceLoader.has_cached(normalized):
 		# Update the CACHED shader in place so every material referencing it
-		# recompiles, and its resource_path stays intact. The old approach —
-		# a fresh Shader + take_over_path — updated an object nothing
+		# recompiles, and its resource_path stays intact. The old approach,
+		# a fresh Shader plus take_over_path, updated an object nothing
 		# referenced, while materials kept a now PATH-LESS stale copy that
 		# the next ResourceSaver.save() embedded into their .tres, silently
 		# detaching them from this file (found live 2026-08-01).
@@ -412,7 +412,7 @@ func _refresh_loaded_shader(path: String, content: String) -> String:
 # compile failed. Screen/depth-hinted samplers never enumerate, and global /
 # instance uniforms don't start with "uniform ", so neither counts as expected.
 # Returns true / false, or null when the source declares nothing enumerable
-# (no way to tell — report nothing rather than guess).
+# (no way to tell, so report nothing rather than guess).
 func _compile_status(content: String) -> Variant:
 	var probe := Shader.new()
 	probe.code = content
@@ -429,7 +429,7 @@ func _compile_status(content: String) -> Variant:
 func get_command_docs() -> Dictionary:
 	return {
 		"shader.create": {
-			"description": "Write a new text shader (.gdshader) file. Uses --content, or a starter template for --shader-type when content is omitted. Refuses to clobber a file open in the script editor without --force. Reports `compiled` (uniform-list probe) when the source declares enumerable uniforms; a false means a parse error — read editor.errors.",
+			"description": "Write a new text shader (.gdshader) file. Uses --content, or a starter template for --shader-type when content is omitted. Refuses to clobber a file open in the script editor without --force. Reports `compiled` (uniform-list probe) when the source declares enumerable uniforms; a false means a parse error, so read editor.errors.",
 			"params": [
 				doc_param("path", "String", true, "Save path for the shader (inside the project)."),
 				doc_param("shader_type", "String", false, "Template to seed when --content is empty: spatial (default), canvas_item, particles, sky."),
@@ -444,7 +444,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"shader.edit": {
-			"description": "Rewrite a shader with --content, or apply --replacements (search/replace pairs) to the existing source. Hot-reloads the loaded shader in place, so open materials recompile and keep their file reference. Refuses a file open in the script editor without --force. Reports `compiled` (uniform-list probe) when the source declares enumerable uniforms; a false means a parse error — read editor.errors.",
+			"description": "Rewrite a shader with --content, or apply --replacements (search/replace pairs) to the existing source. Hot-reloads the loaded shader in place, so open materials recompile and keep their file reference. Refuses a file open in the script editor without --force. Reports `compiled` (uniform-list probe) when the source declares enumerable uniforms; a false means a parse error, so read editor.errors.",
 			"params": [
 				doc_param("path", "String", true, "Path to the shader file."),
 				doc_param("content", "String", false, "Full replacement source. Use this OR --replacements."),
@@ -474,7 +474,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"shader.global_add": {
-			"description": "Add a project-wide global shader uniform (stored in ProjectSettings shader_globals/*). Writes and saves project.godot — a persistent side effect; revert after throwaway tests. Refuses an existing name without --force.",
+			"description": "Add a project-wide global shader uniform (stored in ProjectSettings shader_globals/*). Writes and saves project.godot, a persistent side effect; revert after throwaway tests. Refuses an existing name without --force.",
 			"params": [
 				doc_param("name", "String", true, "Global uniform name."),
 				doc_param("type", "String", false, "One of bool, int, uint, float (default), vec2, vec3, vec4, color, mat2, mat3, mat4, sampler2D, samplerCube."),
@@ -500,7 +500,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"shader.create_visual": {
-			"description": "Create an empty VisualShader resource (.tres/.res) of a given mode — author its graph in the editor's VisualShader panel, or use shader.create for code-first work. Refuses to overwrite without --force.",
+			"description": "Create an empty VisualShader resource (.tres/.res) of a given mode. Author its graph in the editor's VisualShader panel, or use shader.create for code-first work. Refuses to overwrite without --force.",
 			"params": [
 				doc_param("path", "String", true, "Save path (must end in .tres or .res)."),
 				doc_param("mode", "String", false, "One of spatial (default), canvas_item, particles, sky, fog."),

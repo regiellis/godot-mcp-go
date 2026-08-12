@@ -1,7 +1,7 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## GridMap authoring — the 3D analog of the tilemap group. scene3d.add_gridmap creates the
+## GridMap authoring, the 3D analog of the tilemap group. scene3d.add_gridmap creates the
 ## node and can bulk-set cells, but a GridMap is useless without a MeshLibrary, and there was no
 ## painting/inspection layer. This group: build a MeshLibrary from a scene (the scriptable
 ## "Scene → MeshLibrary" the editor only exposes as a menu item), then paint/fill/read/clear cells.

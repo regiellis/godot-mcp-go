@@ -1,14 +1,14 @@
-# C# in Godot — idioms
+# C# idioms in Godot
 
 A reference for working in a **C# Godot project**. Idioms verified against a shipped
-commercial Godot C# game (decompiled), so they reflect real shipping practice — not
+commercial Godot C# game (decompiled), so they reflect real shipping practice rather than
 tutorials.
 
 > **Scope / fit.** The `godot-mcp` CLI authors **GDScript** (`script.create`/`script.edit`
 > write `.gd`); it does not compile C#. So this file is guidance for when you're editing a
 > C# Godot codebase directly (in the filesystem, building with `dotnet`/Godot's build),
-> not something you drive through the addon. The `engine.*` discovery commands still help —
-> the live `ClassDB` API is identical whether you call it from C# or GDScript, so
+> not something you drive through the addon. The `engine.*` discovery commands still help.
+> The live `ClassDB` API is identical whether you call it from C# or GDScript, so
 > `engine class-info --class Tween` etc. remain your source of truth for current signatures.
 > For *what to build*, `project-structure.md` and `deckbuilder-patterns.md` are
 > language-agnostic and apply here too.
@@ -16,7 +16,7 @@ tutorials.
 ## Node classes: `partial`, inherit a Godot type
 
 Every script that Godot instantiates is a `partial class` deriving from a Godot node type.
-**`partial` is mandatory** — Godot's source generator emits the other half (the
+**`partial` is mandatory**. Godot's source generator emits the other half (the
 `MethodName`/`PropertyName`/`SignalName` lookup classes, marshalling, signal glue) into a
 sibling partial. Omitting it breaks generation.
 
@@ -32,7 +32,7 @@ public partial class CardView : Control     // partial + Godot base type
 - File-scoped namespaces (`namespace Game.Cards;`) and one public type per file.
 - `[GlobalClass]` to register the type for the editor's "create node" / inspector lists.
 - `[Tool]` **only** for scripts that must run in the editor (editor plugins, `@tool`-style
-  preview behavior) — not for normal gameplay nodes.
+  preview behavior), never for normal gameplay nodes.
 
 ## Reference child nodes: `GetNode<T>("%Unique")` in `_Ready`
 
@@ -50,7 +50,7 @@ public override void _Ready()
 }
 ```
 
-- Prefer `%Unique` over deep `"A/B/C"` paths — same rule as GDScript.
+- Prefer `%Unique` over deep `"A/B/C"` paths, the same rule as GDScript.
 - `[Export]` a `Node`/`NodePath` field when the wiring should be done in the inspector
   (the `.tscn` stores it as `node_paths=PackedStringArray(...)`).
 - Resolve `GetNode` in `_Ready`, never in the constructor (the tree isn't ready yet).
@@ -75,10 +75,10 @@ public event Action Died;
 - Use `[Signal] delegate …EventHandler` for **Node** classes and anything the editor or
   GDScript must see/connect.
 - Use plain C# `event Action<…>` for **non-Node** model/state classes (a `Creature`,
-  `RunManager`) — lighter, strongly typed, no marshalling. The shipped game's data layer is
+  `RunManager`): lighter, strongly typed, no marshalling. The shipped game's data layer is
   almost entirely C# events; its nodes use `[Signal]`.
 - Connect built-in signals with `Connect(Control.SignalName.MouseEntered,
-  Callable.From(OnMouseEntered))` — `Callable.From` wraps a C# method with no boilerplate.
+  Callable.From(OnMouseEntered))`. `Callable.From` wraps a C# method with no boilerplate.
 
 ## Exports
 
@@ -94,9 +94,9 @@ export and edit in the inspector like built-ins.
 
 ## Lifecycle and async
 
-- `_Ready` — grab children, set up. `_EnterTree`/`_ExitTree` — **subscribe/unsubscribe**
-  external events here (subscribe in enter, unsubscribe in exit; nodes get re-parented and
-  leak otherwise):
+- Grab children and set up in `_Ready`. **Subscribe and unsubscribe** external events in
+  `_EnterTree`/`_ExitTree` (subscribe in enter, unsubscribe in exit; nodes get re-parented
+  and leak otherwise):
 
 ```csharp
 public override void _EnterTree() { RunManager.Instance.ActEntered += OnActEntered; }
@@ -142,7 +142,7 @@ tools; keep gameplay/logic in C#. (See the GDScript-usage notes in this skill se
 ## Safe-node extension helpers
 
 Build a small set of `static` extension methods on `Node`/`Control` and use them
-everywhere — the shipped game leans on these heavily:
+everywhere. The shipped game leans on these heavily:
 
 ```csharp
 node.QueueFreeSafely();          // validity check (+ object-pool return) before freeing
@@ -157,14 +157,14 @@ that otherwise get forgotten at individual call sites.
 
 ## Top idioms
 
-1. `public partial class X : <GodotType>` — `partial` is required for source generation.
+1. `public partial class X : <GodotType>`. `partial` is required for source generation.
 2. Cache children in `_Ready` via `GetNode<T>("%Unique")`; avoid `../../` paths and constructors.
 3. `[Signal] delegate …EventHandler` for nodes; plain `event Action<…>` for non-node models.
-4. `Connect(SignalName.X, Callable.From(Handler))` — no lambda boilerplate.
-5. Subscribe in `_EnterTree`, unsubscribe in `_ExitTree` — prevent leaks on reparent.
+4. `Connect(SignalName.X, Callable.From(Handler))` avoids lambda boilerplate.
+5. Subscribe in `_EnterTree` and unsubscribe in `_ExitTree` to prevent leaks on reparent.
 6. `[Export]` with inline defaults; `Godot.Collections.Array<T>`/`Dictionary` for exported containers.
 7. `await ToSignal(tween, Tween.SignalName.Finished)` / `ProcessFrame`; `Task.Delay` with a token.
 8. `Resource` subclass for inspector data; plain C# class for logic (testable, tree-free).
 9. Bridge GDScript-only APIs via an autoload proxy + `Node.Call(StringName)`; cache the `StringName`.
 10. Wrap node ops in safe extension helpers (`QueueFreeSafely`, `AddChildSafely`, …).
-11. Verify any API against the live engine (`engine class-info`/`engine search`) — never from memory.
+11. Verify any API against the live engine (`engine class-info`/`engine search`), never from memory.

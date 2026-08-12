@@ -25,15 +25,24 @@ follow [Semantic Versioning](https://semver.org/).
   shipping guide connects the APK-is-a-zip receipt back to `encrypt_pck`; the
   site's gotchas page corrects the two expectations readers bring.
 - **The trailer guide became a matrix of cuts and formats**: duration profiles
-  from a 15-second hook to a 2–3 minute feature, delivery profiles from 16:9 to
+  from a 15-second hook to a 2-3 minute feature, delivery profiles from 16:9 to
   9:16 composed per viewport rather than cropped, shot lists carrying
   per-profile framing, and a render manifest.
+
+### Changed
+
+- **Every em dash is gone from every shipped surface.** Roughly 1,700 of them
+  across the craft guides, the site pages, the README, this changelog, the
+  CLI's help and error text, and the addon's messages and source comments,
+  each removed by rewriting its sentence rather than swapping punctuation.
+  Code behavior is unchanged: only string literals and comments moved, and
+  the full test suite plus a scratch-copy editor compile prove it.
 
 ### Fixed
 
 - **`doc note --action add --at` now refuses a 2D scene** like its four
   scaffold siblings, instead of silently parenting a `Marker3D` under a
-  `Node2D` — found by the release-gate verification build. The billboard
+  `Node2D`. The release-gate verification build found it. The billboard
   labels the `doc` group creates are also named (`DocLabel`) so they are
   addressable, where they previously landed as unstable auto-generated names.
 - **The 2D jump-arc measurement recipe in `level-design` works as written
@@ -43,20 +52,20 @@ follow [Semantic Versioning](https://semver.org/).
   physics. Every other claim in the two new-guide verification sessions
   passed against the live editor with results read back.
 
-## [0.8.2] — 2026-08-12
+## [0.8.2] - 2026-08-12
 
 The keeper's-light release: twelve defects found by driving a complete game
 build through the CLI, each fixed at the root, plus the new `scene close` that
-build showed was missing. It also carries the CLI's presentation pass — results,
+build showed was missing. It also carries the CLI's presentation pass (results,
 help, and the banner now render for a human at a terminal while piped output
-stays exact JSON — and the docs site's Godot MCP CLI identity and type pass.
+stays exact JSON) and the docs site's Godot MCP CLI identity and type pass.
 A sustained project build now gates every release; the how and why is on the
 site's new [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testing) page.
 
 ### Added
 
-- **`scene close`**. Closes a scene tab — `--path`, or the active scene when no
-  path is given — and reports the remaining `open_scenes` and the resulting
+- **`scene close`**. Closes a scene tab, either `--path` or the active scene
+  when no path is given, and reports the remaining `open_scenes` and the resulting
   `active_scene`. It closes the gap the rest of the surface assumed was covered:
   `scene delete`, `fs delete`, and `fs move` all refuse a scene that is open and
   told the caller to close the tab, which no command could do, so a throwaway
@@ -70,8 +79,8 @@ site's new [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testi
 - **`editor errors --clear` and `--internal=false`**. `--clear` drains the
   Output panel after reading, the same pull-then-drain contract
   `runtime errors --clear` already had. `--internal=false` drops the entries
-  whose source file is the engine's own C++ rather than a project script —
-  every editor error line already carries its `<file>:<line>`, and a filesystem
+  whose source file is the engine's own C++ rather than a project script.
+  Every editor error line already carries its `<file>:<line>`, and a filesystem
   rescan after `editor reload` fills the buffer with dozens of
   `progress_dialog.cpp` and `class_db.cpp` lines that bury the parse error you
   were looking for. The default is unchanged, and a line whose source cannot be
@@ -106,17 +115,17 @@ site's new [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testi
 - **Subcommand help is uniform**. Every local subcommand renders the same
   styled shape as the top-level help (heading, usage, notes, an aligned
   `--flag` table) instead of the raw single-dash `flag` dump, and three routes
-  reach it: `<sub> --help`, `<sub> help`, and `help <sub>` — all exiting 0.
+  reach it, all exiting 0: `<sub> --help`, `<sub> help`, and `help <sub>`.
   Previously `create help` tried to run and failed on the missing `--path`.
   Section headings carry the accent, usage-line placeholders (`<group>`,
   `DIR`, `NAME`) tint magenta so the fixed words read apart from the
   fill-ins, and the banner carries the docs-site URL.
 - **`status --all`**. Scans the editor auto range (9080-9095, plus any env- or
   discovery-pinned port) and the game range (9200-9215) concurrently and lists
-  every live instance — port, project name and path, Godot version, pid, and
-  whether it serves the current project. A terminal gets the table render,
+  every live instance with its port, project name and path, Godot version, pid,
+  and whether it serves the current project. A terminal gets the table render,
   piped output gets JSON (`editors` + `games` arrays); exit 0 when at least
-  one editor is live. Game servers report presence only — that channel
+  one editor is live. Game servers report presence only, because that channel
   carries no project identity to ask for.
 - **The accent color is a burnt yellow**. Headings, command names, and the
   banner wordmark render in 256-color amber instead of cyan, keeping the
@@ -132,7 +141,7 @@ site's new [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testi
   `godot-mcp` everywhere.
 - **A front-door banner**. Running `godot-mcp` with no arguments at all now
   prints the brand mark as a block-glyph tile beside the wordmark (reading
-  GODOT MCPCLI), the version, and where to go next, exiting 0 — a bare
+  GODOT MCPCLI), the version, and where to go next, exiting 0. A bare
   invocation is a person exploring, not a script. Run inside a project it also
   reports that project's editor on one line (running with port and pid,
   starting, crashed, or none), from the same diagnosis `status` uses; outside
@@ -151,7 +160,7 @@ site's new [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testi
 
 - **`scene create` now opens the scene it creates**. It wrote the file and left
   the editor where it was, so every following `node add` silently built into the
-  previous scene — or, with nothing open, failed with a suggestion to "use
+  previous scene, or, with nothing open, failed with a suggestion to "use
   scene.open or scene.create first" immediately after `scene create` had been
   used. The result reports `active_scene`, `--open=false` keeps the old
   behaviour for a batch that writes many files, and the no-scene error no longer
@@ -159,7 +168,7 @@ site's new [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testi
 - **`runtime screenshot` right after `scene play` returned an all-black frame**
   with no error. The capture read a viewport texture nothing had drawn into yet;
   the game now waits for a real `frame_post_draw` before reading it, and reports
-  `black_frame` when the result is uniformly black anyway — a scene that is
+  `black_frame` when the result is uniformly black anyway. A scene that is
   black by design looks the same, so this is a flag rather than an error.
 - **Game commands failed intermittently with "Could not read game response
   file"**, where an immediate retry always worked. The game wrote its reply
@@ -181,7 +190,7 @@ site's new [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testi
   snippets all compile.
 - **`editor set_camera` posed the 3D camera without bringing the 3D screen with
   it**. It succeeded and returned a 3D pose while the editor's main screen sat
-  on 2D, and the following `editor screenshot` captured the canvas — the right
+  on 2D, and the following `editor screenshot` captured the canvas: the right
   call, the wrong picture, no error anywhere. `set_camera` now switches the main
   screen to 3D (`--switch-main-screen=false` opts out), and both `screenshot`
   and `get_camera` report the active `main_screen`. A screenshot never forces a
@@ -190,8 +199,8 @@ site's new [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testi
   the InputMap of the *editor* process, which holds the editor's bindings
   (`ui_*`, `spatial_editor/*`) and not the game's, so a project's `jump` was
   invisible while `set_action` persisted it correctly. It now reads
-  ProjectSettings `input/*` — where project.godot keeps them and where the
-  running game reads them — and reports which source answered.
+  ProjectSettings `input/*`, which is where project.godot keeps them and where
+  the running game reads them, and reports which source answered.
 - **`spatial` refused every node without visual geometry**. A `Marker3D` or a
   bare `Node3D` anchor answered "has no 3D visual geometry", which made
   marker-to-marker questions unanswerable through the group that exists to
@@ -204,10 +213,10 @@ site's new [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testi
   reported. It presses the Output panel's own Clear button, and falls back to
   the blank lines only when that button cannot be located, saying so.
 
-## [0.8.1] — 2026-08-09
+## [0.8.1] - 2026-08-09
 
 Documentation, media, and the skill archive. No command, addon, or CLI behaviour
-changed — the binaries and the addon are functionally identical to 0.8.0 — so
+changed, and the binaries and the addon are functionally identical to 0.8.0, so
 this release exists to ship a new craft guide and the pages that came with it.
 
 ### Added
@@ -259,7 +268,7 @@ this release exists to ship a new craft guide and the pages that came with it.
   still pointed at the 0.7.x snapshot. A listing is pinned to whatever commit it
   was submitted with, so a stale note is how an old download keeps being served.
 
-## [0.8.0] — 2026-08-07
+## [0.8.0] - 2026-08-07
 
 The editor-side release: an interactive debugger the agent can drive, the
 engine documentation's prose to go with its structure, and the dashboard
@@ -268,11 +277,11 @@ command driven live before landing.
 
 ### Added
 
-- **The dashboard, docked in the editor** — the addon now ships an **MCP dock**
+- **The dashboard, docked in the editor**. The addon now ships an **MCP dock**
   (right side by default, movable like any dock) with the web dashboard's full
-  feature set — stat tiles, error banner, top groups with per-method tooltips,
-  recent errors, and the live timeline with filter chips — plus what only an
-  in-editor surface can add: stats read in-process (no extra process, no port,
+  feature set: stat tiles, error banner, top groups with per-method tooltips,
+  recent errors, and the live timeline with filter chips. It adds what only an
+  in-editor surface can, with stats read in-process (no extra process, no port,
   and no polling at all while the dock is closed), full call parameters on
   each row's tooltip, and a Reset button. The design language is the web UI's
   instrument-cockpit look (flat blocks, hairlines, zero radius, mono numerals,
@@ -282,14 +291,14 @@ command driven live before landing.
   counters.
 - **The `debug` group: an interactive debugger for the editor-launched game**
   (329 commands, 50 groups). `set_breakpoint` arms a line through the editor's
-  own script gutter — visible in the gutter and the Breakpoints list, live for
-  a game already running, kept for the next run — and refuses lines that can
-  never be hit (blanks, comments, declarations) with the first executable line
+  own script gutter, so it is visible in the gutter and the Breakpoints list,
+  live for a game already running, and kept for the next run. It refuses lines
+  that can never be hit (blanks, comments, declarations) with the first executable line
   suggested instead; arming a per-frame callback like `_process` earns a
   warning, since every resume would re-break immediately. `state` and `frame`
   read the paused game's stack and variables, `step`/`resume`/`pause` drive
   execution through the debugger's own controls, and `reload_scripts`
-  hot-reloads edited `.gd` files into the live process with state kept —
+  hot-reloads edited `.gd` files into the live process with state kept.
   `scene.play` now launches every run with the editor's script-sync options
   armed so a reload always applies. Verified end to end against a live 4.7.2
   game: break at a line, step, read a variable change, resume, pause into
@@ -300,13 +309,13 @@ command driven live before landing.
   these answer what it means, with the running build's own Help-panel text.
   `docs --class C [--member m]` walks the inheritance chain, finds annotations
   with or without the `@`, and covers pages ClassDB has never held
-  (`@GlobalScope`, `@GDScript`, the Variant types — an enum name like `Key`
-  returns its values). `doc_search --query "wrap text"` searches names and
+  (`@GlobalScope`, `@GDScript`, the Variant types, with an enum name like `Key`
+  returning its values). `doc_search --query "wrap text"` searches names and
   prose by concept and ranks name hits above prose hits, so the half-known
   term surfaces first. Unknown names come back with closest-first suggestions.
-- **`editor.activity`: poll what happened in the editor since a cursor** —
-  selection changes, scene switches, scene and resource saves, and undo/redo
-  history bumps, buffered in a 200-entry ring (`services/activity_log.gd`) and
+- **`editor.activity`: poll what happened in the editor since a cursor**.
+  Selection changes, scene switches, scene and resource saves, and undo/redo
+  history bumps are buffered in a 200-entry ring (`services/activity_log.gd`) and
   read with the same `--since-seq`/`--clear` cursor contract as
   `runtime.errors`. An agent sharing the editor with a person can now see what
   the person just did between commands: click a node, save a scene, hit
@@ -315,7 +324,7 @@ command driven live before landing.
   undo (via an injected Ctrl+Z), selection, and save each produce exactly one
   event.
 
-## [0.7.2] — 2026-08-03
+## [0.7.2] - 2026-08-03
 
 Documentation only. No command, addon, or CLI behaviour changed. The agent skill
 and the craft guides did change, so the skill archive is worth updating even
@@ -351,7 +360,7 @@ though the addon is unchanged apart from a one-word fix in its README.
 - **The comparison names projects rather than org paths**, `godot-ai` and
   `Godot-MCP-Native`.
 
-## [0.7.1] — 2026-08-03
+## [0.7.1] - 2026-08-03
 
 Forward-compatibility work: the addon is verified on Godot 4.8-dev, and
 `engine search` picks up 4.8's new fuzzy matcher when it is there.
@@ -390,7 +399,7 @@ Forward-compatibility work: the addon is verified on Godot 4.8-dev, and
   feature surfaced as a property *or a callable* is reachable, then listed only
   the property commands; `node.call` and `runtime.call` are that missing half.
 
-## [0.7.0] — 2026-08-03
+## [0.7.0] - 2026-08-03
 
 Four commands (316 total, still 49 groups) and a craft reference, from reviewing
 the public GDQuest and Brackeys repositories. Writing GDScript still needs no
@@ -423,8 +432,8 @@ tool beyond the editor.
   result, so `gdscript-style.md` was guidance rather than a check.
 - **`script symbols`** reads one script's declared methods, properties, signals,
   and constants without pulling the file into context. It reaches scripts with no
-  `class_name`, which `engine class-info` cannot — the ordinary case of a
-  `player.gd` attached to a node. `--include-inherited` walks the base-script
+  `class_name`, which `engine class-info` cannot, and that is the ordinary case
+  of a `player.gd` attached to a node. `--include-inherited` walks the base-script
   chain.
 - **`ai-steering.md` craft reference**. Agent movement that reads as a creature
   rather than a cursor: accelerating toward a desired velocity instead of
@@ -432,28 +441,28 @@ tool beyond the editor.
   priority, facing, and 3D differences. Every recipe was driven against a live
   4.7 editor and verified numerically rather than by screenshot.
 - **Input-action validation in `character-3d.md`**. A controller that reads an
-  action nobody mapped does not error — `Input.is_action_pressed` on a missing
+  action nobody mapped does not error. `Input.is_action_pressed` on a missing
   action returns `false` forever, so the character silently never sprints and
   nothing says why. The guide now takes action names as `@export`s and checks
   them in `_ready`.
 
 There is deliberately **no** `script format`. Reformatting safely needs a real
-parser — a wrong linter prints a bad line, a wrong formatter corrupts source —
-and the tree-sitter route would mean CGO, breaking the `CGO_ENABLED=0`
+parser, because a wrong linter prints a bad line while a wrong formatter
+corrupts source, and the tree-sitter route would mean CGO, breaking the `CGO_ENABLED=0`
 six-target cross-build. Linting was tractable without a parser; formatting is
 not.
 
 ### Fixed
 
 - **`script lint` reports which files do not compile**. Style rules read source,
-  so they report on a file that does not parse — and zero findings there would
+  so they report on a file that does not parse, and zero findings there would
   read as clean, which is the opposite of the truth.
 - **`no-else-return` reads the last statement, not the last line**. A
   `return success({` spanning eight lines ends on `})`, hiding the return; and a
   `break` nested inside a deeper `if` is not the branch's own last statement, so
   counting it flagged an `elif` that was required.
 - **A `const` bound to `preload()`/`load()` accepts CONSTANT_CASE or
-  PascalCase.** Both are idiomatic — a type when it holds a script, an asset when
+  PascalCase.** Both are idiomatic: a type when it holds a script, an asset when
   it holds a scene. Requiring CONSTANT_CASE flagged nine correct lines in this
   addon alone.
 - **`engine class-info` and `script symbols` share one introspection helper**.
@@ -466,7 +475,7 @@ not.
 - **`doctor`'s name column derives its width from the checks**, rather than a
   fixed pad a longer check name silently broke.
 
-## [0.6.3] — 2026-08-01
+## [0.6.3] - 2026-08-01
 
 Two addon fixes found by driving shader work against a live editor, plus
 shipping guidance the install docs should always have carried.
@@ -495,7 +504,7 @@ shipping guidance the install docs should always have carried.
   into a shipped game. The shipping-export guide covers verifying a build by
   scanning the exported `.pck`.
 
-## [0.6.2] — 2026-07-28
+## [0.6.2] - 2026-07-28
 
 Another CLI-only patch, from the same corner as 0.6.1. The addon is unchanged.
 
@@ -515,7 +524,7 @@ Another CLI-only patch, from the same corner as 0.6.1. The addon is unchanged.
   It only warns: the file is in your tree by then, possibly committed, and
   deleting things inside someone's project is not this command's call.
 
-## [0.6.1] — 2026-07-28
+## [0.6.1] - 2026-07-28
 
 A CLI-only patch. The addon is unchanged from 0.6.0; its version moves in step
 with the bundle so Project Settings and the archive name agree.
@@ -551,7 +560,7 @@ with the bundle so Project Settings and the archive name agree.
   (everything else drives a running editor over a socket, so the binary works
   from anywhere once the addon is in the project).
 
-## [0.6.0] — 2026-07-28
+## [0.6.0] - 2026-07-28
 
 A bug-fix release, and every one of these came out of building a game with the
 tool rather than reading its source. Four were found in a single session: an
@@ -593,16 +602,16 @@ with. Use `project add-autoload` instead.
   `_enable_plugin` / `_disable_plugin`, which is what those virtuals are for: they
   fire when the user actually ticks or unticks the plugin. The tree hooks fire every
   time the editor starts and stops, so the addon dirtied the project file twice a
-  session — a standing chore for anyone who does not want dev-only autoloads in their
+  session, a standing chore for anyone who does not want dev-only autoloads in their
   commits. Worse, the shutdown save persists whatever the in-memory settings hold
   *after every plugin has torn itself down*: observed 2026-07-27 in a consumer project,
   one quit dropped a DIFFERENT addon's seven committed autoloads, which would have
-  shipped a game that could not boot. Export is unchanged — disabling the plugin still
+  shipped a game that could not boot. Export is unchanged, since disabling the plugin still
   removes them. Projects that keep the plugin enabled should now COMMIT the two
   autoloads, since nothing re-adds them at load.
 
-- **A missing game-side autoload is now diagnosed instantly instead of by
-  timeout — or, worse, not at all.** Every editor→game entry point
+- **A missing game-side autoload is now diagnosed instantly, where it used to
+  take a timeout or go unreported entirely.** Every editor→game entry point
   (`runtime.*`, `input.*`, `test.*`) now checks that `MCPGameInspector` /
   `MCPGameInput` are present in the **on-disk** `project.godot` before it
   writes an IPC request, reading the same file `get_game_user_dir()` already
@@ -611,7 +620,7 @@ with. Use `project add-autoload` instead.
   one after plugin-enable, most often in projects that deliberately keep these
   dev-only autoloads out of version control and then revert or check out
   `project.godot` mid-session. Every editor-side command keeps working in that
-  state — `project.info` still lists both autoloads — so only the game hop
+  state (`project.info` still lists both autoloads), so only the game hop
   breaks, which made it expensive to diagnose. Previously `runtime.*` spent its
   full timeout and then *guessed* at this cause in a suggestion string, while
   `input.*`, being one-way with no response to wait on, reported
@@ -623,7 +632,7 @@ with. Use `project add-autoload` instead.
   `node.add --properties '{"texture": "res://icon.png"}'` created the node, left
   `texture` null, and reported success. The map was coerced against
   `typeof(node.get(name))`, which reads the *current* value, and a null Resource
-  property reads as nil — so the path was assigned as text and discarded. `node.set`
+  property reads as nil, so the path was assigned as text and discarded. `node.set`
   had already been fixed to coerce against the declared type, which is why the same
   value worked there and made this look like a quirk rather than a bug. Nine commands
   now share one strict helper: a `res://` or `uid://` path is loaded into the real
@@ -638,7 +647,7 @@ with. Use `project add-autoload` instead.
   `--headless` editor a GDScript parse error broke into the remote debugger, which
   has no UI to resume, so the game froze and every later `runtime.*` command timed
   out with nothing surfaced anywhere. The channel simply went dead, and the usual
-  trigger — `var x := <untyped expression>` — is easy to write by accident. That
+  trigger, `var x := <untyped expression>`, is easy to write by accident. That
   break only fires for a compile on the main thread, so the wrapped source is now
   compiled on a worker thread first. A bad eval returns the parse message with the
   line number in the caller's own code, and the next command still works.
@@ -666,7 +675,7 @@ with. Use `project add-autoload` instead.
   reparent and position in one undoable step. `node.add --index` skips the round trip
   entirely for a new node.
 
-## [0.5.0] — 2026-07-27
+## [0.5.0] - 2026-07-27
 
 The editor stops needing a middleman: it speaks MCP itself over streamable
 HTTP, so an HTTP-capable client connects with no Go process in between. Also
@@ -675,27 +684,27 @@ bypassable and hardened.
 
 ### Added
 
-- **The editor is now an MCP server itself — streamable HTTP, zero external
-  process.** The addon hosts `POST /mcp` on `127.0.0.1` (auto port 9100-9115;
+- **The editor is now an MCP server itself, over streamable HTTP with zero
+  external process.** The addon hosts `POST /mcp` on `127.0.0.1` (auto port 9100-9115;
   `GODOT_MCP_HTTP_PORT` or the `godot_mcp/network/http_port` setting pins one),
   so any MCP client that speaks streamable HTTP connects straight to the
   running editor. Tools mirror `serve`: the generic `godot_run` plus every
   documented command as a typed tool with a real schema, dispatched through
-  the same command router — all guards apply unchanged. The
+  the same command router, with all guards applying unchanged. The
   `godot_mcp/network/http_typed` setting collapses the list to `godot_run`
   alone for tool-limited clients, `godot_mcp/network/mcp_http` turns the
   endpoint off, and the discovery file now carries `http_port`.
 
 - **MCP prompts in `serve`**. The stdio MCP server now declares the prompts
-  capability and ships four static prompts distilled from the agent skill —
-  `discover-then-drive`, `spatial-placement` (optional `target` argument),
-  `launch-recovery`, and `bug-hunt` — embedded in the binary and served via
+  capability and ships four static prompts distilled from the agent skill
+  (`discover-then-drive`, `spatial-placement` with an optional `target`
+  argument, `launch-recovery`, and `bug-hunt`), embedded in the binary and served via
   `prompts/list`/`prompts/get` even when the editor is down. The playbook now
   rides along as first-class MCP prompts, not just the `instructions` string.
 
 - `scripts/test-http-mcp.ps1` (`task test:http`): a 37-check conformance sweep of
-  the HTTP endpoint against a live editor — handshake and protocol negotiation,
-  tool-surface legality, router dispatch and error mapping, HTTP framing
+  the HTTP endpoint against a live editor, covering handshake and protocol
+  negotiation, tool-surface legality, router dispatch and error mapping, HTTP framing
   (411/413/405/404, keep-alive, pipelining, `Connection: close`), and the Origin
   gate including lookalike hosts and the literal `null` origin. Exit 0 means all
   passed. Maintainer-only: `scripts/` does not ship in the public mirror.
@@ -711,7 +720,7 @@ bypassable and hardened.
     coerce through `PropertyParser.parse_checked()`, which refuses and names the
     expected literal. Applies to Vector2/3/4, Rect2, Quaternion and Color.
   - **JSON arrays were stringified before parsing**, so `[28,28]` became
-    `Vector2(0, 28)` — `_numbers()` stripped a `Vector2(` prefix but not `[`.
+    `Vector2(0, 28)`, because `_numbers()` stripped a `Vector2(` prefix but not `[`.
     Arrays and dictionaries are now read element-wise.
   - **Resource-typed properties silently dropped `res://` paths**.
     `resource create --type Sky --properties '{"sky_material":"res://…"}'`
@@ -729,7 +738,7 @@ bypassable and hardened.
 - **`scene open --force` switches to the scene it reloads** instead of leaving a
   different one active. `EditorInterface.reload_scene_from_path` reloads a tab
   without changing which tab is current, so forcing a scene that was open but not
-  active returned `opened:true` while the editor stayed put — and every later
+  active returned `opened:true` while the editor stayed put, and every later
   command silently targeted the previously-active scene. The handler switches
   after reloading and reports `already_active` so a caller can tell the difference.
 
@@ -754,18 +763,18 @@ bypassable and hardened.
 
 - **The HTTP MCP endpoint now validates `Origin`**. Binding `127.0.0.1` does not
   keep a browser out: any web page you visited while the editor was open could
-  POST to `http://127.0.0.1:9100/mcp` — the wildcard `Access-Control-Allow-Origin`
-  even let it read the replies — and reach `editor.run_script`, i.e. arbitrary
-  code execution. Requests with no `Origin` (native MCP clients, curl, the Go
+  POST to `http://127.0.0.1:9100/mcp` and reach `editor.run_script`, i.e.
+  arbitrary code execution, and the wildcard `Access-Control-Allow-Origin`
+  even let it read the replies. Requests with no `Origin` (native MCP clients, curl, the Go
   CLI) and loopback origins are served as before; any other origin now gets
   `403` with the connection closed, and `Access-Control-Allow-Origin` echoes the
   allowed origin instead of `*`. The WebSocket transport cannot be gated this way
   (Godot exposes no handshake headers server-side, and browser WebSockets are
-  exempt from CORS) and that is an accepted limitation, not a pending fix — the
+  exempt from CORS) and that is an accepted limitation, not a pending fix. The
   ports are unauthenticated by design, so treat a running editor as reachable by
   anything local. The docs now carry a **Threat model** section spelling this out.
 
-## [0.4.0] — 2026-07-22
+## [0.4.0] - 2026-07-22
 
 The Unity CLI answer, shipped in two days: full nested help with per-command
 param tables served live from the addon, per-project port pinning, project-local
@@ -785,7 +794,7 @@ and `navigation.add_link` applies `navigation_layers` to 2D links.
   asymmetry stood out); verified live by reading `navigation_layers: 5` back
   off a freshly created 2D link.
 - **Plugin disable now actually removes the addon's autoloads**. Removal used
-  session-only provenance tracking, but injection saves `ProjectSettings` — so
+  session-only provenance tracking, but injection saves `ProjectSettings`, so
   from the second session on the autoloads read as project-owned and disable
   left them behind (the one manual step in every ship-the-game flow). Removal
   now matches by ownership: an `autoload/MCPGame*` entry is removed iff its
@@ -795,23 +804,23 @@ and `navigation.add_link` applies `navigation_layers` to 2D links.
 ### Added
 
 - **Typed MCP tool schemas in `serve`**. The stdio MCP server now exposes every
-  documented command as a first-class tool with a real JSON schema — name
-  (`node_add`), description, per-param types and `required` — built **live**
+  documented command as a first-class tool with a real JSON schema, carrying the
+  name (`node_add`), a description, and per-param types and `required`, built **live**
   from the addon's `get_command_docs()` on the first `tools/list` and cached,
   so the tool surface can never drift from what's registered. `godot_run`
   stays as the generic escape hatch (and gains an optional `game` argument);
   `runtime_*`/`input_*` typed tools carry an optional `game` bool that routes
-  the call to a standalone debug game's direct server — the MCP half of the
+  the call to a standalone debug game's direct server, the MCP half of the
   player channel. Editor down at connect degrades to `godot_run` alone, and a
   later successful editor call upgrades the list via
   `notifications/tools/list_changed`. `serve --typed=false` opts tool-limited
   clients back to the single generic tool.
-- **Direct-to-player channel** — drive a standalone running game with **no
+- **Direct-to-player channel**, driving a standalone running game with **no
   editor**. With the project setting `godot_mcp/runtime/direct_server` on, a
   **debug-build** game hosts its own `127.0.0.1` WebSocket server (ports
   9200-9215, `GODOT_MCP_GAME_PORT` pins) serving `runtime.*`/`input.*` with
   identical param shapes through the same game-side handlers the editor's file
-  IPC uses (shared dispatch — nothing duplicated), plus a `user://`
+  IPC uses (shared dispatch, nothing duplicated), plus a `user://`
   discovery file with the same stale-pid contract as the editor's. The CLI's
   `--game` flag routes there, resolving the game's user-data dir from
   `project.godot`. Hard-gated on `OS.is_debug_build()`, so a release export can
@@ -820,62 +829,62 @@ and `navigation.add_link` applies `navigation_layers` to 2D links.
   quit removes the discovery file, and the editor-brokered channel coexists
   unchanged.
 - **Per-command param docs** (the Unity `[CliArg]` equivalent). A command group
-  can expose `get_command_docs()` — per-command description plus param name /
-  type / required / one-liner — and the router serves it live: `engine.commands
+  can expose `get_command_docs()`, a per-command description plus param name /
+  type / required / one-liner, and the router serves it live: `engine.commands
   --group G` attaches the group's docs (`--docs` for the full catalog), and the
   CLI renders them: `godot-mcp <group> <command> --help` prints a real param
   table, group listings gain one-line descriptions. Authored for the **entire
-  catalog — all 49 groups, 312 commands** (plus the project-local example) —
+  catalog, all 49 groups and 312 commands** (plus the project-local example),
   with every param extracted from
   handler code, not memory, and group gotchas folded into the descriptions;
   project-local `mcp_commands` files carry docs via the same hook (the shipped
   example demonstrates it). A group without docs (e.g. a third-party command
   file) degrades to the generic dynamic-params hint.
-- **`godot-mcp doctor`** — environment preflight: godot binary + version,
+- **`godot-mcp doctor`**, an environment preflight: godot binary + version,
   project resolution, addon installed/enabled, effective port source (env /
   per-project pin / auto, warns when env and pin disagree), editor liveness
   verdict, dotnet for C#. `--project DIR`, `--json`; exit 1 only when a check
-  fails (warns don't fail — doctor may run before any editor is launched).
-- **`--format tsv`** — global flag rendering a success result as tab-separated
+  fails (warns don't fail, since doctor may run before any editor is launched).
+- **`--format tsv`**, a global flag rendering a success result as tab-separated
   text for shell pipelines: array-of-objects → header + rows, object →
   key/value rows, nested values as compact JSON, tabs/newlines escaped.
   Default `json` (pretty) is unchanged.
 - **Per-project MCP port setting**. A new project setting `godot_mcp/network/port`
   (Project → Project Settings, int, default `0` = auto) pins the WebSocket port
-  per project, persisted in that project's `project.godot` — so two concurrent
+  per project, persisted in that project's `project.godot`, so two concurrent
   projects listen on distinct ports deterministically. Port precedence is now
   `GODOT_MCP_PORT` env > the project setting if > 0 > the auto range 9080-9095.
   The setting registers idempotently on plugin enable and survives disable/enable;
   `set_initial_value(0)` keeps the default out of `project.godot`, so enabling the
   plugin never dirties the file. The bind stays `127.0.0.1`-only (no host setting).
-- **Project-local commands** — extend the MCP without forking the addon. On plugin
+- **Project-local commands**, extending the MCP without forking the addon. On plugin
   enable the router scans `res://mcp_commands/*.gd` and registers each file's
   `get_commands()` alongside the built-ins, so custom commands appear in the CLI,
   `godot-mcp help <group>`, and `engine commands` automatically (no Go changes). A
   valid file instantiates to a Node exposing `get_commands() -> {"group.command":
   Callable}` (extend `base_command.gd` or a plain Node); a bad file is skipped with
   a warning and never breaks startup, and a name colliding with a built-in is
-  skipped — built-ins win. Ships with a committed example, `custom.ping`/`custom.echo`.
+  skipped, since built-ins win. Ships with a committed example, `custom.ping`/`custom.echo`.
 - **Nested CLI help** (312 commands / 49 groups): `godot-mcp <group> --help`
   (also `-h`, `godot-mcp <group> help`, and `godot-mcp help <group> [<command>]`)
   lists a group's commands, and `godot-mcp help all` prints the entire catalog
   grouped by category; an unknown group or command lists what does exist.
   The catalog stays out of the Go binary: help is served live by the new
-  `engine.commands [--group G]` introspection command — flat `methods` plus a
-  `groups` map of group → command names, so automation built on the JSON gets
-  the surface by category without splitting prefixes — with a fallback to the
-  `available_methods` payload older addons return on `-32601`, so it needs a
-  running editor and never goes stale.
+  `engine.commands [--group G]` introspection command, which returns flat
+  `methods` plus a `groups` map of group → command names, so automation built on
+  the JSON gets the surface by category without splitting prefixes. It falls back
+  to the `available_methods` payload older addons return on `-32601`, so it needs
+  a running editor and never goes stale.
 
-- **`shipping-export.md` craft reference** — the release pipeline: dev-tooling
+- **`shipping-export.md` craft reference**, covering the release pipeline: dev-tooling
   exclusion (this addon must never ship), the headless export loop, PCK
   encryption with keyed custom templates (`SCRIPT_AES256_ENCRYPTION_KEY` at
-  compile, `GODOT_SCRIPT_ENCRYPTION_KEY` at export — verified on 4.7),
+  compile, `GODOT_SCRIPT_ENCRYPTION_KEY` at export, both verified on 4.7),
   size-optimized template builds, and receipt-based verification (pck plaintext
   scans; a booting exe as the key-match proof). Distilled from a real 4.7
   desktop release.
 
-- **C# project support** (311 commands / 49 groups): new `csharp` group —
+- **C# project support** (311 commands / 49 groups): a new `csharp` group with
   `csharp.info` (dotnet + .NET-editor detection), `csharp.setup` (scaffolds
   `<Name>.csproj`/`.sln` with Godot.NET.Sdk, sets the assembly name; SDK version
   defaults to the engine's `major.minor.patch[-status]`, `--sdk-version`
@@ -889,7 +898,7 @@ and `navigation.add_link` applies `navigation_layers` to 2D links.
   E2E-verified against a 4.7.2-rc mono editor (setup → create → build →
   validate → attach).
 
-## [0.3.0] — 2026-07-17
+## [0.3.0] - 2026-07-17
 
 AI-client integration (read-only `godot://` MCP resources, `configure`, Asset
 Library readiness), running-game error capture and signal awaits, git-aware
@@ -899,14 +908,14 @@ authoring for `anim_tree`, and eight new craft references. First public release.
 ### Added
 
 - **`runtime.errors`**: poll runtime errors/warnings the running game captured
-  via `OS.add_logger` (a `Logger` subclass registered by MCPGameInspector) —
-  structured `{kind, message, code, backtrace[]}` with the game-script frame in
+  via `OS.add_logger` (a `Logger` subclass registered by MCPGameInspector).
+  Entries are structured `{kind, message, code, backtrace[]}` with the game-script frame in
   `backtrace[0]`, `--since-seq` for incremental reads, `--clear` to drain.
   Pull-based (no doorbell) and runtime errors are unambiguously real. Live-
   verified capture of errors + warnings with backtraces; the game survives an
   error storm (bounded ring buffer, re-entrancy guard). Note: a *real* script
   error under a `--headless` editor trips the debugger break and freezes the
-  game — push_error/warning/shader errors and windowed/standalone runs are fine.
+  game, while push_error/warning/shader errors and windowed/standalone runs are fine.
 - **`godot://` MCP resources** in `serve`: read-only introspection surfaced as
   MCP resources (`project/info`, `project/tree`, `scene/tree`,
   `engine/singletons`, `editor/errors`) via `resources/list`/`resources/read`,
@@ -921,7 +930,7 @@ authoring for `anim_tree`, and eight new craft references. First public release.
   differentiation refocused on the running game, context economy, and craft.
 - **`runtime.await_signal`**: block until a signal fires on a node in the
   running game, returning its serialized arguments (`fired:false` on timeout,
-  as a success payload — agents can branch on it). Arity-matched one-shot
+  as a success payload agents can branch on). Arity-matched one-shot
   connect; args captured up to 6 parameters. Live-verified: 0-arg fire,
   timeout, and 1-arg capture (`child_entered_tree`).
 - **`script.validate --modified` / `--all`**: batch validation. `--modified`
@@ -944,44 +953,44 @@ authoring for `anim_tree`, and eight new craft references. First public release.
   leaderboard/telemetry pattern in `game-patterns.md` and particle trail
   meshes + `TextMesh` in `environment-art.md`.
 - `audio.add_bus_effect`: compressor now accepts `sidechain`, and five new
-  effect types — `pitchshift`, `hardlimiter`, `spectrum`, `record`, `capture`.
+  effect types: `pitchshift`, `hardlimiter`, `spectrum`, `record`, `capture`.
 - **Blend-space authoring for `anim_tree`** (closes the last gap from the
   genre-doc pass): `anim_tree.create --root-type blend_space_1d|blend_space_2d`
   and `anim_tree.add_state --state-type blend_space_1d|blend_space_2d` build the
   node; new `anim_tree.set_blend_point` / `anim_tree.remove_blend_point` manage
   its clips; `get_structure` reads blend points back. What was a `run-script`
-  workaround in `game-patterns.md` is now first-class — verified live, including
+  workaround in `game-patterns.md` is now first-class, verified live, including
   a running-game drive of `parameters/blend_position`. (307 commands total.)
 - **Four genre craft docs** closing the audit's genre axis: `character-3d.md`
-  (FPS/third-person/platformer controllers — the movement core was built and
+  (FPS/third-person/platformer controllers, whose movement core was built and
   driven live through the CLI itself: gravity, basis-relative heading, jump
   all verified numerically), `save-systems.md` (collector pattern, format
   tradeoffs, atomic autosave), `multiplayer-patterns.md` (authority, @rpc
   compile-probed, spawner/synchronizer wiring), `shaders-vfx.md` (the 2D VFX
   kit plus a programmatic .gdshader compile-verification loop).
 
-## [0.2.0] — 2026-07-11
+## [0.2.0] - 2026-07-11
 
 ### Added
 
 - **TileSet authoring** (`tilemap` group): `tilemap.create` (TileMapLayer with a
   fresh TileSet, `--tile-size`), `tilemap.add_atlas_source` (texture atlas with a
   tile auto-created per grid cell), `tilemap.add_scenes_source` (PackedScenes as
-  paintable tiles — the scene-prefab blockout workflow; painted cells carry real
+  paintable tiles, the scene-prefab blockout workflow; painted cells carry real
   collision), and `tilemap.set_terrain` (autotile painting/erasing via
   `set_cells_terrain_connect`). `get_info` now reports terrain sets and scene
   sources. Live-verified, including the engine gotcha that a terrain with no
   island tile (terrain assigned, zero peering bits) silently places nothing for
   isolated cells.
 - **2D lighting extensions** (`lighting` group): `emissive_2d` (exempt a
-  CanvasItem from darkness — unshaded/light-only, optional additive blending),
+  CanvasItem from darkness, unshaded/light-only, with optional additive blending),
   `normal_map_2d` (wrap a sprite's texture in a `CanvasTexture` with
   diffuse/normal/specular so 2D lights shade it directionally), `glow_2d`
-  (enables `rendering/viewport/hdr_2d` — restart required — and adds an
+  (enables `rendering/viewport/hdr_2d`, which requires a restart, and adds an
   additive-glow `WorldEnvironment`), plus `occluder_2d --sdf-collision` /
   `--occluder-light-mask`. Screenshot-verified against a live scene.
 - **`scene2d.add_animated_sprite`**: AnimatedSprite2D + SpriteFrames authored
-  from a spritesheet grid in one call — `--hframes/--vframes` slicing, named
+  from a spritesheet grid in one call: `--hframes/--vframes` slicing, named
   animations via `--animations` JSON (frames/fps/loop over row-major grid
   indices), `--autoplay [name]`, and the built-in empty "default" animation
   removed when unused.
@@ -1001,7 +1010,7 @@ authoring for `anim_tree`, and eight new craft references. First public release.
   audio clock, beatmap-format reuse, windowed judging), `lighting-2d.md` (the
   full 2D lighting stack incl. SDF and glow), `event-deck-games.md`
   (Reigns-like decision-card architecture), `run-based-games.md` (reactive data
-  blackboard, wave weight-budgets, seeded self-auditing worldgen) — plus major
+  blackboard, wave weight-budgets, seeded self-auditing worldgen), plus major
   additions to `narrative-game-patterns.md` (the graph-dialogue family, the
   manifest-driven product shell), `environment-art.md` (paper-diorama staging,
   pixel-art project setup, GPU particle attractors/colliders, `AreaLight3D`),
@@ -1013,18 +1022,18 @@ authoring for `anim_tree`, and eight new craft references. First public release.
   command or a craft doc (XR deliberately excluded).
 
 - **`install-assets` subcommand**. Copies bundled **CC0 asset packs** into a
-  project — `godot-mcp install-assets [--pack NAME] [--dest assets/vendor]
+  project: `godot-mcp install-assets [--pack NAME] [--dest assets/vendor]
   [--list] [--force]`. Each pack is copied whole (its `License.txt`/source files
   kept, so attribution stays intact) into `<project>/assets/vendor/<pack>/` by
   default; `--dest` overrides (project-relative or absolute), `--pack` narrows to
-  one, `--list` enumerates without a project. A local command — it does not dial
-  the editor. Refuses to overwrite an existing pack without `--force`.
-- **Bundled pack: `kenney_prototype_textures`** (Kenney Prototype Textures, CC0)
-  — grid/checker greybox skins in per-colour `PNG/` folders, shipped in the addon
-  zip.
+  one, `--list` enumerates without a project. It is a local command and does not
+  dial the editor. Refuses to overwrite an existing pack without `--force`.
+- **Bundled pack: `kenney_prototype_textures`** (Kenney Prototype Textures,
+  CC0), grid/checker greybox skins in per-colour `PNG/` folders, shipped in the
+  addon zip.
 - **Level-design craft reference** (`skills/godot-mcp/level-design.md`): blockout
   process/strategy and in-level spatial-communication tactics, each mapped to
-  `godot-mcp` build recipes — Big→Medium→Small risk-ordered passes, a greybox
+  `godot-mcp` build recipes: Big→Medium→Small risk-ordered passes, a greybox
   colour language, 2.5D depth/value + grayscale test, designer-vs-stakeholder
   presentation stages, greybox lighting stages, and the prototype-texture workflow.
 - **Game feel vs juice** section in `skills/godot-mcp/game-patterns.md`: the two
@@ -1032,15 +1041,15 @@ authoring for `anim_tree`, and eight new craft references. First public release.
   recipes (coyote time/jump buffer/accel, squash-stretch/hit-stop/screen shake)
   and a reusable `Juice` autoload stack.
 - **Environment art pass craft reference** (`skills/godot-mcp/environment-art.md`):
-  the art pass after the greybox is proven — greybox→art handoff, PBR materials,
+  the art pass after the greybox is proven, covering greybox→art handoff, PBR materials,
   real lighting (SDFGI/LightmapGI/VoxelGI), `WorldEnvironment` post, decals/
   particles/fog, set dressing + `MultiMesh`, occlusion/LOD, and the "don't lose
   the read" through-line. Tool boundary: meshes/textures authored externally.
-- **`editor run_script --path`** — run an editor script from a file (`res://`,
+- **`editor run_script --path`** runs an editor script from a file (`res://`,
   `user://`, or an absolute OS path) instead of only inline `--code`, so large
   scripts aren't shoved through the shell. `code` still works; `path` takes
   precedence when both are given.
-- **`scene validate`** — scan the open scene for integrity problems that don't
+- **`scene validate`** scans the open scene for integrity problems that don't
   surface until play: AnimationPlayer tracks whose node path doesn't resolve
   ("track doesn't lead to a Node") and exported/stored NodePath references that
   point nowhere. Read-only; returns `{valid, issue_count, issues:[...]}`. Fills
@@ -1070,8 +1079,8 @@ authoring for `anim_tree`, and eight new craft references. First public release.
   (`properties`), `scene3d` environment (`sky`), and `theme` container (`margins`)
   now return a clear error on a present-but-malformed value instead of a generic
   message or a silent skip, and tolerate a JSON object passed as a string. (None
-  could crash like `set_camera` — each already guarded the cast — but a silently
-  ignored param gives an agent no feedback.)
+  could crash like `set_camera`, since each already guarded the cast, but a
+  silently ignored param gives an agent no feedback.)
 - **`animation create`/`remove` no longer emit a stray `animation_mixer.cpp`
   engine error.** Both called `get_animation_library("")` on a player that may
   have no default library, which returns null *and* logs an error; they now guard
@@ -1091,15 +1100,15 @@ authoring for `anim_tree`, and eight new craft references. First public release.
   (any property, not just the editor-visible set; `script` as its path) and
   reports unknown names under `missing` rather than dropping them silently.
 - **`spatial lint --check-floating` no longer drowns in false positives**. It
-  flagged every `VisualInstance3D` that wasn't resting on something directly below
-  — so lights, decals, fog, GI probes, particles, sprites, MultiMesh scatter (no
+  flagged every `VisualInstance3D` that wasn't resting on something directly
+  below, so lights, decals, fog, GI probes, particles, sprites, MultiMesh scatter (no
   "rests on a surface" meaning) *and* all mounted/hanging/attached geometry got
   reported. Now it only considers solid geometry (`MeshInstance3D`/`CSGShape3D`)
   and treats a piece as supported if it touches/overlaps another solid (5 cm
   contact tolerance) or rests just above one. On a fully dressed scene this drops
   ~60 false positives to zero while still catching an isolated float.
 
-## [0.1.0] — 2026-06-18
+## [0.1.0] - 2026-06-18
 
 First release. A Go CLI plus a Godot 4.7 GDScript addon that drive a running
 editor over WebSocket, with file-IPC into the running game.
@@ -1128,7 +1137,7 @@ editor over WebSocket, with file-IPC into the running game.
   `scene3d`, `physics`, `navigation`, `audio`, `input_map`, `resource`,
   `analysis`, `batch`, `profiling`, `export`, `test`, `android`.
 - **`engine` introspection group** (`version`, `classes`, `class_info`,
-  `search`, `singletons`) — query the live `ClassDB` so an agent can discover
+  `search`, `singletons`) queries the live `ClassDB` so an agent can discover
   the real 4.7 API (e.g. `engine search --query offset_transform`) instead of
   relying on training knowledge.
 - **Runtime/game bridge**. Two game-side autoloads (`MCPGameInspector`,
