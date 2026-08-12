@@ -58,11 +58,11 @@ work for yourself:
 
 ## Big → Medium → Small — solve the expensive problems first
 
-A **risk-reduction workflow**, not just an art-composition principle: build in three passes, and at
+The art-composition principle doubles as a **risk-reduction workflow**: build in three passes, and at
 each stage ask **"what's the biggest thing that could still invalidate this work?"** Only invest in
 a pass once the larger decisions above it are stable. Don't model the coffee cup while cover
 placement might still move; don't place the desk while the room might resize; don't build the
-hospital while the layout might change. The cup is never the problem — the layout is.
+hospital while the layout might change.
 
 - **Big (macro) — answer the gameplay questions**. Room sizes, combat spaces, choke points, cover,
   sight lines, routes, spawns, the critical path. The level is literally cube-room / cube-hallway /
@@ -120,9 +120,9 @@ There are **two greyboxes**, answering different questions:
   They evaluate what they see (most people can't picture the finished game from grey cubes), so it
   has to *feel* alive — a mechanically perfect prototype looks dead if nothing responds to the player.
 
-This **refines "beautify last," it doesn't contradict it.** The mistake isn't adding juice; it's
-adding **art-specific** juice too early. **Game feel is its own pass, before art** — and it's cheap
-and reversible (it works on cubes), so unlike art it *doesn't* slow iteration:
+This **refines "beautify last," it doesn't contradict it.** The mistake is adding **art-specific**
+juice too early. **Game feel is its own pass, before art** — and it's cheap and reversible (it works
+on cubes), so unlike art it *doesn't* slow iteration:
 ```
 Greybox  ->  Game-Feel Pass  ->  Vertical Slice  ->  Art Pass
 ```

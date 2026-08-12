@@ -3,7 +3,7 @@
 The unifying reference for persistence. Four other docs cover a *slice* of saving from their
 genre's angle — this one owns the shared architecture and the format decisions. **Verify exact
 APIs against the live engine** (`engine class-info --class FileAccess`) before writing — the
-serializer flags below were confirmed against the live engine, but signatures evolve.
+serializer flags below came from that check, but signatures evolve.
 
 Where to jump instead of reading here:
 - **`gdscript-architecture.md`** — big game, bulk mutable state: the *two-tier save* (small
@@ -127,7 +127,8 @@ res://systems/save_manager.gd`; each saveable gets `add_to_group("persist")` + t
 
 ## Versioning and migration
 
-Put a **`version` int in every save** from day one — the cheapest future-proofing there is.
+Put a **`version` int in every save** from day one. One int, and the next format change has
+something to branch on.
 On load, run a migration ladder that upgrades stepwise, and read every optional field through
 `dict.get(key, default)` so a missing key is a default, not a crash.
 

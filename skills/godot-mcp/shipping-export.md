@@ -2,10 +2,10 @@
 
 When a project leaves the editor for players, three problems appear that the build-and-playtest
 loop never surfaces: dev tooling riding along inside the pck, the pck itself being an open book
-(stock tools list and extract every script and scene), and an oversized runtime. This is the
-pipeline that closes all three, proven end to end on a real desktop release. The
-discipline throughout is the same as everywhere else in this skill: **verify by receipts, not by
-exit codes** — a green export means the exporter ran, not that the build is right.
+(stock tools list and extract every script and scene), and an oversized runtime. The pipeline
+below closes all three, proven end to end on a real desktop release. Throughout it,
+**verify by receipts, not by exit codes** — a green export means the exporter ran, not that
+the build is right.
 
 ## The dev-tooling boundary: this addon must never ship
 

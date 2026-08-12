@@ -77,8 +77,7 @@ For how the platformer *actor and level* are assembled — component actor, phys
 
 ## Game feel vs juice — two different layers
 
-**They are not the same thing, and they live in different code.** Conflating them is the common
-mistake.
+**They live in different code.** Conflating them is the common mistake.
 
 - **Game feel** is the quality of *control* — the input→avatar loop: responsiveness, weight,
   momentum, camera. It lives in the **movement/simulation code**. Strip every visual effect and

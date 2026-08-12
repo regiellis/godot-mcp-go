@@ -3,7 +3,7 @@
 Building a game's sound the Godot way, mapped to the CLI. Audio is a resource pipeline:
 `AudioStream` resources feed `AudioStreamPlayer` nodes routed through `AudioServer`
 buses. **Verify every class against the live engine** (`engine class-info --class
-AudioStreamInteractive`) — the names below were confirmed against the live engine, but signatures evolve.
+AudioStreamInteractive`) — the names below came from that check, but signatures evolve.
 
 Two rules thread through everything here:
 - **The multi-clip stream resources (`Interactive`, `Synchronized`, `Playlist`,
@@ -52,7 +52,7 @@ subtree with its bus/volume/stream.
 
 ## SFX that doesn't fatigue: AudioStreamRandomizer
 
-The #1 audio-juice pattern. A single sound replayed identically reads as fake fast; an
+A single sound replayed identically reads as fake fast; an
 `AudioStreamRandomizer` wraps a **pool of streams** and, per play, picks one and jitters its
 pitch and volume. Point one player's `stream` at it and every trigger sounds fresh.
 

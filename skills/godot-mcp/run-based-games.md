@@ -46,7 +46,7 @@ them under a budget:
   `weight`, `minRunWeight` (don't appear too early), `maxRelativeWeightInWave` (cap one type's
   share), `repeatable`/`single` flags.
 - Filter snippets by those gates plus a **monster-memory ring** (last 2 waves' species; a
-  non-repeatable monster can't appear twice running) — variety is enforced, not hoped for.
+  non-repeatable monster can't appear twice running) — the ring keeps waves varied.
 - Assemble: shuffle candidates, add any snippet that stays under budget, until the total lands
   inside ±10% of goal; if a bounded number of attempts fails, **relax tolerance to ±20% and
   retry, then fall back** to a guaranteed-valid single-monster wave. Never loop forever, never

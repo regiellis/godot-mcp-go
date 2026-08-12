@@ -76,7 +76,7 @@ real defects rather than naming: `duplicated-load`, `standalone-expression`,
 `no-else-return`, and `max-line-length`. Passing an unknown name to `--disable` returns
 an error listing all seventeen.
 
-One exception worth knowing: a `const` bound to `preload()`/`load()` accepts either case,
+One exception: a `const` bound to `preload()`/`load()` accepts either case,
 because both are idiomatic — PascalCase when it holds a script used as a type
 (`const NodeUtils := preload(...)`, called as `NodeUtils.foo()`), CONSTANT_CASE when it
 holds an asset (`const PLAYER_SCENE := preload(...)`).

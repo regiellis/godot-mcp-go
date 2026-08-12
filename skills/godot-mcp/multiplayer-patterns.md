@@ -171,9 +171,9 @@ scene save
 
 ## The canonical co-op skeleton
 
-The flagship — a host/join lobby, a spawner minting one player per peer, per-peer authority,
-and a synchronizer streaming each player's transform. Client-authoritative input (the
-shortcut); the notes above say how to harden it to server-authoritative.
+A host/join lobby, a spawner minting one player per peer, per-peer authority, and a
+synchronizer streaming each player's transform. Client-authoritative input (the shortcut); the
+notes above say how to harden it to server-authoritative.
 
 **1. Player scene** — gates on authority, self-assigns authority from its node name:
 

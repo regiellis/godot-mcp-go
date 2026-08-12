@@ -56,8 +56,8 @@ rots in a large tree.
 
 ## Compose scenes; don't hand-build mega-trees
 
-The defining habit of a scalable Godot project: **scenes are built by instancing other
-scenes**, not by authoring one deep node tree. In the shipped game a combat-UI scene is
+Scalable Godot projects build scenes by **instancing other scenes**, not by authoring one
+deep node tree. In the shipped game a combat-UI scene is
 ~5 instanced sub-scenes (energy counter, hand, end-turn button, pile container), each its
 own `.tscn` with its own script:
 

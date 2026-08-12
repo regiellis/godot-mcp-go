@@ -53,7 +53,7 @@ from there.
 
 **Universal fallback:** even if no typed command wraps a feature, you can always reach it:
 - `node.set` / `node.get` work on **any** property name the live node exposes, and `node.call` invokes **any method** it exposes (`runtime.call` does the same in the running game). Between them, a feature is reachable whether the engine surfaces it as a property or a method — reach for `editor.run_script` / `runtime.eval` only when you need several statements.
-- `editor.run_script --code '...'` runs arbitrary `@tool` GDScript in the editor; `runtime.eval --code '...'` runs it in the game. Use `emit(value)` to return data. So 100% of the running engine's API is reachable with no per-feature wrapper.
+- `editor.run_script --code '...'` runs arbitrary `@tool` GDScript in the editor; `runtime.eval --code '...'` runs it in the game. Use `emit(value)` to return data. So any API GDScript can call in the running engine is reachable with no per-feature wrapper.
 
 ## The spatial rule: anchor, read back, verify (don't place blind)
 

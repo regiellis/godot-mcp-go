@@ -26,8 +26,8 @@ func song_time_msec() -> float:
 
 ## Beatmaps and lyrics are data — reuse existing formats
 
-Don't invent a beatmap format: **parse `.osu`** (osu!mania). You inherit a mature ecosystem of
-editors, and the format is a trivial INI-ish text parse: `[General]` (`AudioFilename`,
+Don't invent a beatmap format: **parse `.osu`** (osu!mania). You inherit editors people already
+use, and the format is a trivial INI-ish text parse: `[General]` (`AudioFilename`,
 `AudioLeadIn`), `[TimingPoints]` (time, beat length, meter — enough for a metronome or beat
 pulses), `[HitObjects]` (time, column, type bit-flags for tap vs hold, hold end time). For
 karaoke, **parse `.lrc`** (timestamped lyric lines, per-word timing in enhanced LRC) — again an

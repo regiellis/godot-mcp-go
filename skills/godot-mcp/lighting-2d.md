@@ -10,7 +10,7 @@ shading). Day/night color cycling lives in `topdown-2d.md`; this file is the mac
 **1. `CanvasModulate` is the darkness.** It *multiplies* every canvas item's color by its own
 (channels are 0–1 fractions, so the product only ever darkens; pure white is identity, pure
 black erases everything). One per canvas — `lighting canvas-modulate --color '#26264d'`
-creates or updates it. Tint it for mood, not just night: a dusk orange or cave blue is the
+creates or updates it. Tint it for mood as well as night: a dusk orange or cave blue is the
 same node. **What escapes it**: children of a `CanvasLayer` (HUD), and *nothing else* —
 including `Parallax2D`, which IS affected. To keep a parallax background out of the
 darkness (the Tropical Freeze look), wrap it in a `CanvasLayer` with a negative `layer`.
@@ -77,11 +77,11 @@ project settings (`rendering/2d/sdf/*`) if effects clip.
 ## Composition rules (from shipped 2D games)
 
 - Decide **per element** which of the three regimes it lives in: lit (default), unshaded
-  (emitters, UI-ish overlays), light-only (revealed layers). Mixed regimes on one screen are
-  the look.
+  (emitters, UI-ish overlays), light-only (revealed layers). Mixed regimes on one screen
+  are the look.
 - Lights direct attention: warm inviting pools along the intended path, red for danger, one
   animated light (flicker via a looping `AnimationPlayer` on `energy`) reads as *alive*.
-- Less is more: real-time shadows only where they answer a gameplay or mood question; a busy
+- Use real-time shadows only where they answer a gameplay or mood question; a busy
   scene with everything shadowed reads *worse*.
 - Background and foreground get separate lights via cull masks; the player should never lose
   their character to a background light.

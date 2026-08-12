@@ -108,9 +108,8 @@ tumble, which is how a die clicked as a 4 lands on a 3 on film.
 
 ## What rides film time, and what rides the wall clock
 
-This is the mechanical fact the whole rig is paced on. `--write-movie` forces `--fixed-fps`, which
-makes the reported `delta` identical every frame regardless of how long that frame took to render.
-So:
+`--write-movie` forces `--fixed-fps`, which makes the reported `delta` identical every frame
+regardless of how long that frame took to render. The whole rig is paced on that. So:
 
 - **Tweens, `SceneTreeTimer`, `AnimationPlayer`, and anything driven by `delta` measure film
   seconds.** A 0.35 s fade is 0.35 s of footage at any render speed. Pace the film with these.
@@ -184,8 +183,8 @@ godot --path . res://trailers/trailer.tscn --write-movie out/trailer.avi --fixed
 | `.avi` | MJPEG | uncompressed PCM | Lossy, medium size, fast. No transparency, 4 GB file cap. |
 | `.png` | PNG sequence | WAV beside it | Lossless, large, slow. Meant to be encoded afterwards. |
 
-Quality dials live in project settings, and the live defaults on 4.7.2 are worth knowing before
-touching any of them:
+Quality dials live in project settings. Read the live defaults on 4.7.2 before touching any of
+them:
 
 ```
 godot-mcp project settings --section editor/movie_writer

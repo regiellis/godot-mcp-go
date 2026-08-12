@@ -38,8 +38,8 @@ func _ready() -> void:
 
 Exported action names also make the controller reusable across projects whose maps differ,
 and the warning shows up in `editor errors` / `runtime errors` instead of costing a debugging
-session. (The pattern is the one Brackeys' CC0 proto controller uses, and it is worth copying
-for any generated controller.)
+session. (Brackeys' CC0 proto controller uses this pattern; copy it into any generated
+controller.)
 
 ## The body: CharacterBody3D + a capsule
 
@@ -293,10 +293,10 @@ runtime eval --code 'emit(get_tree().current_scene.get_node("Player").is_on_floo
 runtime screenshot --save-path user://char3d.png                    # visual sanity (works headless)
 scene stop
 ```
-Input is fire-and-forget (`sent:true` ≠ applied) — every claim ("it moved", "it jumped", "it's
-grounded") is confirmed by a `runtime get`/`eval` read, never by the input's own success.
-Camera-relative movement is only proven by yawing the camera, then checking `move_forward`
-changes the world-space heading of `velocity`.
+Input is fire-and-forget (`sent:true` ≠ applied) — confirm every claim ("it moved", "it jumped",
+"it's grounded") with a `runtime get`/`eval` read, never with the input's own success. To prove
+the movement is camera-relative, yaw the camera, then check that `move_forward` changes the
+world-space heading of `velocity`.
 
 ## Common mistakes
 

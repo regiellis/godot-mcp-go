@@ -1,6 +1,6 @@
 # In-game documentation — Gyms, Zoos, and Museums
 
-From the workflow-design talk *"Gyms, Zoos, and Museums: your documentation should be in-game."* The core question: **are you shipping your documentation, or your game?** A separate GDD or wiki goes stale the moment you start iterating, because you're maintaining **two** things — the game and the doc. The fix: **document in-game, spatially and contextually close to the content**, so you maintain **one** thing.
+From the workflow-design talk *"Gyms, Zoos, and Museums: your documentation should be in-game."* A separate GDD or wiki goes stale the moment you start iterating, because you're maintaining **two** things — the game and the doc. The fix: **document in-game, spatially and contextually close to the content**, so you maintain **one** thing.
 
 **For a solo or small team this matters more, not less.** The "game of telephone" the talk describes (asking a teammate, who points to Slack, which points to Confluence…) is, for you, a game of telephone *with your future self*. Three months on you've forgotten your own jump distance, your asset scales, your system rules. In-game docs become a single source of truth you maintain **for free while building**, not a separate chore you'll abandon.
 
@@ -70,7 +70,7 @@ The links live as **doc-notes**, so they show up in `doc note --action list --ca
 
 ## 4. Spatial notes — the level *is* the doc
 
-The bonus pattern, and the most broadly useful: leave notes **in the world**, contextually next to what they're about. Region labels ("dungeon two is here"), "don't move this", art-review flags, to-dos — each carrying a category, text, a screenshot path, a ticket link. Godot's own right-click → *Open Documentation* is praised in the talk as exactly this instinct.
+The bonus pattern: leave notes **in the world**, contextually next to what they're about. Region labels ("dungeon two is here"), "don't move this", art-review flags, to-dos — each carrying a category, text, a screenshot path, a ticket link. Godot's own right-click → *Open Documentation* is praised in the talk as exactly this instinct.
 
 ```
 # drop a standalone marker note at a world position
@@ -94,9 +94,9 @@ Notes are stored as node metadata (`_doc_note`), so they ride along in the scene
 
 ## The discipline
 
-- **Know what to document where**. The talk is emphatic: engineers read text docs (especially APIs); artists and designers will not. Put movement/asset/system truth *in-game*; keep API text where engineers expect it. This isn't "don't document" — it's "document the right thing in the right place."
+- **Know what to document where**. The talk is emphatic: engineers read text docs (especially APIs); artists and designers will not. Put movement/asset/system truth *in-game*; keep API text where engineers expect it. Document the right thing in the right place.
 - **One source of truth**. When someone (or future-you) asks "how far can a player jump?", the answer is "run the gym," not "find the table." Update the gym, not a doc *and* the game.
-- **It's generatable, so it stays current**. Because `doc gym`/`doc zoo` regenerate from your real numbers and real asset folders, refreshing them is one command — which is the whole point. A doc you can rebuild in a second is a doc you'll actually keep.
+- **It's generatable, so it stays current**. Because `doc gym`/`doc zoo` regenerate from your real numbers and real asset folders, refreshing them is one command. A doc you can rebuild in a second is a doc you'll actually keep.
 - **Combine them**. Zoo + notes (flag the asset that needs a material change). Gym + zoo (an item range you can pick up and test). The patterns compose, like the rest of the toolset.
 
 These are scaffolds: `doc.*` gives you the labeled, measured, lit *structure* — you drop the live content (your controller, your assets, your system demos) onto it.

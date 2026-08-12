@@ -1,6 +1,6 @@
 # Cleaning up an Unreal → Godot scene export
 
-When a scene comes across from Unreal via an exporter (e.g. **UnrealToGodot**), it renders — but it arrives with a layer of Unreal-isms that look wrong in Godot: a washed-out image, editor-only meshes scattered through the tree, light values in the wrong units, and import metadata that points at paths that no longer exist. The `cleanup` group fixes the four that matter, and this doc is the **order of operations** plus the reasoning, so you fix causes instead of chasing symptoms.
+When a scene comes across from Unreal via an exporter (e.g. **UnrealToGodot**), it renders — but it arrives with a layer of Unreal-isms that look wrong in Godot: a washed-out image, editor-only meshes scattered through the tree, light values in the wrong units, and import metadata that points at paths that no longer exist. The `cleanup` group fixes all four. Work through them in the **order of operations** below, with the reasoning behind each, so you fix causes instead of chasing symptoms.
 
 Every recipe below was driven against a real export (a Rail Bridge fishing scene) on a live editor. The group is **exporter-agnostic and re-runnable** — run it again after a re-export and it converges.
 

@@ -90,8 +90,8 @@ node add-resource --node-path Env --property environment --resource-type Environ
   --resource-properties '{"tonemap_mode":4,"glow_enabled":true,"ssao_enabled":true,"fog_enabled":true}'
 ```
 (`tonemap_mode` 3 = ACES, 4 = AgX — confirm with `engine class-info --class Environment`.)
-**Add effects one at a time and screenshot.** Post is seasoning, not a meal — bloom hides nothing,
-it reveals over-bright mistakes. If a screenshot reads worse with an effect on, cut it.
+**Add effects one at a time and screenshot.** Post is seasoning. Bloom reveals over-bright
+mistakes rather than covering them. If a screenshot reads worse with an effect on, cut it.
 
 ## Atmosphere & VFX (cheap, high-impact)
 
@@ -151,8 +151,8 @@ natural clumping/patches). `--emit multimesh` for thousands (one draw call, no n
 
 ## Ship-it — performance (env-art / tech-art, **not** level design)
 
-This is the optimization layer. It's real and necessary, but it's environment/tech-art, not level
-design (`level-design.md` draws that line) — do it last, once the look is locked.
+The optimization layer sits here rather than in level design (`level-design.md` draws that
+line) — do it last, once the look is locked.
 
 - **Occlusion:** `OccluderInstance3D` (bake occluders) so geometry behind walls isn't drawn.
 - **LOD / culling:** `GeometryInstance3D.visibility_range_begin`/`visibility_range_end` to fade or
@@ -192,9 +192,9 @@ set via `project set-setting`):
   one — `stretch/scale_mode` = **`integer`**: whole-number multiples only, which is what
   actually prevents blur and shimmer at arbitrary window sizes.
 
-Authoring notes from working pixel devs: low-res is not low-effort — each pixel carries more
-weight, and sloppy placement reads faster as bad art. The **tileset vs painted-scene**
-tradeoff is real: tilesets (autotiling, reuse, `tilemap.*`) iterate faster and stay
+Authoring notes: low-res is not low-effort — each pixel carries more weight, and sloppy
+placement reads faster as bad art. The **tileset vs painted-scene** tradeoff cuts both
+ways: tilesets (autotiling, reuse, `tilemap.*`) iterate faster and stay
 consistent; painting a whole level strip as one layered image (sliced to parallax layers)
 is more expressive for set-piece levels but forfeits reuse. Brush-painted art *over* a
 low-res grid (pixel-snapping only the player/enemies) reads closer to CRT-era games than

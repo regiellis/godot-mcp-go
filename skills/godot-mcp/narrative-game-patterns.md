@@ -37,7 +37,7 @@ format works — the rest of this file is runner-agnostic.)
 ### Seam 1 — external functions (script ↔ game state)
 
 Ink calls back into GDScript through **bound external functions**, which the game wires to
-the Store. The slick trick: reflect over methods with a prefix and auto-bind them.
+the Store. Reflect over methods with a prefix and auto-bind them:
 
 ```gdscript
 class StoryExternalFunctions:
@@ -176,7 +176,7 @@ game state read-only. The graceful-degradation detail worth copying: an **unregi
 emits `action_requested(name, params)` instead of erroring, so a scene can handle one-off
 actions by signal without registering globally. This is the graph-family's command bus.
 
-**VN quality-of-life is a small, separable layer** (players expect all three):
+**VN quality-of-life is a small, separable layer** (players expect all four):
 - **Skip**: hold-to-skip that only fast-forwards *visited* nodes — keep a
   `"path:node_id"` visited set; never skip through choices.
 - **Auto-advance**: arm a one-shot timer only when the message finished revealing *and* no
@@ -210,8 +210,8 @@ scattered through scenes.
 
 ## Data-driven in-world apps (the fake phone/PC OS)
 
-A standout: the social feed, web browser, email, and forum are **entirely data-driven** off
-the Store's JSON databases — no bespoke code per post.
+The social feed, web browser, email, and forum are **entirely data-driven** off the Store's
+JSON databases — no bespoke code per post.
 
 - **Domain objects are live JSON proxies**. A class wraps a dict from the Store; its
   properties get/set straight into that dict, so mutations persist with no explicit save:

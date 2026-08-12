@@ -67,9 +67,9 @@ from "how one mutation is applied" (commands).
 
 ## 3. Powers / relics / status effects = a hook pipeline
 
-Stackable modifiers (Strength, Vulnerable, Poison, relics, enchantments) are **not**
-special-cased in the damage code. Instead every such modifier is a "hook listener", and
-the damage calculation **walks all listeners in layers**:
+Stackable modifiers (Strength, Vulnerable, Poison, relics, enchantments) are each a "hook
+listener" rather than a special case in the damage code, and the damage calculation
+**walks all listeners in layers**:
 
 ```
 ModifyDamage(base):

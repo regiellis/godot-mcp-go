@@ -96,9 +96,10 @@ func _physics_process(delta: float) -> void:
 Each returns a **steering force** (`desired - velocity`), never a velocity. That is what
 lets them be summed.
 
-### Arrive — the one that matters most
+### Arrive
 
-Full speed toward the target, easing to a stop inside `arrive_radius`.
+Full speed toward the target, easing to a stop inside `arrive_radius`. Most chase,
+escort, and patrol code ends up calling this one.
 
 ```gdscript
 func arrive(target: Vector2) -> Vector2:
