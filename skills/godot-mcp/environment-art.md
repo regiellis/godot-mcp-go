@@ -60,6 +60,16 @@ EditorInterface.get_edited_scene_root().get_node("Floor").material = m'
 Then `scene save`. **Reuse** materials from a small `.tres` library — don't author a unique material
 per node. Reach for a custom shader only when PBR can't express the surface.
 
+⚠️ **A `BaseMaterial3D` setter's name is not always its property's name.** `set_specular()` /
+`get_specular()` exist as methods, but the property is `metallic_specular` (verified on 4.7.2:
+`m.specular = 0.5` raises "Invalid access to property or key 'specular'" while
+`m.metallic_specular = 0.5` and `m.set_specular(0.5)` both work). In `run-script` that failure aborts
+the rest of the body, so it reads as a silent no-op unless you check `editor errors` — which is the
+general rule here, not a specular special case. Confirm the name with
+`engine class-info --class StandardMaterial3D` before writing it, set it with
+`node set --property metallic_specular`, or call the setter directly with
+`node call --method set_specular --args '[0.5]'`.
+
 ## Lighting for real — realtime vs baked
 
 Greybox lighting was *functional* (`level-design.md`). The art pass picks a global-illumination

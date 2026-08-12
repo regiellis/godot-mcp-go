@@ -435,16 +435,15 @@ func _send_game_command(command: String, params: Dictionary = {}, timeout_sec: f
 	if not FileAccess.file_exists(response_path):
 		if FileAccess.file_exists(request_path):
 			DirAccess.remove_absolute(request_path)
-		return error(-32000, "Game command timed out after %.1fs" % timeout_sec, {
-			"suggestion": "Ensure the game is running and the MCPGameInspector autoload is active",
-		})
+		return game_timeout_error(timeout_sec)
 
-	var file := FileAccess.open(response_path, FileAccess.READ)
-	if file == null:
-		return error_internal("Could not read game response file")
-	var text := file.get_as_text()
-	file.close()
+	# Shared tolerant read (base_command): the response file can be locked for an
+	# instant after the game renames it into place.
+	var read: Array = await read_game_response(response_path)
+	var text: String = read[0]
 	DirAccess.remove_absolute(response_path)
+	if text.strip_edges().is_empty():
+		return error_internal("Could not read game response file (%s)" % response_path)
 
 	var parsed: Variant = JSON.parse_string(text)
 	if not parsed is Dictionary:

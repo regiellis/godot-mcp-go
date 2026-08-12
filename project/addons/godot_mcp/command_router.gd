@@ -171,6 +171,7 @@ func _register_project_file(path: String) -> int:
 const _PARAM_ALIASES := {
 	"node.add": ["parent"],
 	"node.add_resource": ["properties"],
+	"scene.instance": ["path"],
 }
 
 # Params a transport injects for routing; never the handler's business.

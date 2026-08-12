@@ -101,7 +101,7 @@ Run `godot-mcp <group>` patterns; discover exact names per group by reading the 
 
 Most-used:
 - `project info|tree|search|grep|settings|set_setting` — project metadata, files, settings (never edit `project.godot` directly — use `project set-setting`).
-- `scene tree|create|open|save|play|stop|instance` — `tree` is your map of the open scene.
+- `scene tree|create|open|close|save|play|stop|instance` — `tree` is your map of the open scene. `create` opens what it writes, and `close` is how you release a tab again: `delete` refuses a scene while it is open, so cleaning up a throwaway is `scene close --path X` then `scene delete --path X`. Closing discards unsaved changes without asking, so it refuses one that has them unless you pass `--discard true`.
 - `node add|set|get|call|rename|move|delete|set_anchor|connect|set_meta|get_meta` — building blocks (`set`/`get` are property ops; `set` takes singular `--property/--value` **or** a batch `--properties '{...}'`). `call --method M [--args '[…]']` runs a method and returns its result — `node call --node-path Fx --method restart` rather than a `run_script` to do one call; args coerce to the method's declared types, so `'["Vector3(1,0,1)"]'` arrives typed. It is **not** undoable. `set_meta|get_meta` read/write arbitrary node metadata — the general-purpose store `set` (properties only) can't reach. **In 2D, sibling order is draw order**, so reach for `node move --before|--after|--index` to seat a node behind or in front of its siblings, and `node add --index` to place a new one; `move` reparents and reorders in one undoable step. A `--properties` value that can't be coerced is an error naming what the property wanted, so a failed create tells you why instead of leaving the property null.
 - `spatial bounds|relate|place_on|align|distribute|look_at|raycast|find_in_region|lint` — 3D placement done right (anchor → read back → seat → verify). See "The spatial rule" above.
 - `authoring resolve|ensure|checkpoint` — re-runnable scripted-build helpers: `resolve` (fuzzy name → ranked node/scene/resource paths, flags ambiguity), `ensure` (idempotent get-or-create a node by name — re-runs converge, no `Node2`/`Node3`), `checkpoint` (capture/diff/restore a JSON snapshot of node transforms — "what did my edits move?").
@@ -189,8 +189,7 @@ godot-mcp node get --node-path <path>        # inspect a node's properties
 
 ### Build a 2D scene
 ```
-godot-mcp scene create --path res://scenes/player.tscn --root-type CharacterBody2D
-godot-mcp scene open --path res://scenes/player.tscn
+godot-mcp scene create --path res://scenes/player.tscn --root-type CharacterBody2D   # opens it; --open=false to just write the file
 godot-mcp node add --type Sprite2D --name Sprite --parent-path .
 godot-mcp node add --type CollisionShape2D --name Col --parent-path .   # root is already the body; just add the shape
 godot-mcp node add-resource --node-path Col --property shape --resource-type RectangleShape2D
@@ -230,7 +229,8 @@ Input is **fire-and-forget** (`sent:true` ≠ applied) — confirm effects by re
 - **Prefer inspector properties over code**. Set visual props (color, position, transform) via `node.set`, not GDScript, so they stay editable in the inspector.
 - **Never edit `project.godot` directly** — `project set-setting`.
 - **`editor reload` after `script create`/major `script edit`**.
-- **`runtime.eval`/`editor.run_script`:** no nested `func`s; `emit(v)` to return; use `.get("prop")` for dynamic access.
+- **`runtime.eval`/`editor.run_script`:** no nested `func`s; `emit(v)` to return; use `.get("prop")` for dynamic access. Indent however you like — the body is re-indented with tabs before it is wrapped.
+- **A game stopped at a debugger break serves nothing** — every `runtime.*` call spends its timeout and comes back with `debugger_breaked` and the break reason. Read the stop with `debug state`, then `debug resume`.
 - **Input timing:** prefer `input action` over raw `input key` when InputMap actions exist; UI buttons fire on release (`input click` auto press+releases).
 - **Save:** `scene save` after significant edits.
 - Mutations are undoable; reads are safe. Errors return JSON-RPC codes (`-32000` no scene/not playing, `-32001` not found, `-32602` bad params, `-32009` conflict — e.g. a scene/file open in the editor).
@@ -241,4 +241,6 @@ To confirm a command behaves (not just returns `sent`/`ok`):
 1. Set up the minimal state it needs (`scene create`/`open`; add a node of the right type; `scene play` for `runtime`/`input`).
 2. Run the command.
 3. **Read the result back** — `node.get`/`runtime.get` the affected property, `scene.tree` for structure, `engine.class_info` to confirm a property exists, a screenshot for visuals. Don't trust the success envelope alone.
-4. On failure, read `editor errors` / `editor log`, fix, retry. Clean up test artifacts (delete throwaway scenes; don't leave them in the project).
+4. On failure, read `editor errors` / `editor log`, fix, retry. Clean up test artifacts — `scene close --path X` then `scene delete --path X`, since a scene cannot be deleted while its tab is open; don't leave throwaways in the project.
+
+`editor errors --internal=false` keeps the project's own script errors and drops the engine-internal C++ ones a filesystem rescan floods the buffer with; `--clear` drains the panel, so the next read shows only what happened since. Both make "did my change introduce an error?" answerable in one call.

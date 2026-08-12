@@ -38,7 +38,12 @@ func error_not_found(what: String, suggestion: String = "") -> Dictionary:
 
 
 func error_no_scene() -> Dictionary:
-	return error(-32000, "No scene is currently open", {"suggestion": "Use scene.open or scene.create first"})
+	# Naming scene.create here read as an accusation when scene.create was exactly
+	# what the caller had just run (it now opens what it writes, so this is the
+	# --open=false / closed-tab case).
+	return error(-32000, "No scene is currently open in the editor", {
+		"suggestion": "Open one with scene.open --path res://…, or create one with scene.create (which opens it unless --open=false).",
+	})
 
 
 func error_conflict(message: String, data: Dictionary = {}) -> Dictionary:
@@ -214,6 +219,60 @@ func game_autoload_error(autoload_name: String) -> Dictionary:
 			"missing_setting": "autoload/%s" % autoload_name,
 		}
 	)
+
+
+## Read a game IPC response file, tolerating the moment right after it appears.
+## The game publishes the file by rename so a torn read should be impossible, but
+## the OS can still hold it locked for an instant — and treating that as fatal is
+## what produced the intermittent "-32603 Could not read game response file" that
+## an immediate retry always cured. Returns the text, or "" after `attempts`
+## tries. The caller deletes the file.
+func read_game_response(response_path: String, attempts: int = 10) -> Array:
+	var text := ""
+	var tries := 0
+	while tries < attempts:
+		tries += 1
+		var file := FileAccess.open(response_path, FileAccess.READ)
+		if file != null:
+			text = file.get_as_text()
+			file.close()
+			if not text.strip_edges().is_empty():
+				break
+		await get_tree().create_timer(0.05).timeout
+	return [text, tries]
+
+
+## The debugger bridge's current break, or {} when nothing is paused (also when
+## the bridge is unavailable — a plugin mid-reload, or an older install).
+func debugger_break() -> Dictionary:
+	if editor_plugin == null or not ("debugger_bridge" in editor_plugin):
+		return {}
+	var bridge: Variant = editor_plugin.debugger_bridge
+	if bridge == null:
+		return {}
+	bridge.ensure_connected()
+	return bridge.current_break()
+
+
+## The error for a game command that never answered. A game stopped at a DEBUGGER
+## BREAK is the common cause and the one the old message got wrong: it blamed a
+## missing autoload (already ruled out on disk by game_autoload_error) while the
+## game sat paused with its _process loop — and so the IPC poll — frozen. The
+## debugger bridge knows the break state, so ask it instead of guessing.
+func game_timeout_error(timeout_sec: float) -> Dictionary:
+	var brk := debugger_break()
+	if not brk.is_empty():
+		var reason := str(brk.get("reason", "")).strip_edges()
+		return error(-32000, "Game command timed out after %.1fs: the game is paused at a debugger break%s" % [
+			timeout_sec, (" (%s)" % reason) if not reason.is_empty() else ""],
+			{
+				"debugger_breaked": true,
+				"break_reason": reason,
+				"can_debug": brk.get("can_debug", false),
+				"suggestion": "Read the stop with debug.state, then debug.resume (or debug.step) to let the game run — runtime.* and input.* cannot be served while it is stopped.",
+			})
+	return error(-32000, "Game command timed out after %.1fs" % timeout_sec,
+		{"suggestion": "Ensure the game is running with the MCPGameInspector autoload active"})
 
 
 ## Resolve a global class_name (an addon/project script class) to its Script, or
@@ -461,7 +520,7 @@ func guard_offline_scene_save(path: String) -> Dictionary:
 			{
 				"path": normalize_project_path(path),
 				"open_scenes": get_open_scene_paths(),
-				"suggestion": "Edit it live and use scene.save, or close the scene tab first.",
+				"suggestion": "Edit it live and use scene.save, or close the tab first with scene.close --path %s." % normalize_project_path(path),
 			}
 		)
 	return {}

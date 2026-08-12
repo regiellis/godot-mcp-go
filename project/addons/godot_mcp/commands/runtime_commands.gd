@@ -322,21 +322,22 @@ func _send(command: String, params: Dictionary, timeout_sec: float = 5.0) -> Dic
 	if not FileAccess.file_exists(response_path):
 		if FileAccess.file_exists(request_path):
 			DirAccess.remove_absolute(request_path)
-		return error(-32000, "Game command timed out after %.1fs" % timeout_sec,
-			{"suggestion": "Ensure the game is running with the MCPGameInspector autoload active"})
+		return game_timeout_error(timeout_sec)
 
-	var file := FileAccess.open(response_path, FileAccess.READ)
-	if file == null:
-		return error_internal("Could not read game response file")
-	var text := file.get_as_text()
-	file.close()
+	var read: Array = await read_game_response(response_path)
+	var text: String = read[0]
+	var read_attempts: int = read[1]
 	DirAccess.remove_absolute(response_path)
+	if text.strip_edges().is_empty():
+		return error_internal("Could not read game response file after %d attempts (%s)" % [read_attempts, response_path])
 
 	var parsed = JSON.parse_string(text)
 	if not parsed is Dictionary:
 		return error_internal("Invalid response JSON from game")
 	if parsed.has("error"):
 		return error(-32000, str(parsed["error"]))
+	if read_attempts > 1:
+		(parsed as Dictionary)["response_read_attempts"] = read_attempts
 	return success(parsed)
 
 

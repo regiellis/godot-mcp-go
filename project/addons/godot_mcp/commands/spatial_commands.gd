@@ -78,11 +78,21 @@ func _world_aabb(node: Node) -> Dictionary:
 	return {"has": has, "aabb": acc}
 
 
+## Bounds for a node, as [AABB, error_or_null, point_only].
+##
+## A node with no visual geometry falls back to a ZERO-SIZE box at its origin —
+## a Marker3D, a bare Node3D anchor, a Path3D follower: all things a level is
+## laid out around, and refusing them made marker-to-marker questions ("how far
+## is BerthA from Approach?") unanswerable through this group at all. The
+## fallback is flagged, never silent, so a caller can tell a real footprint from
+## a point. Only a node with no transform at all is still refused.
 func _require_aabb(node: Node, label: String) -> Array:
 	var b := _world_aabb(node)
-	if not b["has"]:
-		return [null, error(-32001, "%s has no 3D visual geometry (need a VisualInstance3D like MeshInstance3D/CSGShape3D)" % label)]
-	return [b["aabb"], null]
+	if b["has"]:
+		return [b["aabb"], null, false]
+	if node is Node3D:
+		return [AABB((node as Node3D).global_position, Vector3.ZERO), null, true]
+	return [null, error(-32001, "%s has no 3D visual geometry and is not a Node3D, so it has no position either (need a VisualInstance3D like MeshInstance3D/CSGShape3D, or at least a Node3D)" % label), false]
 
 
 func _all_visual_instances() -> Array:
@@ -125,6 +135,7 @@ func _bounds(params: Dictionary) -> Dictionary:
 	var a: AABB = ab[0]
 	var out := _aabb_dict(a)
 	out["node"] = str(get_edited_root().get_path_to(node))
+	out["point_only"] = ab[2]
 	if node is Node3D:
 		out["pivot"] = _v3s((node as Node3D).global_position)
 	return success(out)
@@ -159,9 +170,12 @@ func _relate(params: Dictionary) -> Dictionary:
 		"node": str(get_edited_root().get_path_to(ca[0])),
 		"other": str(get_edited_root().get_path_to(b_node)),
 		"center_delta": _v3s(d),
+		"distance": snappedf(d.length(), 0.0001),
 		"centered": {"x": abs(d.x) <= tol, "y": abs(d.y) <= tol, "z": abs(d.z) <= tol},
 		"gap": _v3s(gap),
 		"overlaps": a.intersects(b),
+		# true = that side has no visual geometry and was read as a point at its origin
+		"point_only": {"node": aa[2], "other": bb[2]},
 	})
 
 
@@ -426,11 +440,12 @@ func _distribute(params: Dictionary) -> Dictionary:
 		var n := find_node_by_path(str(p))
 		if n == null or not n is Node3D:
 			return error_not_found("Node3D '%s'" % str(p), "all nodes must exist and be Node3D")
+		# Same point fallback as _require_aabb: a row of markers is a perfectly
+		# ordinary thing to distribute.
 		var ab := _world_aabb(n)
-		if not ab["has"]:
-			return error(-32001, "Node '%s' has no 3D geometry" % str(p))
+		var center: Vector3 = (ab["aabb"] as AABB).get_center() if ab["has"] else (n as Node3D).global_position
 		nodes.append(n)
-		centers.append((ab["aabb"] as AABB).get_center())
+		centers.append(center)
 
 	var anchor: float = (centers[0] as Vector3)[idx]
 	var step := 0.0
@@ -782,13 +797,13 @@ func _closest_point_on_triangle(p: Vector3, a: Vector3, b: Vector3, c: Vector3) 
 func get_command_docs() -> Dictionary:
 	return {
 		"spatial.bounds": {
-			"description": "Return a node's real world-space AABB (center/size/min/max as Vector3 strings) plus its pivot, from its VisualInstance3D geometry. 3D only.",
+			"description": "Return a node's real world-space AABB (center/size/min/max as Vector3 strings) plus its pivot, from its VisualInstance3D geometry. A node with no visual geometry (Marker3D, a bare Node3D anchor) reads as a zero-size box at its origin, flagged point_only. 3D only.",
 			"params": [
-				doc_param("node_path", "NodePath", true, "Target node (must contain 3D visual geometry)."),
+				doc_param("node_path", "NodePath", true, "Target node (a Node3D; geometry optional)."),
 			],
 		},
 		"spatial.relate": {
-			"description": "Compare two nodes numerically: center delta, per-axis centered flags, per-axis gap (negative = overlap depth), and whether their AABBs intersect. 3D only.",
+			"description": "Compare two nodes numerically: center delta and distance, per-axis centered flags, per-axis gap (negative = overlap depth), and whether their AABBs intersect. Either side may be a geometry-less Node3D (a Marker3D anchor), read as a point at its origin and reported under point_only — so marker-to-marker math works. 3D only.",
 			"params": [
 				doc_param("node_path", "NodePath", true, "First node."),
 				doc_param("other", "NodePath", true, "Node to compare against."),
@@ -818,7 +833,7 @@ func get_command_docs() -> Dictionary:
 		"spatial.distribute": {
 			"description": "Evenly space --nodes along one --axis using --spacing (fixed step) OR --span (total spread), anchored on the first node. Undoable. 3D only.",
 			"params": [
-				doc_param("nodes", "Array", true, "JSON array of node paths (>= 2), all Node3D with geometry."),
+				doc_param("nodes", "Array", true, "JSON array of node paths (>= 2), all Node3D; geometry-less ones are spaced by their origin."),
 				doc_param("axis", "String", false, "'x', 'y', or 'z' (default 'x')."),
 				doc_param("spacing", "float", false, "Fixed gap between successive centers. Provide spacing OR span."),
 				doc_param("span", "float", false, "Total spread divided across the nodes. Provide spacing OR span."),

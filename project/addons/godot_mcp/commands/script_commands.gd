@@ -96,7 +96,24 @@ func _read(params: Dictionary) -> Dictionary:
 		return error_internal("Cannot read script: %s" % error_string(FileAccess.get_open_error()))
 	var content := file.get_as_text()
 	file.close()
-	return success({"path": path, "content": content, "line_count": content.count("\n") + 1, "size": content.length()})
+	var total := content.count("\n") + 1
+	var result := {"path": path, "content": content, "line_count": total, "size": content.length()}
+
+	# --start-line/--end-line (1-based, inclusive) return a slice instead of the
+	# whole file — the same line addressing script.edit already uses, so a read
+	# around a reported error line doesn't cost the file. Out-of-range values clamp.
+	if params.has("start_line") or params.has("end_line"):
+		var lines := content.split("\n")
+		var start := clampi(optional_int(params, "start_line", 1), 1, lines.size())
+		var end := clampi(optional_int(params, "end_line", lines.size()), start, lines.size())
+		var slice: PackedStringArray = []
+		for i in range(start - 1, end):
+			slice.append(lines[i])
+		result["content"] = "\n".join(slice)
+		result["start_line"] = start
+		result["end_line"] = end
+		result["size"] = String(result["content"]).length()
+	return success(result)
 
 
 func _create(params: Dictionary) -> Dictionary:
@@ -741,9 +758,11 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"script.read": {
-			"description": "Read a script file's full text by --path.",
+			"description": "Read a script file by --path: the whole text, or the 1-based inclusive line range --start-line..--end-line. line_count is always the file's real total.",
 			"params": [
 				doc_param("path", "String", true, "res:// path to a .gd or .cs file."),
+				doc_param("start_line", "int", false, "1-based first line to return (default 1). Clamped to the file."),
+				doc_param("end_line", "int", false, "1-based last line to return, inclusive (default the last line)."),
 			],
 		},
 		"script.create": {

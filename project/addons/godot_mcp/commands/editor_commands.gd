@@ -20,6 +20,50 @@ func _is_noise(line: String) -> bool:
 	return false
 
 
+## The `<file>:<line>` an editor error line carries. The Output panel writes one
+## line per entry — "ERROR: core\variant\variant_utility.cpp:1023 - message" — so
+## the source is already in the text; this pulls it out so it can be classified.
+const _SOURCE_PATTERN := "((?:res|user)://[^\\s:]+|[A-Za-z0-9_./\\\\+-]+\\.(?:cpp|hpp|h|inc|mm|m|gd|gdshader|cs|tscn|tres))(?::\\d+)?"
+
+
+## True when an entry came from the ENGINE's own C++ source rather than the
+## project's scripts. After editor.reload the buffer fills with dozens of these
+## (progress_dialog.cpp, class_db.cpp) and they drown the real findings —
+## editor.errors --internal=false drops them. A line with no recognizable source
+## is never internal: we don't hide what we couldn't classify.
+func _is_internal(line: String, re: RegEx) -> bool:
+	var m := re.search(line)
+	if m == null:
+		return false
+	var source := m.get_string(1)
+	if source.begins_with("res://") or source.begins_with("user://"):
+		return false
+	return source.get_extension().to_lower() in ["cpp", "hpp", "h", "inc", "mm", "m"]
+
+
+## Empty the editor Output panel for real, by pressing EditorLog's own Clear
+## button (matched by theme-icon identity — the debugger bridge's idiom; the
+## class exposes no scriptable clear()). Falls back to scrolling the panel with
+## blank lines when the button can't be located. Returns true if it was pressed.
+func _press_output_clear() -> bool:
+	var base := EditorInterface.get_base_control()
+	if base == null:
+		return false
+	var log_node := base.find_child("Output", true, false)
+	if log_node == null:
+		return false
+	var wanted := base.get_theme_icon("Clear", "EditorIcons")
+	var stack: Array = [log_node]
+	while not stack.is_empty():
+		var n: Node = stack.pop_back()
+		if n is Button and (n as Button).icon == wanted:
+			(n as Button).emit_signal("pressed")
+			return true
+		for c in n.get_children():
+			stack.append(c)
+	return false
+
+
 func get_commands() -> Dictionary:
 	return {
 		"editor.errors": _errors,
@@ -71,8 +115,12 @@ func _activity(params: Dictionary) -> Dictionary:
 func _errors(params: Dictionary) -> Dictionary:
 	var max_lines := optional_int(params, "max_lines", 50)
 	var include_noise := optional_bool(params, "include_noise", false)
+	var include_internal := optional_bool(params, "internal", true)
+	var clear := optional_bool(params, "clear", false)
+	var source_re := RegEx.create_from_string(_SOURCE_PATTERN)
 	var errors: Array = []
 	var suppressed := 0
+	var internal_dropped := 0
 
 	# 1. The Output panel (runtime errors, parse errors, warnings).
 	var rtl := _find_output_rtl()
@@ -84,6 +132,9 @@ func _errors(params: Dictionary) -> Dictionary:
 			if line.contains("ERROR") or line.contains("SCRIPT ERROR") or line.contains("Parse Error") or line.contains("WARNING"):
 				if not include_noise and _is_noise(line):
 					suppressed += 1
+					continue
+				if not include_internal and _is_internal(line, source_re):
+					internal_dropped += 1
 					continue
 				errors.append(line.strip_edges())
 
@@ -116,12 +167,22 @@ func _errors(params: Dictionary) -> Dictionary:
 		for line in _scan_log_file(max_lines, ["ERROR", "SCRIPT ERROR"]):
 			if not include_noise and _is_noise(line):
 				suppressed += 1
+			elif not include_internal and _is_internal(line, source_re):
+				internal_dropped += 1
 			else:
 				errors.append(line)
 
 	var result := {"errors": errors, "count": errors.size()}
 	if suppressed > 0:
 		result["suppressed_noise"] = suppressed
+	if internal_dropped > 0:
+		result["filtered_internal"] = internal_dropped
+	# Drain AFTER reading, like runtime.errors --clear. Only the Output panel can
+	# be emptied; the per-script analyzer panels are the compiler's own current
+	# verdict on an open file and reappear until the file compiles, so say so.
+	if clear:
+		result["cleared"] = _press_output_clear()
+		result["clear_scope"] = "output_panel"
 	return success(result)
 
 
@@ -159,8 +220,14 @@ func _log(params: Dictionary) -> Dictionary:
 
 
 func _clear_output(_params: Dictionary) -> Dictionary:
+	# Press the panel's own Clear button; scrolling it with blank lines (what this
+	# did before) left every old line in the buffer editor.errors reads, so a
+	# "cleared" panel still answered with the errors it had just reported.
+	if _press_output_clear():
+		return success({"cleared": true, "method": "clear_button"})
 	print("\n".repeat(50))
-	return success({"cleared": true})
+	return success({"cleared": true, "method": "blank_lines",
+		"note": "The Output panel's Clear button was not found in this editor build; the panel was scrolled instead and older lines remain in the buffer."})
 
 
 # --- Screenshots ------------------------------------------------------------
@@ -178,7 +245,15 @@ func _screenshot(params: Dictionary) -> Dictionary:
 		return error(-32000, "Could not capture editor viewport", {
 			"suggestion": "Editor screenshots require a windowed editor with a render surface; they are unavailable when Godot runs with --headless.",
 		})
-	return _emit_image(image, optional_string(params, "save_path", ""))
+	var result := _emit_image(image, optional_string(params, "save_path", ""))
+	# WHAT was captured, not just that something was. This grabs the whole editor
+	# window, so a capture taken while the main screen sits on 2D shows the canvas
+	# even when the caller had just posed the 3D camera — reporting the screen
+	# makes that diagnosable instead of a mystery image. Never force a switch:
+	# capturing the 2D editor is a legitimate thing to want.
+	if result.has("result") and result["result"] is Dictionary:
+		(result["result"] as Dictionary)["main_screen"] = _main_screen()
+	return result
 
 
 func _compare_screenshots(params: Dictionary) -> Dictionary:
@@ -322,11 +397,75 @@ func _read_script_file(path: String) -> Array:
 	return [text, null]
 
 
+## Re-indent a submitted body so it can be wrapped in a tab-indented run().
+##
+## The body arrives however the caller's editor writes it — commonly SPACE
+## indented, and often with a common leading indent from being lifted out of
+## another function. Prefixing a tab to each line then produced a tab+space mix,
+## which GDScript refuses ("used spaces instead of tabs"), so a perfectly good
+## snippet failed to compile for reasons the caller could not see. Strip the
+## common indent, express what's left in tabs (one tab per unit of the smallest
+## space indent in the body), then nest everything one level.
 func _indent(code: String) -> String:
+	var lines := code.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+	var common := _common_indent(lines)
+	var unit := _space_unit(lines, common)
 	var out: PackedStringArray = []
-	for line in code.split("\n"):
-		out.append("\t" + line)
+	for line in lines:
+		if line.strip_edges().is_empty():
+			out.append("")
+			continue
+		var body := line.substr(common.length()) if line.begins_with(common) else line.lstrip(" \t")
+		var lead := ""
+		var i := 0
+		while i < body.length() and (body[i] == " " or body[i] == "\t"):
+			lead += body[i]
+			i += 1
+		var depth := lead.count("\t") + int(lead.count(" ") / unit)
+		out.append("\t".repeat(depth + 1) + body.substr(i))
 	return "\n".join(out)
+
+
+## The leading whitespace every non-blank line shares (character-wise, so a body
+## indented with tabs and one indented with spaces are both handled).
+func _common_indent(lines: PackedStringArray) -> String:
+	var common := ""
+	var first := true
+	for line in lines:
+		if line.strip_edges().is_empty():
+			continue
+		var lead := ""
+		for i in line.length():
+			if line[i] != " " and line[i] != "\t":
+				break
+			lead += line[i]
+		if first:
+			common = lead
+			first = false
+			continue
+		var keep := 0
+		while keep < common.length() and keep < lead.length() and common[keep] == lead[keep]:
+			keep += 1
+		common = common.substr(0, keep)
+		if common.is_empty():
+			break
+	return common
+
+
+## How many spaces the body uses per indent level: the smallest non-zero space
+## indent left after the common prefix is stripped (4 when nothing indicates).
+func _space_unit(lines: PackedStringArray, common: String) -> int:
+	var unit := 0
+	for line in lines:
+		if line.strip_edges().is_empty():
+			continue
+		var body := line.substr(common.length()) if line.begins_with(common) else line.lstrip("\t")
+		var spaces := 0
+		while spaces < body.length() and body[spaces] == " ":
+			spaces += 1
+		if spaces > 0 and (unit == 0 or spaces < unit):
+			unit = spaces
+	return unit if unit > 0 else 4
 
 
 # --- Reload, signals, camera ------------------------------------------------
@@ -378,13 +517,21 @@ func _get_camera(_params: Dictionary) -> Dictionary:
 	var cam := _editor_camera_3d()
 	if cam == null:
 		return error(-32000, "No 3D editor camera found", {"suggestion": "Open a 3D scene in the editor first"})
-	return success(_camera_state(cam))
+	var state := _camera_state(cam)
+	state["main_screen"] = _main_screen()
+	return success(state)
 
 
 func _set_camera(params: Dictionary) -> Dictionary:
 	var cam := _editor_camera_3d()
 	if cam == null:
 		return error(-32000, "No 3D editor camera found", {"suggestion": "Open a 3D scene in the editor first"})
+	# Posing the 3D preview camera is a statement of 3D intent, so bring the main
+	# screen with it. Without this the call succeeded, returned a 3D pose, and a
+	# following editor.screenshot captured whatever 2D canvas was on screen.
+	var was := _main_screen()
+	if was != "3D" and optional_bool(params, "switch_main_screen", true):
+		EditorInterface.set_main_screen_editor("3D")
 	if params.has("position"):
 		cam.global_position = _to_vec3(params["position"], cam.global_position)
 	if params.has("rotation_degrees"):
@@ -393,7 +540,10 @@ func _set_camera(params: Dictionary) -> Dictionary:
 		cam.look_at(_to_vec3(params["look_at"], Vector3.ZERO))
 	if params.has("fov"):
 		cam.fov = float(params["fov"])
-	return success(_camera_state(cam))
+	var state := _camera_state(cam)
+	state["main_screen"] = _main_screen()
+	state["main_screen_was"] = was
+	return success(state)
 
 
 ## Accept a Vector3 as either a {x,y,z} dict (missing keys keep `fallback`) or a
@@ -413,6 +563,43 @@ func _to_vec3(value: Variant, fallback: Vector3) -> Vector3:
 func _editor_camera_3d() -> Camera3D:
 	var vp := EditorInterface.get_editor_viewport_3d()
 	return vp.get_camera_3d() if vp else null
+
+
+## Which main-screen editor is on screen ("2D", "3D", "Script", "Game",
+## "AssetLib"). EditorInterface can SET the main screen but exposes no getter, so
+## this reads the visible child of the main-screen container; the two floatable
+## screens sit inside a WindowWrapper and are named by what they wrap.
+const _MAIN_SCREEN_CLASSES := {
+	"CanvasItemEditor": "2D",
+	"Node3DEditor": "3D",
+	"ScriptEditor": "Script",
+	"GameView": "Game",
+	"EditorAssetLibrary": "AssetLib",
+}
+
+
+func _main_screen() -> String:
+	var container := EditorInterface.get_editor_main_screen()
+	if container == null:
+		return ""
+	for child: Node in container.get_children():
+		if child is Control and not (child as Control).visible:
+			continue
+		var named := _screen_name(child)
+		if not named.is_empty():
+			return named
+	return ""
+
+
+func _screen_name(node: Node) -> String:
+	var cls := node.get_class()
+	if _MAIN_SCREEN_CLASSES.has(cls):
+		return _MAIN_SCREEN_CLASSES[cls]
+	if cls == "WindowWrapper":
+		for inner: Node in node.get_children():
+			if _MAIN_SCREEN_CLASSES.has(inner.get_class()):
+				return _MAIN_SCREEN_CLASSES[inner.get_class()]
+	return ""
 
 
 func _camera_state(cam: Camera3D) -> Dictionary:
@@ -474,10 +661,12 @@ func _scan_log_file(max_lines: int, needles: Array) -> Array:
 func get_command_docs() -> Dictionary:
 	return {
 		"editor.errors": {
-			"description": "Return recent errors/warnings from the Output panel and the per-script analyzer panels (falls back to the log file when headless). Benign engine noise is filtered by default.",
+			"description": "Return recent errors/warnings from the Output panel and the per-script analyzer panels (falls back to the log file when headless). Each line carries its own '<source>:<line>' — --internal=false drops the ones whose source is an engine C++ file, which is what an editor.reload rescan floods the buffer with. Benign engine noise is filtered by default; --clear empties the Output panel after reading.",
 			"params": [
 				doc_param("max_lines", "int", false, "How many trailing output lines to scan (default 50)."),
 				doc_param("include_noise", "bool", false, "Keep benign engine-internal lines that are filtered by default."),
+				doc_param("internal", "bool", false, "Include entries whose source is an engine C++ file (default true; false leaves the res:// script errors — note the engine attributes push_error/push_warning to variant_utility.cpp, so those go too)."),
+				doc_param("clear", "bool", false, "Empty the Output panel after reading (the per-script analyzer panels are the compiler's live verdict and cannot be cleared)."),
 			],
 		},
 		"editor.log": {
@@ -488,21 +677,21 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"editor.screenshot": {
-			"description": "Capture the editor viewport to a PNG (base64, or saved to --save-path). Forces a fresh frame first, so an unfocused editor cannot serve a stale image. Needs a windowed editor; fails under --headless.",
+			"description": "Capture the editor viewport to a PNG (base64, or saved to --save-path). Forces a fresh frame first, so an unfocused editor cannot serve a stale image. The result reports the active main_screen (2D/3D/Script/Game/AssetLib), so a capture of the wrong screen is diagnosable. Needs a windowed editor; fails under --headless.",
 			"params": [
 				doc_param("save_path", "String", false, "res://, user://, or absolute path to save the PNG; omit to return base64."),
 			],
 		},
 		"editor.run_script": {
-			"description": "Run ad-hoc @tool GDScript in the editor; use emit(value) to return output. Provide inline --code or a --path to a script file. Direct file/resource write APIs are refused unless --allow-unsafe-editor-io. Audited.",
+			"description": "Run ad-hoc @tool GDScript in the editor; use emit(value) to return output. Provide inline --code or a --path to a script file. The body is re-indented with tabs before wrapping, so a space-indented snippet compiles. Direct file/resource write APIs are refused unless --allow-unsafe-editor-io. Audited.",
 			"params": [
-				doc_param("code", "String", false, "Inline script body (its statements are wrapped in a run() function). Provide code OR path."),
+				doc_param("code", "String", false, "Inline script body (statements are wrapped in a run() function; indentation is normalized to tabs, so spaces are fine). Provide code OR path."),
 				doc_param("path", "String", false, "res://, user://, or absolute path to a script file to run. Provide code OR path."),
 				doc_param("allow_unsafe_editor_io", "bool", false, "Permit direct write APIs (ResourceSaver.save, FileAccess write, DirAccess mutations, ...)."),
 			],
 		},
 		"editor.clear_output": {
-			"description": "Clear the editor Output panel (scrolls it clean with blank lines).",
+			"description": "Clear the editor Output panel by pressing its own Clear button (falls back to scrolling it with blank lines when that button can't be located, which leaves older lines in the buffer editor.errors reads).",
 		},
 		"editor.reload": {
 			"description": "Rescan the project filesystem (EditorFileSystem.scan) so disk changes are picked up.",
@@ -525,15 +714,16 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"editor.get_camera": {
-			"description": "Read the 3D editor viewport camera (position, rotation, fov, near, far). Needs an open 3D scene.",
+			"description": "Read the 3D editor viewport camera (position, rotation, fov, near, far) plus the active main_screen. Needs an open 3D scene.",
 		},
 		"editor.set_camera": {
-			"description": "Move the 3D editor viewport camera. Any of --position, --rotation-degrees, --look-at (a Vector3), or --fov.",
+			"description": "Move the 3D editor viewport camera. Any of --position, --rotation-degrees, --look-at (a Vector3), or --fov. Switches the editor's main screen to 3D (posing the 3D camera implies 3D intent, and without the switch a following editor.screenshot captures the 2D canvas); --switch-main-screen=false leaves the screen alone. Reports main_screen and main_screen_was.",
 			"params": [
 				doc_param("position", "Vector3", false, "New camera global position ({x,y,z} or 'Vector3(...)')."),
 				doc_param("rotation_degrees", "Vector3", false, "New camera rotation in degrees."),
 				doc_param("look_at", "Vector3", false, "Point to aim the camera at."),
 				doc_param("fov", "float", false, "Field of view in degrees."),
+				doc_param("switch_main_screen", "bool", false, "Bring the editor's main screen to 3D (default true)."),
 			],
 		},
 		"editor.selection": {

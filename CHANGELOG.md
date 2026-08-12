@@ -8,6 +8,42 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
+- **`scene close`**. Closes a scene tab — `--path`, or the active scene when no
+  path is given — and reports the remaining `open_scenes` and the resulting
+  `active_scene`. It closes the gap the rest of the surface assumed was covered:
+  `scene delete`, `fs delete`, and `fs move` all refuse a scene that is open and
+  told the caller to close the tab, which no command could do, so a throwaway
+  scene could not be cleaned up without a person at the editor or a restart.
+  Those three refusals now name `scene close` and the exact path to pass.
+  Closing discards unsaved changes without prompting, so a scene with unsaved
+  changes is refused with `-32009` unless `--discard true`; and closing a
+  background tab restores the scene that was current, because Godot otherwise
+  selects the closed tab's neighbour and every later `node` command would
+  quietly target it.
+- **`editor errors --clear` and `--internal=false`**. `--clear` drains the
+  Output panel after reading, the same pull-then-drain contract
+  `runtime errors --clear` already had. `--internal=false` drops the entries
+  whose source file is the engine's own C++ rather than a project script —
+  every editor error line already carries its `<file>:<line>`, and a filesystem
+  rescan after `editor reload` fills the buffer with dozens of
+  `progress_dialog.cpp` and `class_db.cpp` lines that bury the parse error you
+  were looking for. The default is unchanged, and a line whose source cannot be
+  read is never treated as internal. Note that the engine attributes
+  `push_error` and `push_warning` to `variant_utility.cpp`, so the filter drops
+  those too.
+- **`script read --start-line/--end-line`**. Returns a 1-based inclusive slice
+  instead of the whole file, using the line addressing `script edit` already
+  takes, so reading around a reported error line no longer costs the file.
+  `line_count` still reports the file's real total. Both were previously
+  accepted and ignored.
+- **`project settings --filter`**. A case-insensitive substring match anywhere
+  in the key, for when you know the word (`msaa`, `shadow`) but not which
+  section owns it. `--section` remains the prefix match and the two combine.
+  Also previously accepted and ignored.
+- **`scene instance --path`** is accepted as an alias for `--scene-path`. Every
+  other `scene` command names the file `--path`, so reaching for it here is the
+  obvious mistake, and it used to fail on a missing `scene_path` while the flag
+  was annotated as unknown.
 - **Readable terminal output**. On a terminal, a result renders for a human: an
   object becomes a titled key/value box, an array of objects becomes a table,
   values are color-coded by JSON type, and a nested value too large for one
@@ -63,6 +99,63 @@ follow [Semantic Versioning](https://semver.org/).
   variable pins a format for a whole shell or CI job when the flag is absent;
   the flag wins, and an unrecognized value warns and falls back to the
   default.
+
+### Fixed
+
+- **`scene create` now opens the scene it creates**. It wrote the file and left
+  the editor where it was, so every following `node add` silently built into the
+  previous scene — or, with nothing open, failed with a suggestion to "use
+  scene.open or scene.create first" immediately after `scene create` had been
+  used. The result reports `active_scene`, `--open=false` keeps the old
+  behaviour for a batch that writes many files, and the no-scene error no longer
+  names the command the caller just ran as the remedy.
+- **`runtime screenshot` right after `scene play` returned an all-black frame**
+  with no error. The capture read a viewport texture nothing had drawn into yet;
+  the game now waits for a real `frame_post_draw` before reading it, and reports
+  `black_frame` when the result is uniformly black anyway — a scene that is
+  black by design looks the same, so this is a flag rather than an error.
+- **Game commands failed intermittently with "Could not read game response
+  file"**, where an immediate retry always worked. The game wrote its reply
+  straight to the path the editor polls, and `FileAccess.open` creates that file
+  empty, so a poll landing between the open and the close read a half-written
+  file. The game now writes to a scratch name and renames it into place, and the
+  editor's read retries briefly rather than treating one failed open as fatal.
+- **A game paused at a debugger break timed out with the wrong explanation**.
+  Every `runtime.*` call spent its timeout and then suggested checking the
+  `MCPGameInspector` autoload, which the same call had already verified on disk.
+  The editor now asks the debugger bridge and says what is actually true: the
+  game is stopped at a break, with the reason, `debugger_breaked: true`, and
+  `debug.state` / `debug.resume` as the way out.
+- **`editor run_script` refused a space-indented body**. The submitted code was
+  wrapped in a tab-indented function, so anything indented with spaces became a
+  tab-and-space mix that GDScript rejects, for reasons the caller never saw. The
+  body's common leading indent is stripped and what remains is re-expressed in
+  tabs before wrapping, so space-indented, tab-indented, and already-nested
+  snippets all compile.
+- **`editor set_camera` posed the 3D camera without bringing the 3D screen with
+  it**. It succeeded and returned a 3D pose while the editor's main screen sat
+  on 2D, and the following `editor screenshot` captured the canvas — the right
+  call, the wrong picture, no error anywhere. `set_camera` now switches the main
+  screen to 3D (`--switch-main-screen=false` opts out), and both `screenshot`
+  and `get_camera` report the active `main_screen`. A screenshot never forces a
+  switch: capturing the 2D editor is a legitimate thing to want.
+- **`input_map get_actions` could not see the project's own actions**. It read
+  the InputMap of the *editor* process, which holds the editor's bindings
+  (`ui_*`, `spatial_editor/*`) and not the game's, so a project's `jump` was
+  invisible while `set_action` persisted it correctly. It now reads
+  ProjectSettings `input/*` — where project.godot keeps them and where the
+  running game reads them — and reports which source answered.
+- **`spatial` refused every node without visual geometry**. A `Marker3D` or a
+  bare `Node3D` anchor answered "has no 3D visual geometry", which made
+  marker-to-marker questions unanswerable through the group that exists to
+  answer them. Those nodes now read as a zero-size box at their origin, flagged
+  `point_only` (per side, in `spatial relate`, which also returns `distance`
+  now). Only a node with no transform at all is still refused.
+- **`editor clear_output` did not clear anything**. It printed fifty blank lines
+  to scroll the panel, leaving every old line in the buffer `editor errors`
+  reads, so a "cleared" panel still answered with the errors it had just
+  reported. It presses the Output panel's own Clear button, and falls back to
+  the blank lines only when that button cannot be located, saying so.
 
 ## [0.8.1] — 2026-08-09
 

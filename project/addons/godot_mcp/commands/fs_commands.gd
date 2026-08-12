@@ -52,7 +52,8 @@ func _move(params: Dictionary) -> Dictionary:
 	if not is_dir and is_scene_path_open(src):
 		return error_conflict(
 			"Refusing to move open scene '%s'" % src,
-			{"open_scenes": get_open_scene_paths(), "suggestion": "Close the scene tab first."})
+			{"open_scenes": get_open_scene_paths(),
+			"suggestion": "Close it first with scene.close --path %s (add --discard true if it has unsaved changes)." % src})
 
 	var old_uid := ResourceLoader.get_resource_uid(src) if not is_dir else ResourceUID.INVALID_ID
 
@@ -108,7 +109,8 @@ func _delete(params: Dictionary) -> Dictionary:
 	if not is_dir and is_scene_path_open(path):
 		return error_conflict(
 			"Refusing to delete open scene '%s'" % path,
-			{"open_scenes": get_open_scene_paths(), "suggestion": "Close the scene tab first."})
+			{"open_scenes": get_open_scene_paths(),
+			"suggestion": "Close it first with scene.close --path %s (add --discard true if it has unsaved changes)." % path})
 
 	var force := optional_bool(params, "force", false)
 	# A directory delete is recursive, so it must also refuse to nuke an open scene
@@ -121,7 +123,7 @@ func _delete(params: Dictionary) -> Dictionary:
 		if not open_under.is_empty():
 			return error_conflict(
 				"Refusing to delete '%s': it contains %d open scene(s)" % [path, open_under.size()],
-				{"open_scenes": open_under, "suggestion": "Close those scene tabs, or pass --force."})
+				{"open_scenes": open_under, "suggestion": "Close those tabs with scene.close --path <each>, or pass --force."})
 	var refs := _referencers(path) if not is_dir else []
 	if not refs.is_empty() and not force:
 		return error_conflict(

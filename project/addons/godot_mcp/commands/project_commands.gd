@@ -189,11 +189,18 @@ func _settings(params: Dictionary) -> Dictionary:
 			return error_not_found("Setting '%s'" % key)
 		return success({"key": key, "value": str(ProjectSettings.get_setting(key))})
 	var section := optional_string(params, "section", "")
+	# --filter is a substring match anywhere in the key, for when you know a word
+	# ("shadow", "msaa") but not which section owns it. --section stays the prefix
+	# match; both apply together.
+	var filter := optional_string(params, "filter", "").to_lower()
 	var settings: Dictionary = {}
 	for prop in ProjectSettings.get_property_list():
 		var name: String = prop["name"]
-		if section.is_empty() or name.begins_with(section):
-			settings[name] = str(ProjectSettings.get_setting(name))
+		if not section.is_empty() and not name.begins_with(section):
+			continue
+		if not filter.is_empty() and not name.to_lower().contains(filter):
+			continue
+		settings[name] = str(ProjectSettings.get_setting(name))
 	return success({"settings": settings, "count": settings.size()})
 
 
@@ -326,10 +333,11 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"project.settings": {
-			"description": "Read project settings. With --key returns one setting; otherwise all, optionally narrowed to a --section prefix.",
+			"description": "Read project settings. With --key returns one setting; otherwise all, narrowed by --section (key prefix) and/or --filter (case-insensitive substring anywhere in the key).",
 			"params": [
 				doc_param("key", "String", false, "A single setting key to read."),
 				doc_param("section", "String", false, "Section prefix filter when listing all."),
+				doc_param("filter", "String", false, "Case-insensitive substring the key must contain."),
 			],
 		},
 		"project.set_setting": {

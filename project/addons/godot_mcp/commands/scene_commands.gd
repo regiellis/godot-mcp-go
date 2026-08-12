@@ -10,6 +10,7 @@ func get_commands() -> Dictionary:
 		"scene.content": _content,
 		"scene.create": _create,
 		"scene.open": _open,
+		"scene.close": _close,
 		"scene.delete": _delete,
 		"scene.instance": _instance,
 		"scene.play": _play,
@@ -79,7 +80,25 @@ func _create(params: Dictionary) -> Dictionary:
 		return error_internal("Failed to save scene: %s" % error_string(err))
 
 	EditorInterface.get_resource_filesystem().scan()
-	return success({"path": path, "root_type": root_type, "root_name": root_name})
+
+	# Open what we just made. Creating a scene and then working on it is the whole
+	# point of the command, and leaving the editor on the previous scene meant every
+	# following node.* call silently targeted THAT scene — or, with nothing open,
+	# failed with "no scene open, use scene.open or scene.create first" right after
+	# scene.create had been used. --open=false keeps the old behaviour for a batch
+	# that writes many files and doesn't want the editor churning through tabs.
+	var opened := optional_bool(params, "open", true)
+	var normalized := normalize_project_path(path)
+	if opened:
+		EditorInterface.open_scene_from_path(normalized)
+	var root_now := get_edited_root()
+	return success({
+		"path": path,
+		"root_type": root_type,
+		"root_name": root_name,
+		"opened": opened,
+		"active_scene": normalize_project_path(root_now.scene_file_path) if root_now != null else "",
+	})
 
 
 func _open(params: Dictionary) -> Dictionary:
@@ -116,6 +135,95 @@ func _open(params: Dictionary) -> Dictionary:
 	return success({"path": normalized, "opened": true, "was_already_open": was_open})
 
 
+## Close a scene tab: --path, or the active scene when no path is given.
+##
+## The counterpart every other scene command assumed existed. `scene.delete` and
+## `fs.delete` both refuse a scene that is open and told the caller to close the
+## tab — which nothing could do, so a throwaway scene could not be cleaned up
+## without a human at the editor or a restart. `scene.create` opening what it
+## writes made that the default path, which is what surfaced it.
+##
+## `EditorInterface.close_scene()` is the public 4.7 API and closes the CURRENT
+## scene, so a named path is made current first — and the switch is verified
+## before the close, because closing the wrong tab is unrecoverable. It discards
+## unsaved changes SILENTLY (no prompt, verified live on 4.7.2), so the refusal
+## below is the only thing standing between a caller and lost work: unsaved
+## changes need an explicit --discard.
+##
+## ⚠️ Call close_scene() at most ONCE per command. Looping it over the open-scene
+## list inside one frame crashed the editor (found while testing this).
+func _close(params: Dictionary) -> Dictionary:
+	var path := optional_string(params, "path", "")
+	var target := ""
+	if path.is_empty():
+		var root := get_edited_root()
+		if root == null:
+			return error_no_scene()
+		target = normalize_project_path(root.scene_file_path)
+		if target.is_empty():
+			return error_invalid_params("The active scene has never been saved, so it has no path to close by. Save it with scene.save --path first.")
+	else:
+		target = normalize_project_path(path)
+
+	if not is_scene_path_open(target):
+		return error_not_found("Open scene '%s'" % target,
+			"It is not open in the editor, so there is no tab to close. Open scenes: %s" % str(get_open_scene_paths()))
+
+	var unsaved: Array = []
+	for p: String in EditorInterface.get_unsaved_scenes():
+		unsaved.append(normalize_project_path(p))
+	var dirty: bool = target in unsaved
+	var discard := optional_bool(params, "discard", false)
+	if dirty and not discard:
+		return error_conflict("Refusing to close '%s': it has unsaved changes" % target, {
+			"path": target,
+			"unsaved_scenes": unsaved,
+			"suggestion": "Save it with scene.save first, or pass --discard true to close it and lose the changes (closing does not prompt).",
+		})
+
+	var was_active := is_active_scene_path(target)
+	# Closing a BACKGROUND tab must not move the editor. Godot picks the neighbour
+	# of the closed tab, so closing tab 0 while tab 2 was current left the editor on
+	# tab 1 — and every following node.* command silently targets the current scene,
+	# which is the same trap scene.create's missing open was.
+	var previous_active := ""
+	if not was_active:
+		var before := get_edited_root()
+		if before != null:
+			previous_active = normalize_project_path(before.scene_file_path)
+		EditorInterface.open_scene_from_path(target)
+	# Never close on trust: close_scene() acts on whatever is current, so if the
+	# switch did not land we would silently close somebody else's tab.
+	if not is_active_scene_path(target):
+		var now := get_edited_root()
+		return error_internal("Could not make '%s' the current scene before closing it (current: '%s')" % [
+			target, normalize_project_path(now.scene_file_path) if now != null else ""])
+
+	var err := EditorInterface.close_scene()
+	if err != OK:
+		return error_internal("close_scene failed for '%s': %s" % [target, error_string(err)])
+
+	var remaining := get_open_scene_paths()
+	# Put the caller back where it was (see previous_active above). An unsaved,
+	# never-saved scene has no path to return to, so that case reports honestly
+	# rather than guessing at a tab.
+	var restored := false
+	if not previous_active.is_empty() and previous_active in remaining and not is_active_scene_path(previous_active):
+		EditorInterface.open_scene_from_path(previous_active)
+		restored = is_active_scene_path(previous_active)
+
+	var root_now := get_edited_root()
+	return success({
+		"path": target,
+		"closed": true,
+		"was_active": was_active,
+		"discarded_changes": dirty,
+		"restored_active_scene": restored,
+		"open_scenes": remaining,
+		"active_scene": normalize_project_path(root_now.scene_file_path) if root_now != null else "",
+	})
+
+
 func _delete(params: Dictionary) -> Dictionary:
 	var r := require_string(params, "path")
 	if r[1] != null:
@@ -125,7 +233,7 @@ func _delete(params: Dictionary) -> Dictionary:
 		return error_not_found("Scene file '%s'" % path)
 	if is_scene_path_open(path):
 		return error_conflict("Refusing to delete open scene '%s'" % normalize_project_path(path),
-			{"suggestion": "Close the scene tab first."})
+			{"suggestion": "Close it first with scene.close --path %s (add --discard true if it has unsaved changes)." % normalize_project_path(path)})
 	var err := DirAccess.remove_absolute(path)
 	if err != OK:
 		return error_internal("Failed to delete scene: %s" % error_string(err))
@@ -134,6 +242,12 @@ func _delete(params: Dictionary) -> Dictionary:
 
 
 func _instance(params: Dictionary) -> Dictionary:
+	# `path` is an accepted alias: every other scene command names the file --path,
+	# so reaching for it here is the obvious mistake, and it used to be annotated as
+	# an unknown param while the call failed on a missing scene_path.
+	if not params.has("scene_path") and params.has("path"):
+		params = params.duplicate()
+		params["scene_path"] = params["path"]
 	var r := require_string(params, "scene_path")
 	if r[1] != null:
 		return r[1]
@@ -335,11 +449,12 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"scene.create": {
-			"description": "Create a new scene file with a fresh root of --root-type and save it to --path. Does not switch the edited scene — a 3D scene needs a follow-up scene.open before 3D-only commands work.",
+			"description": "Create a new scene file with a fresh root of --root-type, save it to --path, and open it as the edited scene (the result reports active_scene). Pass --open=false to write the file without touching the editor's current scene.",
 			"params": [
 				doc_param("path", "String", true, "res:// path to write the scene to."),
 				doc_param("root_type", "String", false, "Root node class (default 'Node2D')."),
 				doc_param("root_name", "String", false, "Root node name (default the file basename)."),
+				doc_param("open", "bool", false, "Open the new scene in the editor and make it current (default true)."),
 			],
 		},
 		"scene.open": {
@@ -349,16 +464,23 @@ func get_command_docs() -> Dictionary:
 				doc_param("force", "bool", false, "Reload from disk even if already open/active (discards unsaved edits)."),
 			],
 		},
+		"scene.close": {
+			"description": "Close a scene tab: --path, or the active scene when no path is given. The way to release a scene that scene.delete / fs.delete / fs.move refuse because it is open. Closing DISCARDS unsaved changes without prompting, so a scene with unsaved changes is refused (-32009) unless --discard true. Closing a background tab keeps the current scene current (reported as restored_active_scene); the result also lists the remaining open_scenes and the resulting active_scene.",
+			"params": [
+				doc_param("path", "String", false, "res:// path of the open scene to close (default the active scene)."),
+				doc_param("discard", "bool", false, "Close even with unsaved changes, losing them (default false)."),
+			],
+		},
 		"scene.delete": {
-			"description": "Delete a scene file from disk (refuses a scene currently open in the editor).",
+			"description": "Delete a scene file from disk (refuses a scene currently open in the editor — close it with scene.close first).",
 			"params": [
 				doc_param("path", "String", true, "res:// path to the scene."),
 			],
 		},
 		"scene.instance": {
-			"description": "Instance an existing scene (--scene-path) as a child under --parent-path in the edited scene. Undoable.",
+			"description": "Instance an existing scene (--scene-path, or --path as an alias) as a child under --parent-path in the edited scene. Undoable.",
 			"params": [
-				doc_param("scene_path", "String", true, "res:// path to the scene to instance."),
+				doc_param("scene_path", "String", true, "res:// path to the scene to instance (--path is accepted as an alias)."),
 				doc_param("parent_path", "NodePath", false, "Parent to add under, relative to the root (default '.')."),
 				doc_param("name", "String", false, "Name for the instance node."),
 			],

@@ -15,7 +15,7 @@ Training memory is confidently wrong about specific 4.7 APIs. Lead with `engine 
 
 ## Editor-time surprises
 
-- **`scene create` writes the file but does not switch the edited scene**. A new `--root-type Node3D` scene needs an explicit `scene open` before any 3D-only command works against it.
+- **`scene create` opens what it writes**. The new scene becomes the edited scene and the result reports it as `active_scene`, so the following `node add` lands where you expect. Pass `--open=false` to write a batch of files without moving the editor, and open one explicitly when you get to it.
 - **The editor's resource cache survives rescans**. A script that loads a just-edited scene or script gets the stale copy. Load with `CACHE_MODE_REPLACE_DEEP`, and assert `get_script() != null` after instancing, because a script-less instance silently swallows property writes.
 - **`PackedScene.pack()` only keeps nodes whose `owner` is the root**. Build a scene programmatically and forget to set `owner`, and the children vanish on save.
 - **Out-of-tree Controls never refresh their cached minimum size**, so a `size` write clamps to the saved minimum. Add the Control to the tree before sizing it.
@@ -26,7 +26,7 @@ Training memory is confidently wrong about specific 4.7 APIs. Lead with `engine 
 Screenshots and error capture behave differently without a window.
 
 - **`editor.screenshot` needs a windowed editor** (it returns `-32000` under `--headless`). `runtime.screenshot` works headless, because the game is a separate windowed process.
-- **A real script error in the played game freezes it under a headless editor**. The remote debugger breaks with no UI to resume, so every runtime command afterward times out. This includes a hard error in `runtime.eval`. Recover with `scene stop` then `scene play`. `push_error`, `push_warning`, and shader errors are captured fine; a standalone or windowed run just logs the error and keeps serving IPC.
+- **A real script error in the played game freezes it under a headless editor**. The remote debugger breaks with no UI to resume, so every runtime command afterward times out; the timeout says so, reporting `debugger_breaked` with the break reason instead of guessing at a missing autoload. This includes a hard error in `runtime.eval`. Recover with `scene stop` then `scene play`. `push_error`, `push_warning`, and shader errors are captured fine; a standalone or windowed run just logs the error and keeps serving IPC.
 
 <Callout type="warning">
   This is why `runtime.errors` cannot capture a *real* script error under a headless editor: the break freezes the game before you can poll. Use a windowed run when you need to see real runtime script errors, and reserve headless for command runs and `push_error`-style diagnostics.
