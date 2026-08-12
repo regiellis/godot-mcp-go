@@ -7,6 +7,32 @@ below closes all three, proven end to end on a real desktop release. Throughout 
 **verify by receipts, not by exit codes** — a green export means the exporter ran, not that
 the build is right.
 
+## Pick your target
+
+The first four sections below are platform-independent: the export filters, the headless loop, pck
+encryption, and the size knobs read the same whether the artifact is an `.exe`, an `.apk`, or a
+folder of wasm. The per-platform sections after them cover what each target adds.
+
+| Target | Exports from a Windows dev machine | Host tooling it needs | Signing identity |
+| --- | --- | --- | --- |
+| Windows, Linux desktop | yes | export templates | optional (`codesign/*` on the Windows preset) |
+| Android | yes | JDK, Android SDK, platform-tools | release keystore, yours to generate and keep |
+| Web | yes | a static server for testing | none; the browser enforces headers instead |
+| macOS | bundle yes, signing and notarization no | Apple tooling for the signing leg | Apple Developer certificate |
+| iOS | preset and Xcode project only | Xcode on a Mac for the final leg | Apple Developer provisioning profile |
+
+Read the ground before touching a preset. Every one of these answers without an export configured
+and says what is missing:
+
+```
+godot-mcp export info            # templates installed? export_presets.cfg present?
+godot-mcp export list-presets    # name, platform, runnable, export_path per preset
+godot-mcp export project --preset-name "Windows Desktop" --debug=false
+```
+
+`export project` returns the headless command line rather than running it, because a Godot 4 editor
+plugin cannot export. Run what it hands back.
+
 ## The dev-tooling boundary: this addon must never ship
 
 The godot-mcp addon is a WebSocket command server with arbitrary-eval and input-injection
@@ -48,6 +74,11 @@ godot --headless --path . --export-release "Windows Desktop" "out/Game.exe"
   ship — below).
 - Boot the exe and let it hold past its first scene: a window with the right title that survives
   ~10s is the cheapest whole-pipeline receipt there is.
+- **When the pck is buried, export one on its own to scan**. `--export-pack "<preset>"
+  "out/receipt.pck"` writes the data half of the same preset as a standalone file, so the string
+  scan above works for an APK, a web build, or a desktop preset with
+  `binary_format/embed_pck=true`, none of which leave a loose `.pck` to read. `--export-patch` plus
+  `--patches` does the same for a changed-files-only pack.
 
 ## PCK encryption: keyed custom templates
 
@@ -117,6 +148,167 @@ a typical 2D game (official numbers, condensed):
 project's own regression suite against a restored dev environment. A build that lost a module it
 actually needed usually still boots — it fails at the moment the feature is touched, which is
 exactly what a playtest suite catches and a boot test does not.
+
+## Android
+
+Two keystores exist and they are not interchangeable. The **debug** keystore is a throwaway the
+editor generates; the **release** keystore is one `keytool` generates once and Google Play binds to
+the application identity permanently. Losing it means never updating that listing again, so it is
+backed up like the encryption key and kept out of the repo.
+
+**Editor-side prerequisites** (set in Editor Settings → Export → Android, or the export fails with
+a message naming the missing piece): a JDK, the Android SDK, and platform-tools on the machine that
+runs the export. The `adb` path comes from `export/android/adb`, falling back to a PATH lookup, and
+the debug keystore trio falls back to `export/android/debug_keystore`, `..._user`, `..._pass`.
+
+**Preset fields that decide the build shape:**
+
+- `package/unique_name` — the reverse-DNS identifier. Permanent per listing, like the keystore.
+- `version/code` (machine-readable, must increment every Play upload) and `version/name`.
+- `keystore/debug`, `keystore/debug_user`, `keystore/debug_password`; `keystore/release`,
+  `keystore/release_user`, `keystore/release_password`; `package/signed` gates signing at all.
+- `gradle_build/use_gradle_build` — off packages the prebuilt template APK, on compiles a real
+  Gradle project from `gradle_build/gradle_build_directory` (default `res://android`). Plugins,
+  GDExtension, and custom manifest entries need it on, and `gradle_build/min_sdk` /
+  `gradle_build/target_sdk` apply only on that path. Install the template once with
+  `godot --headless --path . --install-android-build-template`.
+- `gradle_build/export_format` — APK or AAB. AAB is the Play upload; APK is what installs on a
+  device. Keep two presets rather than flipping one, since the device loop below needs the APK.
+- `architectures/arm64-v8a`, `armeabi-v7a`, `x86`, `x86_64` — arm64 alone covers current phones and
+  is the smallest; x86_64 buys emulator testing.
+
+**Keystore passwords stay out of `export_presets.cfg`**, which is a committed file. Every keystore
+field has an environment override that wins over it, so a headless release export signs like this:
+
+```powershell
+$env:GODOT_ANDROID_KEYSTORE_RELEASE_PATH     = "$HOME\.godot-keys\release.keystore"
+$env:GODOT_ANDROID_KEYSTORE_RELEASE_USER     = "upload"
+$env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD = (Get-Content ~\.godot-keys\release.pass -Raw).Trim()
+godot --headless --path . --export-release "Android Play" "out/game.aab"
+```
+
+The debug trio is `GODOT_ANDROID_KEYSTORE_DEBUG_PATH` / `_USER` / `_PASSWORD`. Same rule as the
+encryption key: environment at export time, never a value in the repo.
+
+**Build: the device loop.** `android deploy` runs export, `adb install -r`, and launch as one call:
+
+```
+godot-mcp android list-devices                       # serial + state per attached device
+godot-mcp android preset-info                        # index, name, export_path, package_name
+godot-mcp android deploy --preset-name "Android Dev" --device-serial R5CT10 --debug=true
+godot-mcp android deploy --preset-name "Android Dev" --skip-export=true   # reinstall what exists
+```
+
+The result carries a `steps` array with a per-step exit code, so a failure names which of the three
+legs broke. `list-devices` and `preset-info` fail cleanly when platform-tools or the preset are
+absent, which makes them the preflight rather than a separate check. Deploy installs whatever sits
+at the preset's `export_path`, so pointing it at an AAB fails at `adb install`.
+
+**Receipts for an APK or AAB.** Both are zip containers and neither exposes a loose pck, so the
+plaintext scan runs against a standalone pack:
+
+```powershell
+godot --headless --path . --export-pack "Android Dev" "out/receipt.pck"
+$t = [Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes("out/receipt.pck"))
+([regex]::Matches($t, 'godot_mcp')).Count      # 0 or the addon shipped
+Expand-Archive out/game.apk out/apk_check -Force
+Get-ChildItem out/apk_check -Recurse | Select-Object -ExpandProperty FullName   # no addons/ paths
+```
+
+The boot receipt becomes an on-device one: `android deploy --launch=true` and confirm the app holds
+past its first scene, with `adb logcat` open for the stack trace when it does not.
+
+## Web (HTML5)
+
+The artifact is a directory of files: `index.html`, a `.js` loader, a `.wasm`, the `.pck`, and
+support files. Point `export_path` at the `.html` and export into an empty directory of its own.
+
+**Serve it. A web export opened from `file://` fails**, and the export that produced it was green,
+which is the receipt-versus-exit-code rule in its most common form. The loader fetches the wasm and
+the pck, and those fetches are cross-origin under `file://`. Use the editor's run-in-browser flow,
+or any static server, and read the browser console rather than the export log.
+
+**Threads decide how the site must be configured.** `variant/thread_support` true gives the export
+threads and requires a cross-origin-isolated site: the server must send
+`Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`, which
+also blocks the page from embedding third-party content. False drops the requirement to plain
+HTTPS at the cost of performance and audio stability. The failure mode to recognize: threads on,
+headers missing, `SharedArrayBuffer is not defined` in the console, and a build that exported
+perfectly. `variant/extensions_support` enables GDExtension for the web build and is separate.
+
+Shipping-shape fields: `progressive_web_app/enabled` (installable PWA), `html/export_icon`
+(project icon as favicon), `html/head_include` (extra `<head>` tags), `html/canvas_resize_policy`.
+
+**Size discipline is stricter here than on desktop**, because every byte is a download before the
+first frame. The wasm is the floor and the pck is what the project controls, so audit imported
+texture and audio settings before reaching for template surgery. Serve with gzip or brotli
+compression on; wasm compresses hard, and enabling it on the host is a larger win than most build
+flags. The size knobs above still apply to a custom web template through `custom_template/release`.
+
+**PCK encryption on web: the mechanism works, the protection does not.** Building a keyed web
+template and setting `encrypt_pck` behaves exactly as on desktop, and the plaintext receipts flip
+the same way. The value is different: the key ships inside a wasm binary the browser downloads to
+the player's machine, and the pck itself crosses the network where any devtools network tab
+captures it. Encrypt if the same key already covers other platforms; treat it as protection on web
+and the reasoning is wrong.
+
+## macOS
+
+The bundle exports from any host. The signing leg is where the host decides what is possible.
+
+**Preset fields.** `application/bundle_identifier` (reverse-DNS, permanent per listing) and
+`export/distribution_type` choose the artifact's purpose. The signing family is
+`codesign/codesign` (an integer selecting the tool), `codesign/certificate_file`,
+`codesign/certificate_password`, `codesign/apple_team_id`, `codesign/provisioning_profile`, and
+`codesign/custom_options`. Notarization mirrors it: `notarization/notarization` (again an integer
+tool selector), then either the API-key trio `notarization/api_uuid`, `notarization/api_key`,
+`notarization/api_key_id`, or the Apple-ID pair `notarization/apple_id_name`,
+`notarization/apple_id_password`. **Which tools the two integer fields offer depends on the editor
+build and the host**, so read the dropdown in the Export dialog instead of writing an index into
+the cfg by hand.
+
+Credentials get the same treatment as the Android keystore, and the same environment overrides
+exist: `GODOT_MACOS_CODESIGN_CERTIFICATE_FILE`, `GODOT_MACOS_CODESIGN_CERTIFICATE_PASSWORD`,
+`GODOT_MACOS_CODESIGN_PROVISIONING_PROFILE`, `GODOT_MACOS_NOTARIZATION_API_KEY`,
+`GODOT_MACOS_NOTARIZATION_API_KEY_ID`, `GODOT_MACOS_NOTARIZATION_API_UUID`,
+`GODOT_MACOS_NOTARIZATION_APPLE_ID_NAME`, `GODOT_MACOS_NOTARIZATION_APPLE_ID_PASSWORD`.
+
+**Entitlements, in one pass.** They live under `codesign/entitlements/*` and each one widens what
+the signed app may do, so grant the few that are needed and leave the rest off:
+
+- `app_sandbox/enabled` plus the per-resource toggles (`device_usb` and `device_bluetooth` for
+  controllers, `files_downloads`, `files_movies`, `files_music`, and friends). Required for the App
+  Store; unnecessary weight for direct distribution.
+- `allow_jit_code_execution`, `allow_unsigned_executable_memory`,
+  `allow_dyld_environment_variables` — only for a GDExtension that needs dynamic or self-modifying
+  native code. Each one relaxes the runtime protections signing exists to assert.
+- `codesign/entitlements/additional` takes raw plist for anything the fields do not cover.
+
+**What a Windows dev machine cannot do.** Apple's signing tools and the notarization submission are
+macOS-side, and notarization is a network round trip to Apple whose requirements and tooling change
+on Apple's schedule rather than Godot's. Treat Apple's current documentation as the authority for
+that leg and this section as the map of where Godot's fields plug into it. From Windows the
+reachable work is the preset, the export filters, and the pck receipt via `--export-pack`. The
+verification commands (`codesign --verify --deep --strict --verbose=2`, `spctl -a -vv`) run on a
+Mac, and there is no substitute for running them before shipping a bundle.
+
+## iOS
+
+The export writes an Xcode project. **The final build, sign, and `.ipa` leg needs Xcode on a Mac**,
+which is a hard boundary rather than a matter of installing more tooling on the dev machine.
+
+Preset fields worth setting before the handoff: `application/bundle_identifier`,
+`application/app_store_team_id` (the 10-character Apple Team ID),
+`application/provisioning_profile_uuid_debug` and `..._release`, or their
+`application/provisioning_profile_specifier_debug` / `..._release` counterparts when the profile is
+named rather than identified by UUID. Leaving the UUID empty lets Xcode download or create a
+profile automatically, which is the path of least friction for a first build.
+`architectures/arm64` is the only device architecture, and `custom_template/release` takes a keyed
+or size-optimized template as everywhere else.
+
+The dev-tooling boundary pays off harder here than anywhere: App Store review turnaround measures
+in days, so run the pck scan before every submission rather than after a rejection. From Windows,
+`--export-pack` plus the string scan is the whole verifiable surface, and it is worth doing.
 
 ## The restore step
 

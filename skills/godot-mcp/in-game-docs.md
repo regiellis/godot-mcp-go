@@ -4,7 +4,7 @@ From the workflow-design talk *"Gyms, Zoos, and Museums: your documentation shou
 
 **For a solo or small team this matters more, not less.** The "game of telephone" the talk describes (asking a teammate, who points to Slack, which points to Confluence…) is, for you, a game of telephone *with your future self*. Three months on you've forgotten your own jump distance, your asset scales, your system rules. In-game docs become a single source of truth you maintain **for free while building**, not a separate chore you'll abandon.
 
-The `doc` command group builds all four patterns. Every recipe below was driven against a live editor. They need a **3D scene** open (`scene create … --root-type Node3D` then `scene open …`).
+The `doc` command group builds all four patterns. Every recipe below was driven against a live editor. They need a **3D scene** open (`scene create … --root-type Node3D` then `scene open …`); *The 2D equivalent* at the end covers a canvas project.
 
 ---
 
@@ -89,6 +89,46 @@ godot-mcp doc note --action resolve --node-path "Note_Todo"
 ```
 
 Notes are stored as node metadata (`_doc_note`), so they ride along in the scene and never desync from the thing they describe. `doc note --action list` walks the open scene and reports them with paths you can feed straight back to other commands.
+
+## The 2D equivalent — the same four patterns without `doc.*`
+
+**`doc.*` scaffolds 3D scenes only.** Every command in the group refuses a non-Node3D root; notes drop a `Marker3D`, labels are `Label3D`, and stations are CSG boxes. There is no 2D `doc gym`, no 2D `doc note --action list`. The thesis is dimension-free, so a canvas project builds the same four patterns out of the generic commands.
+
+What maps over:
+
+- **Gym** — a flat scene of measured jump gaps, speed corridors, and step heights laid out left to right at rising values, with the number on each station. `StaticBody2D` platforms are the geometry you actually run at; `ColorRect` or `Polygon2D` carries the green → orange → red grading; `Label` carries the distance.
+- **Zoo** — a grid of `scene instance` calls with a `Label` caption under each. Scale in 2D is pixel size against your character, so put the character scene in the grid as the reference instead of the 1m/2m cubes.
+- **Museum** — a row of exhibit pads is a row of `ColorRect` slabs, one `Label` each, the live demo scene instanced on top.
+- **Spatial notes** — `Marker2D` plus `node set-meta`. Metadata rides in the scene exactly as `_doc_note` does on a 3D marker, so the note stays attached to what it describes. Read one back with `godot-mcp node get-meta --node-path X --key _doc_note`; there is no command that walks the scene collecting them, so keep the notes under one container node and read its children.
+
+**Build a 2D gym** — three ground slabs separated by two measured gaps, each graded and labeled:
+
+```
+godot-mcp scene create --path res://docs/gym_2d.tscn --root-type Node2D --root-name Gym2D
+
+# ground the controller runs along; the gaps between slabs are what's under test
+godot-mcp scene2d add-body --type StaticBody2D --name Ground_0 --shape rectangle --size "Vector2(256,32)" --position "Vector2(0,400)"
+godot-mcp scene2d add-body --type StaticBody2D --name Ground_1 --shape rectangle --size "Vector2(256,32)" --position "Vector2(400,400)"
+godot-mcp scene2d add-body --type StaticBody2D --name Ground_2 --shape rectangle --size "Vector2(256,32)" --position "Vector2(864,400)"
+# shapes centre on the body, so slab 0 spans x -128..128 and slab 1 spans 272..528: a 144 px gap, then 208 px
+
+# grade each gap the way doc gym does, green for clearable and orange for the ceiling
+godot-mcp node add --type ColorRect --name Grade_144 --properties '{"position":"Vector2(128,432)","size":"Vector2(144,16)","color":"#3faf5a"}'
+godot-mcp node add --type ColorRect --name Grade_208 --properties '{"position":"Vector2(528,432)","size":"Vector2(208,16)","color":"#d86b2b"}'
+
+# the measurement, readable in the viewport
+godot-mcp node add --type Label --name Gap_144 --properties '{"position":"Vector2(140,340)","text":"144 px (easy)"}'
+godot-mcp node add --type Label --name Gap_208 --properties '{"position":"Vector2(540,340)","text":"208 px (max jump)"}'
+
+# a spatial note carrying its own to-do
+godot-mcp node add --type Marker2D --name Note_Tuning --properties '{"position":"Vector2(632,300)"}'
+godot-mcp node set-meta --node-path Note_Tuning --key _doc_note \
+  --value '{"category":"todo","text":"208 px is the ceiling, re-measure once the dash lands"}'
+
+godot-mcp scene save
+```
+
+Instance your real controller into that scene and run it. The numbers in the labels are claims until the controller clears the gap, which is the whole point of a gym over a table.
 
 ---
 

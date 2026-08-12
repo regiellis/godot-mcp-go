@@ -11,6 +11,8 @@ There are **two families** of procedural generation, and they solve different pr
 
 This file is the buildable playbook for the **second** family — the technique from Oscar Stålberg's "How One Guy FIXED Procedural Generation". The first family lives in `level-design.md`/`environment-art.md`.
 
+**`wfc.*`, `gridmap.*`, and `mesh deform-lattice` all operate on a GridMap, which is a 3D node**, so every recipe below assembles 3D modules. None of them reach a `TileMapLayer`; *The 2D case* at the end covers what a canvas project has instead.
+
 Every recipe below was driven against a live editor. Set up a GridMap first (`node add --type GridMap --parent . --name Grid`); paint with item ids, then assign a real MeshLibrary (`gridmap meshlibrary_from_scene` → `node set mesh_library`) once the logic works.
 
 ---
@@ -126,6 +128,26 @@ godot-mcp mesh deform-lattice --node-path Module \
   --handles '["Vector3(-1,-0.5,-1)","Vector3(1,-0.5,-1)","Vector3(-0.5,0.5,-0.5)","Vector3(0.5,0.5,-0.5)","Vector3(-1,-0.5,1)","Vector3(1,-0.5,1)","Vector3(-0.5,0.5,0.5)","Vector3(0.5,0.5,0.5)"]'
 # normals are recomputed from the deformed faces. --mesh-path saves a reusable .mesh.
 ```
+
+## 6. The 2D case — terrains today, WFC by hand
+
+**The dual-grid insight is dimension-free.** Typing corners instead of cells in 2D is marching squares: 4 corners, 16 configs, 6 tiles under rotation, the same collapse derived in section 1. Godot ships that idea as the TileSet **terrain** system — peering bits are the corner types and the autotiler picks the matching tile — so the 2D counterpart of `wfc solve-dual` is `tilemap set-terrain`. Author the terrain in the TileSet editor (peering bits are visual work), paint it from the CLI. `topdown-2d.md` carries the recipe and the island-tile gotcha that makes isolated cells place nothing.
+
+**WFC has no 2D command.** `wfc collapse` writes GridMap cells and there is no `TileMapLayer` counterpart, so the solve is yours to run. Both halves of the write are available:
+
+```
+# solve and write in one editor call — fast over a large region, and not undoable
+godot-mcp editor run-script --code '
+var layer = EditorInterface.get_edited_scene_root().get_node("Ground")
+for cell in solved:          # solved: {Vector2i cell: Vector2i atlas_coords}
+	layer.set_cell(cell, 0, solved[cell])
+'
+
+# or keep the solve outside and issue one undoable write per cell
+godot-mcp tilemap set-cell --node-path Ground --x 4 --y 2 --source-id 0 --atlas-x 1 --atlas-y 0
+```
+
+The adjacency table, entropy pick, and propagation are a few dozen lines of GDScript. Read the result back with `tilemap get-used-cells`, not a screenshot — the same rule the 3D loop below follows with `gridmap get_used_cells`.
 
 ---
 

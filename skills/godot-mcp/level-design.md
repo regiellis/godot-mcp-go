@@ -5,6 +5,12 @@ to **build it** as a playable blockout with the CLI. Distilled from level-design
 **solo / small-team** devs (you do both the design and the art, so do them in that order). The
 other craft files cover entities and systems; this one covers **the space between them**.
 
+The workflow (Big→Medium→Small, greybox first, the colour/value language, the placement
+discipline) is shared by every kind of level. The **tools** are not, so the second half splits by
+space family: **interior combat**, **exterior and open space**, and **2D**. Read the shared half,
+then the family you're building. Construction below the design sits elsewhere:
+`platformer-2d.md` and `topdown-2d.md` own 2D assembly, `environment-art.md` owns the art pass.
+
 These are **patterns to draw from, not a checklist to run end-to-end** — pick the ones that serve
 the experience you're after. Each pairs an idea with a **Build:** recipe (real `node`/`scene`
 commands); treat the commands as a starting point and adapt them. Verify APIs against the live
@@ -64,17 +70,19 @@ a pass once the larger decisions above it are stable. Don't model the coffee cup
 placement might still move; don't place the desk while the room might resize; don't build the
 hospital while the layout might change.
 
-- **Big (macro) — answer the gameplay questions**. Room sizes, combat spaces, choke points, cover,
-  sight lines, routes, spawns, the critical path. The level is literally cube-room / cube-hallway /
-  cube-cover. Question: *"is it fun?"* — not *"does it look like a hospital?"*
+- **Big (macro) — answer the gameplay questions**. Indoors: room sizes, combat spaces, choke points,
+  cover, sight lines, routes, spawns, the critical path — the level is literally cube-room /
+  cube-hallway / cube-cover. Outdoors: ground shape, ridgelines, landmarks, and the routes between
+  them. Question: *"is it fun?"* — not *"does it look like a hospital?"*
 - **Medium (structure) — define the space**. What makes it read as the place: doors, windows,
-  stairs, elevators, desks, major machinery, bridges. Question: *"does this feel like a hospital?"* —
-  while still validating gameplay.
+  stairs, elevators, desks, major machinery, bridges; outdoors, the massing that gives a region its
+  silhouette. Question: *"does this feel like a hospital / a hillside village?"* — while still
+  validating gameplay.
 - **Small (detail) — only after the level works**. Clutter, props, signage, decals, monitors,
   particles. Question: *"is it believable?"*
 
 This is the shape behind every staged process in this doc:
-- **2.5D layout:** Big = platforms/terrain/routes → Medium = doors/bridges/trees/interactables →
+- **2D / side-view layout:** Big = platforms/terrain/routes → Medium = doors/bridges/trees/interactables →
   Small = signs/lamps/wires/debris/particles.
 - **Lighting** (functional → gameplay → mood) and **presentation** (readability → feedback →
   cinematic lighting → atmosphere) are Big→Medium→Small for their domains.
@@ -84,31 +92,6 @@ This is the shape behind every staged process in this doc:
 
 Most indie projects stall by **jumping straight to Small** — detailing a space (or a juice effect)
 whose larger decisions aren't locked, then rebuilding when a playtest moves a wall.
-
-## Greybox the AI too (Big → Medium → Small)
-
-Don't pair a proven level with a dumb walk-at-player enemy and discover months later it breaks under
-real AI. Greybox the AI alongside the level. The guiding idea: **greybox AI tests the level, it
-doesn't win the game** — if it can reliably break your pathing / cover / sight lines / encounter
-flow, it's doing its job; if it stands around, you're testing half the game.
-
-- **Big AI — archetypes as questions**. Each is a coloured capsule (`CharacterBody2D/3D` +
-  `NavigationAgent`, one material per type), not a finished enemy: **Rusher** (combat space big
-  enough? cover meaningful?), **Flanker** (enough routes? too linear?), **Sniper** (are sight lines
-  interesting?), **Defender** (does objective play work?). Build the navmesh with the `navigation`
-  group; drive the pawn with a `NavigationAgent`.
-- **Medium AI — tactical**. Cover use, retreat, grouping, search/patrol. Tests "does this space
-  support *intelligent* behaviour?" — a room that works against Rushers often fails the moment
-  enemies use cover.
-- **Small AI — personality**. Voice, animation, gestures, abilities. Immersion, not gameplay proof — last.
-
-**Reusable AI test pawn:** one capsule with an `@export` mode enum (Rush / Flee / Patrol / Defend /
-Flank / Wander) switchable in the inspector, and **loud debug visuals** (target, nav path, aggro
-radius, vision cone, chosen cover). Greybox AI should be *extremely* visible. For stakeholder demos,
-build **fake-smart** AI, not smart AI — an enemy that visibly takes cover, peeks, and reacts reads
-as smarter than a sophisticated AI you can't observe. Genre shorthand: puzzle — Big: reach the goal?
-Medium: avoid obstacles? Small: look smart? Narrative — Big: move through scenes? Medium: react to
-state? Small: facial/idle micro-behaviour.
 
 ## Presentation stages — designer vs stakeholder greybox
 
@@ -133,7 +116,7 @@ tests on the finished scene, and never move locked geometry to fix a look.)
 Add presentation in four layers, in order — each is worth doing only once the prior holds:
 
 1. **Readability (required)** — clear playable surfaces, layer separation, visible character &
-   objectives. Without it nothing else matters (the color language + 2.5D value work below).
+   objectives. Without it nothing else matters (the color + value language below).
 2. **Feedback / juice (required for stakeholders)** — *something happens immediately* on move / jump
    / land / hit / collect / interact: dust puff, squash-&-stretch, landing impact, button depress,
    collect pop + particle + sound. None of it needs final art — cubes feel good long before they look good.
@@ -220,6 +203,49 @@ material apply --node-path Floor --material_path res://mat/proto_floor.tres
 (`material set --path … --uv1_scale …` re-tunes density on the saved `.tres` without rebuilding
 it; `material info --node-path Floor` reads the applied material back to verify.) Then `scene save`.
 
+### Value hierarchy beats color for depth
+
+Color codes *function* (the palette above); **value (brightness) codes depth**. For clean,
+readable styles (puzzle, narrative, cozy), lean on a value ladder more than hue — many great
+games read almost entirely in grayscale because contrast does the work. It matters most where
+depth is faked (side-view, layered 2D, fixed-camera 3D), and it costs nothing to hold everywhere:
+
+| Layer | Brightness |
+| --- | --- |
+| Background (non-interactive) | ~20% |
+| Midground décor | ~40% |
+| Playable surfaces | ~70% |
+| Interactables | ~90% |
+
+Build it by setting that value as the piece's color — `node set … '{"color":"Color(0.2,0.2,0.2,1)"}'`
+for 2D, or a flat `albedo_color` material for 3D (see building blocks). Genre palettes then layer
+*function* color **on top of** the value ladder — e.g. a track-puzzle board: neutral grey board,
+blue track, green destination, red blocked, yellow special; a narrative side-view: grey
+environment, cyan walkable, yellow interaction hotspot, green exit/transition, magenta trigger
+volume.
+
+### The grayscale test (actually run it)
+
+**Strip the color and check the level still reads.** If the playable path vanishes in grayscale,
+it leans on color instead of shape/contrast/composition — fix the *value* separation, don't just
+recolor.
+
+- **Lightweight:** take a `runtime screenshot` and judge whether the playable plane reads by value
+  alone (assess the image directly — squint at it).
+- **Rigorous (3D):** desaturate the whole render via a `WorldEnvironment`, screenshot,
+  then revert:
+  ```
+  node add --type WorldEnvironment --name _GrayTest --parent-path .
+  node add-resource --node-path _GrayTest --property environment --resource-type Environment \
+    --resource-properties '{"adjustment_enabled":true,"adjustment_saturation":0.0}'
+  # scene play -> runtime screenshot -> read it -> then: node delete --node-path _GrayTest
+  ```
+  (If the scene already has a `WorldEnvironment`, set `adjustment_saturation` to 0 on its existing
+  `Environment` instead of adding a second.)
+- **2D-only:** `CanvasModulate` **can't** desaturate (it only multiplies a tint) — use a top
+  `CanvasLayer` → full-rect `ColorRect` with a small luminance shader sampling `hint_screen_texture`,
+  or just eyeball the screenshot.
+
 ## Place by anchor, not by parallel constants (read back · raycast · verify)
 
 You can't perceive 3D from one screenshot and you're bad at absolute-coordinate math, so the way
@@ -294,6 +320,8 @@ node add --type CSGBox3D --name Floor --parent-path .
 node set --node-path Floor --properties '{"size":"Vector3(40, 1, 40)","position":"Vector3(0,0,0)","use_collision":true}'
 # a wall: thin on one axis, raised; a ramp: rotate it, e.g. "rotation_degrees":"Vector3(0,0,20)"
 ```
+(`csg add --type CSGBox3D --size "Vector3(40,1,40)" --use-collision true --position "Vector3(0,0,0)"
+does the same in one call, with `--operation` for booleans and `--rotation` in degrees.)
 
 **Goal beacon** — tall, lit, visible from far off (the "lighthouse"):
 ```
@@ -342,70 +370,6 @@ Note: `input move` is **mouse motion**, not walking — drive the character with
 --node-path Player --properties '["global_position"]'` (input is fire-and-forget). To inspect a
 sightline without driving, **teleport** the player via `runtime set` or move the camera.
 
-## 2.5D & side-view levels — depth, layers, and value
-
-"2.5D" is **two different build problems** — decide which you're greyboxing, because the depth
-mechanism and tooling differ:
-
-- **3D geometry, constrained camera** (side-on or fixed ortho — Trine/Ori-like, or diorama
-  puzzles à la Hitman GO). Build with the CSG **building blocks** as usual, then lock the camera
-  (orthographic `Camera3D`, fixed angle). Depth separation is *real* — use Z position. Most of
-  this doc's tactics apply directly.
-- **Layered 2D** (sprites/quads stacked with parallax). Build with `ColorRect`/`Polygon2D` on
-  ordered `CanvasLayer` / `Parallax2D` layers. Depth is *faked* by draw order + parallax — so
-  separating the playable plane from décor is entirely on you.
-
-Either way the core 2.5D problem is the same: **a flat screen makes depth ambiguous**, so the
-player must instantly tell *what's playable* from *what's backdrop*. The volume/sightline focus
-of 3D shifts to **readability, depth separation, path clarity, and camera framing**. What a 2.5D
-greybox validates: **layer separation** (background vs. playable vs. foreground unmistakable),
-**path clarity** (the route reads at a glance), **jump distances/reach** (gaps read as within the
-character's actual jump), **interaction points** (interactables stand out from décor),
-**character readability** (the silhouette is never lost against the background), and **camera
-framing** (the constrained camera keeps all of it in frame).
-
-### Value hierarchy beats color for depth
-
-Color codes *function* (the palette above); **value (brightness) codes depth**. For clean,
-readable styles (puzzle, narrative, cozy), lean on a value ladder more than hue — many great 2.5D
-games read almost entirely in grayscale because contrast does the work:
-
-| Layer | Brightness |
-| --- | --- |
-| Background (non-interactive) | ~20% |
-| Midground décor | ~40% |
-| Playable surfaces | ~70% |
-| Interactables | ~90% |
-
-Build it by setting that value as the piece's color — `node set … '{"color":"Color(0.2,0.2,0.2,1)"}'`
-for 2D, or a flat `albedo_color` material for 3D (see building blocks). Genre palettes then layer
-*function* color **on top of** the value ladder — e.g. a track-puzzle board: neutral grey board,
-blue track, green destination, red blocked, yellow special; a narrative side-view: grey
-environment, cyan walkable, yellow interaction hotspot, green exit/transition, magenta trigger
-volume.
-
-### The grayscale test (unique to 2.5D — actually run it)
-
-**Strip the color and check the level still reads.** If the playable path vanishes in grayscale,
-it leans on color instead of shape/contrast/composition — fix the *value* separation, don't just
-recolor.
-
-- **Lightweight:** take a `runtime screenshot` and judge whether the playable plane reads by value
-  alone (assess the image directly — squint at it).
-- **Rigorous (3D / 2.5D-in-3D):** desaturate the whole render via a `WorldEnvironment`, screenshot,
-  then revert:
-  ```
-  node add --type WorldEnvironment --name _GrayTest --parent-path .
-  node add-resource --node-path _GrayTest --property environment --resource-type Environment \
-    --resource-properties '{"adjustment_enabled":true,"adjustment_saturation":0.0}'
-  # scene play -> runtime screenshot -> read it -> then: node delete --node-path _GrayTest
-  ```
-  (If the scene already has a `WorldEnvironment`, set `adjustment_saturation` to 0 on its existing
-  `Environment` instead of adding a second.)
-- **2D-only:** `CanvasModulate` **can't** desaturate (it only multiplies a tint) — use a top
-  `CanvasLayer` → full-rect `ColorRect` with a small luminance shader sampling `hint_screen_texture`,
-  or just eyeball the screenshot.
-
 ## Greybox lighting — answer gameplay questions, not art questions
 
 Light a greybox to make it **readable**, not pretty. Tuning bloom/fog/shadows/grading before the
@@ -433,13 +397,18 @@ the brightest path — this is the lit form of "Attract attention" below. Let un
 post — now the question is "does it *feel* right?", not "can I understand this?". This is art
 polish; it waits (Presentation-stages layer 4).
 
-**2.5D rig (enough for most prototypes):** key `DirectionalLight3D` + ambient fill + an optional
-**back/rim light** behind the player — a *second light node*, not a material trick, so it survives
-on grey geometry. A subtle rim lifts the character silhouette off a grey background. Lighting is
-also a way to build the **depth value hierarchy** (2.5D section): light each layer toward its target
-value (background dim → player brightest) instead of, or alongside, material albedo value.
+**Side-view / 2.5D rig (enough for most prototypes):** key `DirectionalLight3D` + ambient fill + an
+optional **back/rim light** behind the player — a *second light node*, not a material trick, so it
+survives on grey geometry. A subtle rim lifts the character silhouette off a grey background.
+Lighting is also a way to build the **depth value hierarchy** above: light each layer toward its
+target value (background dim → player brightest) instead of, or alongside, material albedo value.
 
-## Give the player a clear goal (beat blank-canvas syndrome)
+## Spatial communication — teach the player without text
+
+These tactics are the shared vocabulary: they hold indoors, outdoors, and in 2D, and only the tool
+changes. Each is one idea plus the commands that build and prove it.
+
+### Give the player a clear goal (beat blank-canvas syndrome)
 
 Place the **player** and a **visible goal** first; then you only build the *gap between them*,
 and you have a landmark to compose every sightline around. A clear goal makes the player move
@@ -450,7 +419,7 @@ re-orients them (pinch points control those shots).
 fill between. `scene play` and confirm the beacon is visible from spawn with `runtime
 screenshot`; if not, raise it or clear the sightline.
 
-## Motivate movement by blocking sightlines
+### Motivate movement by blocking sightlines
 
 A room that reveals everything at once is dead — no reason to move. **Block sightlines** so the
 player circles to gather info from new angles and assembles the map in their head. Aim for **no
@@ -461,7 +430,7 @@ single vantage** that shows the whole room.
 camera) to the entry and each corner, `runtime screenshot` at each. **If any one screenshot shows
 the whole room and its exit, add another blocker.**
 
-## Block the player creatively — "tearing down walls"
+### Block the player creatively — "tearing down walls"
 
 Don't fence with flat walls. Block in ways that are interesting *and* functional: a torn-open
 wall over a **fatal drop** seals escape as surely as a wall but reads better — and the opening
@@ -471,7 +440,7 @@ lets you frame the goal through it.
 a **killzone** (building blocks) in the void beyond. Frame the goal through the gap with `editor
 set-camera`.
 
-## Tension and release
+### Tension and release
 
 Lead the player to a **dead end** (two locked doors) so they **backtrack** — and reveal the real
 path from the new angle on the way back (a route that was sightline-blocked before). The pocket
@@ -484,7 +453,7 @@ exit behind a blocker that's only visible when facing back toward the entrance. 
 run the path through a corridor of tall boxes that occlude the goal beacon, ending at a pinch point
 (below) that re-frames it. Verify both with walk-through screenshots.
 
-## One-way valve — nudge forward, keep it manageable
+### One-way valve — nudge forward, keep it manageable
 
 A drop the player can't climb back up gently pushes them on and **caps how far they wander
 backward**, so a big space stays digestible. Use one before opening into a larger area. Always
@@ -495,7 +464,7 @@ pure layout, no special node. Verify: after `scene play`, drive the player back 
 `input action` + jump and confirm via `runtime get --node-path Player --properties
 '["global_position"]'` that they **can't** remount.
 
-## Privileged perspective — let them plan before they commit
+### Privileged perspective — let them plan before they commit
 
 Before a combat/stealth space, enter from **above / a safe vantage** so the player reads the
 layout and forms a plan without the duress, then advances at their own pace.
@@ -504,7 +473,7 @@ layout and forms a plan without the duress, then advances at their own pace.
 with stairs/ramp down. Confirm the overview reads: `editor set-camera` to the entry viewpoint,
 `runtime screenshot` — the player should see the threats and the routes from up there.
 
-## Make a space feel larger — the illusion of choice
+### Make a space feel larger — the illusion of choice
 
 Offer **several routes that converge on one point**. The player can't take them all, so any route
 they skip leaves unknown (therefore infinite-feeling) space. Cheap depth: three short alternate
@@ -514,7 +483,7 @@ paths through *one* space, not three spaces.
 next trigger/door. Keep each corridor a few boxes long — it's the *branching*, not the length,
 that sells size.
 
-## Attract attention — draw the eye down a chosen route
+### Attract attention — draw the eye down a chosen route
 
 When routes are many, lead the eye:
 
@@ -530,7 +499,7 @@ When routes are many, lead the eye:
   stagger boxes at different depths; add a `WorldEnvironment` with fog. **Build (2D):**
   `Parallax2D` / `CanvasLayer` layers.
 
-## Create mystery — seed, don't show
+### Create mystery — seed, don't show
 
 Make the player **assume something exists** but discover *what*. A door ajar, swaying, light
 bleeding around it — they can't see behind but know it opens.
@@ -539,7 +508,7 @@ bleeding around it — they can't see behind but know it opens.
 **trigger** just past it, so the reveal lands when they push through. Don't show what's behind in
 any earlier sightline.
 
-## Build a vocabulary you can pay off or subvert
+### Build a vocabulary you can pay off or subvert
 
 Reuse a **recognizable usable element** (the talk's climbable pipes — used to escape, then again
 at a bridge, then near the end). Once taught, the player makes their own plans; then **pay it off**
@@ -549,7 +518,7 @@ at a bridge, then near the end). Once taught, the player makes their own plans; 
 identically each time it's usable. **Consistency is the contract** — never reuse that color/shape
 for non-climbable geometry, or the language breaks.
 
-## Communicate blockage honestly — match affordance to intent
+### Communicate blockage honestly — match affordance to intent
 
 Every blocker says something; make it say the right thing.
 
@@ -560,7 +529,7 @@ Every blocker says something; make it say the right thing.
   afar. **Build:** barricade it with furniture boxes, or just **delete it** — an unrealistic-clear
   space beats a realistic-frustrating one (`node delete`).
 
-## Shortcuts — shrink the world, respect the player's time
+### Shortcuts — shrink the world, respect the player's time
 
 After a valve or a cleared challenge, open a **shortcut back** to earlier space — it re-connects
 the level, makes it feel smaller, and lets a proven challenge be skipped on repeat traversal.
@@ -569,7 +538,7 @@ the level, makes it feel smaller, and lets a proven challenge be skipped on repe
 the new area straight into a previously-visited room. Repurpose old **dead ends** as the shortcut's
 mouths.
 
-## Pinch points — control the shot without taking control
+### Pinch points — control the shot without taking control
 
 Funnel the player through a **narrow doorway**. You know exactly where they are, so you know where
 the **camera** is — compose a reveal (re-frame the goal) **without cutting away or seizing
@@ -579,7 +548,7 @@ control**.
 in view. Pre-frame with `editor get-camera`/`set-camera`, then `scene play` + `runtime screenshot`
 from the doorway to confirm the reveal lands.
 
-## Safety nets — fail without breaking flow
+### Safety nets — fail without breaking flow
 
 A failed jump shouldn't mean a game-over and restart — that breaks flow. Give failure a **soft
 landing** the player climbs back from, without removing the challenge (they still must make the
@@ -590,7 +559,7 @@ jump).
 start. Verify by **failing the jump on purpose** during `scene play` and confirming you recover in
 the flow.
 
-## Problem-solution ordering — gate the information
+### Problem-solution ordering — gate the information
 
 The player must **meet the problem before the solution**, or the solution is meaningless (find the
 key before the locked gate and the gate feels already-open). **Make the problem unavoidable, route
@@ -612,8 +581,268 @@ elevation and vantage points. Rooms can be internally gridded; just not all on t
 embed boxes at different heights rather than tiling one plane. Stairs/ramps (rotated boxes) connect
 the levels.
 
+## Interior combat spaces — arenas, cover, and greybox AI
+
+Combat interiors are one family, and the cube-room / cube-hallway / cube-cover vocabulary belongs
+to it. Everything above applies unchanged; a fight adds a size contract with the weapons, a cover
+language, and enemies smart enough to test the space.
+
+**Size the arena from the weapons**, against the ranges the mechanic prototype proved. A pistol
+fight in a 60 m hall is a walk; a sniper in a 12 m room is a shotgun. A clear diagonal means every
+entrant is visible to every defender from the first frame — break it, or choose it deliberately.
+```
+spatial bounds --node-path ArenaFloor      # size.x / size.z = the real fight box, in meters
+spatial raycast --from "Vector3(-18,1.6,-18)" --to "Vector3(18,1.6,18)"   # the diagonal
+```
+
+**Cover is a height language.** Three tiers, fixed for the project and coded with the traversal
+colour: **full** (~2.2 m, blocks sight and shots), **half** (~1.1 m, crouch behind, shoot over),
+**low** (~0.5 m, breaks the silhouette only). Space pieces so crossing between two costs a dash.
+Prove the height with a ray pair, one at standing eye height and one crouched — both missing means
+the box is decoration, both hitting means it's a wall wearing the cover colour:
+```
+csg add --type CSGBox3D --name Cover_A --parent-path Arena --size "Vector3(2,1.1,0.6)" \
+  --position "Vector3(0,0.55,0)" --use-collision true      # y = half the height: base on the floor
+# …Cover_B, Cover_C the same, then space and colour them:
+spatial distribute --nodes '["Arena/Cover_A","Arena/Cover_B","Arena/Cover_C"]' --axis x --span 14
+material apply --node-path Arena/Cover_A --material_path res://mat/traversal.tres
+spatial raycast --from "Vector3(-14,1.6,0)" --to "Vector3(14,1.6,0)"   # standing: clear (exposed)
+spatial raycast --from "Vector3(-14,0.9,0)" --to "Vector3(14,0.9,0)"   # crouched: hits a cover box
+```
+
+### Greybox the AI too (Big → Medium → Small)
+
+Don't pair a proven level with a dumb walk-at-player enemy and discover months later it breaks under
+real AI. Greybox the AI alongside the level. The guiding idea: **greybox AI tests the level, it
+doesn't win the game** — if it can reliably break your pathing / cover / sight lines / encounter
+flow, it's doing its job; if it stands around, you're testing half the game. The archetypes below
+are shooter-native; the genre shorthand at the end is the version for everything else, and
+`ai-steering.md` covers the movement itself.
+
+- **Big AI — archetypes as questions**. Each is a coloured capsule (`CharacterBody2D/3D` +
+  `NavigationAgent`, one material per type), not a finished enemy: **Rusher** (combat space big
+  enough? cover meaningful?), **Flanker** (enough routes? too linear?), **Sniper** (are sight lines
+  interesting?), **Defender** (does objective play work?). Build the navmesh with the `navigation`
+  group; drive the pawn with a `NavigationAgent`.
+- **Medium AI — tactical**. Cover use, retreat, grouping, search/patrol. Tests "does this space
+  support *intelligent* behaviour?" — a room that works against Rushers often fails the moment
+  enemies use cover.
+- **Small AI — personality**. Voice, animation, gestures, abilities. Immersion, not gameplay proof — last.
+
+**Reusable AI test pawn:** one capsule with an `@export` mode enum (Rush / Flee / Patrol / Defend /
+Flank / Wander) switchable in the inspector, and **loud debug visuals** (target, nav path, aggro
+radius, vision cone, chosen cover). Greybox AI should be *extremely* visible. For stakeholder demos,
+build **fake-smart** AI, not smart AI — an enemy that visibly takes cover, peeks, and reacts reads
+as smarter than a sophisticated AI you can't observe. Genre shorthand: puzzle — Big: reach the goal?
+Medium: avoid obstacles? Small: look smart? Narrative — Big: move through scenes? Medium: react to
+state? Small: facial/idle micro-behaviour.
+
+## Exterior and open space — landmarks, distance, and terrain
+
+Indoors, walls block sight, force routes, set scale, and mark progress. Outdoors there are no
+walls, so those jobs move to **landmarks, terrain, haze, and distance**, and an interior workflow
+applied to a field produces a big flat nothing. The tactics above hold; the tools change.
+
+### Landmarks navigate, signage doesn't
+
+A tall, uniquely-silhouetted object visible from most of the map is the goal beacon at world scale.
+Players orient off silhouettes, so two landmarks that read alike are worse than one. The working
+rule: **every point on the critical path sees at least one landmark**, proven by ray rather than by
+your memory of a screenshot. Read the answer off the `collider`: the landmark itself (or no hit at
+all, when the landmark carries no collision) means the line is clear; any other name is the hill or
+building that ate it.
+```
+csg add --type CSGCylinder3D --name Spire --radius 4 --height 90 \
+  --position "Vector3(0,45,-320)" --use-collision true
+spatial bounds --node-path Spire                                    # take max.y for the aim point
+spatial raycast --from "Vector3(0,2,120)" --to "Vector3(0,80,-320)" # from spawn, eye height
+editor set-camera --position "Vector3(0,2,120)" --look-at "Vector3(0,80,-320)" --fov 60
+editor screenshot --save-path user://landmark_from_spawn.png
+```
+
+### Compose the long sightline
+
+A vista is a shot: edges that frame, something at mid-distance carrying scale, the draw at the end.
+Overlap, size falloff, and atmospheric haze do the work a wall does indoors, and haze is honest
+information — it says "far", the exterior's version of a corridor saying "this way".
+```
+node add --type WorldEnvironment --name Env --parent-path .
+node add-resource --node-path Env --property environment --resource-type Environment \
+  --resource-properties '{"fog_enabled":true,"fog_mode":1,"fog_depth_begin":60,"fog_depth_end":900,"fog_aerial_perspective":0.6}'
+editor set-camera --position "Vector3(0,26,140)" --look-at "Vector3(0,40,-320)" --fov 55
+editor screenshot --save-path user://vista_01.png
+```
+(`fog_mode` 1 is depth fog, where `fog_depth_begin`/`end` apply; confirm with `engine class-info
+--class Environment`.) A landmark that vanishes with distance is usually fog: `Camera3D.far`
+defaults to 4000 m, so a clipped draw means someone lowered it. Re-run the **3-second screenshot
+test** from the vista.
+
+### Terrain paces what walls pace indoors
+
+Elevation is the outdoor pinch point, valve, and reveal line at once. A saddle between two hills is
+a chokepoint with no wall. Rising ground reads as effort and falling ground as release, so the hard
+beat goes at the top. A crest is a reveal line, which makes it the best place in an open map to
+hide the next landmark. Greybox terrain is a few big plates and rotated wedges, not a heightmap:
+```
+csg add --type CSGBox3D --name Ground --size "Vector3(400,2,400)" --use-collision true --position "Vector3(0,-1,0)"
+csg add --type CSGBox3D --name Ridge_W --size "Vector3(120,40,18)" --use-collision true \
+  --position "Vector3(-70,8,-40)" --rotation "Vector3(0,0,-6)"
+# …Ridge_E mirrored at +70 with rotation "Vector3(0,0,6)", then prove the funnel:
+spatial raycast --from "Vector3(0,2,40)"   --to "Vector3(0,2,-140)"    # the saddle: clear
+spatial raycast --from "Vector3(-70,2,40)" --to "Vector3(-70,2,-140)"  # the flank: hits Ridge_W
+```
+Seat anything on sloped plates with `spatial place_on --samples 3 --conform` instead of computing Y
+— outdoor ground is never flat, so the footprint bundle earns its keep here more than anywhere.
+
+### Region transitions read at the border
+
+With no door to walk through, a region change has to be legible from geometry: **change two things
+at once** (ground value plus dominant silhouette) and put the change where the player already looks
+— a crest, a bridge, a bend. Massing gives a region its silhouette long before art exists; the
+boxes read as a forest's density, not as trees.
+```
+material create --path res://mat/region_north.tres --albedo_color "#6a7a58" --roughness 0.95
+material apply --node-path Ground_North --material_path res://mat/region_north.tres
+scatter populate --on Ground_North --mesh-type BoxMesh --count 140 --align-to-normal true \
+  --scale-min 0.8 --scale-max 2.4 --seed 3 --name Massing_North
+```
+`pcg scatter --on Ground_North --noise-threshold 0.6 --emit multimesh --mesh-from TreeProto` does
+the same with clumping, so density thins toward the border instead of stopping on a line. Both seat
+by down-ray onto `use_collision` geometry, so scatter after the terrain.
+
+### Scale discipline: meters per beat
+
+Indoor spacing is counted in rooms; outdoor spacing is counted in **walk seconds**, and that is
+where exterior blockouts fail. Fix the travel budget first (20-30 s between beats on the critical
+path is a common starting point), then lay the map to it — no set dressing shortens a walk.
+```
+spatial relate --node-path Beat_01 --other Beat_02   # raw meters between beats
+scene play --mode current
+runtime move-to --target Beat_02                     # walk it; the wall clock is the design number
+```
+Measure the character's walk and run speed once (`character-3d.md` has the verify-by-driving loop)
+and every later spacing decision is arithmetic on that number.
+
+## 2D level design — screens, scroll, and rooms
+
+2D is its own discipline. Depth is faked, so **the camera decides what the player knows**, and the
+questions that were about volume become questions about frame, value, and layer order.
+Construction sits in the sibling docs: `platformer-2d.md` for the side-view actor, tilemap
+blockouts, and trip-line camera limits; `topdown-2d.md` for the `TileMapLayer` stack and terrain
+painting. This section owns the spatial design above them.
+
+### Decide which build problem "2.5D" is
+
+- **3D geometry, constrained camera** (side-on or fixed ortho — Trine/Ori-like, or diorama
+  puzzles à la Hitman GO). Build with the CSG **building blocks**, then lock the camera
+  (`node set --node-path Camera3D --properties '{"projection":1,"size":12}'` for orthographic).
+  Depth separation is *real* — use Z position, and this doc's 3D tactics apply directly.
+- **Layered 2D** (sprites/quads stacked with parallax). Build with `ColorRect`/`Polygon2D` on
+  ordered `CanvasLayer` / `Parallax2D` layers. Depth is *faked* by draw order + parallax, so
+  separating the playable plane from décor is entirely on you (`Parallax2D.scroll_scale` is the
+  depth dial; `environment-art.md` has the verified recipe).
+
+Either way a side-view greybox validates six things: **layer separation** (background vs playable
+vs foreground unmistakable), **path clarity**, **jump distances**, **interaction points**,
+**character readability** (the silhouette never lost against the background), and **camera framing**.
+
+### Pick the space unit: screen or scroll
+
+**Screen-based** (one room = one screen) makes the screen the design unit: every beat resolves
+inside one frame and the reveal happens at the *transition*, so entrances carry what sightlines
+carry in 3D. **Scrolling** makes the camera a moving aperture: the player holds a fraction of the
+level and pacing is what enters and leaves frame. Decide before laying anything out, and measure
+the aperture in world units first — the returned `Vector2` is one screenful, and every room, gap,
+and reveal below is sized against it:
+```
+scene2d add-camera --name Camera2D --zoom "Vector2(2,2)"
+scene play --mode current
+runtime eval --code 'var c = get_tree().current_scene.get_node("Camera2D")
+emit(get_viewport().get_visible_rect().size / c.zoom)'
+```
+
+### Sightlines become the camera window
+
+"What can they see from here" becomes "what is on screen, and when". `limit_*` fences the camera to
+a room; the drag margins set the dead zone the player crosses before the camera follows. A wide
+dead zone hides what's ahead and rewards committing, a tight one shows the threat early and rewards
+planning. Margins are fractions of the half-viewport, so `0.3` is roughly a third of the screen
+either side. Per-room limits belong on trip-line areas (`platformer-2d.md`), so the level owns the
+framing:
+```
+node set --node-path Camera2D --properties '{"limit_enabled":true,"limit_left":0,"limit_top":0,
+  "limit_right":3840,"limit_bottom":1080,"limit_smoothed":true,
+  "position_smoothing_enabled":true,"position_smoothing_speed":6.0}'
+node set --node-path Camera2D --properties '{"drag_horizontal_enabled":true,
+  "drag_left_margin":0.3,"drag_right_margin":0.3,"drag_vertical_enabled":false}'
+```
+
+### Vertical-slice pacing for side-view
+
+Side-view paces on two axes at once: forward motion carries the challenge cadence, vertical
+position carries risk and reward (up is treasure, down is danger, in most established vocabularies).
+Compose a column that reads top to bottom, then a sequence of columns reading left to right. The
+unit is the character's **measured** jump arc:
+```
+scene play --mode current
+input action --action jump --pressed true
+runtime capture-frames --count 8 --frame-interval 4
+runtime get --node-path Player --properties '["global_position"]'
+input action --action jump --pressed false
+```
+Take peak height and horizontal reach from the sampled positions, then derive every gap, ledge, and
+ceiling from it. A gap at 100% of measured reach is a failure the player blames on you; ~70% is a
+jump they feel good about clearing.
+
+### Room-graph design for top-down
+
+A top-down level is a graph before it is tiles: rooms are nodes, doors are edges, and the layout
+question is the graph's shape. The critical path is a spine and loops that rejoin it are the
+shortcuts; a lock is an edge condition and its key a room hung off the spine (problem-solution
+ordering decides which comes first along the walk); dead ends have to pay, because backtracking
+costs attention the player spent on the map. Build one scene per room and compose from instances,
+so the graph is editable without a level rebuild:
+```
+scene create --path res://rooms/room_03.tscn --root-type Node2D
+scene open --path res://levels/wing_west.tscn
+scene instance --scene-path res://rooms/room_03.tscn --parent-path Rooms --name Room03
+node set-meta --node-path Rooms/Room03 --key graph_edges --value '["Room02","Room04"]'
+scene tree                                  # the graph, read back from the level
+```
+Doors are the `Area2D` sensors `topdown-2d.md` describes; the metadata makes the graph auditable
+without opening every room scene.
+
+## Pacing without combat
+
+Threat is one pressure. Curiosity, comprehension, routine, and revelation are others, and each
+paces on its own clock. The Big→Medium→Small order, the greybox discipline, and the tactics above
+hold; "encounter → quiet → encounter" is replaced by the beat that genre runs on.
+
+- **Exploration**: the beat is a **reveal**, and the dial is how far apart reveals sit — too close
+  and the map is a corridor of gifts, too far and the walk is a chore. Mark intended reveals and
+  read the spacing back rather than trusting how it feels in the editor.
+  ```
+  doc note --action add --category pacing --at "Vector3(40,2,-90)" --text "first ruin, seen from the ridge"
+  doc note --action list --category pacing
+  spatial relate --node-path Beat_01 --other Beat_02
+  ```
+  (`doc note` is 3D; in 2D carry the same beats as `node set-meta` on the room nodes.)
+- **Puzzle**: the beat is **comprehension** — teach, test, twist. One mechanic per room, the twist
+  only after the test proved the rule landed, gated with triggers as problem-solution ordering
+  describes. Validate by walking the order; a puzzle reachable early is a puzzle spoiled.
+- **Farming / sim**: the beat is the **loop**, and distance is the dial. Hub-to-field walking time
+  tunes tedium and rhythm together, so measure it. Space plots with `spatial distribute` (or the
+  tilemap grid in 2D), time one full loop with `scene play` plus sampled `runtime get` positions,
+  then tune the distance rather than the walk speed.
+- **Narrative**: the beat is a **shot**, the room is a frame, the pinch point is the cut. Compose
+  before dressing anything (`editor set-camera --position … --look-at …`, then `editor screenshot`)
+  and keep the frames beside the script. Sightline blocking becomes reveal timing; the safety net
+  becomes "never lose the player between beats".
+
 ## Checklist when laying out a blockout
 
+- **Space family named first** (interior arena / exterior open / 2D screen or scroll) — the tactics
+  are shared, the tools and the scale discipline are not.
 - Player start + **visible goal beacon** placed first; goal **reiterated** along the path.
 - **No single vantage** reveals the whole space — blockers added until walk-through screenshots
   prove it.
@@ -627,12 +856,19 @@ the levels.
 - Terrain is **uneven / off-grid**; rooms sized with temp furniture for final scale.
 - **Color-coded, not art-finished** — CSG + the greybox color language (one color = one rule,
   fixed for the whole project); no textures/props until the layout is proven.
-- **For 2.5D / side-view:** layers separated by **value** (not just hue) — run the **grayscale
-  test** and confirm the playable path still reads; jump distances and camera framing validated.
+- Layers separated by **value** (not just hue) — run the **grayscale test** and confirm the playable
+  path still reads.
+- **Combat interiors:** arena size checked against weapon range; cover proven by a standing/crouched
+  ray pair; greybox AI archetypes run against the space before it's called done.
+- **Exteriors:** a landmark raycast-visible from every beat on the critical path; the travel budget
+  between beats fixed in seconds and actually walked; region borders change two things at once.
+- **2D:** the camera window measured in world units before anything is sized to it; jump reach
+  measured by driving the character; the room graph drawn before a tile is painted.
+- **Non-combat:** the pacing pressure named (curiosity / comprehension / routine / reveal) and its
+  beats spaced deliberately, not left to the walk.
 - **Lighting answers gameplay questions** — functional first (player/ground/hazards/interactables
   instantly legible); mood/post saved for after the level is proven.
 - **3-second screenshot test:** one `runtime screenshot` should convey the level's purpose to a
   fresh viewer in ~3s. If not, the gap is composition / contrast / lighting — **not** missing art.
 - **Walk it** every iteration: `scene play` → `runtime screenshot` (teleport with `runtime set`
   or drive with `input action`) → `runtime get` to read state back → adjust.
-```

@@ -33,7 +33,7 @@ export const GUIDES: Guide[] = [
   { slug: "lighting-2d", group: "2D", title: "2D lighting", desc: "The full 2D lighting stack: the CanvasModulate/PointLight2D/occluder triad, emissive exemptions, real glow, SDF." },
   { slug: "tile-constraint", group: "2D", title: "Constraint tiling", desc: "The Townscaper/Bad North PCG family: the dual-grid fix, Wave Function Collapse from an example, variant buckets." },
 
-  { slug: "level-design", group: "3D and spatial", title: "Level design", desc: "Playable greybox levels: the Big to Small risk order, a greybox colour language, spatial-communication tactics." },
+  { slug: "level-design", group: "3D and spatial", title: "Level design", desc: "Playable greybox levels: the Big to Small risk order, spatial-communication tactics, interiors, exteriors, 2D spaces, and pacing without combat." },
   { slug: "character-3d", group: "3D and spatial", title: "3D character controllers", desc: "One camera-relative movement core for FPS, third-person, and platformer, plus the floor contract and rigs." },
   { slug: "environment-art", group: "3D and spatial", title: "Environment art", desc: "The art pass after the greybox is proven: PBR materials, real lighting, post restraint, set dressing, the paper diorama." },
 
@@ -46,7 +46,7 @@ export const GUIDES: Guide[] = [
   { slug: "mobile-touch", group: "Systems", title: "Mobile and touch", desc: "Index-keyed multitouch, on-screen controls, pinch/pan gestures, safe-area HUD insets." },
   { slug: "rhythm-games", group: "Systems", title: "Rhythm games", desc: "The corrected audio clock pushed down the tree, beatmap data, notes as functions of time, windowed judging." },
   { slug: "in-game-docs", group: "Systems", title: "In-game docs", desc: "Gyms, zoos, and museums: document the game in-game with doc.* recipes so it never goes stale." },
-  { slug: "shipping-export", group: "Systems", title: "Shipping and export", desc: "The release pipeline: keeping dev tooling out of the pck, encrypting it, trimming the runtime, and verifying a build by receipts rather than exit codes." },
+  { slug: "shipping-export", group: "Systems", title: "Shipping and export", desc: "The release pipeline across desktop, Android, web, macOS, and iOS: dev tooling out of the pck, encryption, and verifying by receipts." },
   { slug: "game-trailers", group: "Systems", title: "Videos and trailers", desc: "Filming the game with the engine itself: duration and delivery profiles from a 15 s hook to 9:16 vertical, a director scene, the movie writer, the render matrix." },
 
   { slug: "event-deck-games", group: "Genres", title: "Event / decision games", desc: "Reigns-like architecture: immutable cards plus a mutable overlay that is the save, weighted selection, condition DSLs." },
