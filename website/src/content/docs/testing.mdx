@@ -1,28 +1,34 @@
 ---
 title: How it's tested
-description: Two verification layers — every command driven live, and a full game build before each release — and the twelve findings that made the second layer a rule.
+description: Every command is driven against a live editor, and a full game build precedes each release. The build gate exists because the per-command checks missed twelve real bugs.
 ---
 
-Verification here runs in two layers, and the second one exists because the first was shown to be insufficient.
+Every one of the 330 commands is exercised against a running editor when it is added or changed, and the result is read back rather than trusted: `node get` after `node set`, `scene tree` after a structural change, a screenshot when the question is visual. The whole sweep re-runs whenever command registration or the shared helpers change, because tool bugs cluster there.
 
-## Layer one: every command, driven live
+That check ran clean for six releases. Then one night of real use found twelve bugs it had never seen. So there are now two checks.
 
-Each of the 330 commands is exercised against a running editor when it is added or changed, and the result is read back rather than trusted — `node get` after `node set`, `scene tree` after a structural change, a screenshot when the question is visual. The sweep re-runs whenever command registration or the shared command helpers change, because tool bugs cluster there. This layer catches contract bugs: a parameter that doesn't coerce, a result that misreports, an undo step that doesn't undo.
+## Every command, driven live
 
-## Layer two: build a real game before the tag
+The per-command sweep catches contract bugs: a parameter that doesn't coerce, a result that misreports, an undo step that doesn't undo. It is fast, it localizes a failure to one command, and it runs constantly during development.
 
-Before a release is cut, an agent that did not author the tool surface builds a complete scene or game slice through it — discovery, scene assembly, scripting, lighting, playtesting, cleanup, end to end. Every surprise in that session is treated as a finding about the tool, never worked around, and becomes a fix or a filed issue before the tag.
+What it cannot do is put the editor into the situations real work creates. It tests `runtime screenshot` with a game that has been running for a while, not one that started 40 milliseconds ago. It tests `runtime get` against a live game, not one parked at a debugger breakpoint. Each command runs once, with time to breathe, in a clean scene. Real sessions have none of that slack.
 
-This layer exists because of a specific failure. Six releases shipped on layer one alone, each with every command individually verified — and then one sustained build session (a small lighthouse-keeper game) surfaced twelve real defects in a night. None of them lived inside a single command:
+## A full game build before each release
 
-- A screenshot taken the instant a game starts read a frame nothing had drawn into yet and returned black, with no error.
-- A game paused at a debugger breakpoint made every runtime command time out — with a diagnosis blaming a missing autoload the same call had already verified present.
-- The editor–game IPC had a read-before-publish race, visible as an intermittent failure that an immediate retry always cured, which is exactly why nobody had chased it.
-- Creating a scene didn't open it, and nothing could close one: `scene delete` refused an open scene and suggested closing the tab, which no command could do. Advice that works with a person at the editor is a dead end without one.
-- Several documented parameters (`--filter`, line ranges, an alias) were accepted and silently ignored, so testing that a command answered proved nothing about them.
+Before a release is tagged, an agent that did not write the tool builds a complete game slice through it: discovery, scene assembly, scripting, lighting, playtesting, cleanup. Anything surprising in that session is treated as a bug in the tool, not something to work around, and gets fixed or filed before the tag.
 
-All twelve are fixed in [0.8.2](/docs/changelog). The pattern behind them is general: per-command verification cannot represent sequences, states, rates, or workflows — the places where an agent actually lives. The build session is the instrument shaped like the real workload, so it is now the release gate.
+The rule comes from a specific night. Six releases had shipped with every command individually verified. Building a small lighthouse-keeper game end to end then surfaced twelve real defects:
+
+- `runtime screenshot` taken right after `scene play` read a frame nothing had drawn into yet, and returned an all-black image with no error.
+- A game paused at a debugger breakpoint made every runtime command time out, and the timeout message blamed a missing autoload that the same call had already verified was present.
+- The editor and the game raced over the IPC response file. The failure was intermittent and an immediate retry always cured it, which is exactly why nobody had chased it.
+- `scene create` wrote a scene without opening it, so the next `node add` built into whatever scene happened to be open. And nothing could close a tab: `scene delete` refused an open scene with "close the scene tab first," advice only a person with a mouse could follow.
+- `--filter` on `project settings`, line ranges on `script read`, and a `--path` alias on `scene instance` were accepted and silently ignored. Testing that those commands answered proved nothing about the flags.
+
+All twelve are fixed in [0.8.2](/docs/changelog). None of them was a broken command. They were broken sequences, broken states, bad timing, and missing steps, and testing one command at a time cannot produce any of those. Building a game produces all of them.
 
 ## What a build session looks like
 
-The session follows the same rules the [agent skill](/docs/discover-then-drive) teaches: discover against the live engine instead of guessing, verify placements and state by reading them back, and treat anything surprising — a wrong number, an unexpected error, a retry that "fixes" it — as a bug to root-cause in the tool before continuing. The builds land in a test project as playable samples, so each release gate also leaves behind a scene that exercises the surface the next time.
+The session follows the rules the [agent skill](/docs/discover-then-drive) teaches: ask the live engine instead of guessing, verify state by reading it back, and stop to root-cause anything odd, including a retry that "fixes" a failure. A wrong number is a finding. An error with useless advice is a finding. A flag that does nothing is a finding.
+
+Each session also leaves a playable sample behind in the test project, so the next sweep has one more real scene to run against.
