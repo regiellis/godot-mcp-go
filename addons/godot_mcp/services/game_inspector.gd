@@ -15,6 +15,9 @@ const GameErrorLog := preload("res://addons/godot_mcp/services/game_error_log.gd
 const GameServer := preload("res://addons/godot_mcp/services/game_server.gd")
 const REQUEST_PATH := "user://mcp_game_request"
 const RESPONSE_PATH := "user://mcp_game_response"
+## Responses are written here first and renamed into place, so the editor never
+## sees a partially written response file (see _respond).
+const RESPONSE_TMP_PATH := "user://mcp_game_response.part"
 const DIRECT_SERVER_SETTING := "godot_mcp/runtime/direct_server"
 
 enum State { IDLE, CAPTURING_FRAMES, MONITORING, RECORDING, MOVING_TO, WATCHING_SIGNALS }
@@ -238,10 +241,25 @@ func _respond(data: Dictionary) -> void:
 		_sink = Callable()
 		sink.call(data)
 		return
-	var file := FileAccess.open(RESPONSE_PATH, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(data))
-		file.close()
+	# Write to a scratch name and rename it into place. The editor polls for the
+	# response file's EXISTENCE, and FileAccess.open(WRITE) creates it empty — so a
+	# poll landing between the open and the close read a half-written (or
+	# still-locked) file and the command failed with "Could not read game response
+	# file", which an immediate retry then made succeed. The rename publishes the
+	# file only once it is complete.
+	var file := FileAccess.open(RESPONSE_TMP_PATH, FileAccess.WRITE)
+	if file == null:
+		return
+	file.store_string(JSON.stringify(data))
+	file.close()
+	if DirAccess.rename_absolute(RESPONSE_TMP_PATH, RESPONSE_PATH) != OK:
+		# Renaming failed (a leftover response file, a filesystem that refuses it):
+		# fall back to the direct write rather than dropping the reply entirely.
+		var direct := FileAccess.open(RESPONSE_PATH, FileAccess.WRITE)
+		if direct:
+			direct.store_string(JSON.stringify(data))
+			direct.close()
+		DirAccess.remove_absolute(RESPONSE_TMP_PATH)
 
 
 ## Resolve a node path against the running scene root. Accepts ".", a relative
@@ -443,25 +461,56 @@ func _compile_failure_detail(since_seq: int) -> String:
 	return detail
 
 
+## Capture the game viewport. The wait is not optional: a capture taken in the
+## first moments of a run (runtime.screenshot right after scene.play) reads a
+## viewport texture nothing has drawn into yet and comes back ALL BLACK, with no
+## error to show for it. Waiting for a real frame_post_draw is what makes the
+## image the frame the player would see; the black-frame check is the honest
+## report for the cases a wait can't fix (a genuinely black scene reads the same,
+## so this is a flag, never an error).
 func _screenshot(params: Dictionary) -> void:
+	await get_tree().process_frame
+	await RenderingServer.frame_post_draw
 	var image := get_viewport().get_texture().get_image()
 	if image == null or image.is_empty():
 		_respond({"error": "Could not capture game viewport"})
 		return
+	var black := _is_black(image)
+	if black:
+		# One more frame, in case this was still the pre-first-draw texture.
+		await RenderingServer.frame_post_draw
+		image = get_viewport().get_texture().get_image()
+		black = _is_black(image)
 	var save_path: String = params.get("save_path", "")
 	if not save_path.is_empty():
 		var abs_path := ProjectSettings.globalize_path(save_path) if save_path.begins_with("res://") or save_path.begins_with("user://") else save_path
 		if image.save_png(abs_path) != OK:
 			_respond({"error": "Failed to save screenshot"})
 			return
-		_respond({"saved_path": save_path, "width": image.get_width(), "height": image.get_height(), "format": "png"})
+		_respond({"saved_path": save_path, "width": image.get_width(), "height": image.get_height(),
+			"format": "png", "black_frame": black})
 		return
 	_respond({
 		"image_base64": Marshalls.raw_to_base64(image.save_png_to_buffer()),
 		"width": image.get_width(),
 		"height": image.get_height(),
 		"format": "png",
+		"black_frame": black,
 	})
+
+
+## Is every pixel black? Checked on a 16x16 downscale so a 1440p frame costs
+## nothing; a uniformly black capture means either a black scene or a frame that
+## was never drawn, and the caller deserves to know which one it might be.
+func _is_black(image: Image) -> bool:
+	var probe := image.duplicate() as Image
+	probe.resize(16, 16, Image.INTERPOLATE_BILINEAR)
+	for y in 16:
+		for x in 16:
+			var c := probe.get_pixel(x, y)
+			if c.r > 0.004 or c.g > 0.004 or c.b > 0.004:
+				return false
+	return true
 
 
 # ── capture_frames (stateful) ─────────────────────────────────────────────────

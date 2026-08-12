@@ -1,16 +1,26 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/website/public/brand/mark.svg" width="104" alt="godot-mcp: a terminal prompt in a rounded tile with a live-connection dot">
+  <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/website/public/brand/mark.svg" width="104" alt="Godot MCP CLI: a terminal prompt in a rounded tile with a live-connection dot">
 </p>
 
-# godot-mcp
+# Godot MCP CLI
 
 [![Godot 4.7+](https://img.shields.io/badge/Godot-4.7%2B-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org)
 [![Go 1.26+](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![Commands](https://img.shields.io/badge/commands-316-blue)
+![Commands](https://img.shields.io/badge/commands-330-blue)
 ![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
 
-Drive a running **Godot 4.7+** editor from the command line — and from AI agents — to build scenes, write GDScript or C#, play and inspect the game, and introspect the engine's real API. A Go CLI talks to a GDScript editor addon over WebSocket. **329 commands across 50 groups**, every one verified against a live editor.
+Drive a running **Godot 4.7+** editor from the command line — and from AI agents — to build scenes, write GDScript or C#, play and inspect the game, and introspect the engine's real API. A Go CLI talks to a GDScript editor addon over WebSocket. **330 commands across 50 groups**, every one verified against a live editor.
+
+<p align="center">
+  <a href="https://youtu.be/XnoW6EHXaBw">
+    <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/media/previews/demo-poster.png" width="860" alt="The Godot editor with the MCP dock open, a water demo running in its own window, and an agent writing GDScript in a terminal beside it">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://youtu.be/XnoW6EHXaBw"><b>Watch the three-minute demo</b></a> — a seascape built inside a live editor: water tuned while the game runs, boids for the fish and gulls, audio buses wired from a panel, and the dock counting every call as it lands.
+</p>
 
 > [!WARNING]
 > **Built for big-context models.** The default MCP mode exposes every command as a typed tool, and that list measures **about 50,000 tokens** against a live editor. Frontier models with 200K–1M windows and prompt caching carry it comfortably; a small local model will not, and this project does not aim to serve one. Context-tight? The escape hatch is one flag: `serve --typed=false` collapses the surface to a single generic tool (~470 tokens), and the CLI needs no schemas at all. Numbers, method, and reasoning: [What the tool surface costs](#what-the-tool-surface-costs).
@@ -35,7 +45,7 @@ The 332 is every registered command plus the generic `godot_run` — the measure
 What the numbers mean in practice:
 
 - **The default is sized for big-context models**. Against a 200K window the full list is a quarter of the budget; against the 1M windows current frontier models ship, it is 5%. With prompt caching the list sits in the cached prefix after the first request — on Claude, cached input bills at roughly a tenth of the base rate — so the recurring cost is a fraction of the headline number, and the list only changes mid-session in one rare case (the editor was down at connect and came back up).
-- **The escape hatches ship in the box**. `serve --typed=false` keeps the same 316 commands behind one ~470-token tool (the model discovers the API with `engine.search` instead of reading schemas); the `http_typed` project setting does the same for the editor's own HTTP endpoint; clients that load schemas on demand (Claude Code does) pay only for the tools they actually use; the read-only `godot://` resources pull project and scene state without any tool turn; and the CLI is a zero-schema surface any agent with a shell can drive.
+- **The escape hatches ship in the box**. `serve --typed=false` keeps the same 330 commands behind one ~470-token tool (the model discovers the API with `engine.search` instead of reading schemas); the `http_typed` project setting does the same for the editor's own HTTP endpoint; clients that load schemas on demand (Claude Code does) pay only for the tools they actually use; the read-only `godot://` resources pull project and scene state without any tool turn; and the CLI is a zero-schema surface any agent with a shell can drive.
 - **The trade is deliberate**. A curated "core toolset" default is not planned: a model too small to carry the list is also too small to run the discover-then-drive and spatial-verification loops this tool is built around, and the escape hatches above already serve constrained clients. The full breakdown — which command groups carry the weight, the caching math, and the design reasoning — is on [What the tool surface costs](https://regiellis.github.io/godot-mcp-go/docs/context-cost) in the docs.
 
 ## Isn't this just Godot's built-in CLI?
@@ -46,7 +56,7 @@ No — they do different jobs, and they compose. **Godot's own command line star
 | --- | --- | --- |
 | Process model | Launches a fresh engine process per invocation, cold start each time | Connects over WebSocket to the editor you already have open |
 | Session state | None — no open scene, no selection, no undo history | The live session: edited scene, selection, unsaved work, UndoRedo (every mutation Ctrl+Z-safe) |
-| Editing | Run a script once against project files | 316 commands against the open scene, with open-scene conflict protection |
+| Editing | Run a script once against project files | 330 commands against the open scene, with open-scene conflict protection |
 | The running game | The launched process *is* the game; nothing reaches inside it | A live channel into it: read state, `eval`, inject input, await signals, screenshot |
 | Introspection | `--doctool` dumps docs offline | `engine.*` reads the running build's ClassDB, live |
 | Built for | CI — exports, imports, batch scripts | Interactive building and playtesting, by humans at a terminal and by AI agents |
@@ -78,7 +88,7 @@ Concretely, against the two most-used alternatives — [`godot-ai`](https://gith
 | Runtime deps | Python + `uv` | none | one Go binary, or none via the editor's own HTTP endpoint |
 | Drives it from | an MCP client | an MCP client | **any agent that can run a shell command**, plus any MCP client |
 | Shell-drivable CLI | no | no | yes — the primary surface |
-| Surface | ~43 tools / ~120 ops | 155 tools | 329 commands / 50 groups |
+| Surface | ~43 tools / ~120 ops | 155 tools | 330 commands / 50 groups |
 | MCP tool schemas carried | ~43 fixed | 155 fixed | live-built per command, or as few as **1** (`godot_run`) |
 | MCP transports | HTTP + WebSocket | HTTP, plus a headless editor mode | stdio, editor-direct HTTP, and the CLI |
 | MCP prompts / resources | — | — | 4 prompts, 5 `godot://` resources |
@@ -87,7 +97,7 @@ Concretely, against the two most-used alternatives — [`godot-ai`](https://gith
 | Start a project from nothing | no | no | `godot-mcp create` writes `project.godot`, icon, `.gitignore` |
 | Undo-safe mutations | — | — | `UndoRedo` across 29 command files, plus open-scene conflict refusal |
 | Extending it | in review ([#820](https://github.com/hi-godot/godot-ai/pull/820)) | — | `res://mcp_commands/*.gd`, no fork needed |
-| Godot versions | 4.5+ | 4.5+ | **4.7+**, verified on 4.7.2 and 4.8-dev |
+| Godot versions | **4.5+** | **4.5+** | 4.7+, verified on 4.7.2 and 4.8-dev |
 | Craft layer | tool reference | tool reference | 28 craft guides + agent skill |
 | GDScript style linting | — | — | 17 rules, native |
 | Install | Asset Library per its README; auto-configures 17+ clients | Asset Library (`Godot MCP Native`) | Asset Library (`Godot MCP/CLI`), or `godot-mcp install` / `create` / `configure` |
@@ -246,7 +256,7 @@ The same dashboard also lives **inside the editor**: the addon docks an **MCP pa
 
 ## Build on it
 
-The CLI is built to be scripted. The contract: results on stdout as JSON (or `--format tsv` for shell tools), errors on stderr with JSON-RPC codes, exit codes `0`/`1`/`2`, port discovery from the project directory, and `doctor`/`status` as scriptable preflights. The catalog itself is queryable JSON — `engine commands --docs` returns every command with typed params — so generators and UIs read the command list instead of hardcoding one. Underneath it all is a stable JSON-RPC-over-WebSocket wire that any language can speak: a Python script, a browser panel, a QA rig driving a standalone game via `--game`.
+The CLI is built to be scripted. The contract: piped results on stdout as JSON (`--format tsv|ndjson` for shell tools, `GODOT_MCP_FORMAT` to pin one per shell; a terminal gets color-coded tables instead, never a pipe), errors on stderr with JSON-RPC codes, exit codes `0`/`1`/`2`, port discovery from the project directory, and `doctor`/`status` as scriptable preflights. The catalog itself is queryable JSON — `engine commands --docs` returns every command with typed params — so generators and UIs read the command list instead of hardcoding one. Underneath it all is a stable JSON-RPC-over-WebSocket wire that any language can speak: a Python script, a browser panel, a QA rig driving a standalone game via `--game`.
 
 ```bash
 # hide every Label in the edited scene

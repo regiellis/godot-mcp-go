@@ -9,28 +9,65 @@ func get_commands() -> Dictionary:
 	}
 
 
+## List the PROJECT's input actions.
+##
+## Read from ProjectSettings, not from the InputMap singleton. This runs in the
+## EDITOR process, whose InputMap holds the editor's own bindings (ui_* plus
+## spatial_editor/*, canvas_item_editor/*, ...) and NOT the game's — so the
+## command used to answer with editor shortcuts and could not see `jump` or
+## `beam_left` at all, while input_map.set_action (which writes ProjectSettings)
+## persisted them correctly. project.godot is where the actions actually live,
+## and it is what the running game loads.
 func _get_actions(params: Dictionary) -> Dictionary:
 	var filter := optional_string(params, "filter", "")
 	var include_builtin := optional_bool(params, "include_builtin", false)
 
 	var actions: Dictionary = {}
-	for action: StringName in InputMap.get_actions():
-		var action_str := String(action)
+	var source := "project_settings"
+	var settings_seen := 0
+	for prop in ProjectSettings.get_property_list():
+		var setting := String(prop["name"])
+		if not setting.begins_with("input/"):
+			continue
+		settings_seen += 1
+		var action_str := setting.substr(6)  # keeps any ".<feature>" override suffix
+		if action_str.is_empty():
+			continue
 		if not include_builtin and action_str.begins_with("ui_"):
 			continue
 		if not filter.is_empty() and not action_str.contains(filter):
 			continue
-
+		var value: Variant = ProjectSettings.get_setting(setting)
+		if not value is Dictionary:
+			continue
 		var events: Array = []
-		for event: InputEvent in InputMap.action_get_events(action):
-			events.append(_serialize_event(event))
-
+		for event: Variant in (value as Dictionary).get("events", []):
+			if event is InputEvent:
+				events.append(_serialize_event(event))
 		actions[action_str] = {
-			"deadzone": InputMap.action_get_deadzone(action),
+			"deadzone": float((value as Dictionary).get("deadzone", 0.5)),
 			"events": events,
 		}
 
-	return success({"actions": actions, "count": actions.size()})
+	# Nothing under input/ AT ALL (not merely nothing matching the filter): fall
+	# back to the process InputMap rather than claiming the project has no actions.
+	if settings_seen == 0:
+		source = "input_map"
+		for action: StringName in InputMap.get_actions():
+			var action_str := String(action)
+			if not include_builtin and action_str.begins_with("ui_"):
+				continue
+			if not filter.is_empty() and not action_str.contains(filter):
+				continue
+			var events: Array = []
+			for event: InputEvent in InputMap.action_get_events(action):
+				events.append(_serialize_event(event))
+			actions[action_str] = {
+				"deadzone": InputMap.action_get_deadzone(action),
+				"events": events,
+			}
+
+	return success({"actions": actions, "count": actions.size(), "source": source})
 
 
 func _set_action(params: Dictionary) -> Dictionary:
@@ -137,7 +174,7 @@ func _parse_event(def: Dictionary) -> InputEvent:
 func get_command_docs() -> Dictionary:
 	return {
 		"input_map.get_actions": {
-			"description": "List InputMap actions with their deadzone and serialized events. Skips built-in ui_* actions unless --include-builtin, and narrows to names containing --filter.",
+			"description": "List the PROJECT's input actions (from ProjectSettings 'input/*' — where project.godot keeps them and where the running game reads them, NOT the editor process's own InputMap, which only holds editor shortcuts) with their deadzone and serialized events. Skips built-in ui_* actions unless --include-builtin, and narrows to names containing --filter. The result reports which source answered.",
 			"params": [
 				doc_param("filter", "String", false, "Only actions whose name contains this substring."),
 				doc_param("include_builtin", "bool", false, "Include the engine's ui_* actions (default false)."),
