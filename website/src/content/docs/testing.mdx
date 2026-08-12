@@ -1,0 +1,28 @@
+---
+title: How it's tested
+description: Two verification layers — every command driven live, and a full game build before each release — and the twelve findings that made the second layer a rule.
+---
+
+Verification here runs in two layers, and the second one exists because the first was shown to be insufficient.
+
+## Layer one: every command, driven live
+
+Each of the 330 commands is exercised against a running editor when it is added or changed, and the result is read back rather than trusted — `node get` after `node set`, `scene tree` after a structural change, a screenshot when the question is visual. The sweep re-runs whenever command registration or the shared command helpers change, because tool bugs cluster there. This layer catches contract bugs: a parameter that doesn't coerce, a result that misreports, an undo step that doesn't undo.
+
+## Layer two: build a real game before the tag
+
+Before a release is cut, an agent that did not author the tool surface builds a complete scene or game slice through it — discovery, scene assembly, scripting, lighting, playtesting, cleanup, end to end. Every surprise in that session is treated as a finding about the tool, never worked around, and becomes a fix or a filed issue before the tag.
+
+This layer exists because of a specific failure. Six releases shipped on layer one alone, each with every command individually verified — and then one sustained build session (a small lighthouse-keeper game) surfaced twelve real defects in a night. None of them lived inside a single command:
+
+- A screenshot taken the instant a game starts read a frame nothing had drawn into yet and returned black, with no error.
+- A game paused at a debugger breakpoint made every runtime command time out — with a diagnosis blaming a missing autoload the same call had already verified present.
+- The editor–game IPC had a read-before-publish race, visible as an intermittent failure that an immediate retry always cured, which is exactly why nobody had chased it.
+- Creating a scene didn't open it, and nothing could close one: `scene delete` refused an open scene and suggested closing the tab, which no command could do. Advice that works with a person at the editor is a dead end without one.
+- Several documented parameters (`--filter`, line ranges, an alias) were accepted and silently ignored, so testing that a command answered proved nothing about them.
+
+All twelve are fixed in [0.8.2](/docs/changelog). The pattern behind them is general: per-command verification cannot represent sequences, states, rates, or workflows — the places where an agent actually lives. The build session is the instrument shaped like the real workload, so it is now the release gate.
+
+## What a build session looks like
+
+The session follows the same rules the [agent skill](/docs/discover-then-drive) teaches: discover against the live engine instead of guessing, verify placements and state by reading them back, and treat anything surprising — a wrong number, an unexpected error, a retry that "fixes" it — as a bug to root-cause in the tool before continuing. The builds land in a test project as playable samples, so each release gate also leaves behind a scene that exercises the surface the next time.

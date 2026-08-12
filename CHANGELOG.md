@@ -4,7 +4,15 @@ All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project aims to
 follow [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.8.2] — 2026-08-12
+
+The keeper's-light release: twelve defects found by driving a complete game
+build through the CLI, each fixed at the root, plus the new `scene close` that
+build showed was missing. It also carries the CLI's presentation pass — results,
+help, and the banner now render for a human at a terminal while piped output
+stays exact JSON — and the docs site's Godot MCP CLI identity and type pass.
+A sustained project build now gates every release; the how and why is on the
+site's new [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testing) page.
 
 ### Added
 
