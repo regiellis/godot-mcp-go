@@ -11,10 +11,10 @@ frame rate and writes every frame plus the master audio bus to a file, so the ca
 frame-perfect however slow the machine is. Screen-recording software is the wrong tool here — it
 films a game fighting for frames, and it cannot be re-run when a line of dialogue changes.
 
-The consequence that shapes everything below: a trailer is a **deterministic scene that can be
-re-authored and re-rendered**, not only an edit. Duration, aspect ratio, camera framing, UI
-placement, dialogue layout, title-card typography, and even which version of a shot is used are
-all inputs to that scene.
+Because the film is rendered rather than captured, a trailer here is a **deterministic scene,
+re-authored and re-rendered at will**. Duration, aspect ratio, camera framing, UI placement,
+dialogue layout, title-card typography, and even which version of a shot is used are all inputs
+to that scene.
 
 The engine behaviour and the commands below were checked against **Godot 4.7.2** on 2026-08-09; the
 staging patterns come from a two-film rig built with this CLI. Each idea pairs with a **Build:**
@@ -24,7 +24,7 @@ The division of labour: the **director scene** decides what happens on camera, t
 records it, **ffmpeg** encodes it, and **godot-mcp** drives the iteration loop between takes so a
 render is spent only on footage already known to be right.
 
-Treat the finished output as a matrix, not a single file:
+The finished output is a matrix:
 
 - **Editorial cut** — short hook, store trailer, extended trailer, or 2–3 minute feature.
 - **Delivery profile** — 16:9, 5:4, 4:5, 1:1, 9:16, or another explicitly supported viewport.
@@ -57,13 +57,13 @@ What separates a trailer that works from a screen tour:
 - **Every word on camera is the script's**. Spontaneous chatter, tutorial nudges, and hint systems
   all have to be silenced for the take, or the film says something nobody wrote.
 
-**Length is a property of the film, not a late trim.** A 30 second trailer and a 3 minute trailer
-should not be the same shot list with different amounts cut out. The longer film has room for
+**Plan each length as its own film.** A 30 second trailer and a 3 minute trailer should not be
+the same shot list with different amounts cut out. The longer film has room for
 setup, contrast, explanation, and recovery beats that would kill the pace of a short promo.
 
 ## Plan by duration profile
 
-Use these as starting structures, not timing laws:
+These are starting structures. The track and the game bend them:
 
 | Profile | Typical job | Editorial shape |
 | --- | --- | --- |
@@ -186,8 +186,8 @@ var editorial_profile := &"store_60"
 ```
 
 The render wrapper can pass those values through project metadata, command-line user arguments, a
-small JSON manifest, or a dedicated exported property. The mechanism matters less than one rule:
-**the director must know the intended output before it stages frame one.**
+small JSON manifest, or a dedicated exported property; any of them works. The rule is that **the
+director knows the intended output before it stages frame one.**
 
 Inside each shot, branch only where composition really changes:
 
