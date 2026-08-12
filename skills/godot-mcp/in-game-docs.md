@@ -92,14 +92,16 @@ Notes are stored as node metadata (`_doc_note`), so they ride along in the scene
 
 ## The 2D equivalent — the same four patterns without `doc.*`
 
-**`doc.*` scaffolds 3D scenes only.** Every command in the group refuses a non-Node3D root; notes drop a `Marker3D`, labels are `Label3D`, and stations are CSG boxes. There is no 2D `doc gym`, no 2D `doc note --action list`. The thesis is dimension-free, so a canvas project builds the same four patterns out of the generic commands.
+**The `doc.*` scaffolds are 3D only.** `doc gym`, `doc zoo`, `doc museum`, and `doc metric` each refuse a non-Node3D root, because their stations are CSG boxes and their labels are `Label3D`. The thesis is dimension-free, so a canvas project builds the same four patterns out of the generic commands.
+
+`doc note` is the exception, and most of it carries over. `--action list`, `--action add --node-path X`, and `--action resolve` all work against a 2D scene: a note is metadata under the `_doc_note` key, and the walk that collects them is a plain node walk. Only `--action add --at "Vector3(…)"` is 3D — it drops a `Marker3D`, so a 2D root is refused with a pointer at `--node-path`. In 2D, place the marker with `node add --type Marker2D` and write the key with `node set-meta`.
 
 What maps over:
 
 - **Gym** — a flat scene of measured jump gaps, speed corridors, and step heights laid out left to right at rising values, with the number on each station. `StaticBody2D` platforms are the geometry you actually run at; `ColorRect` or `Polygon2D` carries the green → orange → red grading; `Label` carries the distance.
 - **Zoo** — a grid of `scene instance` calls with a `Label` caption under each. Scale in 2D is pixel size against your character, so put the character scene in the grid as the reference instead of the 1m/2m cubes.
 - **Museum** — a row of exhibit pads is a row of `ColorRect` slabs, one `Label` each, the live demo scene instanced on top.
-- **Spatial notes** — `Marker2D` plus `node set-meta`. Metadata rides in the scene exactly as `_doc_note` does on a 3D marker, so the note stays attached to what it describes. Read one back with `godot-mcp node get-meta --node-path X --key _doc_note`; there is no command that walks the scene collecting them, so keep the notes under one container node and read its children.
+- **Spatial notes** — `Marker2D` plus `node set-meta`. Metadata rides in the scene exactly as `_doc_note` does on a 3D marker, so the note stays attached to what it describes. Read one back with `godot-mcp node get-meta --node-path X --key _doc_note`, or the whole set with `godot-mcp doc note --action list`, which walks a 2D scene and reports each note with a path that feeds straight back into other commands.
 
 **Build a 2D gym** — three ground slabs separated by two measured gaps, each graded and labeled:
 

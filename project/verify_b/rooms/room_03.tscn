@@ -1,0 +1,43 @@
+[gd_scene format=4 uid="uid://b4vakxsknnybo"]
+
+[ext_resource type="Texture2D" uid="uid://c4pdqsbxf0ems" path="res://verify_b/atlas_2x1.png" id="1_30b28"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0gc8g"]
+size = Vector2(1600, 64)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_30b28"]
+size = Vector2(300, 32)
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_cnlor"]
+texture = ExtResource("1_30b28")
+texture_region_size = Vector2i(64, 64)
+0:0/0 = 0
+1:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_7b6gh"]
+tile_size = Vector2i(64, 64)
+sources/0 = SubResource("TileSetAtlasSource_cnlor")
+
+[node name="Room03" type="Node2D" unique_id=1254959614]
+
+[node name="Floor" type="StaticBody2D" parent="." unique_id=1145255427]
+position = Vector2(800, 700)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=973380805]
+shape = SubResource("RectangleShape2D_0gc8g")
+
+[node name="Ledge" type="StaticBody2D" parent="." unique_id=116988921]
+position = Vector2(1200, 520)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ledge" unique_id=1107644402]
+shape = SubResource("RectangleShape2D_30b28")
+
+[node name="FloorSkin" type="ColorRect" parent="." unique_id=955783538]
+offset_top = 668.0
+offset_right = 1600.0
+offset_bottom = 732.0
+color = Color(0.2901961, 0.2901961, 0.32156864, 1)
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1260323256]
+tile_map_data = PackedByteArray("AAAEAAIAAAABAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAACAAAAAAABAAAAAAADAAAAAAAAAAAAAAAAAAEAAAABAAAAAAA=")
+tile_set = SubResource("TileSet_7b6gh")

@@ -244,6 +244,17 @@ The most common design error is replicating one fact two ways. Split by shape:
 Pick one per fact. Do **not** sync a `bool is_firing` *and* send a `fire()` RPC — the receiver
 acts twice. And never sync **derived** state: replicate the source and recompute UI locally.
 
+## Transport security — ENet is plaintext UDP
+
+Raw `ENetMultiplayerPeer` traffic is unencrypted. Anyone on the path can read and replay it, which
+is irrelevant for a LAN party and relevant the moment strangers connect over the internet. The
+engine ships DTLS for it: `ENetConnection.dtls_server_setup(TLSOptions)` on the host and
+`dtls_client_setup(hostname, TLSOptions)` on the client (both confirmed on the live 4.7 build),
+at the cost of certificate setup. Most small games skip DTLS and lean on the pattern this doc
+already teaches — the server validates every intent RPC and owns every fact — which protects the
+game's integrity but not the traffic's privacy. Decide which of the two you are protecting before
+reaching for either.
+
 ## Testing locally — be honest about the harness
 
 Networking needs **two running instances**, and this CLI cannot provide the second: the

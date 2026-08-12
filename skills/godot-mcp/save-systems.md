@@ -125,6 +125,28 @@ res://systems/save_manager.gd`; each saveable gets `add_to_group("persist")` + t
   shipped content and local headers. (`open_encrypted_with_pass` only obfuscates: the key ships
   in your binary.)
 
+## Encrypting a save vs validating one
+
+They solve different problems, and encryption alone is often sold as both.
+
+**Encryption stops casual editing.** `FileAccess.open_encrypted` takes a binary key,
+`open_encrypted_with_pass` a passphrase, and `ConfigFile` mirrors both
+(`save_encrypted`/`load_encrypted` and the `_pass` variants — all confirmed on the live 4.7
+build). The same honesty as pck encryption applies: the key ships in the binary, so this deters a
+player with a text editor, not one with a debugger. Worth it when a visible plaintext save invites
+fiddling; decorative against anything determined.
+
+**Validation detects tampering, including by someone who found the key.** Store an HMAC beside the
+payload and compare on load: `Crypto.new().hmac_digest(HashingContext.HASH_SHA256, key, payload)`
+(live-verified signature: `hmac_digest(hash_type, key, msg) -> PackedByteArray`). A mismatch means
+the file changed outside the game — corrupt it gracefully into the backup-fallback path rather
+than crashing. The same caveat about shipped keys applies to the HMAC key; for a single-player
+game that is fine, because the goal is catching accidents and casual edits, not defeating an
+adversary. Anything that must survive a hostile player belongs on a server, which is a
+`multiplayer-patterns.md` concern.
+
+Neither replaces the rule above: a save a player could swap never goes through `load()`.
+
 ## Versioning and migration
 
 Put a **`version` int in every save** from day one. One int, and the next format change has

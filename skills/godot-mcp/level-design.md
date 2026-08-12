@@ -277,7 +277,10 @@ feed straight back into `node set --property global_position`):
   #   Seats on the HIGHEST contact (never clips), and tells you if it's stable:
   spatial place_on --node-path Crate --samples 3 --conform
   #   -> hits/misses (misses>0 ⇒ part hangs off an edge), unevenness (0=flat), avg_normal;
-  #      --conform also tilts the prop to match the slope's normal. Needs use_collision.
+  #      --conform also tilts the prop to match the slope's normal.
+  #   The SURFACE needs use_collision; the PROP must not have one, or the bundle hits the prop's
+  #   own top face and seats it on itself (seated_on names the prop, misses 0, unevenness 0 —
+  #   a healthy-looking wrong answer). Seat first, switch use_collision on after.
   # Tier 3 — exact corner/edge alignment (the scriptable vertex-snap analog; no collider):
   spatial snap --node-path Bolt --to Beam --mode vertex   # mover's anchor -> nearest real vertex
   spatial snap --node-path Decal --to Wall --mode face --axes yz   # nearest point on nearest face
@@ -609,6 +612,9 @@ material apply --node-path Arena/Cover_A --material_path res://mat/traversal.tre
 spatial raycast --from "Vector3(-14,1.6,0)" --to "Vector3(14,1.6,0)"   # standing: clear (exposed)
 spatial raycast --from "Vector3(-14,0.9,0)" --to "Vector3(14,0.9,0)"   # crouched: hits a cover box
 ```
+`distribute` anchors on the **first** node and spreads forward, so a `--span 14` off `Cover_A` at
+x=0 lands the line at 0/7/14, not centred on the room. Put the first piece where the line should
+start (x=-7 for a centred trio) and read the centres back with `spatial bounds` on each.
 
 ### Greybox the AI too (Big → Medium → Small)
 
@@ -672,10 +678,14 @@ node add-resource --node-path Env --property environment --resource-type Environ
 editor set-camera --position "Vector3(0,26,140)" --look-at "Vector3(0,40,-320)" --fov 55
 editor screenshot --save-path user://vista_01.png
 ```
-(`fog_mode` 1 is depth fog, where `fog_depth_begin`/`end` apply; confirm with `engine class-info
---class Environment`.) A landmark that vanishes with distance is usually fog: `Camera3D.far`
-defaults to 4000 m, so a clipped draw means someone lowered it. Re-run the **3-second screenshot
-test** from the vista.
+(`fog_mode` 1 is depth fog, where `fog_depth_begin`/`end` apply. Confirm it with `engine docs
+--class Environment --member FogMode`, which returns `FOG_MODE_DEPTH = 1` and its description.
+`engine class-info` reports only `fog_mode: int` and cannot tell you which integer is which.)
+Scale `fog_depth_end` to the map, not to the number above: at 900 m it barely touches geometry
+440 m out, while pulling it to 250 m washes the ridges pale and swallows a 90 m spire whole. That
+is also the diagnosis when a landmark disappears — it is usually fog, since `Camera3D.far` defaults
+to 4000 m (`engine defaults --class Camera3D`), so a clipped draw means someone lowered it. Re-run
+the **3-second screenshot test** from the vista.
 
 ### Terrain paces what walls pace indoors
 
@@ -684,7 +694,7 @@ a chokepoint with no wall. Rising ground reads as effort and falling ground as r
 beat goes at the top. A crest is a reveal line, which makes it the best place in an open map to
 hide the next landmark. Greybox terrain is a few big plates and rotated wedges, not a heightmap:
 ```
-csg add --type CSGBox3D --name Ground --size "Vector3(400,2,400)" --use-collision true --position "Vector3(0,-1,0)"
+csg add --type CSGBox3D --name Ground --size "Vector3(800,2,800)" --use-collision true --position "Vector3(0,-1,0)"
 csg add --type CSGBox3D --name Ridge_W --size "Vector3(120,40,18)" --use-collision true \
   --position "Vector3(-70,8,-40)" --rotation "Vector3(0,0,-6)"
 # …Ridge_E mirrored at +70 with rotation "Vector3(0,0,6)", then prove the funnel:
@@ -693,6 +703,11 @@ spatial raycast --from "Vector3(-70,2,40)" --to "Vector3(-70,2,-140)"  # the fla
 ```
 Seat anything on sloped plates with `spatial place_on --samples 3 --conform` instead of computing Y
 — outdoor ground is never flat, so the footprint bundle earns its keep here more than anywhere.
+Add the prop with `--use-collision false`, seat it, then switch collision on: a prop that already
+carries a collider seats on its own top face and reports a clean success (see the Tier-2 note
+above). On a rotated plate, read the seat off `place_on`'s own `surface_top_y` and `avg_normal`
+rather than `spatial relate` — relate compares world AABBs, and a tilted 120 m plate has an AABB
+tall enough to report `overlaps: true` against a prop resting on its surface.
 
 ### Region transitions read at the border
 
@@ -718,8 +733,13 @@ path is a common starting point), then lay the map to it — no set dressing sho
 ```
 spatial relate --node-path Beat_01 --other Beat_02   # raw meters between beats
 scene play --mode current
-runtime move-to --target Beat_02                     # walk it; the wall clock is the design number
+runtime move-to --target Beat_02 --player-path Player --timeout 60   # walk it; elapsed_time is the number
 ```
+`move_to` guesses `/root/Main/Player` when `--player-path` is omitted and errors naming that path,
+so pass the path `runtime tree` shows. Its `--timeout` defaults to 15 s, which a 180 m leg
+overruns; raise it past the budget you are measuring. The returned `elapsed_time` matches the wall
+clock, so either reads as the design number.
+
 Measure the character's walk and run speed once (`character-3d.md` has the verify-by-driving loop)
 and every later spacing decision is arithmetic on that number.
 
@@ -785,14 +805,20 @@ Compose a column that reads top to bottom, then a sequence of columns reading le
 unit is the character's **measured** jump arc:
 ```
 scene play --mode current
+input action --action move_right --pressed true
 input action --action jump --pressed true
-runtime capture-frames --count 8 --frame-interval 4
-runtime get --node-path Player --properties '["global_position"]'
+runtime monitor --node-path Player --properties '["global_position"]' --frame-count 70 --frame-interval 2
 input action --action jump --pressed false
+input action --action move_right --pressed false
 ```
-Take peak height and horizontal reach from the sampled positions, then derive every gap, ledge, and
-ceiling from it. A gap at 100% of measured reach is a failure the player blames on you; ~70% is a
-jump they feel good about clearing.
+`runtime monitor` is the sampler: it returns the position series the arc is read from.
+`runtime capture-frames` returns PNG frames, not numbers. Hold a direction across the whole arc,
+or the jump is vertical and the reach reads zero.
+
+Peak height is the launch `y` minus the smallest `y` in the series; horizontal reach is the `x`
+travelled between launch and the sample where `y` settles back to the ground value. Derive every
+gap, ledge, and ceiling from those two numbers. A gap at 100% of measured reach is a failure the
+player blames on you; ~70% is a jump they feel good about clearing.
 
 ### Room-graph design for top-down
 
@@ -826,7 +852,10 @@ hold; "encounter → quiet → encounter" is replaced by the beat that genre run
   doc note --action list --category pacing
   spatial relate --node-path Beat_01 --other Beat_02
   ```
-  (`doc note` is 3D; in 2D carry the same beats as `node set-meta` on the room nodes.)
+  A second note in the same category keeps a readable name (`Note_Pacing2`); pass `--name` when a
+  specific handle matters. (`doc note --action add --at` drops a `Marker3D`, so a 2D scene is
+  refused — write the same beats there with `node set-meta` on the room nodes, then read them back
+  with `doc note --action list`, which walks a 2D scene too.)
 - **Puzzle**: the beat is **comprehension** — teach, test, twist. One mechanic per room, the twist
   only after the test proved the rule landed, gated with triggers as problem-solution ordering
   describes. Validate by walking the order; a puzzle reachable early is a puzzle spoiled.

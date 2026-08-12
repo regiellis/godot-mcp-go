@@ -85,6 +85,9 @@ func _spawn_container(parent: Node, name: String, action: String) -> Node3D:
 ## raw (scaffold builders, via _add_label) or through an UndoRedo action (doc.note).
 func _build_label(text: String, local_pos: Vector3, font_size: int, color: Color) -> Label3D:
 	var label := Label3D.new()
+	# Named so the label is addressable as a node path; unnamed it landed as an
+	# unstable @Label3D@NNNNN. Siblings auto-suffix (DocLabel2, ...).
+	label.name = "DocLabel"
 	label.text = text
 	label.font_size = font_size
 	label.modulate = color
@@ -99,7 +102,7 @@ func _build_label(text: String, local_pos: Vector3, font_size: int, color: Color
 
 func _add_label(parent: Node3D, text: String, local_pos: Vector3, font_size: int, color: Color) -> Label3D:
 	var label := _build_label(text, local_pos, font_size, color)
-	parent.add_child(label)
+	parent.add_child(label, true)
 	label.owner = get_edited_root()
 	return label
 
@@ -153,7 +156,11 @@ func _note_add(params: Dictionary) -> Dictionary:
 	var color := _difficulty_color("info")
 
 	if params.has("at"):
-		# new standalone Marker3D note
+		# New standalone Marker3D note. Only this branch is 3D-bound: --node-path
+		# attaches metadata to any node (the label already skips non-Node3D), and
+		# list/resolve are plain walks — so the guard sits here, not on the group.
+		if not root is Node3D:
+			return error_invalid_params("doc.note --at needs a 3D scene (it drops a Marker3D). In 2D, attach the note to an existing node with --node-path.")
 		var parent := _resolve_parent(params)
 		var marker := Marker3D.new()
 		marker.name = optional_string(params, "name", "Note_%s" % category.capitalize())
@@ -161,7 +168,10 @@ func _note_add(params: Dictionary) -> Dictionary:
 		marker.set_meta(OWNED_META, true)
 		var undo_redo := get_undo_redo()
 		undo_redo.create_action("MCP: Add spatial note")
-		undo_redo.add_do_method(parent, "add_child", marker)
+		# force_readable_name: a second note in the same category collides on the
+		# default Note_<Category> name, and a plain add_child mangles the duplicate
+		# into an internal @Marker3D@<id> that persists to the .tscn.
+		undo_redo.add_do_method(parent, "add_child", marker, true)
 		undo_redo.add_do_method(marker, "set_owner", root)
 		undo_redo.add_do_reference(marker)
 		undo_redo.add_undo_method(parent, "remove_child", marker)

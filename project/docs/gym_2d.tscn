@@ -1,0 +1,65 @@
+[gd_scene format=3 uid="uid://m2qbgfmlivq1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u2bms"]
+size = Vector2(256, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ib7p2"]
+size = Vector2(256, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_b8bx5"]
+size = Vector2(256, 32)
+
+[node name="Gym2D" type="Node2D" unique_id=1565240754]
+
+[node name="Ground_0" type="StaticBody2D" parent="." unique_id=1719956043]
+position = Vector2(0, 400)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground_0" unique_id=313132520]
+shape = SubResource("RectangleShape2D_u2bms")
+
+[node name="Ground_1" type="StaticBody2D" parent="." unique_id=339979668]
+position = Vector2(400, 400)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground_1" unique_id=364853048]
+shape = SubResource("RectangleShape2D_ib7p2")
+
+[node name="Ground_2" type="StaticBody2D" parent="." unique_id=2111752525]
+position = Vector2(864, 400)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground_2" unique_id=768435365]
+shape = SubResource("RectangleShape2D_b8bx5")
+
+[node name="Grade_144" type="ColorRect" parent="." unique_id=999304904]
+offset_left = 128.0
+offset_top = 432.0
+offset_right = 272.0
+offset_bottom = 448.0
+color = Color(0.24705882, 0.6862745, 0.3529412, 1)
+
+[node name="Grade_208" type="ColorRect" parent="." unique_id=395146513]
+offset_left = 528.0
+offset_top = 432.0
+offset_right = 736.0
+offset_bottom = 448.0
+color = Color(0.84705883, 0.41960785, 0.16862746, 1)
+
+[node name="Gap_144" type="Label" parent="." unique_id=53178660]
+offset_left = 140.0
+offset_top = 340.0
+offset_right = 140.0
+offset_bottom = 340.0
+text = "144 px (easy)"
+
+[node name="Gap_208" type="Label" parent="." unique_id=1328879127]
+offset_left = 540.0
+offset_top = 340.0
+offset_right = 540.0
+offset_bottom = 340.0
+text = "208 px (max jump)"
+
+[node name="Note_Tuning" type="Marker2D" parent="." unique_id=1442037595]
+position = Vector2(632, 300)
+metadata/_doc_note = {
+"category": "todo",
+"text": "208 px is the ceiling, re-measure once the dash lands"
+}

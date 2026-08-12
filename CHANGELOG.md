@@ -4,6 +4,45 @@ All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project aims to
 follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Added
+
+- **Four craft guides gained the breadth their titles promised.** `level-design`
+  restructures around space families: the shared spine stays, the combat-interior
+  material is named as one family, and exterior/open space (landmarks, terrain
+  as pacing, walk-second travel budgets), 2D level design as its own discipline
+  (screen vs scroll, the camera window as the sightline, room graphs), and
+  pacing without combat are new. `shipping-export` gains the Android, web,
+  macOS, and iOS legs with honest statements of what a Windows host cannot
+  finish. `in-game-docs` gains the 2D equivalent of the gym/zoo/museum/notes
+  patterns. `tile-constraint` names its GridMap 3D scope and bridges the 2D
+  case to terrain painting.
+- **Encryption's honest edges.** `save-systems` separates encrypting a save
+  (`FileAccess.open_encrypted` and variants; the key ships in the binary) from
+  validating one (`Crypto.hmac_digest`, live-confirmed); `multiplayer-patterns`
+  states that ENet is plaintext UDP and names the DTLS setup calls; the
+  shipping guide connects the APK-is-a-zip receipt back to `encrypt_pck`; the
+  site's gotchas page corrects the two expectations readers bring.
+- **The trailer guide became a matrix of cuts and formats**: duration profiles
+  from a 15-second hook to a 2–3 minute feature, delivery profiles from 16:9 to
+  9:16 composed per viewport rather than cropped, shot lists carrying
+  per-profile framing, and a render manifest.
+
+### Fixed
+
+- **`doc note --action add --at` now refuses a 2D scene** like its four
+  scaffold siblings, instead of silently parenting a `Marker3D` under a
+  `Node2D` — found by the release-gate verification build. The billboard
+  labels the `doc` group creates are also named (`DocLabel`) so they are
+  addressable, where they previously landed as unstable auto-generated names.
+- **The 2D jump-arc measurement recipe in `level-design` works as written
+  now**: it read positions from `runtime capture-frames`, which returns PNG
+  frames; the corrected loop holds directional input and samples
+  `runtime monitor`, and its numbers were verified against analytic jump
+  physics. Every other claim in the two new-guide verification sessions
+  passed against the live editor with results read back.
+
 ## [0.8.2] — 2026-08-12
 
 The keeper's-light release: twelve defects found by driving a complete game

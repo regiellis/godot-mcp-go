@@ -1,0 +1,27 @@
+[gd_scene format=3 uid="uid://jcs87ko75uk"]
+
+[ext_resource type="PackedScene" uid="uid://b4vakxsknnybo" path="res://verify_b/rooms/room_03.tscn" id="1_wokob"]
+[ext_resource type="PackedScene" uid="uid://g0qhh7n8i8qf" path="res://verify_b/player.tscn" id="2_xrfxk"]
+
+[node name="WingWest" type="Node2D" unique_id=799312612]
+
+[node name="Rooms" type="Node2D" parent="." unique_id=1310439163]
+
+[node name="Room03" parent="Rooms" unique_id=1254959614 instance=ExtResource("1_wokob")]
+metadata/graph_edges = ["Room02", "Room04"]
+
+[node name="Player" parent="." unique_id=415181057 instance=ExtResource("2_xrfxk")]
+position = Vector2(200, 600)
+
+[node name="Camera2D" type="Camera2D" parent="Player" unique_id=1581684947]
+zoom = Vector2(2, 2)
+limit_left = 0
+limit_top = 0
+limit_right = 3840
+limit_bottom = 1080
+limit_smoothed = true
+position_smoothing_enabled = true
+position_smoothing_speed = 6.0
+drag_horizontal_enabled = true
+drag_left_margin = 0.3
+drag_right_margin = 0.3

@@ -218,6 +218,12 @@ Get-ChildItem out/apk_check -Recurse | Select-Object -ExpandProperty FullName   
 The boot receipt becomes an on-device one: `android deploy --launch=true` and confirm the app holds
 past its first scene, with `adb logcat` open for the stack trace when it does not.
 
+Note what that `Expand-Archive` also proves: an APK is a zip anyone can open, and the pck inside
+it reads like any other pck. `encrypt_pck` from the encryption section applies to Android exports
+unchanged and is the only thing standing between a curious player and the scripts — the receipts
+above check content, not protection, so run the plaintext string scan against the pck pulled from
+the APK when encryption is on.
+
 ## Web (HTML5)
 
 The artifact is a directory of files: `index.html`, a `.js` loader, a `.wasm`, the `.pck`, and

@@ -36,3 +36,10 @@ Screenshots and error capture behave differently without a window.
 
 - **Pass packed-array properties as a JSON array of the element literal**, for example `'["Vector2(-64,-64)", "Vector2(64,-64)"]'`. Each element is coerced to the packed type engine-side.
 - **`var x := <Array-element arithmetic>` fails to compile** in GDScript: untyped `Array` elements are `Variant`, so annotate the type (`var center: Vector3 = ...`). A `Vector2i` grid stores `(x, z)` as `(x, y)`; it has no `.z`.
+
+## Encryption expectations
+
+Two places where Godot's encryption does less than its name suggests. The shipping and save-system guides carry the full recipes; these are the expectations to correct up front.
+
+- **PCK encryption on a web export protects nothing meaningful**. The browser fetches the pck and the wasm holds the key, so the export mechanism works and the protection is decorative. Encrypt on web only because the same key already covers other platforms.
+- **An encrypted save is not a tamper-proof save**. `FileAccess.open_encrypted` and its passphrase variant stop a text editor, and the key ships in your binary, so they do not stop a debugger. Detecting changes takes a stored HMAC compared on load (`Crypto.hmac_digest`); anything that must survive a hostile player belongs on a server.
