@@ -2,7 +2,13 @@ extends Logger
 
 ## Captures runtime errors/warnings from the RUNNING game into a bounded ring
 ## buffer, polled by runtime.errors over the game IPC. MCPGameInspector registers
-## one of these via OS.add_logger in _ready(). Only errors/warnings flow through
+## one of these via OS.add_logger in _ready().
+##
+## This is the one addon file that does NOT parse at the 4.3 floor, and cannot:
+## the Logger base class and ScriptBacktrace's frame accessors are 4.5+, and a
+## base class has no dynamic form. That is why MCPGameInspector load()s it at
+## runtime behind a ClassDB.class_exists("Logger") gate instead of preloading it.
+## Nothing else may reference this file statically. Only errors/warnings flow through
 ## _log_error (regular prints are ignored, so overhead is negligible). The
 ## callback is airtight: it never logs and guards against re-entrancy, so an error
 ## storm can't recurse through the logger or destabilize the game.

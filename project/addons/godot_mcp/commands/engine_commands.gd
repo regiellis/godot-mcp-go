@@ -95,6 +95,13 @@ func _list_commands(params: Dictionary) -> Dictionary:
 		groups = {group: groups[group]}
 		want_docs = true  # --group always attaches that group's param docs
 	var result := {"methods": methods, "count": methods.size(), "groups": groups}
+	# A group whose file could not load on this engine (an API newer than the 4.3
+	# floor) is skipped rather than fatal, so the catalog is short those commands
+	# with nothing else to show for it. Report the gap, and only when there is one.
+	if router.has_method("get_unavailable_groups"):
+		var unavailable: Array = router.get_unavailable_groups()
+		if not unavailable.is_empty():
+			result["unavailable_groups"] = unavailable
 	# The unfiltered catalog stays lean by default; --group or --docs adds the
 	# per-command param metadata for the methods in view that have it.
 	if want_docs and router.has_method("get_command_docs"):
@@ -920,7 +927,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"engine.commands": {
-			"description": "List the MCP's own registered commands: a flat method list plus a group->commands map. --group narrows to one group (and attaches that group's per-command param docs); --docs includes docs for the full catalog.",
+			"description": "List the MCP's own registered commands: a flat method list plus a group->commands map. --group narrows to one group (and attaches that group's per-command param docs); --docs includes docs for the full catalog. On an editor older than a group needs (the addon's floor is Godot 4.3), that group is skipped rather than fatal and the result carries unavailable_groups [{file, reason}]; the field is absent when every group registered.",
 			"params": [
 				doc_param("group", "String", false, "Narrow to one command group (also attaches that group's param docs)."),
 				doc_param("docs", "bool", false, "Include per-command param docs in the unfiltered catalog too."),

@@ -143,16 +143,27 @@ func _open(params: Dictionary) -> Dictionary:
 ## without a human at the editor or a restart. `scene.create` opening what it
 ## writes made that the default path, which is what surfaced it.
 ##
-## `EditorInterface.close_scene()` is the public 4.7 API and closes the CURRENT
-## scene, so a named path is made current first, and the switch is verified
-## before the close, because closing the wrong tab is unrecoverable. It discards
-## unsaved changes SILENTLY (no prompt, verified live on 4.7.2), so the refusal
-## below is the only thing standing between a caller and lost work: unsaved
-## changes need an explicit --discard.
+## `EditorInterface.close_scene()` closes the CURRENT scene, so a named path is
+## made current first, and the switch is verified before the close, because
+## closing the wrong tab is unrecoverable. It discards unsaved changes SILENTLY
+## (no prompt, verified live on 4.7.2), so the refusal below is the only thing
+## standing between a caller and lost work: unsaved changes need an explicit
+## --discard.
+##
+## Two version-gated APIs, both reached through EditorInterface.call() so naming
+## them cannot break the group's compile on an older editor (the addon's floor is
+## 4.3): `close_scene` arrived in 4.5, and `get_unsaved_scenes` in 4.7. Without
+## the latter the editor cannot tell us whether the tab is dirty, so the close is
+## refused without --discard rather than guessing. Nobody's work gets discarded
+## on an assumption.
 ##
 ## ⚠️ Call close_scene() at most ONCE per command. Looping it over the open-scene
 ## list inside one frame crashed the editor (found while testing this).
 func _close(params: Dictionary) -> Dictionary:
+	# Ahead of everything: refusing after the make-current switch would leave the
+	# editor on a tab the caller never chose, for a call that did nothing.
+	if not EditorInterface.has_method("close_scene"):
+		return editor_method_error("close_scene", "4.5")
 	var path := optional_string(params, "path", "")
 	var target := ""
 	if path.is_empty():
@@ -169,11 +180,23 @@ func _close(params: Dictionary) -> Dictionary:
 		return error_not_found("Open scene '%s'" % target,
 			"It is not open in the editor, so there is no tab to close. Open scenes: %s" % str(get_open_scene_paths()))
 
-	var unsaved: Array = []
-	for p: String in EditorInterface.get_unsaved_scenes():
-		unsaved.append(normalize_project_path(p))
-	var dirty: bool = target in unsaved
 	var discard := optional_bool(params, "discard", false)
+	var unsaved_known := EditorInterface.has_method("get_unsaved_scenes")
+	var unsaved: Array = []
+	if unsaved_known:
+		for p: String in EditorInterface.call("get_unsaved_scenes"):
+			unsaved.append(normalize_project_path(p))
+	elif not discard:
+		# Unknown is not clean. Closing discards without prompting, so an editor
+		# that cannot report dirty tabs gets the refusal, not the benefit of the doubt.
+		return error_conflict("Refusing to close '%s': this editor cannot report which scenes have unsaved changes" % target, {
+			"path": target,
+			"unsaved_check": "unavailable",
+			"required_godot_version": "4.7",
+			"missing_method": "EditorInterface.get_unsaved_scenes",
+			"suggestion": "Save it with scene.save first, then pass --discard true to close it (closing does not prompt).",
+		})
+	var dirty: bool = target in unsaved
 	if dirty and not discard:
 		return error_conflict("Refusing to close '%s': it has unsaved changes" % target, {
 			"path": target,
@@ -199,9 +222,11 @@ func _close(params: Dictionary) -> Dictionary:
 		return error_internal("Could not make '%s' the current scene before closing it (current: '%s')" % [
 			target, normalize_project_path(now.scene_file_path) if now != null else ""])
 
-	var err := EditorInterface.close_scene()
-	if err != OK:
-		return error_internal("close_scene failed for '%s': %s" % [target, error_string(err)])
+	# Variant, not int: a dynamic call to a void method hands back null, and a typed
+	# assignment would fault on exactly the older editors this gate exists for.
+	var err: Variant = EditorInterface.call("close_scene")
+	if err is int and (err as int) != OK:
+		return error_internal("close_scene failed for '%s': %s" % [target, error_string(err as int)])
 
 	var remaining := get_open_scene_paths()
 	# Put the caller back where it was (see previous_active above). An unsaved,
@@ -213,15 +238,21 @@ func _close(params: Dictionary) -> Dictionary:
 		restored = is_active_scene_path(previous_active)
 
 	var root_now := get_edited_root()
-	return success({
+	var payload := {
 		"path": target,
 		"closed": true,
 		"was_active": was_active,
-		"discarded_changes": dirty,
 		"restored_active_scene": restored,
 		"open_scenes": remaining,
 		"active_scene": normalize_project_path(root_now.scene_file_path) if root_now != null else "",
-	})
+	}
+	if unsaved_known:
+		payload["discarded_changes"] = dirty
+	else:
+		# No discarded_changes here rather than a false one: the editor never told
+		# us, and a bool would read as an answer.
+		payload["unsaved_check"] = "unavailable"
+	return success(payload)
 
 
 func _delete(params: Dictionary) -> Dictionary:
@@ -465,7 +496,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"scene.close": {
-			"description": "Close a scene tab: --path, or the active scene when no path is given. The way to release a scene that scene.delete / fs.delete / fs.move refuse because it is open. Closing DISCARDS unsaved changes without prompting, so a scene with unsaved changes is refused (-32009) unless --discard true. Closing a background tab keeps the current scene current (reported as restored_active_scene); the result also lists the remaining open_scenes and the resulting active_scene.",
+			"description": "Close a scene tab: --path, or the active scene when no path is given. The way to release a scene that scene.delete / fs.delete / fs.move refuse because it is open. Closing DISCARDS unsaved changes without prompting, so a scene with unsaved changes is refused (-32009) unless --discard true. Closing a background tab keeps the current scene current (reported as restored_active_scene); the result also lists the remaining open_scenes and the resulting active_scene. Needs Godot 4.5+ (EditorInterface.close_scene); below 4.7 the editor cannot report unsaved scenes, so every close is refused without --discard and the result carries unsaved_check: \"unavailable\" in place of discarded_changes.",
 			"params": [
 				doc_param("path", "String", false, "res:// path of the open scene to close (default the active scene)."),
 				doc_param("discard", "bool", false, "Close even with unsaved changes, losing them (default false)."),

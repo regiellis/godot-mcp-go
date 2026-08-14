@@ -54,6 +54,25 @@ func error_internal(message: String) -> Dictionary:
 	return error(-32603, "Internal error: %s" % message)
 
 
+## Refusal for a command that needs an engine symbol this build lacks. The
+## addon's floor is Godot 4.3, and anything added after it must be reached
+## dynamically -- Object.call() behind has_method(), ClassDB.instantiate() or
+## ClassDB.class_get_integer_constant() behind an existence check -- because
+## naming it directly is resolved at COMPILE time, so a missing one is a parse
+## error that costs the whole group, not just the command. `owner` defaults to
+## EditorInterface, the common case; pass the class for a node method
+## (CSGShape3D) or a constant's owner (Environment). One wording, one place.
+func editor_method_error(symbol: String, min_version: String, owner: String = "EditorInterface") -> Dictionary:
+	var running := str(Engine.get_version_info().get("string", "unknown"))
+	var qualified := "%s.%s" % [owner, symbol]
+	return error(-32601, "This command requires Godot %s+: %s is not available on this build (%s)" % [
+		min_version, qualified, running], {
+		"missing_method": qualified,
+		"required_godot_version": min_version,
+		"godot_version": running,
+	})
+
+
 # --- Param helpers ----------------------------------------------------------
 
 func require_string(params: Dictionary, key: String) -> Array:
@@ -240,6 +259,26 @@ func read_game_response(response_path: String, attempts: int = 10) -> Array:
 				break
 		await get_tree().create_timer(0.05).timeout
 	return [text, tries]
+
+
+## A correlation id to stamp into a game IPC request. The game echoes it in the
+## response, so an answer the game produced LATE for an EARLIER request is
+## recognizable. A debugger break landing mid-command is how that happens: the
+## editor gives up waiting, the break is released, and the old reply lands while
+## a new request is in flight. Before this, test.assert_node_state answered with
+## a stranded runtime.eval's payload ({"output": []}, no `passed` field at all).
+func next_game_request_id() -> String:
+	return "%d-%d" % [Time.get_ticks_usec(), randi()]
+
+
+## True when a game response belongs to some earlier request. An UNTAGGED
+## response is accepted: nothing may hang the hop over a missing id.
+func is_stale_game_response(text: String, request_id: String) -> bool:
+	var parsed: Variant = JSON.parse_string(text)
+	if not parsed is Dictionary:
+		return false
+	var got := str((parsed as Dictionary).get("_id", ""))
+	return not got.is_empty() and got != request_id
 
 
 ## The debugger bridge's current break, or {} when nothing is paused (also when

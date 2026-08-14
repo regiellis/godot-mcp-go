@@ -48,13 +48,22 @@ func _type_matches(file_type: String, script_class: String, requested: String) -
 
 ## Extract the resolvable res:// path from a get_dependencies() entry, which can be
 ## "uid://x::Type::res://path", "res://path::Type::", or a bare path.
+##
+## The uid branch goes through text_to_id/get_id_path rather than the one-call
+## ResourceUID.uid_to_path, which is 4.5+ and, being a static call on a native
+## class, is a parse error below that -- it cost the whole resource group on 4.3.
+## These two have existed since 4.0 and return the same thing: the mapped path
+## for a registered uid, an empty string for one this project does not know.
 func _dep_path(entry: String) -> String:
 	for part in entry.split("::"):
 		if part.begins_with("res://") or part.begins_with("user://"):
 			return part
 	for part in entry.split("::"):
 		if part.begins_with("uid://"):
-			return ResourceUID.uid_to_path(part)
+			var id := ResourceUID.text_to_id(part)
+			if id == ResourceUID.INVALID_ID or not ResourceUID.has_id(id):
+				return ""
+			return ResourceUID.get_id_path(id)
 	return entry
 
 

@@ -13,7 +13,7 @@ Two rules thread through all of them: **decouple with signals**, not polling or 
     <h2>{group}</h2>
     <CardGrid>
       {GUIDES.filter((g) => g.group === group).map((g) => (
-        <Card title={g.title} href={`/docs/guides/${g.slug}`}>{g.desc}</Card>
+        <Card title={g.title} badge={g.badge} href={`/docs/guides/${g.slug}`}>{g.desc}</Card>
       ))}
     </CardGrid>
   </section>

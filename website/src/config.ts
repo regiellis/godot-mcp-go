@@ -9,7 +9,7 @@ export const SITE = {
   description:
     "Give an AI agent the complete Godot development loop: discover the live engine, build in the open editor, play and observe the game, debug failures, fix them in place, and verify the result.",
   repo: "https://github.com/regiellis/godot-mcp-go",
-  editorVersion: "Godot 4.7+",
+  editorVersion: "Godot 4.7, 4.3+ in beta",
 };
 
 export type NavItem = { label: string; slug: string; badge?: string };
@@ -17,7 +17,7 @@ export type NavGroup = { group: string; items: NavItem[] };
 
 // The craft references, rendered from ../skills/godot-mcp/<slug>.md. Order here
 // is the reading order within each group. Descriptions are the card/subtitle text.
-export type Guide = { slug: string; title: string; group: string; desc: string };
+export type Guide = { slug: string; title: string; group: string; desc: string; badge?: string };
 
 export const GUIDE_GROUPS = ["Foundations", "2D", "3D and spatial", "Systems", "Genres", "Interop"];
 
@@ -55,6 +55,7 @@ export const GUIDES: Guide[] = [
   { slug: "narrative-game-patterns", group: "Genres", title: "Narrative / visual novel", desc: "Both families (Ink and graph dialogue) plus the manifest-driven product shell: boot flow, versioned saves, chapter select." },
 
   { slug: "unreal-import-cleanup", group: "Interop", title: "Unreal import cleanup", desc: "Fixing a scene exported from Unreal: env, lights, junk, imports order, and why it comes in washed out." },
+  { slug: "porting-godot-versions", group: "Interop", title: "Porting between Godot versions", badge: "beta", desc: "Moving a 4.x project up to 4.7 with evidence on both sides: a replayable baseline drive, the per-minor break list, and a measured noise floor to read the after numbers against." },
   { slug: "csharp-godot", group: "Interop", title: "C# in Godot", desc: "C#-in-Godot idioms for editing a C# project. Pair with the csharp group: setup scaffolds the solution, build compiles with structured diagnostics." },
 ];
 
@@ -111,6 +112,7 @@ const GUIDE_SECTIONS: NavGroup[] = GUIDE_GROUPS.map((g) => ({
   items: GUIDES.filter((gd) => gd.group === g).map((gd) => ({
     label: gd.title,
     slug: `guides/${gd.slug}`,
+    badge: gd.badge,
   })),
 }));
 

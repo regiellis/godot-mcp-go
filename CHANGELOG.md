@@ -8,7 +8,41 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Added
 
-- **Four craft guides gained the breadth their titles promised.** `level-design`
+- **The addon runs on Godot 4.3 through 4.8** (beta). Development still targets
+  4.7. Registration is per group now, so an engine that cannot compile a group
+  skips it and `engine.commands` names the file under `unavailable_groups`
+  instead of one unsupported group taking the whole plugin down. Verified
+  against the official 4.3, 4.4, 4.5, and 4.6 stable builds plus 4.7.2, one
+  headless editor per version against its own copy of the project: all **330
+  commands** registered on every one of the five, `unavailable_groups` absent
+  throughout, and the game IPC answering on each. Six APIs newer than the floor
+  refuse cleanly and name the version they need. `scene close` needs 4.5, and
+  below 4.7 every close needs `--discard`, because the editor cannot report
+  which tabs hold unsaved work and unknown is not clean. `csg bake` and the AGX
+  tonemap need 4.4. Runtime error capture needs 4.5, below which
+  `runtime errors` answers `capture: "unavailable"` naming the version rather
+  than an empty list that reads as no errors. The floor is beta: the evidence
+  behind it is five engine builds and one real port, with no shipped projects
+  on it yet.
+- **A craft reference on porting a project between 4.x versions** (beta),
+  `porting-godot-versions.md`, published as
+  [Porting between Godot versions](https://regiellis.github.io/godot-mcp-go/docs/guides/porting-godot-versions).
+  It runs the upgrade with evidence on both sides of the move: record how the
+  game behaves before the new editor ever opens it, as a replayable
+  `test run-scenario` step list plus screenshots and the numbers `runtime get`
+  returns, then replay the identical list afterwards. The comparison threshold
+  comes from measurement: run the baseline twice on the same build, and the
+  spread between those two runs is what a post-port difference is read against.
+  On the port it was validated against, a 4.6 FPS starter moved to 4.7, two
+  runs of the *same* build differed by 0.083 units in `_process`-driven
+  position and 8.35 percent between screenshots, while the cross-version pair
+  differed by 1.85 percent, so the after-port run sat inside the noise. The
+  guide also carries the per-minor break list, the rollback point that has to
+  exist before the first launch, the reimport and resave passes, and the
+  `config/features` string the upgrade never rewrites. Scope is 4.x to 4.x; a
+  Godot 3 project goes through the engine's own converter first. It is marked
+  beta on the strength of that single port.
+- **Four craft guides gained the breadth their titles promised**. `level-design`
   restructures around space families: the shared spine stays, the combat-interior
   material is named as one family, and exterior/open space (landmarks, terrain
   as pacing, walk-second travel budgets), 2D level design as its own discipline
@@ -18,7 +52,7 @@ follow [Semantic Versioning](https://semver.org/).
   finish. `in-game-docs` gains the 2D equivalent of the gym/zoo/museum/notes
   patterns. `tile-constraint` names its GridMap 3D scope and bridges the 2D
   case to terrain painting.
-- **Encryption's honest edges.** `save-systems` separates encrypting a save
+- **Encryption's honest edges**. `save-systems` separates encrypting a save
   (`FileAccess.open_encrypted` and variants; the key ships in the binary) from
   validating one (`Crypto.hmac_digest`, live-confirmed); `multiplayer-patterns`
   states that ENet is plaintext UDP and names the DTLS setup calls; the
@@ -31,7 +65,7 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
-- **Every em dash is gone from every shipped surface.** Roughly 1,700 of them
+- **Every em dash is gone from every shipped surface**. Roughly 1,700 of them
   across the craft guides, the site pages, the README, this changelog, the
   CLI's help and error text, and the addon's messages and source comments,
   each removed by rewriting its sentence rather than swapping punctuation.
@@ -40,6 +74,68 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- **`install --enable` left out the two autoloads `runtime` and `input` need**,
+  so a project installed that way answered every `runtime.*` and `input.*` call
+  with a missing-singleton failure while the addon reported as installed and
+  enabled. Godot runs a plugin's `_enable_plugin` hook only when someone ticks
+  the checkbox in the editor, and that hook is what injects `MCPGameInspector`
+  and `MCPGameInput`; writing the enabled line into `project.godot` never fires
+  it. The installer now writes the pair itself. Running it again is a no-op,
+  and a same-named autoload pointing at another script is reported rather than
+  overwritten. **Affects 0.6.0 through 0.8.2**: on those versions, toggle the
+  plugin checkbox off and back on in the editor, which runs the hook. `doctor`
+  gained a **game autoloads** check that names the missing entries and prints
+  the command that repairs them.
+- **A scenario assert comparing a vector property against a string crashed the
+  running game into the debugger**. GDScript treats `==` across those types as
+  a hard error rather than a false result, so a typo in a `test run-scenario`
+  step list stopped the game mid-run with nothing naming the step. An assert
+  now coerces the expected value toward the type of the live one and returns
+  `passed: false` with a `reason` naming both types.
+- **A scenario input step silently turned a held action into a one-frame tap**.
+  A pressed action is released again in the same batch unless the step sets
+  `auto_release` false, which is the right default (an action never released
+  stays down for every later step) and is also why a hold-then-wait moved a
+  player 0.08 units instead of 7. The release is unchanged, the step result now
+  carries `auto_released: true` when it happens, and the command's own docs
+  state the default and the flag.
+- **A stranded game reply could be delivered as the next command's answer**. A
+  `runtime.*` call that gave up waiting, most often because the game had
+  stopped at a debugger break, left its reply on disk for the following command
+  to read and return as its own. Game IPC requests now carry a correlation id
+  the game echoes back, and the editor discards a response that does not match.
+  The old recovery that pressed the debugger's Continue button to free a stuck
+  reply is gone: a break is reported and left where it is.
+- **`script validate` wrote a phantom parse error into the editor's error log**
+  for every script carrying a `class_name`. The throwaway copy it compiles
+  registered as a second declaration of the same global class, so the editor
+  logged "Class X hides a global script class" against a file that was fine and
+  `editor errors` reported it afterwards. The declaration is stripped from the
+  copy before the compile, with line numbers preserved so every diagnostic
+  still points at the real line.
+- **`status` read a live editor as absent on Windows**. The answering editor's
+  project path and the caller's were compared as text, so an 8.3 short path
+  (`D:\PROJEC~1\game`) and its long spelling read as two different projects
+  and the verdict came back as if nothing had answered. Both sides now resolve
+  to a real path before the comparison. A genuine project mismatch also
+  reported a verdict that disagreed with its own advice, saying to wait while
+  the action said to launch; it now reports `closed` or `crashed`, which is
+  what the launch policy reads.
+- **A malformed JSON flag value went nowhere and still returned success**. A
+  value opening with `[` or `{` that did not parse was passed on as a plain
+  string, and the addon's typed parameters discard a string they cannot read
+  and fall back to a default, so a mis-escaped `--properties` returned every
+  property inside a success envelope with nothing saying the flag had been
+  dropped. Such a value is now an error naming the flag. A string meant to
+  begin with a bracket or brace is sent verbatim behind a leading backslash
+  (`--text '\[literal]'`).
+- **`project tree --filter` returned every empty directory**. A directory whose
+  files all failed the filter was still listed, so a narrow filter came back as
+  the project's whole folder structure with a few files in it. Directories with
+  no surviving descendant are pruned.
+- **`godot-mcp --version` and `godot-mcp version` print the CLI version**. Both
+  spellings failed before, the flag on an unknown-flag parse error and the bare
+  word by being read as a command group.
 - **`doc note --action add --at` now refuses a 2D scene** like its four
   scaffold siblings, instead of silently parenting a `Marker3D` under a
   `Node2D`. The release-gate verification build found it. The billboard

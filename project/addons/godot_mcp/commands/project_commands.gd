@@ -79,6 +79,9 @@ func _tree(params: Dictionary) -> Dictionary:
 func _scan_dir(path: String, filter: String, max_depth: int, depth: int) -> Dictionary:
 	var result := {"name": path.get_file(), "path": path, "type": "directory"}
 	if depth >= max_depth:
+		# Nothing below was looked at, so a filtered scan cannot claim this holds no
+		# match. Say the scan stopped here and keep the node.
+		result["truncated"] = true
 		return result
 	var dir := DirAccess.open(path)
 	if dir == null:
@@ -90,7 +93,12 @@ func _scan_dir(path: String, filter: String, max_depth: int, depth: int) -> Dict
 		if not file_name.begins_with("."):
 			var full := path.path_join(file_name)
 			if dir.current_is_dir():
-				children.append(_scan_dir(full, filter, max_depth, depth + 1))
+				var sub := _scan_dir(full, filter, max_depth, depth + 1)
+				# Under a filter, a directory with no match anywhere beneath it is
+				# noise: `--filter "*.tscn"` used to answer with every asset folder
+				# in the project, each one empty.
+				if filter.is_empty() or sub.has("children") or sub.get("truncated", false):
+					children.append(sub)
 			elif filter.is_empty() or file_name.match(filter):
 				children.append({"name": file_name, "path": full, "type": "file"})
 		file_name = dir.get_next()
@@ -309,8 +317,8 @@ func get_command_docs() -> Dictionary:
 			"description": "Return the project's filesystem tree under --path, optionally filtered by a filename glob.",
 			"params": [
 				doc_param("path", "String", false, "Root directory to scan (default 'res://')."),
-				doc_param("filter", "String", false, "Filename glob to include (e.g. '*.gd')."),
-				doc_param("max_depth", "int", false, "Max directory depth (default 10)."),
+				doc_param("filter", "String", false, "Filename glob to include (e.g. '*.gd'). Directories holding no match anywhere beneath them are omitted."),
+				doc_param("max_depth", "int", false, "Max directory depth (default 10). A directory the scan stopped at is reported with truncated true."),
 			],
 		},
 		"project.search": {

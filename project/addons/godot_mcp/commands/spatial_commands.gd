@@ -749,8 +749,14 @@ func _gather_world_faces(root: Node) -> PackedVector3Array:
 			mesh = (n as MeshInstance3D).mesh
 			xform = (n as MeshInstance3D).global_transform
 		elif n is CSGShape3D:
-			mesh = (n as CSGShape3D).bake_static_mesh()
-			xform = (n as CSGShape3D).global_transform
+			var csg := n as CSGShape3D
+			# bake_static_mesh is 4.4+ and this call parses either way, so without
+			# the gate it is a hard runtime error on 4.3 rather than a missing
+			# surface. Below 4.4 a CSG tree contributes no snap geometry; its
+			# children are CSG shapes too, so skipping them loses nothing extra.
+			if csg.has_method("bake_static_mesh"):
+				mesh = csg.call("bake_static_mesh") as Mesh
+			xform = csg.global_transform
 			skip_children = true
 		if mesh != null:
 			for v in mesh.get_faces():

@@ -74,16 +74,36 @@ func Diagnose(cwd string, flagPort int) Status {
 		return st
 	}
 
-	// Something answered, but not this project's editor, so as far as THIS project
-	// is concerned nothing is serving it. Re-derive the verdict as if the probe had
-	// failed: that is what makes the launch policy produce the right move ("you may
-	// launch one") instead of "running, proceed" against a stranger's editor.
-	st = classify(disc, res.Port, false, alive)
+	st = mismatchVerdict(disc, res.Port, alive)
 	st.PortSource = res.Source
 	st.ProjectPath = answering
 	st.ProjectMatch = &match
 	st.Message = fmt.Sprintf("An editor answered on port %d, but it is serving %s, not %s. This project has no editor of its own.", res.Port, answering, res.Project)
 	st.Action = (&ProjectMismatch{Port: res.Port, Source: res.Source, Expected: res.Project, Answering: answering}).Action()
+	return st
+}
+
+// mismatchVerdict re-derives the verdict when something answered on the port but
+// it serves another project. As far as THIS project is concerned nothing
+// answered, which is what makes the launch policy produce the right move ("you
+// may launch one") instead of "running, proceed" against a stranger's editor.
+//
+// A live pid must not read as "starting" here. classify would say so, but its
+// "wait, do not launch" is for an editor of ours still binding, and this project
+// has none: the caller's guidance says to open one, and the two contradicted each
+// other. Only the discovery file's own dead process is evidence of a crash;
+// everything else is closed. The file's pid and start time still ride along as
+// the facts they are; Diagnose replaces the message and action.
+func mismatchVerdict(disc *Discovery, port int, alive bool) Status {
+	st := Status{Verdict: VerdictClosed, Port: port}
+	if disc == nil {
+		return st
+	}
+	st.PID = disc.PID
+	st.StartedUnix = disc.StartedUnix
+	if !alive {
+		st.Verdict = VerdictCrashed
+	}
 	return st
 }
 

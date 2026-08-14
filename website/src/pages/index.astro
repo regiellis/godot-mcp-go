@@ -39,8 +39,9 @@ const compare = [
   { axis: "Runtime debugging", ai: "not documented", native: "not documented", us: "break, inspect, step, hot reload" },
   { axis: "C# projects", ai: "not documented", native: "symbol indexing", us: "scaffold, build, diagnostics" },
   { axis: "New project from nothing", ai: "no", native: "no", us: "godot-mcp create" },
-  // win: "them" flips the check to the columns that earn it (they support older engines).
-  { axis: "Godot versions", ai: "4.5+", native: "4.5+", us: "4.7+, 4.8 verified", win: "them" },
+  // win: "them" flips the check to the columns that earn it. Our floor reaches lower
+  // than 4.5 now, but it is beta, so the check stays with the settled claim.
+  { axis: "Godot versions", ai: "4.5+", native: "4.5+", us: "4.7 target, 4.3 to 4.8 in beta", win: "them" },
   // Count derived from GUIDES so it cannot drift from the craft docs actually published.
   { axis: "Craft layer", ai: "tool reference", native: "tool reference", us: `${GUIDES.length} guides + skill` },
 ];
@@ -106,7 +107,7 @@ const caps = [
             <p class="lede">
               Discover the live engine, build in the open editor, run and play the game, observe
               state, debug failures, fix them in place, and verify the result. The same workflow
-              runs from a terminal or an MCP client against Godot 4.7+.
+              runs from a terminal or an MCP client against Godot 4.7.
             </p>
             <div class="hero-actions">
               <a class="btn btn-primary" href={docsHref("quickstart")}>Get started <Icon name="arrow" size={16} /></a>
@@ -128,8 +129,9 @@ const caps = [
               <a href="https://github.com/hi-godot/godot-ai" target="_blank" rel="noopener">godot-ai</a> and
               <a href="https://github.com/yurineko73/Godot-MCP-Native" target="_blank" rel="noopener">Godot-MCP-Native</a> are
               both good, both actively maintained, and all three projects are MIT. godot-ai has the
-              largest community; Godot-MCP-Native has the leanest install; both run on Godot 4.5 and
-              4.6 where this one asks for 4.7. Editor-native is table stakes now, so the axes worth
+              largest community; Godot-MCP-Native has the leanest install; both settle on a 4.5
+              floor, where this one is developed on 4.7 and its 4.3 floor is still beta.
+              Editor-native is table stakes now, so the axes worth
               measuring are how you drive it, how much context the tool surface costs, and what
               happens across the full build, play, diagnose, and verify workflow.
               Figures checked 2026-08-12.

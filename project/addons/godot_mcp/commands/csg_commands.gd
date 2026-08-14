@@ -5,7 +5,8 @@ extends "res://addons/godot_mcp/commands/base_command.gd"
 ## can poke their props, but this group gives the operations those don't do ergonomically:
 ## boolean operation by name, wrapping a set of shapes in a CSGCombiner3D, and, the payoff,
 ## baking a proven CSG tree down to a static MeshInstance3D (+ collision), the graybox→mesh
-## handoff. Bake uses the live 4.7 API: CSGShape3D.bake_static_mesh()/bake_collision_shape().
+## handoff. CSGShape3D.bake_static_mesh()/bake_collision_shape() are 4.4+, so csg.bake
+## dispatches them dynamically and refuses on 4.3; the rest of the group works there.
 
 const _OPERATIONS := {"union": 0, "intersection": 1, "subtraction": 2}
 
@@ -194,12 +195,19 @@ func _bake(params: Dictionary) -> Dictionary:
 	if not _is_csg(node):
 		return error_invalid_params("Node '%s' is not a CSG node (is %s)" % [rn[0], node.get_class()])
 	var csg := node as CSGShape3D
+	# bake_static_mesh and bake_collision_shape both arrived in 4.4, so one gate
+	# covers the pair. Reached through call() and held in an explicitly typed
+	# Variant: naming the method parses fine, but inferring a local from its
+	# return does not, and that inference is what cost this whole group on 4.3.
+	if not csg.has_method("bake_static_mesh"):
+		return editor_method_error("bake_static_mesh", "4.4", "CSGShape3D")
 
 	var warnings: Array = []
 	if not csg.is_root_shape():
 		warnings.append("'%s' is not the root CSG shape; baking its subtree only. Bake the root for the whole boolean result." % rn[0])
 
-	var mesh: ArrayMesh = csg.bake_static_mesh()
+	var baked: Variant = csg.call("bake_static_mesh")
+	var mesh := baked as ArrayMesh
 	if mesh == null or mesh.get_surface_count() == 0:
 		return error(-32000, "CSG produced no mesh (empty result or not yet evaluated)")
 
@@ -230,7 +238,8 @@ func _bake(params: Dictionary) -> Dictionary:
 	var make_collision := optional_bool(params, "collision", csg.use_collision)
 	var body: StaticBody3D = null
 	if make_collision:
-		var shape := csg.bake_collision_shape()
+		var baked_shape: Variant = csg.call("bake_collision_shape")
+		var shape := baked_shape as ConcavePolygonShape3D
 		if shape != null and shape.get_faces().size() > 0:
 			body = StaticBody3D.new()
 			body.name = "StaticBody3D"

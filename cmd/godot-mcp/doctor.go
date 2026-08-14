@@ -45,8 +45,9 @@ func runDoctor(args []string) int {
 	fs.Usage = subHelp(fs, "environment preflight",
 		[]string{"godot-mcp doctor [--project DIR] [--json]"},
 		`Reports ok/warn/fail for: the godot binary, a resolvable project, the addon
-install + enable state, the effective port source, the editor liveness verdict,
-and dotnet (for C# projects). Exit 1 only if a check fails.`)
+install + enable state, the game-side autoloads runtime/input need, the effective
+port source, the editor liveness verdict, and dotnet (for C# projects). Exit 1
+only if a check fails.`)
 	if rc := parseSub(fs, args); rc >= 0 {
 		return rc
 	}
@@ -67,13 +68,14 @@ and dotnet (for C# projects). Exit 1 only if a check fails.`)
 		checks = append(checks, doctorCheck{"project", statusFail,
 			fmt.Sprintf("no project.godot found from %s upward (pass --project or run inside a project)", start)})
 		// 3-6 depend on a project root; mark them skipped explicitly.
-		for _, name := range []string{"addon installed", "addon enabled", "port config", "editor"} {
+		for _, name := range []string{"addon installed", "addon enabled", "game autoloads", "port config", "editor"} {
 			checks = append(checks, doctorCheck{name, statusSkip, "skipped (no project)"})
 		}
 	} else {
 		checks = append(checks, doctorCheck{"project", statusOK, root})
 		checks = append(checks, checkAddonInstalled(root))
 		checks = append(checks, checkAddonEnabled(root))
+		checks = append(checks, checkGameAutoloads(root))
 		checks = append(checks, checkPortConfig(root))
 		checks = append(checks, checkEditor(start))
 	}
@@ -134,6 +136,42 @@ func checkAddonEnabled(root string) doctorCheck {
 	}
 	return doctorCheck{"addon enabled", statusWarn,
 		"plugin not enabled. Run: godot-mcp install --enable, or enable Godot MCP in Project Settings > Plugins"}
+}
+
+// checkGameAutoloads reports whether the two game-side singletons runtime.* and
+// input.* talk to are declared in project.godot. The plugin reading as enabled is
+// not enough: a project enabled from the file by a CLI older than enableAutoloads
+// has them missing, and every runtime/input call then fails on a singleton that
+// was never registered while every other check here says the install is fine.
+func checkGameAutoloads(root string) doctorCheck {
+	data, err := os.ReadFile(filepath.Join(root, "project.godot"))
+	if err != nil {
+		return doctorCheck{"game autoloads", statusWarn,
+			fmt.Sprintf("could not read project.godot: %v", err)}
+	}
+	lines := strings.Split(string(data), "\n")
+	start, end := sectionBounds(lines, "autoload")
+	var missing, foreign []string
+	for _, entry := range gameAutoloads {
+		v, found := autoloadValue(lines, start, end, entry[0])
+		switch {
+		case !found:
+			missing = append(missing, entry[0])
+		case strings.TrimPrefix(v, "*") != entry[1]:
+			foreign = append(foreign, entry[0])
+		}
+	}
+	if len(foreign) > 0 {
+		return doctorCheck{"game autoloads", statusWarn,
+			fmt.Sprintf("%s point at another script, so runtime/input commands will not work. Rename that autoload or point it at the addon's service script",
+				strings.Join(foreign, " and "))}
+	}
+	if len(missing) > 0 {
+		return doctorCheck{"game autoloads", statusWarn,
+			fmt.Sprintf("%s missing from project.godot; runtime/input commands need them. Run: godot-mcp install --project %s --enable --force",
+				strings.Join(missing, " and "), root)}
+	}
+	return doctorCheck{"game autoloads", statusOK, "MCPGameInspector and MCPGameInput declared"}
 }
 
 // checkPortConfig reports the effective port source without contacting anything:

@@ -6,14 +6,15 @@ interface Props {
   title: string;
   icon?: string;
   href?: string;
+  badge?: string;
 }
-const { title, icon, href } = Astro.props;
+const { title, icon, href, badge } = Astro.props;
 const link = href ? withBase(href) : undefined;
 const Tag = link ? "a" : "div";
 ---
 
 <Tag class="card" href={link}>
   {icon && <div class="card-icon"><Icon name={icon} size={20} /></div>}
-  <div class="card-title">{title}</div>
+  <div class="card-title">{title}{badge && <span class="card-badge">{badge}</span>}</div>
   <div class="card-desc"><slot /></div>
 </Tag>

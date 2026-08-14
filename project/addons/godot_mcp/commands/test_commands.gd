@@ -301,8 +301,15 @@ func _report(params: Dictionary) -> Dictionary:
 
 # --- Step executors ---------------------------------------------------------
 
+## An action press is released again in the same batch unless the step sets
+## auto_release false. That default stays -- a scenario that never releases
+## leaves the action stuck down for every later step -- but it turns a
+## hold-then-wait into a one-frame tap, so the step result reports it rather
+## than leaving the caller to explain a player that moved 0.08 units instead of
+## 7. Keycode steps have no such default and hold until a later step releases.
 func _execute_input_step(step: Dictionary) -> Dictionary:
 	var events: Array = []
+	var auto_released := false
 
 	if step.has("action"):
 		var pressed := bool(step.get("pressed", true))
@@ -314,6 +321,7 @@ func _execute_input_step(step: Dictionary) -> Dictionary:
 		})
 		if pressed and step.get("auto_release", true):
 			events.append({"type": "action", "action": str(step["action"]), "pressed": false, "strength": 0.0})
+			auto_released = true
 	elif step.has("keycode"):
 		events.append({
 			"type": "key",
@@ -332,7 +340,10 @@ func _execute_input_step(step: Dictionary) -> Dictionary:
 	file.store_string(JSON.stringify({"sequence_events": events, "frame_delay": int(step.get("frame_delay", 1))}))
 	file.close()
 
-	return {"sent": true, "event_count": events.size()}
+	var result := {"sent": true, "event_count": events.size()}
+	if auto_released:
+		result["auto_released"] = true
+	return result
 
 
 func _execute_wait_step(step: Dictionary) -> Dictionary:
@@ -406,16 +417,33 @@ func _send_game_command(command: String, params: Dictionary = {}, timeout_sec: f
 	if FileAccess.file_exists(response_path):
 		DirAccess.remove_absolute(response_path)
 
+	var request_id := next_game_request_id()
 	var req := FileAccess.open(request_path, FileAccess.WRITE)
 	if req == null:
 		return error_internal("Could not create game request file")
-	req.store_string(JSON.stringify({"command": command, "params": params}))
+	req.store_string(JSON.stringify({"command": command, "params": params, "_id": request_id}))
 	req.close()
 
 	var attempts := int(timeout_sec / 0.1)
+	var text := ""
+	var unreadable := false
 	while attempts > 0:
 		await get_tree().create_timer(0.1).timeout
 		if FileAccess.file_exists(response_path):
+			# Shared tolerant read (base_command): the response file can be locked
+			# for an instant after the game renames it into place.
+			var read: Array = await read_game_response(response_path)
+			DirAccess.remove_absolute(response_path)
+			var body := String(read[0])
+			if body.strip_edges().is_empty():
+				unreadable = true
+				break
+			# A response carrying a different id answers an EARLIER request the game
+			# finished late. It is not this call's answer, so drop it and keep waiting.
+			if is_stale_game_response(body, request_id):
+				attempts -= 1
+				continue
+			text = body
 			break
 		if not EditorInterface.is_playing_scene():
 			if FileAccess.file_exists(request_path):
@@ -423,57 +451,25 @@ func _send_game_command(command: String, params: Dictionary = {}, timeout_sec: f
 			return error(-32000, "Game stopped during command execution")
 		attempts -= 1
 
-	if not FileAccess.file_exists(response_path):
-		# Game may be paused on a runtime error; try to resume the debugger.
-		if EditorInterface.is_playing_scene():
-			_try_debugger_continue()
-			for _retry in 20:
-				await get_tree().create_timer(0.1).timeout
-				if FileAccess.file_exists(response_path):
-					break
-
-	if not FileAccess.file_exists(response_path):
+	if unreadable:
+		return error_internal("Could not read game response file (%s)" % response_path)
+	if text.is_empty():
+		# A debugger break is the usual cause, and game_timeout_error names it and
+		# points at debug.resume. This path used to press the debugger's Continue
+		# button itself: it hid a break the caller never asked to release, matched
+		# the button by its localized tooltip, and let the freed command's late
+		# reply be read as this one's answer.
 		if FileAccess.file_exists(request_path):
 			DirAccess.remove_absolute(request_path)
 		return game_timeout_error(timeout_sec)
 
-	# Shared tolerant read (base_command): the response file can be locked for an
-	# instant after the game renames it into place.
-	var read: Array = await read_game_response(response_path)
-	var text: String = read[0]
-	DirAccess.remove_absolute(response_path)
-	if text.strip_edges().is_empty():
-		return error_internal("Could not read game response file (%s)" % response_path)
-
 	var parsed: Variant = JSON.parse_string(text)
 	if not parsed is Dictionary:
 		return error_internal("Invalid response JSON from game")
+	(parsed as Dictionary).erase("_id")
 	if parsed.has("error"):
 		return error(-32000, str(parsed["error"]))
 	return success(parsed)
-
-
-## Press the debugger "Continue" button to resume a paused game process.
-func _try_debugger_continue() -> void:
-	var base := EditorInterface.get_base_control()
-	if base == null:
-		return
-	var queue: Array[Node] = [base]
-	while not queue.is_empty():
-		var node := queue.pop_front()
-		if node.get_class() == "ScriptEditorDebugger":
-			var inner: Array[Node] = [node]
-			while not inner.is_empty():
-				var n := inner.pop_front()
-				if n is Button and (n as Button).tooltip_text == "Continue":
-					(n as Button).emit_signal("pressed")
-					push_warning("[MCP] Auto-resumed debugger after runtime error")
-					return
-				for c in n.get_children():
-					inner.append(c)
-			return
-		for child in node.get_children():
-			queue.append(child)
 
 
 func _count_log_errors() -> int:
@@ -493,18 +489,18 @@ func _count_log_errors() -> int:
 func get_command_docs() -> Dictionary:
 	return {
 		"test.run_scenario": {
-			"description": "Run a scripted scenario against the playing game: a sequence of --steps (input/wait/assert/screenshot) driven over file IPC. Optionally (re)starts the scene first. Requires a playing scene.",
+			"description": "Run a scripted scenario against the playing game: a sequence of --steps (input/wait/assert/screenshot) driven over file IPC. Optionally (re)starts the scene first. Requires a playing scene. An 'input' step with an action and pressed true is RELEASED in the same batch unless it sets auto_release false, so a hold-then-wait needs that flag or it runs as a one-frame tap; a step that auto-released reports auto_released true.",
 			"params": [
-				doc_param("steps", "Array", true, "Non-empty JSON array of step objects, each with a 'type': 'input' ({action|keycode, pressed, ...}), 'wait' ({seconds} or {node_path, timeout}), 'assert' ({text} or {node_path, property, expected, operator}), or 'screenshot'."),
+				doc_param("steps", "Array", true, "Non-empty JSON array of step objects, each with a 'type': 'input' ({action|keycode, pressed, strength, frame_delay, auto_release}), 'wait' ({seconds} or {node_path, timeout}), 'assert' ({text} or {node_path, property, expected, operator}), or 'screenshot'."),
 				doc_param("scene_path", "String", false, "'main', 'current', or a scene file path to (re)start before running; omit to use the already-playing scene."),
 			],
 		},
 		"test.assert_node_state": {
-			"description": "Assert a property on a node in the running game compares as expected. Requires a playing scene.",
+			"description": "Assert a property on a node in the running game compares as expected. The expected value is coerced to the live value's type before comparing; a pair that cannot be compared is passed false with a 'reason' naming both types. Requires a playing scene.",
 			"params": [
 				doc_param("node_path", "NodePath", true, "Node path relative to the running scene root."),
 				doc_param("property", "String", true, "Property to read."),
-				doc_param("expected", "JSON", true, "Expected value to compare against."),
+				doc_param("expected", "JSON", true, "Expected value. Godot literals work as strings: \"Vector2(64, 0)\", \"#ff0000\", \"true\", numbers."),
 				doc_param("operator", "String", false, "Comparison: eq (default), neq, gt, lt, gte, lte, contains, type_is."),
 			],
 		},

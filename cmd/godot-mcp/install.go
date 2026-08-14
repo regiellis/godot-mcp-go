@@ -101,6 +101,17 @@ func runInstall(args []string) int {
 		} else {
 			fmt.Println("enabled plugin in project.godot")
 		}
+		added, conflicts, err := enableAutoloads(root)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "install: could not add the game-side autoloads:", err)
+		}
+		for _, name := range added {
+			fmt.Printf("added autoload  -> %s\n", name)
+		}
+		for _, c := range conflicts {
+			fmt.Fprintf(os.Stderr, "install: project.godot already has %s, which does not point at the addon's script; left as is.\n", c)
+			fmt.Fprintln(os.Stderr, "  Rename that autoload or point it at the addon's script, or runtime/input commands will not work.")
+		}
 	} else {
 		fmt.Println("Next: open the project in Godot 4.7 and enable Godot MCP in Project Settings > Plugins.")
 	}
@@ -243,6 +254,117 @@ func copyFile(src, dst string) error {
 }
 
 const pluginEntry = "res://addons/godot_mcp/plugin.cfg"
+
+// gameAutoloads are the two game-side singletons the runtime.* and input.*
+// commands talk to, name paired with the addon script it must point at. Keep
+// them in step with plugin.gd's _AUTOLOADS.
+var gameAutoloads = [][2]string{
+	{"MCPGameInspector", "res://addons/godot_mcp/services/game_inspector.gd"},
+	{"MCPGameInput", "res://addons/godot_mcp/services/game_input.gd"},
+}
+
+// enableAutoloads writes the game-side autoloads into project.godot's [autoload]
+// section, creating the section when the project has none.
+//
+// The addon injects these itself, but only from plugin.gd's _enable_plugin(),
+// which Godot calls when the checkbox is ticked in a running editor. Enabling
+// from the file (what --enable does) fires _enter_tree alone, so a fresh
+// `install --enable` project had the plugin on and no singletons, and every
+// runtime/input call failed pointing at the scene rather than the real cause.
+//
+// Ownership follows plugin.gd's rule: an entry already pointing at the addon's
+// own script is ours and is left alone (so a second run changes nothing), and a
+// same-named entry pointing anywhere else is the user's, reported rather than
+// overwritten. Returns the names added and the foreign entries refused.
+func enableAutoloads(root string) (added, conflicts []string, err error) {
+	p := filepath.Join(root, "project.godot")
+	data, err := os.ReadFile(p)
+	if err != nil {
+		return nil, nil, err
+	}
+	lines := strings.Split(string(data), "\n")
+	start, end := sectionBounds(lines, "autoload")
+
+	var pending []string
+	for _, entry := range gameAutoloads {
+		name, script := entry[0], entry[1]
+		existing, found := autoloadValue(lines, start, end, name)
+		switch {
+		case found && strings.TrimPrefix(existing, "*") == script:
+			// Already ours: nothing to do.
+		case found:
+			conflicts = append(conflicts, fmt.Sprintf("%s=%q", name, existing))
+		default:
+			pending = append(pending, fmt.Sprintf("%s=%q", name, "*"+script))
+			added = append(added, name)
+		}
+	}
+	if len(pending) == 0 {
+		return added, conflicts, nil
+	}
+
+	if start < 0 {
+		s := string(data)
+		if s != "" && !strings.HasSuffix(s, "\n") {
+			s += "\n"
+		}
+		s += "\n[autoload]\n\n" + strings.Join(pending, "\n") + "\n"
+		return added, conflicts, os.WriteFile(p, []byte(s), 0o644)
+	}
+
+	// Append after the section's last entry, so the blank line Godot writes
+	// under the header stays where it is.
+	ins := start
+	for i := start; i < end; i++ {
+		if strings.TrimSpace(lines[i]) != "" {
+			ins = i + 1
+		}
+	}
+	if ins == start && start < end && strings.TrimSpace(lines[start]) == "" {
+		ins++
+	}
+	out := make([]string, 0, len(lines)+len(pending))
+	out = append(out, lines[:ins]...)
+	out = append(out, pending...)
+	out = append(out, lines[ins:]...)
+	return added, conflicts, os.WriteFile(p, []byte(strings.Join(out, "\n")), 0o644)
+}
+
+// sectionBounds locates an ini section's body in project.godot: the half-open
+// line range after the [name] header up to the next header, or (-1, -1) when the
+// section is absent.
+func sectionBounds(lines []string, name string) (int, int) {
+	header := "[" + name + "]"
+	for i, l := range lines {
+		if strings.TrimSpace(l) != header {
+			continue
+		}
+		for j := i + 1; j < len(lines); j++ {
+			t := strings.TrimSpace(lines[j])
+			if strings.HasPrefix(t, "[") && strings.HasSuffix(t, "]") {
+				return i + 1, j
+			}
+		}
+		return i + 1, len(lines)
+	}
+	return -1, -1
+}
+
+// autoloadValue returns the value of an autoload key inside the given section
+// body, unquoted, and whether it is there at all.
+func autoloadValue(lines []string, start, end int, name string) (string, bool) {
+	if start < 0 {
+		return "", false
+	}
+	for i := start; i < end; i++ {
+		k, v, ok := strings.Cut(strings.TrimSpace(lines[i]), "=")
+		if !ok || strings.TrimSpace(k) != name {
+			continue
+		}
+		return strings.Trim(strings.TrimSpace(v), `"`), true
+	}
+	return "", false
+}
 
 // enablePlugin adds the addon to project.godot's [editor_plugins] enabled list,
 // idempotently. Best-effort text edit, and Godot rewrites the file cleanly on open.

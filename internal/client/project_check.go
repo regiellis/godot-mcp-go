@@ -101,16 +101,40 @@ func AnsweringProject(ctx context.Context, port int) (string, error) {
 // the addon globalizes res:// (forward slashes, trailing separator) while the CLI
 // walks up from cwd. Case folding follows the platform, so two projects differing
 // only by case still register as different where the filesystem says they are.
+//
+// Spelling alone is not enough. An editor launched through a Windows 8.3 short
+// path (D:\PROJEC~1\game) reports that spelling while the CLI walks up from
+// the long one, and the same directory then read as two projects for as long as
+// the editor stayed open. So a textual mismatch is re-checked through
+// EvalSymlinks, which expands short names and resolves links; a path that cannot
+// be resolved (it may not exist here) keeps the textual answer.
 func SameProjectPath(a, b string) bool {
-	norm := func(p string) string {
-		p = filepath.Clean(filepath.FromSlash(strings.TrimSpace(p)))
-		if runtime.GOOS == "windows" {
-			return strings.ToLower(p)
-		}
-		return p
-	}
 	if a == "" || b == "" {
 		return false
 	}
-	return norm(a) == norm(b)
+	if normProjectPath(a) == normProjectPath(b) {
+		return true
+	}
+	ra, err1 := filepath.EvalSymlinks(cleanProjectPath(a))
+	rb, err2 := filepath.EvalSymlinks(cleanProjectPath(b))
+	if err1 != nil || err2 != nil {
+		return false
+	}
+	return normProjectPath(ra) == normProjectPath(rb)
+}
+
+// cleanProjectPath puts a project root into native form: trimmed, native
+// separators, no trailing separator or dot segments.
+func cleanProjectPath(p string) string {
+	return filepath.Clean(filepath.FromSlash(strings.TrimSpace(p)))
+}
+
+// normProjectPath is cleanProjectPath plus the platform's case rule, which is
+// the form the comparison runs on.
+func normProjectPath(p string) string {
+	p = cleanProjectPath(p)
+	if runtime.GOOS == "windows" {
+		return strings.ToLower(p)
+	}
+	return p
 }

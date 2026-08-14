@@ -429,15 +429,16 @@ func _validate_one(path: String) -> Dictionary:
 	var source := file.get_as_text()
 	file.close()
 
-	var err := _compile(source)
-	# A `class_name` declaration registers a global class. When validating a file
-	# whose class is already registered (e.g. right after creating it), the temp
-	# script's identical `class_name` collides and fails to compile even though
-	# the syntax is fine. Retry without that line to isolate real errors.
-	if err != OK:
-		var stripped := _strip_class_name(source)
-		if stripped != source and _compile(stripped) == OK:
-			err = OK
+	# A `class_name` declaration registers a global class, so the throwaway compile
+	# below declares a class the project has already registered: the engine answers
+	# "Class X hides a global script class" and WRITES THAT PARSE ERROR INTO THE
+	# EDITOR LOG. Compiling first and retrying stripped got the verdict right but
+	# left the phantom behind, so `script validate --all` on a healthy tree handed
+	# `editor.errors` one bogus entry per class_name script. Blank the declaration
+	# BEFORE the first compile instead. _strip_class_name keeps the line count and
+	# any same-line `extends`, and returns the source unchanged when the declaration
+	# is malformed, which has to be compiled to be reported.
+	var err := _compile(_strip_class_name(source))
 
 	if err == OK:
 		return {"path": path, "valid": true, "message": "Script compiles successfully"}
@@ -576,11 +577,25 @@ func _compile(source: String) -> int:
 	return script.reload()
 
 
+## Drop a `class_name` declaration so a throwaway compile does not collide with
+## the global class the real file already registered. Three things it has to get
+## right: the line is REPLACED, never removed, so every error the compile reports
+## still names the file's own line numbers; a same-line `extends` clause survives,
+## since losing the base type would fail a healthy script on its base members; and
+## a declaration that is not a plain `class_name Identifier [extends Base]` is left
+## alone, because it may itself be the error and hiding it would call a broken file
+## valid.
 func _strip_class_name(source: String) -> String:
+	var shape := RegEx.new()
+	shape.compile("^class_name[ \\t]+[A-Za-z_][A-Za-z0-9_]*([ \\t]+extends[ \\t]+\\S.*)?$")
 	var lines := source.split("\n")
 	for i in range(lines.size()):
-		if lines[i].strip_edges().begins_with("class_name "):
-			lines.remove_at(i)
+		var line := lines[i].strip_edges()
+		if line.begins_with("class_name "):
+			var m := shape.search(line)
+			if m == null:
+				return source
+			lines[i] = m.get_string(1).strip_edges()
 			return "\n".join(lines)
 	return source
 

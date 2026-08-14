@@ -174,7 +174,8 @@ func (s *mcpServer) initializeResult(params json.RawMessage) map[string]any {
 // serverInstructions is surfaced to the MCP client at every connect (MCP
 // InitializeResult.instructions). Keep it short: the durable, always-present
 // steer, with the godot-mcp skill carrying the detail.
-const serverInstructions = "Drives a running Godot editor (4.7+) via the godot-mcp addon. " +
+const serverInstructions = "Drives a running Godot editor via the godot-mcp addon. " +
+	"Developed against Godot 4.7, with 4.3 to 4.8 supported in beta, where an older engine may skip a command group. " +
 	"Per-command tools (node_add, scene_tree, runtime_eval, …) appear when the editor was reachable; " +
 	"the generic godot_run tool (method \"<group>.<command>\", params) reaches ANY method, including ones without a typed tool. " +
 	"Discover before you act: your training may predate the running engine, so confirm a class/property/method against it " +
@@ -197,7 +198,8 @@ const gamePropDesc = "Route to a standalone debug-build game's direct server ins
 // the editor was reachable at list time.
 var godotRunTool = map[string]any{
 	"name": "godot_run",
-	"description": "Run any command against a running Godot editor, 4.7 or newer (via the godot-mcp addon) and return the JSON result. " +
+	"description": "Run any command against a running Godot editor (via the godot-mcp addon) and return the JSON result. " +
+		"Godot 4.7 is the development target, with 4.3 to 4.8 supported in beta. " +
 		"This is the generic escape hatch: `method` is \"<group>.<command>\" and `params` mirror the command's parameters, so it reaches EVERY method, " +
 		"including commands without a typed tool and project-local commands. When the editor was reachable at list time, first-class per-command tools " +
 		"(node_add, scene_tree, runtime_eval, …) are offered too; prefer one of those when it fits. " +

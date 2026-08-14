@@ -130,6 +130,17 @@ a.card:hover { border-color: var(--accent); transform: translateY(-2px); box-sha
 .prose a.card .card-title, .prose a.card .card-desc { text-decoration: none; }
 .card-icon { color: var(--accent); margin-bottom: 0.5rem; }
 .card-title { font-weight: 640; color: var(--text); margin-bottom: 0.2rem; }
+/* Same pill recipe as the sidebar's .nav-badge, sitting inline after the title. */
+.card-badge {
+  margin-left: 0.4rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  padding: 0.05rem 0.35rem;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  vertical-align: 0.12em;
+}
 .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.55; }
 
 /* Expressive-code frames get a little breathing room */

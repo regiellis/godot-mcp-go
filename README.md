@@ -4,7 +4,7 @@
 
 # Godot MCP CLI
 
-[![Godot 4.7+](https://img.shields.io/badge/Godot-4.7%2B-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org)
+[![Godot 4.7, 4.3+ in beta](https://img.shields.io/badge/Godot-4.7%20%284.3%2B%20beta%29-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org)
 [![Go 1.26+](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](https://go.dev)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Workflow](https://img.shields.io/badge/workflow-build%20%7C%20play%20%7C%20debug%20%7C%20verify-blue)
@@ -87,10 +87,11 @@ Plenty of Godot MCP servers exist, and the good ones are editor-native, so "runs
 - **Two MCP transports, plus prompts:** stdio through the Go binary, or **editor-direct streamable HTTP**, where the addon itself hosts `POST /mcp` on `127.0.0.1` so an HTTP-capable MCP client drives the editor with **no external process at all**, same commands and same guards. The playbooks ship as first-class **MCP prompts** (`discover-then-drive`, `spatial-placement`, `launch-recovery`, `bug-hunt`), served even when the editor is down.
 - **C# projects too:** `script.create` authors C# templates, `csharp.setup` scaffolds the csproj/sln, and `csharp.build` / `script.validate` compile with structured per-file diagnostics (requires a Godot .NET editor build and the dotnet SDK).
 - **Introspection instead of wrappers:** the live `ClassDB` *is* the feature list: `engine.search` to find a name, `engine.docs`/`engine.doc_search` for what it means (the running build's own documentation prose, straight from the editor's doc cache), then generic `node.set`/`node.get` for properties and `node.call`/`runtime.call` for methods. New engine features are reachable the day you upgrade, with no new release of this tool. That is not a claim on paper: the addon runs unmodified on **4.8-dev**, whose 6 new classes and 4 removals needed no code change, and `engine.search` picks up 4.8's `FuzzySearch` automatically to resolve abbreviations like `linvel` → `linear_velocity`.
+- **It reaches back as well as forward (beta):** the addon loads and serves on Godot **4.3 through 4.8**, verified against the official 4.3, 4.4, 4.5, and 4.6 stable builds plus 4.7.2, with all 330 commands registering on each. Failure is per group: an engine that can't compile a group skips it and reports it under `unavailable_groups`, and the six APIs newer than 4.3 refuse with the version they need. 4.7 stays the development target. Moving a project up a version has its own guide, [Porting between Godot versions](https://regiellis.github.io/godot-mcp-go/docs/guides/porting-godot-versions) (beta): record a replayable baseline drive before the upgrade, replay it after, and compare against a measured noise floor.
 - **Live editor integration:** commands run against the real SceneTree with UndoRedo (Ctrl+Z safe for the human) and open-scene conflict protection, not offline `.tscn` rewriting that clobbers unsaved work.
 - **Crash-aware discovery:** per-project port discovery with `running`/`starting`/`crashed`/`closed` verdicts on every connection failure, so agents recover deliberately instead of relaunching blindly.
 - **Safety guards:** `127.0.0.1`-only, audited code execution, an unsafe-editor-IO guard, and project-path jailing on every write sink.
-- **A craft layer:** an agent skill plus 28 craft references (3D controllers, platformers, deckbuilders, interactive music, shaders, multiplayer, save systems…) that teach Godot's idioms, so an agent composes nodes and scenes the way a Godot developer would instead of reaching for whichever command fits.
+- **A craft layer:** an agent skill plus 30 craft references (3D controllers, platformers, deckbuilders, interactive music, shaders, multiplayer, save systems…) that teach Godot's idioms, so an agent composes nodes and scenes the way a Godot developer would instead of reaching for whichever command fits.
 - **Style is checkable:** `script.lint` measures GDScript against the official style guide with 17 rules, each finding carrying line, rule, and severity, so the craft layer's advice becomes something an agent can verify against rather than merely read. It runs inside the addon, with no tool to install.
 
 Concretely, here it is against the two most-used alternatives, [`godot-ai`](https://github.com/hi-godot/godot-ai) and [`Godot-MCP-Native`](https://github.com/yurineko73/Godot-MCP-Native). Both are good, both are actively maintained, and all three are MIT. Figures checked 2026-08-12; verify them yourself before relying on any of it.
@@ -111,13 +112,13 @@ Concretely, here it is against the two most-used alternatives, [`godot-ai`](http
 | Start a project from nothing | no | no | `godot-mcp create` writes `project.godot`, icon, `.gitignore` |
 | Undo-safe mutations | no | no | `UndoRedo` across 29 command files, plus open-scene conflict refusal |
 | Extending it | in review ([#820](https://github.com/hi-godot/godot-ai/pull/820)) | no | `res://mcp_commands/*.gd`, no fork needed |
-| Godot versions | **4.5+** | **4.5+** | 4.7+, verified on 4.7.2 and 4.8-dev |
-| Craft layer | tool reference | tool reference | 28 craft guides + agent skill |
+| Godot versions | 4.5+ | 4.5+ | 4.7 target, 4.3 to 4.8 in beta |
+| Craft layer | tool reference | tool reference | 30 craft guides + agent skill |
 | GDScript style linting | no | no | 17 rules, native |
 | Install | Asset Library per its README; auto-configures 17+ clients | Asset Library (`Godot MCP Native`) | Asset Library (`Godot MCP/CLI`), or `godot-mcp install` / `create` / `configure` |
 | Community | 1.6k stars | 685 stars | 39 stars |
 
-**Where each one wins.** godot-ai has the reach: the biggest community by some margin, and the broadest client support, auto-configuring 17+ of them. Godot-MCP-Native has the leanest install of the three (GDScript only, nothing to download, nothing on PATH), and it reaches the running game through an in-game probe much as this project does, so that is no longer a dividing line. **Both support Godot 4.5 and 4.6; this project asks for 4.7.**
+**Where each one wins.** godot-ai has the reach: the biggest community by some margin, and the broadest client support, auto-configuring 17+ of them. Godot-MCP-Native has the leanest install of the three (GDScript only, nothing to download, nothing on PATH), and it reaches the running game through an in-game probe much as this project does, so that is no longer a dividing line. **Engine range is close now: both start at 4.5, and this project's 4.3 floor is beta while 4.7 is what it is developed and released against.**
 
 What this side adds is continuity. A **shell-drivable CLI** starts the same workflow from any agent that can run a command, with no MCP support or tool schemas required. Live-built schemas, MCP prompts and `godot://` resources, C# project support, `create`, project-local commands, spatial and procedural authoring, runtime control, the debugger, and the craft layer keep the agent inside that workflow as the job changes from building to playing to diagnosis. Much of the other two projects' surface maps onto generic commands here (`node.set`/`node.get`/`node.call` against the live ClassDB), so raw command counts are not a like-for-like measure of what an agent can finish.
 
@@ -140,14 +141,16 @@ MCP client (streamable HTTP) ──POST /mcp:9100──────────�
 
 ## Requirements
 
-- **Godot 4.7+** (launch with `godot`).
+- **Godot 4.7** (launch with `godot`), the version this is developed and released against. **4.3 through 4.8** work in beta.
 - **Go 1.26+** to build the CLI.
 - [Task](https://taskfile.dev) (optional but recommended) for the dev workflow.
 
 > [!IMPORTANT]
-> **Godot 4.7+ only.** Earlier versions (4.6 and below, and the 3.x line) are **not supported** and are not expected to work, since the addon targets 4.7 APIs. There are no plans to backport.
+> **4.7 is the target; 4.3 is the floor, in beta.** The addon loads and serves on Godot 4.3 through 4.8. Registration is per group, so an engine that can't compile a group skips it and lists it under `unavailable_groups` in `engine.commands`, and the six APIs newer than 4.3 (`scene close`, unsaved-tab reporting, `csg bake`, the AGX tonemap, runtime error capture) refuse with the version they need. The 3.x line is out of scope: convert with Godot's own `--convert-3to4` first.
 >
-> **Builds this release was run against:** `4.7.1-rc` (`d6096250e`), `4.7.2-rc` (`36a04fe52`), and a `4.8-dev` build from `master` (`eda2a482e`, after dev 2). On 4.8 the addon runs unmodified, with every command of that build registering and no parse or compile errors, and `engine.search` picks up 4.8's `FuzzySearch` automatically. 4.8 writes a `unique_id` attribute into saved scenes that 4.7 does not, so a project saved by 4.8 is not round-trip clean back to 4.7; that is an engine format change, not an addon one.
+> **Builds this release was run against:** the official **4.3.0**, **4.4**, **4.5**, and **4.6** stables, a headless editor per version against its own copy of the project, each registering all 330 commands with `unavailable_groups` absent and the game IPC live; `4.7.1-rc` (`d6096250e`) and `4.7.2-rc` (`36a04fe52`); and a `4.8-dev` build from `master` (`eda2a482e`, after dev 2). On 4.8 the addon runs unmodified, with every command of that build registering and no parse or compile errors, and `engine.search` picks up 4.8's `FuzzySearch` automatically. 4.8 writes a `unique_id` attribute into saved scenes that 4.7 does not, so a project saved by 4.8 is not round-trip clean back to 4.7; that is an engine format change, not an addon one.
+>
+> Moving a project between versions: [Porting between Godot versions](https://regiellis.github.io/godot-mcp-go/docs/guides/porting-godot-versions) (beta).
 
 > [!NOTE]
 > **C# / .NET?** Supported. The `csharp` group scaffolds and builds .NET projects (`csharp.info` / `csharp.setup` / `csharp.build`), and `script.*` is C#-aware: `script.create` writes a C# class template for `.cs` paths, `script.validate --path X.cs` compiles with per-file structured diagnostics, and `script.list` recognizes C# classes. *Running* C# scripts in-editor requires a Godot **.NET editor build** plus the dotnet SDK (`godot-mcp doctor` checks for it); `editor.run_script` / `runtime.eval` execute GDScript either way, and the introspection layer is language-agnostic.
@@ -177,6 +180,9 @@ godot-mcp create --path ./mygame --install --enable
 ```
 
 Copies `addons/godot_mcp/` and `.claude/skills/godot-mcp/` in and enables the plugin in `project.godot`. See [INSTALL.md](INSTALL.md) for flags and the manual alternative.
+
+> [!WARNING]
+> **`install --enable` was broken in 0.6.0 through 0.8.2.** On those versions the installer enabled the plugin without writing the two game-side autoloads, so every `runtime.*` and `input.*` command failed on a fresh install while the editor-side commands worked. If a project was installed by an affected version, toggle the plugin off and back on in **Project Settings > Plugins**, which injects the pair; `godot-mcp doctor` reports the missing entries and the repair command. Current builds write them at install time.
 
 > **Before you ship:** the addon is development tooling. Disable the plugin and add `addons/godot_mcp/*` to every export preset's exclude filter so it never rides into an exported game. [INSTALL.md](INSTALL.md#before-you-ship) has the two steps; the [Shipping and export guide](https://regiellis.github.io/godot-mcp-go/docs/guides/shipping-export) covers verifying a build.
 

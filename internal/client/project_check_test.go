@@ -1,9 +1,12 @@
 package client
 
 import (
+	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -35,6 +38,54 @@ func TestSameProjectPath(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSameProjectPathShortNames(t *testing.T) {
+	// A Windows 8.3 short path (D:\PROJEC~1\game) is the same directory spelled
+	// differently: an editor launched through one read as another project for as
+	// long as it stayed open, and every command aborted on a mismatch that was not
+	// one. Resolution has to see through it.
+	if runtime.GOOS != "windows" {
+		t.Skip("8.3 short names are a Windows filesystem feature")
+	}
+	dir := t.TempDir()
+	long, err := filepath.EvalSymlinks(dir)
+	if err != nil {
+		t.Skipf("could not resolve %q: %v", dir, err)
+	}
+	// TEMP itself is often already the short form, in which case the pair is
+	// right there; otherwise ask Windows for the 8.3 spelling.
+	short := dir
+	if normProjectPath(short) == normProjectPath(long) {
+		if short, err = shortPath(dir); err != nil {
+			t.Skipf("could not derive a short path for %q: %v", dir, err)
+		}
+	}
+	if normProjectPath(short) == normProjectPath(long) {
+		t.Skip("this volume has 8.3 name generation disabled; nothing to compare")
+	}
+	if !SameProjectPath(short, long) {
+		t.Errorf("SameProjectPath(%q, %q) = false, want true (same directory)", short, long)
+	}
+	// The resolution must not flatten genuinely different projects together.
+	other := t.TempDir()
+	if SameProjectPath(short, other) {
+		t.Errorf("SameProjectPath(%q, %q) = true, want false", short, other)
+	}
+}
+
+// shortPath asks Windows for a path's 8.3 form via cmd's %~s expansion, which
+// needs no syscall binding and is skipped everywhere else.
+func shortPath(p string) (string, error) {
+	out, err := exec.Command("cmd", "/c", "for %I in (\""+p+"\") do @echo %~sI").Output()
+	if err != nil {
+		return "", err
+	}
+	s := strings.TrimSpace(string(out))
+	if s == "" {
+		return "", errors.New("empty short path")
+	}
+	return s, nil
 }
 
 func TestNeedsProjectCheck(t *testing.T) {

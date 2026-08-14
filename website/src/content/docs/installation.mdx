@@ -5,13 +5,15 @@ description: Add the addon to an existing project, bootstrap a new one, or build
 
 ## Requirements
 
-- **Godot 4.7**.
+- **Godot 4.7**, the version this is developed and released against. **4.3 through 4.8** work in beta.
 - **Go 1.26+** to build the CLI, or a prebuilt release binary.
 
-<Callout type="important" title="Godot 4.7+ only">
-  Earlier versions (4.6 and below, and the 3.x line) are **not supported** and are not expected to work: the addon targets 4.7 APIs. There are no plans to backport.
+<Callout type="important" title="4.7 is the target, 4.3 is the floor and it is beta">
+  The addon loads and serves on Godot 4.3 through 4.8. Registration is per group, so an engine that cannot compile a group skips it and lists the file under `unavailable_groups` in `engine.commands` rather than the plugin failing whole. Six APIs newer than 4.3 refuse with the version they need: `scene close` needs 4.5, and below 4.7 every close needs `--discard` because the editor cannot report which tabs hold unsaved work; `csg bake` and the AGX tonemap need 4.4; runtime error capture needs 4.5, below which `runtime errors` answers `capture: "unavailable"` rather than an empty list. The 3.x line is out of scope: run Godot's own `--convert-3to4` first.
 
-  **Builds this release was run against:** `4.7.1-rc` (`d6096250e`), `4.7.2-rc` (`36a04fe52`), and a `4.8-dev` build from `master` (`eda2a482e`, after dev 2). On 4.8 the addon runs unmodified, with every command of that build registering and no parse or compile errors, and `engine.search` picks up 4.8's `FuzzySearch` automatically. Note that 4.8 writes a `unique_id` attribute into saved scenes which 4.7 does not, so a project saved by 4.8 is not round-trip clean back to 4.7. That is an engine format change, not an addon one.
+  **Builds this release was run against:** the official **4.3.0**, **4.4**, **4.5**, and **4.6** stables, one headless editor per version, each registering all 330 commands with `unavailable_groups` absent and the game IPC answering; `4.7.1-rc` (`d6096250e`) and `4.7.2-rc` (`36a04fe52`); and a `4.8-dev` build from `master` (`eda2a482e`, after dev 2). On 4.8 the addon runs unmodified, with every command of that build registering and no parse or compile errors, and `engine.search` picks up 4.8's `FuzzySearch` automatically. Note that 4.8 writes a `unique_id` attribute into saved scenes which 4.7 does not, so a project saved by 4.8 is not round-trip clean back to 4.7. That is an engine format change, not an addon one.
+
+  Moving a project between versions has its own guide: [Porting between Godot versions](/docs/guides/porting-godot-versions).
 </Callout>
 
 <Callout type="note" title="C# / .NET">
@@ -26,7 +28,11 @@ From an unpacked release bundle, install the addon (and the agent skill) into an
 godot-mcp install --project /path/to/your/project --enable
 ```
 
-This copies `addons/godot_mcp/` and `.claude/skills/godot-mcp/` in and enables the plugin in `project.godot`. The addon **self-installs its game-side autoloads** on enable, so the `runtime` and `input` groups work without pre-committing anything.
+This copies `addons/godot_mcp/` and `.claude/skills/godot-mcp/` in and enables the plugin in `project.godot`, including the two game-side autoloads the `runtime` and `input` groups need. Enabling from the editor's plugin checkbox injects the same pair, so nothing needs pre-committing either way.
+
+<Callout type="warning" title="A broken install path in 0.6.0 through 0.8.2">
+  On those versions, `install --enable` turned the plugin on without writing the game-side autoloads (`MCPGameInspector`, `MCPGameInput`), so every `runtime.*` and `input.*` command failed on a fresh install while the editor-side commands worked. If a project was installed by an affected version, toggle the plugin off and back on in **Project Settings > Plugins**, which injects the pair. `godot-mcp doctor` reports the missing entries and the repair command.
+</Callout>
 
 ## Bootstrap a new project
 

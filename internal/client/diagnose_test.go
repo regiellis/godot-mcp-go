@@ -38,3 +38,38 @@ func TestClassify(t *testing.T) {
 		})
 	}
 }
+
+func TestMismatchVerdict(t *testing.T) {
+	// An editor answered, serving another project. This project therefore has
+	// none, and the verdict has to say so: "starting" would tell the agent to wait
+	// for an editor that is never coming, while the same result's action says to
+	// open one. A live pid is not evidence of an editor for THIS project.
+	disc := &Discovery{Port: 9081, PID: 4242, StartedUnix: 1000}
+	cases := []struct {
+		name  string
+		disc  *Discovery
+		alive bool
+		want  Verdict
+	}{
+		{"no discovery file", nil, false, VerdictClosed},
+		{"file, pid alive", disc, true, VerdictClosed},
+		{"file, pid gone", disc, false, VerdictCrashed},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got := mismatchVerdict(c.disc, 9080, c.alive)
+			if got.Verdict != c.want {
+				t.Errorf("verdict = %q, want %q", got.Verdict, c.want)
+			}
+			if got.Reachable {
+				t.Error("reachable = true; nothing is serving this project")
+			}
+			if got.Port != 9080 {
+				t.Errorf("port = %d, want 9080", got.Port)
+			}
+			if c.disc != nil && got.PID != c.disc.PID {
+				t.Errorf("pid = %d, want %d from the discovery file", got.PID, c.disc.PID)
+			}
+		})
+	}
+}

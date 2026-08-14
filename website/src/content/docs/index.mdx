@@ -3,7 +3,7 @@ title: Overview
 description: The complete build, play, debug, fix, and verify workflow through one Godot interface.
 ---
 
-**godot-mcp** gives an AI agent the complete Godot development loop through one interface. It discovers the API exposed by the running **Godot 4.7+** build, authors the project in the open editor, plays and observes the separate game process, debugs failures, applies fixes, and verifies the result. The workflow runs from the command line or an MCP client through a Go CLI and GDScript addon.
+**godot-mcp** gives an AI agent the complete Godot development loop through one interface. It discovers the API exposed by the running **Godot 4.7** build, authors the project in the open editor, plays and observes the separate game process, debugs failures, applies fixes, and verifies the result. The workflow runs from the command line or an MCP client through a Go CLI and GDScript addon.
 
 <Callout type="note">
   Registered commands provide structured shortcuts through the workflow. Live ClassDB discovery and generic property, method, and script access keep engine features reachable without waiting for a dedicated wrapper.
@@ -60,6 +60,6 @@ godot-mcp runtime errors
 
 ## Requirements at a glance
 
-- **Godot 4.7+**.
+- **Godot 4.7**, the development target. **4.3 through 4.8** work in beta; see [Installation](/docs/installation).
 - **Go 1.26+** to build the CLI (or use a release binary).
 - The editor must be open with the **Godot MCP/CLI** plugin enabled; the CLI is a short-lived client that dials in per command.

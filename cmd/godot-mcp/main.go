@@ -30,8 +30,13 @@ func main() {
 	timeout := flag.Duration("timeout", 30*time.Second, "request timeout")
 	format := flag.String("format", "", "result format for the <group> <command> path: pretty (tables/color, the terminal default), json (the piped default), tsv, or ndjson; env GODOT_MCP_FORMAT applies when the flag is unset")
 	game := flag.Bool("game", false, "route runtime.*/input.* to the running game's direct server (no editor); port resolves via --port, GODOT_MCP_GAME_PORT, the game discovery file, then 9200")
+	version := flag.Bool("version", false, "print the CLI version and exit")
 	flag.Usage = usage
 	flag.Parse()
+
+	if *version {
+		os.Exit(runVersion(nil))
+	}
 
 	args := flag.Args()
 	// Nothing at all is a person at the front door, not a usage mistake.
@@ -49,6 +54,7 @@ func main() {
 		"dashboard":      runDashboard,
 		"status":         runStatus,
 		"doctor":         runDoctor,
+		"version":        runVersion,
 	}
 	if fn, ok := localSubs[args[0]]; ok {
 		os.Exit(fn(args[1:]))
@@ -209,6 +215,15 @@ func main() {
 		return
 	}
 	fmt.Println(string(out))
+}
+
+// runVersion prints the binary's version, the same string serve reports in the
+// MCP handshake. Reached as `godot-mcp version` and as the --version flag, since
+// both spellings are reflexes and the flag used to fail the parse outright. The
+// addon carries its own version in plugin.cfg, which project.info reports.
+func runVersion([]string) int {
+	fmt.Println("godot-mcp " + cliVersion)
+	return 0
 }
 
 // validFormat reports whether s names a result format the CLI can render.
@@ -595,6 +610,7 @@ func usage() {
 		{"dashboard", "live stats web UI"},
 		{"status", "editor liveness preflight: running, starting, crashed, or closed (--all lists every live instance)"},
 		{"doctor", "environment preflight: binary, project, addon, port, editor, dotnet"},
+		{"version", "print the CLI version (--version does the same)"},
 		{"help", "help all, or help <group> [<command>] (live from the addon; needs a running editor)"},
 	}
 	nameW := 0
