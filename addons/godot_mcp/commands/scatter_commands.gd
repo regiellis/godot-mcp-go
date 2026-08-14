@@ -1,7 +1,7 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## MultiMesh scatter — cheap set dressing (grass, rocks, debris) as one draw call. Populate a
+## MultiMesh scatter: cheap set dressing (grass, rocks, debris) as one draw call. Populate a
 ## MultiMeshInstance3D with N instances seated by an edit-time down-ray onto real colliders
 ## (CSG use_collision / StaticBody), with optional normal-alignment, yaw and scale jitter, all
 ## seeded for reproducibility. This is the MultiMesh *emitter* the pcg group composes; the

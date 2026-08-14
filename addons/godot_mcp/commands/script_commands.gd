@@ -2,7 +2,7 @@
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
 ## Script authoring (GDScript + C#): list, read, create, edit, attach, validate,
-## symbols, lint. Every command here is self-contained — no external tool.
+## symbols, lint. Every command here is self-contained, needing no external tool.
 
 const CSharpCommands := preload("res://addons/godot_mcp/commands/csharp_commands.gd")
 const GDScriptLinter := preload("res://addons/godot_mcp/utils/gdscript_linter.gd")
@@ -100,7 +100,7 @@ func _read(params: Dictionary) -> Dictionary:
 	var result := {"path": path, "content": content, "line_count": total, "size": content.length()}
 
 	# --start-line/--end-line (1-based, inclusive) return a slice instead of the
-	# whole file — the same line addressing script.edit already uses, so a read
+	# whole file, using the same line addressing script.edit already uses, so a read
 	# around a reported error line doesn't cost the file. Out-of-range values clamp.
 	if params.has("start_line") or params.has("end_line"):
 		var lines := content.split("\n")
@@ -178,7 +178,7 @@ func _cs_template(path: String, params: Dictionary) -> Array:
 			"Invalid C# class name '%s'. It must match ^[A-Za-z_][A-Za-z0-9_]*$ and should match the file name so Godot can find the class." % class_name_str
 		)]
 	var base_type := optional_string(params, "extends", "Node")
-	# 4-space indentation in the C# body — C# convention (GDScript files use tabs).
+	# 4-space indentation in the C# body, per C# convention (GDScript files use tabs).
 	var lines: PackedStringArray = [
 		"using Godot;",
 		"",
@@ -218,6 +218,7 @@ func _edit(params: Dictionary) -> Dictionary:
 		return edited[1]
 	var new_content: String = edited[0]
 	var changes: int = edited[2]
+	var details: Dictionary = edited[3]
 
 	if changes == 0:
 		return success({"path": path, "changes_made": 0, "message": "No changes applied"})
@@ -229,10 +230,13 @@ func _edit(params: Dictionary) -> Dictionary:
 	file.close()
 
 	_reload_script(path)
-	return success({"path": path, "changes_made": changes})
+	var out := {"path": path, "changes_made": changes}
+	out.merge(details)
+	return success(out)
 
 
-## Apply one edit mode to `content`. Returns [new_content, error_or_null, changes].
+## Apply one edit mode to `content`. Returns [new_content, error_or_null, changes,
+## details], where `details` is extra result fields the mode wants reported.
 ## Modes (checked in order): replacements[] | content+start_line/end_line |
 ## content (full replace) | insert_at_line+text.
 func _apply_edit(content: String, params: Dictionary) -> Array:
@@ -255,38 +259,47 @@ func _apply_edit(content: String, params: Dictionary) -> Array:
 			elif content.contains(search):
 				content = content.replace(search, replace)
 				changes += 1
-		return [content, null, changes]
+		return [content, null, changes, {}]
 
 	if params.has("content") and (params.has("start_line") or params.has("end_line")):
 		if not params.has("start_line"):
-			return [content, error_invalid_params("start_line is required when end_line is provided"), 0]
+			return [content, error_invalid_params("start_line is required when end_line is provided"), 0, {}]
 		var start_line := int(params["start_line"])
 		var end_line := int(params.get("end_line", start_line))
 		var lines := content.split("\n")
 		if start_line < 1:
-			return [content, error_invalid_params("start_line must be >= 1"), 0]
+			return [content, error_invalid_params("start_line must be >= 1"), 0, {}]
 		if end_line < start_line:
-			return [content, error_invalid_params("end_line must be >= start_line"), 0]
+			return [content, error_invalid_params("end_line must be >= start_line"), 0, {}]
 		if start_line > lines.size() or end_line > lines.size():
-			return [content, error_invalid_params("line range is beyond the end of the file (%d lines)" % lines.size()), 0]
+			return [content, error_invalid_params("line range is beyond the end of the file (%d lines)" % lines.size()), 0, {}]
 		var replacement_lines := str(params["content"]).split("\n")
 		var start_index := start_line - 1
 		for _i in range(end_line - start_line + 1):
 			lines.remove_at(start_index)
 		for i in range(replacement_lines.size()):
 			lines.insert(start_index + i, replacement_lines[i])
-		return ["\n".join(lines), null, 1]
+		return ["\n".join(lines), null, 1, {}]
 
 	if params.has("content"):
-		return [str(params["content"]), null, 1]
+		return [str(params["content"]), null, 1, {}]
 
 	if params.has("insert_at_line") and params.has("text"):
 		var lines := content.split("\n")
-		var line_num := clampi(int(params["insert_at_line"]), 0, lines.size())
+		var requested := int(params["insert_at_line"])
+		# An insert past the end still appends, which is the useful behaviour, but it
+		# used to do so silently: a caller who meant line 200 of a 25-line file read
+		# `changes_made: 1` and never learned where the text went.
+		var line_num := clampi(requested, 0, lines.size())
+		var details := {"inserted_at": line_num}
+		if line_num != requested:
+			details["clamped"] = true
+			details["requested_line"] = requested
+			details["line_count"] = lines.size()
 		lines.insert(line_num, str(params["text"]))
-		return ["\n".join(lines), null, 1]
+		return ["\n".join(lines), null, 1, details]
 
-	return [content, error_invalid_params("No edit specified. Provide replacements, content, or insert_at_line+text."), 0]
+	return [content, error_invalid_params("No edit specified. Provide replacements, content, or insert_at_line+text."), 0, {}]
 
 
 ## Reload a script so the editor reflects disk changes immediately.
@@ -360,13 +373,13 @@ func _validate(params: Dictionary) -> Dictionary:
 	return success(_validate_one(path))
 
 
-## Validate a single .cs file. There is no per-file C# compile — the csproj is the
-## unit — so this runs the same `dotnet build` csharp.build uses (shared via the
+## Validate a single .cs file. There is no per-file C# compile, since the csproj is
+## the unit, so this runs the same `dotnet build` csharp.build uses (shared via the
 ## static CSharpCommands.run_build), then filters diagnostics to this file.
 func _validate_cs(path: String) -> Dictionary:
 	var csproj := CSharpCommands.find_file_at_root("csproj")
 	if csproj == null:
-		return error_invalid_params("C# validation builds the project; no .csproj found — run csharp.setup first")
+		return error_invalid_params("C# validation builds the project; no .csproj found, so run csharp.setup first")
 
 	var out: Array = []
 	if OS.execute("dotnet", ["--version"], out, true) != 0:
@@ -429,15 +442,28 @@ func _validate_one(path: String) -> Dictionary:
 	var source := file.get_as_text()
 	file.close()
 
-	var err := _compile(source)
-	# A `class_name` declaration registers a global class. When validating a file
-	# whose class is already registered (e.g. right after creating it), the temp
-	# script's identical `class_name` collides and fails to compile even though
-	# the syntax is fine. Retry without that line to isolate real errors.
-	if err != OK:
-		var stripped := _strip_class_name(source)
-		if stripped != source and _compile(stripped) == OK:
-			err = OK
+	# A `class_name` declaration registers a global class, so the throwaway compile
+	# below declares a class the project has already registered: the engine answers
+	# "Class X hides a global script class" and WRITES THAT PARSE ERROR INTO THE
+	# EDITOR LOG. Compiling first and retrying stripped got the verdict right but
+	# left the phantom behind, so `script validate --all` on a healthy tree handed
+	# `editor.errors` one bogus entry per class_name script. Blank the declaration
+	# BEFORE the first compile instead. _strip_class_name keeps the line count and
+	# any same-line `extends`, and returns the source unchanged when the declaration
+	# is malformed, which has to be compiled to be reported.
+	# The throwaway GDScript below normally has no resource_path, so the engine
+	# cannot tell it holds an addons/ file and debug/gdscript/warnings/
+	# exclude_addons (default on) never applies: any warning the project escalates
+	# to an error then fails a file the editor itself compiles clean. Handing the
+	# throwaway a path under res://addons/ makes the parser apply the exclusion
+	# exactly as it does to the real file; a real parse error is not a warning and
+	# still fails either way, and a project running with exclude_addons off keeps
+	# its addon warnings, since the exclusion is then inactive no matter the path.
+	# (Toggling the warning settings around the compile does NOT work: the parser
+	# reads them through the engine's cached settings path, so a set_setting made
+	# mid-session is invisible to it. Verified live before landing here.)
+	var context_path := path if path.begins_with("res://addons/") else ""
+	var err := _compile(_strip_class_name(source), context_path)
 
 	if err == OK:
 		return {"path": path, "valid": true, "message": "Script compiles successfully"}
@@ -570,17 +596,38 @@ func _collect_all_gd(dir_path: String, out: Array) -> void:
 	dir.list_dir_end()
 
 
-func _compile(source: String) -> int:
+func _compile(source: String, context_path: String = "") -> int:
 	var script := GDScript.new()
+	if not context_path.is_empty():
+		# A ".mcpcheck.gd" suffix keeps the throwaway clear of the resource-cache
+		# slot the real, loaded script occupies (claiming an occupied path fails and
+		# would leave the compile pathless, which degrades to the old behaviour
+		# rather than breaking). The throwaway is released when this function
+		# returns, taking its cache entry with it.
+		script.resource_path = context_path + ".mcpcheck.gd"
 	script.source_code = source
 	return script.reload()
 
 
+## Drop a `class_name` declaration so a throwaway compile does not collide with
+## the global class the real file already registered. Three things it has to get
+## right: the line is REPLACED, never removed, so every error the compile reports
+## still names the file's own line numbers; a same-line `extends` clause survives,
+## since losing the base type would fail a healthy script on its base members; and
+## a declaration that is not a plain `class_name Identifier [extends Base]` is left
+## alone, because it may itself be the error and hiding it would call a broken file
+## valid.
 func _strip_class_name(source: String) -> String:
+	var shape := RegEx.new()
+	shape.compile("^class_name[ \\t]+[A-Za-z_][A-Za-z0-9_]*([ \\t]+extends[ \\t]+\\S.*)?$")
 	var lines := source.split("\n")
 	for i in range(lines.size()):
-		if lines[i].strip_edges().begins_with("class_name "):
-			lines.remove_at(i)
+		var line := lines[i].strip_edges()
+		if line.begins_with("class_name "):
+			var m := shape.search(line)
+			if m == null:
+				return source
+			lines[i] = m.get_string(1).strip_edges()
 			return "\n".join(lines)
 	return source
 
@@ -598,7 +645,7 @@ func _list_open(_params: Dictionary) -> Dictionary:
 ## The API surface one script declares: methods, properties, signals, constants.
 ##
 ## engine.class_info covers only scripts registered as a global class_name, which
-## leaves the ordinary case — a player.gd attached to a node — with no answer but
+## leaves the ordinary case, a player.gd attached to a node, with no answer but
 ## script.read and a few hundred lines of context spent to learn six signatures.
 func _symbols(params: Dictionary) -> Dictionary:
 	var r := require_string(params, "path")
@@ -658,7 +705,7 @@ func _collect_gd_files(path: String, include_addons: bool, out: Array) -> void:
 	dir.list_dir_end()
 
 
-## Lint GDScript against the official style guide. Native — no external binary, so
+## Lint GDScript against the official style guide. Native, with no external binary, so
 ## this works wherever the addon does.
 func _lint(params: Dictionary) -> Dictionary:
 	var path := optional_string(params, "path", "res://")
@@ -714,7 +761,7 @@ func _lint(params: Dictionary) -> Dictionary:
 			else:
 				warnings += 1
 
-		# Style rules read source, so they report on a file that does not compile —
+		# Style rules read source, so they report on a file that does not compile,
 		# and "no findings" would then read as "fine", which is the opposite of the
 		# truth. Only single-file runs pay for the compile check: it builds a
 		# throwaway GDScript per file, and every one of those writes its diagnostics
@@ -744,7 +791,7 @@ func _lint(params: Dictionary) -> Dictionary:
 			)
 	else:
 		payload["syntax_checked"] = false
-		payload["note"] = "Style only — run script.validate --all to compile-check these files."
+		payload["note"] = "Style only. Run script.validate --all to compile-check these files."
 	return success(payload)
 
 
@@ -780,10 +827,10 @@ func get_command_docs() -> Dictionary:
 			"params": [
 				doc_param("path", "String", true, "res:// path to the script."),
 				doc_param("replacements", "Array", false, "List of {search, replace, regex?} edits."),
-				doc_param("content", "String", false, "Replacement text — a line range (with --start-line/--end-line) or the whole file."),
+				doc_param("content", "String", false, "Replacement text: a line range (with --start-line/--end-line) or the whole file."),
 				doc_param("start_line", "int", false, "1-based first line to replace (with --content)."),
 				doc_param("end_line", "int", false, "1-based last line to replace (default start_line)."),
-				doc_param("insert_at_line", "int", false, "Line index to insert --text at."),
+				doc_param("insert_at_line", "int", false, "Line index to insert --text at (0-based). A value past the end appends, and the result then reports inserted_at with clamped true."),
 				doc_param("text", "String", false, "Text to insert (with --insert-at-line)."),
 				doc_param("force", "bool", false, "Overwrite a file open in the script editor."),
 			],
@@ -807,7 +854,7 @@ func get_command_docs() -> Dictionary:
 			"description": "List scripts currently open in the editor's script editor.",
 		},
 		"script.symbols": {
-			"description": "Read one GDScript's declared API — methods, properties, signals, constants — without reading the file. Works on any .gd path, including scripts with no class_name (which engine.class_info cannot reach). Reports what this file declares; --include-inherited adds members from the scripts it extends. Engine members are never included — get those from engine.class_info on the reported base_type.",
+			"description": "Read one GDScript's declared API (methods, properties, signals, constants) without reading the file. Works on any .gd path, including scripts with no class_name (which engine.class_info cannot reach). Reports what this file declares; --include-inherited adds members from the scripts it extends. Engine members are never included, so get those from engine.class_info on the reported base_type.",
 			"params": [
 				doc_param("path", "String", true, "res:// path to a .gd file."),
 				doc_param("filter", "String", false, "Case-insensitive substring filter over member names."),
@@ -816,7 +863,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"script.lint": {
-			"description": "Lint GDScript against the official style guide. Native — needs no external tool. Returns structured findings: path, line, rule, severity, message. --path may be a file or a directory (default 'res://', skipping addons/). 17 rules: the 9 naming rules are severity 'error', the rest ('duplicated-load', 'unnecessary-pass', 'unused-argument', 'comparison-with-itself', 'private-access', 'no-else-return', 'standalone-expression', 'max-line-length') are warnings. Style rules read source, so they also report on a file that does not compile: a single-file run therefore also compile-checks it and reports `syntax_valid`, since zero findings on a broken file would otherwise read as clean. A directory run is style-only (`syntax_checked: false`) — use script.validate --all to compile-check a tree. Suppress inline with `# gdlint-ignore[-next-line] rule[,rule]`.",
+			"description": "Lint GDScript against the official style guide. Native, needing no external tool. Returns structured findings: path, line, rule, severity, message. --path may be a file or a directory (default 'res://', skipping addons/). 17 rules: the 9 naming rules are severity 'error', the rest ('duplicated-load', 'unnecessary-pass', 'unused-argument', 'comparison-with-itself', 'private-access', 'no-else-return', 'standalone-expression', 'max-line-length') are warnings. Style rules read source, so they also report on a file that does not compile: a single-file run therefore also compile-checks it and reports `syntax_valid`, since zero findings on a broken file would otherwise read as clean. A directory run is style-only (`syntax_checked: false`), so use script.validate --all to compile-check a tree. Suppress inline with `# gdlint-ignore[-next-line] rule[,rule]`.",
 			"params": [
 				doc_param("path", "String", false, "File or directory to lint (default 'res://')."),
 				doc_param("disable", "String", false, "Comma-separated rule names to skip, e.g. 'max-line-length,unused-argument'. An unknown name is an error listing the known ones."),

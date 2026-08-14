@@ -1,7 +1,7 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## PCG — Godot has no Unreal-style procedural-generation framework. Rather than a visual graph,
+## PCG, for which Godot has no Unreal-style framework. Rather than a visual graph,
 ## this exposes the three PCG primitives and lets the agent's command sequence BE the graph:
 ##   DOMAIN (sample)  →  FILTERS (cull by rule)  →  EMITTER (realize)
 ## seeded for reproducibility, and pairs with authoring.checkpoint for non-destructive runs.
@@ -28,7 +28,7 @@ func get_commands() -> Dictionary:
 
 # --- pcg.relax (Laplacian / centroidal smoothing of a point graph) ----------
 
-## Move each point toward the average of its graph neighbours, N times — the relaxation step
+## Move each point toward the average of its graph neighbours, N times: the relaxation step
 ## that smooths an irregular grid (Stålberg's organic look) or de-clumps a scatter. Pure data:
 ## --points '[Vector3,…]' --edges '[[i,j],…]' [--iterations N --strength 0..1 --fixed '[idx,…]'].
 func _relax(params: Dictionary) -> Dictionary:

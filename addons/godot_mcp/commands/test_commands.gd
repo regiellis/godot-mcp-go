@@ -18,6 +18,12 @@ func get_commands() -> Dictionary:
 
 var _test_results: Array[Dictionary] = []
 
+## Scenario steps that carry no assertion (input/wait/screenshot). Counted for
+## bookkeeping only and never scored: folding them into _test_results is what
+## made a green 94-step run report 13 passed and 81 failed, because _report
+## scores anything without a passing "passed" field as a failure.
+var _step_records: int = 0
+
 
 func _run_scenario(params: Dictionary) -> Dictionary:
 	if not params.has("steps") or not params["steps"] is Array:
@@ -49,6 +55,7 @@ func _run_scenario(params: Dictionary) -> Dictionary:
 		return error(-32000, "No scene is currently playing", {"suggestion": "Provide scene_path or use scene.play first"})
 
 	var results: Array[Dictionary] = []
+	var assertions: Array[Dictionary] = []
 	var pass_count := 0
 	var fail_count := 0
 	var error_count := 0
@@ -71,21 +78,15 @@ func _run_scenario(params: Dictionary) -> Dictionary:
 			"assert":
 				var assert_result := await _execute_assert_step(step)
 				step_result.merge(assert_result)
+				assertions.append(assert_result)
 				if assert_result.get("passed", false):
 					pass_count += 1
 				else:
 					fail_count += 1
 			"screenshot":
-				var shot := await _send_game_command("capture_frames", {
-					"count": 1,
-					"frame_interval": 1,
-					"half_resolution": optional_bool(step, "half_resolution", true),
-				}, 5.0)
-				if shot.has("result"):
-					step_result["captured"] = true
-				else:
-					step_result["captured"] = false
-					step_result["error"] = "Screenshot capture failed"
+				var shot_result := await _execute_screenshot_step(step)
+				step_result.merge(shot_result)
+				if not shot_result.get("captured", false):
 					error_count += 1
 			_:
 				step_result["error"] = "Unknown step type: %s" % step_type
@@ -108,7 +109,11 @@ func _run_scenario(params: Dictionary) -> Dictionary:
 		"results": results,
 	}
 
-	_test_results.append_array(results)
+	# Only assertion results are scoreable. Every other step is bookkeeping, and
+	# feeding them all into _test_results made test.report call a green run 81
+	# failures out of 94 -- one "failure" per input, wait and screenshot step.
+	_test_results.append_array(assertions)
+	_step_records += results.size() - assertions.size()
 
 	return success(summary)
 
@@ -227,6 +232,7 @@ func _run_stress_test(params: Dictionary) -> Dictionary:
 		actions.append(str(action))
 
 	var events_sent := 0
+	var batches_skipped := 0
 	var start_time := Time.get_ticks_msec()
 	var duration_ms := int(duration * 1000.0)
 	var input_path := get_game_user_dir() + "/mcp_input_commands"
@@ -241,6 +247,13 @@ func _run_stress_test(params: Dictionary) -> Dictionary:
 				"events_sent": events_sent,
 				"error": "Game stopped during stress test",
 			})
+
+		# One slot, and WRITE truncates it. Clobbering a payload the game has not
+		# read yet would count events that never reached it, so wait instead.
+		if FileAccess.file_exists(input_path):
+			batches_skipped += 1
+			await get_tree().create_timer(0.05).timeout
+			continue
 
 		var batch: Array = []
 		for j in 3:
@@ -265,6 +278,7 @@ func _run_stress_test(params: Dictionary) -> Dictionary:
 		"crashed": not still_running,
 		"duration_seconds": elapsed,
 		"events_sent": events_sent,
+		"batches_skipped": batches_skipped,
 		"new_errors": new_errors,
 		"game_still_running": still_running,
 	})
@@ -276,33 +290,49 @@ func _report(params: Dictionary) -> Dictionary:
 	var pass_count := 0
 	var fail_count := 0
 	var details: Array[Dictionary] = []
+	var step_count := _step_records
 
 	for result: Dictionary in _test_results:
+		# An entry with no "passed" field asserted nothing, so it can neither pass
+		# nor fail. Count it as a step and leave the headline numbers to assertions.
+		if not result.has("passed"):
+			step_count += 1
+			continue
 		if result.get("passed", false):
 			pass_count += 1
 		else:
 			fail_count += 1
 		details.append(result)
 
+	var total := pass_count + fail_count
 	var report := {
-		"total": _test_results.size(),
+		"total": total,
 		"passed": pass_count,
 		"failed": fail_count,
-		"pass_rate": ("%.1f%%" % (100.0 * pass_count / _test_results.size())) if not _test_results.is_empty() else "N/A",
-		"all_passed": fail_count == 0 and not _test_results.is_empty(),
+		"pass_rate": ("%.1f%%" % (100.0 * pass_count / total)) if total > 0 else "N/A",
+		"all_passed": fail_count == 0 and total > 0,
+		"steps_recorded": step_count,
 		"details": details,
 	}
 
 	if clear:
 		_test_results.clear()
+		_step_records = 0
 
 	return success(report)
 
 
 # --- Step executors ---------------------------------------------------------
 
+## An action press is released again in the same batch unless the step sets
+## auto_release false. That default stays -- a scenario that never releases
+## leaves the action stuck down for every later step -- but it turns a
+## hold-then-wait into a one-frame tap, so the step result reports it rather
+## than leaving the caller to explain a player that moved 0.08 units instead of
+## 7. Keycode steps have no such default and hold until a later step releases.
 func _execute_input_step(step: Dictionary) -> Dictionary:
 	var events: Array = []
+	var auto_released := false
 
 	if step.has("action"):
 		var pressed := bool(step.get("pressed", true))
@@ -314,6 +344,7 @@ func _execute_input_step(step: Dictionary) -> Dictionary:
 		})
 		if pressed and step.get("auto_release", true):
 			events.append({"type": "action", "action": str(step["action"]), "pressed": false, "strength": 0.0})
+			auto_released = true
 	elif step.has("keycode"):
 		events.append({
 			"type": "key",
@@ -326,13 +357,92 @@ func _execute_input_step(step: Dictionary) -> Dictionary:
 	else:
 		return {"error": "Input step requires 'action' or 'keycode'"}
 
-	var file := FileAccess.open(get_game_user_dir() + "/mcp_input_commands", FileAccess.WRITE)
+	var path := get_game_user_dir() + "/mcp_input_commands"
+	var wait_sec := float(step.get("consume_timeout", 2.0))
+
+	# The input channel is ONE file slot and FileAccess.WRITE truncates it, so two
+	# adjacent input steps landing inside a single game frame used to destroy each
+	# other: the first payload was gone before MCPGameInput polled, and both steps
+	# still reported sent true. This runner sequences its own steps, so it waits
+	# for the game to take a pending payload before writing and again after.
+	var slot_was_clear := await _await_input_slot_clear(path, wait_sec)
+
+	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		return {"error": "Failed to write input commands"}
 	file.store_string(JSON.stringify({"sequence_events": events, "frame_delay": int(step.get("frame_delay", 1))}))
 	file.close()
 
-	return {"sent": true, "event_count": events.size()}
+	var consumed := await _await_input_slot_clear(path, wait_sec)
+
+	var result := {"sent": true, "event_count": events.size(), "consumed": consumed}
+	if not slot_was_clear:
+		result["overwrote_pending"] = true
+	if not consumed:
+		result["warning"] = "The game did not read this payload within %.1fs, so a later input step may overwrite it. A debugger break or a stopped game is the usual cause; --consume-timeout on the step raises the wait." % wait_sec
+	if auto_released:
+		result["auto_released"] = true
+	return result
+
+
+## Poll until the game has emptied the one-slot input file (MCPGameInput deletes
+## it on read), up to timeout_sec. True means the slot is clear. The wait is
+## bounded on purpose: a game stopped at a debugger break never polls, so a
+## scenario must report that rather than hang on it.
+func _await_input_slot_clear(path: String, timeout_sec: float) -> bool:
+	if not FileAccess.file_exists(path):
+		return true
+	var attempts := maxi(int(timeout_sec / 0.05), 1)
+	while attempts > 0:
+		await get_tree().create_timer(0.05).timeout
+		if not FileAccess.file_exists(path):
+			return true
+		if not EditorInterface.is_playing_scene():
+			return false
+		attempts -= 1
+	return false
+
+
+## A scenario screenshot step. Without save_path the capture is taken and thrown
+## away (the frames come back base64 and nothing here keeps them), which the
+## result now says instead of reporting a bare captured true. With save_path the
+## GAME writes the PNG, because the capture happens in the game process: user://
+## therefore resolves under the game's own user-data dir, not the editor's.
+func _execute_screenshot_step(step: Dictionary) -> Dictionary:
+	var save_path := str(step.get("save_path", ""))
+	if save_path.is_empty():
+		var shot := await _send_game_command("capture_frames", {
+			"count": 1,
+			"frame_interval": 1,
+			"half_resolution": optional_bool(step, "half_resolution", true),
+		}, 5.0)
+		if not shot.has("result"):
+			return {"captured": false, "saved": false, "error": "Screenshot capture failed"}
+		return {
+			"captured": true,
+			"saved": false,
+			"note": "The frame was captured but not kept. Give the step a save_path (a user:// or res:// path the game writes) to keep the PNG.",
+		}
+
+	var guard := guard_project_path(save_path)
+	if not guard.is_empty():
+		var why: Dictionary = guard["error"]
+		return {"captured": false, "saved": false, "error": str(why.get("message", "Invalid save_path"))}
+
+	var saved := await _send_game_command("screenshot", {"save_path": save_path}, 8.0)
+	if not saved.has("result"):
+		return {"captured": false, "saved": false, "error": "Screenshot capture failed"}
+	var payload: Dictionary = saved["result"]
+	var result := {
+		"captured": true,
+		"saved": true,
+		"save_path": str(payload.get("saved_path", save_path)),
+		"width": payload.get("width", 0),
+		"height": payload.get("height", 0),
+	}
+	if bool(payload.get("black_frame", false)):
+		result["black_frame"] = true
+	return result
 
 
 func _execute_wait_step(step: Dictionary) -> Dictionary:
@@ -406,16 +516,33 @@ func _send_game_command(command: String, params: Dictionary = {}, timeout_sec: f
 	if FileAccess.file_exists(response_path):
 		DirAccess.remove_absolute(response_path)
 
+	var request_id := next_game_request_id()
 	var req := FileAccess.open(request_path, FileAccess.WRITE)
 	if req == null:
 		return error_internal("Could not create game request file")
-	req.store_string(JSON.stringify({"command": command, "params": params}))
+	req.store_string(JSON.stringify({"command": command, "params": params, "_id": request_id}))
 	req.close()
 
 	var attempts := int(timeout_sec / 0.1)
+	var text := ""
+	var unreadable := false
 	while attempts > 0:
 		await get_tree().create_timer(0.1).timeout
 		if FileAccess.file_exists(response_path):
+			# Shared tolerant read (base_command): the response file can be locked
+			# for an instant after the game renames it into place.
+			var read: Array = await read_game_response(response_path)
+			DirAccess.remove_absolute(response_path)
+			var body := String(read[0])
+			if body.strip_edges().is_empty():
+				unreadable = true
+				break
+			# A response carrying a different id answers an EARLIER request the game
+			# finished late. It is not this call's answer, so drop it and keep waiting.
+			if is_stale_game_response(body, request_id):
+				attempts -= 1
+				continue
+			text = body
 			break
 		if not EditorInterface.is_playing_scene():
 			if FileAccess.file_exists(request_path):
@@ -423,57 +550,25 @@ func _send_game_command(command: String, params: Dictionary = {}, timeout_sec: f
 			return error(-32000, "Game stopped during command execution")
 		attempts -= 1
 
-	if not FileAccess.file_exists(response_path):
-		# Game may be paused on a runtime error; try to resume the debugger.
-		if EditorInterface.is_playing_scene():
-			_try_debugger_continue()
-			for _retry in 20:
-				await get_tree().create_timer(0.1).timeout
-				if FileAccess.file_exists(response_path):
-					break
-
-	if not FileAccess.file_exists(response_path):
+	if unreadable:
+		return error_internal("Could not read game response file (%s)" % response_path)
+	if text.is_empty():
+		# A debugger break is the usual cause, and game_timeout_error names it and
+		# points at debug.resume. This path used to press the debugger's Continue
+		# button itself: it hid a break the caller never asked to release, matched
+		# the button by its localized tooltip, and let the freed command's late
+		# reply be read as this one's answer.
 		if FileAccess.file_exists(request_path):
 			DirAccess.remove_absolute(request_path)
 		return game_timeout_error(timeout_sec)
 
-	# Shared tolerant read (base_command): the response file can be locked for an
-	# instant after the game renames it into place.
-	var read: Array = await read_game_response(response_path)
-	var text: String = read[0]
-	DirAccess.remove_absolute(response_path)
-	if text.strip_edges().is_empty():
-		return error_internal("Could not read game response file (%s)" % response_path)
-
 	var parsed: Variant = JSON.parse_string(text)
 	if not parsed is Dictionary:
 		return error_internal("Invalid response JSON from game")
+	(parsed as Dictionary).erase("_id")
 	if parsed.has("error"):
 		return error(-32000, str(parsed["error"]))
 	return success(parsed)
-
-
-## Press the debugger "Continue" button to resume a paused game process.
-func _try_debugger_continue() -> void:
-	var base := EditorInterface.get_base_control()
-	if base == null:
-		return
-	var queue: Array[Node] = [base]
-	while not queue.is_empty():
-		var node := queue.pop_front()
-		if node.get_class() == "ScriptEditorDebugger":
-			var inner: Array[Node] = [node]
-			while not inner.is_empty():
-				var n := inner.pop_front()
-				if n is Button and (n as Button).tooltip_text == "Continue":
-					(n as Button).emit_signal("pressed")
-					push_warning("[MCP] Auto-resumed debugger after runtime error")
-					return
-				for c in n.get_children():
-					inner.append(c)
-			return
-		for child in node.get_children():
-			queue.append(child)
 
 
 func _count_log_errors() -> int:
@@ -493,18 +588,18 @@ func _count_log_errors() -> int:
 func get_command_docs() -> Dictionary:
 	return {
 		"test.run_scenario": {
-			"description": "Run a scripted scenario against the playing game: a sequence of --steps (input/wait/assert/screenshot) driven over file IPC. Optionally (re)starts the scene first. Requires a playing scene.",
+			"description": "Run a scripted scenario against the playing game: a sequence of --steps (input/wait/assert/screenshot) driven over file IPC. Optionally (re)starts the scene first. Requires a playing scene. An 'input' step with an action and pressed true is RELEASED in the same batch unless it sets auto_release false, so a hold-then-wait needs that flag or it runs as a one-frame tap; a step that auto-released reports auto_released true. Each input step waits for the game to read its payload before the next step runs and reports consumed true or false, so adjacent steps no longer overwrite each other.",
 			"params": [
-				doc_param("steps", "Array", true, "Non-empty JSON array of step objects, each with a 'type': 'input' ({action|keycode, pressed, ...}), 'wait' ({seconds} or {node_path, timeout}), 'assert' ({text} or {node_path, property, expected, operator}), or 'screenshot'."),
+				doc_param("steps", "Array", true, "Non-empty JSON array of step objects, each with a 'type': 'input' ({action|keycode, pressed, strength, frame_delay, auto_release, consume_timeout}), 'wait' ({seconds} or {node_path, timeout}), 'assert' ({text} or {node_path, property, expected, operator}), or 'screenshot' ({save_path, half_resolution}). A screenshot step with save_path has the GAME write the PNG there (user:// is the game's user-data dir) and reports save_path; without one the capture is discarded and the step reports saved false."),
 				doc_param("scene_path", "String", false, "'main', 'current', or a scene file path to (re)start before running; omit to use the already-playing scene."),
 			],
 		},
 		"test.assert_node_state": {
-			"description": "Assert a property on a node in the running game compares as expected. Requires a playing scene.",
+			"description": "Assert a property on a node in the running game compares as expected. The expected value is coerced to the live value's type before comparing; a pair that cannot be compared is passed false with a 'reason' naming both types. Requires a playing scene.",
 			"params": [
 				doc_param("node_path", "NodePath", true, "Node path relative to the running scene root."),
 				doc_param("property", "String", true, "Property to read."),
-				doc_param("expected", "JSON", true, "Expected value to compare against."),
+				doc_param("expected", "JSON", true, "Expected value. Godot literals work as strings: \"Vector2(64, 0)\", \"#ff0000\", \"true\", numbers."),
 				doc_param("operator", "String", false, "Comparison: eq (default), neq, gt, lt, gte, lte, contains, type_is."),
 			],
 		},
@@ -524,7 +619,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"test.report": {
-			"description": "Summarize accumulated test results (pass/fail counts, pass rate, details) collected across test.* calls.",
+			"description": "Summarize accumulated test results collected across test.* calls. Only assertion-bearing results score: total, passed, failed and pass_rate count assertions alone, while input/wait/screenshot steps are reported as steps_recorded.",
 			"params": [
 				doc_param("clear", "bool", false, "Clear the accumulated results after reporting (default true)."),
 			],

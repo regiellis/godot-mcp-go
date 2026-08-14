@@ -2,7 +2,13 @@ extends Logger
 
 ## Captures runtime errors/warnings from the RUNNING game into a bounded ring
 ## buffer, polled by runtime.errors over the game IPC. MCPGameInspector registers
-## one of these via OS.add_logger in _ready(). Only errors/warnings flow through
+## one of these via OS.add_logger in _ready().
+##
+## This is the one addon file that does NOT parse at the 4.3 floor, and cannot:
+## the Logger base class and ScriptBacktrace's frame accessors are 4.5+, and a
+## base class has no dynamic form. That is why MCPGameInspector load()s it at
+## runtime behind a ClassDB.class_exists("Logger") gate instead of preloading it.
+## Nothing else may reference this file statically. Only errors/warnings flow through
 ## _log_error (regular prints are ignored, so overhead is negligible). The
 ## callback is airtight: it never logs and guards against re-entrancy, so an error
 ## storm can't recurse through the logger or destabilize the game.
@@ -32,7 +38,7 @@ func _log_error(function, file, line, code, rationale, editor_notify, error_type
 	# description in `rationale` and the failed condition in `code`; push_error
 	# puts its text in `code` with `rationale` empty. Prefer rationale, fall back
 	# to code, so `message` is always populated. For built-ins (push_error) the
-	# reported file/line/function is engine C++ internals — the real game-script
+	# reported file/line/function is engine C++ internals, while the real game-script
 	# location is backtrace[0].
 	var rat := str(rationale)
 	var cod := str(code)
@@ -71,7 +77,7 @@ func next_seq() -> int:
 
 
 ## Newest entry with seq >= since_seq, or {} when the operation logged nothing.
-## Lets a caller attach the real text of an error whose API returns only a code —
+## Lets a caller attach the real text of an error whose API returns only a code:
 ## a GDScript parse error reports ERR_PARSE_ERROR and prints the reason here.
 func newest_since(since_seq: int) -> Dictionary:
 	for i in range(_entries.size() - 1, -1, -1):

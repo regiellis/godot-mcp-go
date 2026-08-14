@@ -1,7 +1,7 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## Localization — translation CSVs, the project translation list, and locale. Godot imports a
+## Localization: translation CSVs, the project translation list, and locale. Godot imports a
 ## CSV (keys + one column per locale) into per-locale .translation resources; you register those
 ## in ProjectSettings 'internationalization/locale/translations'. No prior command touched any of
 ## this. CSV writing + the settings array + TranslationServer locale, all here.

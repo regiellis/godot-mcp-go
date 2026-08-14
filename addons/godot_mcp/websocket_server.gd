@@ -15,8 +15,8 @@ var http_server: Node = null
 const DEFAULT_PORT := 9080
 const PORT_RANGE := 16        # scan DEFAULT_PORT .. DEFAULT_PORT+PORT_RANGE-1
 const BIND_ADDRESS := "127.0.0.1"
-const INBOUND_BUFFER := 1 * 1024 * 1024     # 1MB — requests are small JSON
-const OUTBOUND_BUFFER := 16 * 1024 * 1024   # 16MB — responses can be large (screenshots)
+const INBOUND_BUFFER := 1 * 1024 * 1024     # 1MB, since requests are small JSON
+const OUTBOUND_BUFFER := 16 * 1024 * 1024   # 16MB, since responses can be large (screenshots)
 const MAX_PEERS := 16                        # cap concurrent clients to bound memory
 const CONNECT_TIMEOUT := 5.0                 # drop peers stuck mid-handshake
 const IDLE_TIMEOUT := 120.0                  # reap dead/half-open peers (longer than any command)
@@ -33,7 +33,7 @@ var _last_tick: int = 0
 
 func start() -> void:
 	# A crash leaves a stale discovery file behind (clean shutdown removes it), so
-	# the CLI would read it as "crashed" until we bind. Clear it up front — but only
+	# the CLI would read it as "crashed" until we bind. Clear it up front, but only
 	# if its process is gone, never a live sibling instance's file.
 	_clear_stale_discovery()
 	# Bind the first free port in the range so multiple editor instances can run
@@ -63,7 +63,7 @@ func stop() -> void:
 ## suspend/resume gap so we never poll an OS-invalidated socket handle. Prefers
 ## the same port, else the first free one in range.
 func _relisten() -> void:
-	push_warning("[MCP] Resume detected — rebuilding the WebSocket listener")
+	push_warning("[MCP] Resume detected, rebuilding the WebSocket listener")
 	for p in _peers:
 		(p["ws"] as WebSocketPeer).close(1001, "Server resuming")
 		if p["counted"] and command_router:
@@ -83,7 +83,7 @@ func _relisten() -> void:
 			print("[MCP] Listener rebuilt on ws://%s:%d" % [BIND_ADDRESS, _port])
 			return
 	_running = false
-	push_error("[MCP] Could not rebind after resume — server stopped")
+	push_error("[MCP] Could not rebind after resume, server stopped")
 
 
 ## Port precedence: GODOT_MCP_PORT env pins a single port (wins); else the
@@ -109,7 +109,7 @@ func _process(delta: float) -> void:
 	# Sleep/resume guard. The OS can invalidate the listening socket across a
 	# suspend; polling a dead native socket handle every frame can take Godot
 	# down in C++ with no GDScript trace (fits "crash on resume, no exit code").
-	# A large wall-clock gap between frames means we just resumed — rebuild the
+	# A large wall-clock gap between frames means we just resumed, so rebuild the
 	# listener on fresh sockets instead of touching the stale one.
 	var now := Time.get_ticks_msec()
 	if _last_tick != 0 and (now - _last_tick > RESUME_GAP_MS or delta > float(RESUME_GAP_MS) / 1000.0):
@@ -259,5 +259,5 @@ func _clear_stale_discovery() -> void:
 	if data is Dictionary and data.has("pid") and OS.has_method("is_process_running"):
 		var pid := int(data["pid"])
 		if pid > 0 and OS.is_process_running(pid):
-			return # a live instance owns it — leave it alone
+			return # a live instance owns it, so leave it alone
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(DISCOVERY_PATH))

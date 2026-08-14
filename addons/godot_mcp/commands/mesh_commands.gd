@@ -3,10 +3,10 @@ extends "res://addons/godot_mcp/commands/base_command.gd"
 
 ## Mesh-geometry ops the rest of the surface can't reach (node.set tweaks resources, never
 ## vertices). Phase D of the tile-assembly roadmap: free-form lattice deformation, so a square
-## module can be warped to fit an irregular cell — the video's exact recipe (store each vertex
+## module can be warped to fit an irregular cell, the video's exact recipe (store each vertex
 ## as a percentage of the bounds, rebuild from displaced corner handles via trilinear interp).
 ##
-## Handle order — 8 corners of the local AABB, indexed by bit (x=i&1, y=(i>>1)&1, z=(i>>2)&1):
+## Handle order: 8 corners of the local AABB, indexed by bit (x=i&1, y=(i>>1)&1, z=(i>>2)&1):
 ##   0:(-x-y-z) 1:(+x-y-z) 2:(-x+y-z) 3:(+x+y-z) 4:(-x-y+z) 5:(+x-y+z) 6:(-x+y+z) 7:(+x+y+z)
 ##   bottom face (min Y) = 0,1,4,5 ; top face (max Y) = 2,3,6,7
 

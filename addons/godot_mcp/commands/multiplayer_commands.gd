@@ -1,7 +1,7 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## High-level multiplayer scaffolding — an entire subsystem with no prior coverage.
+## High-level multiplayer scaffolding, an entire subsystem with no prior coverage.
 ## MultiplayerSpawner (replicate spawned scenes) and MultiplayerSynchronizer (replicate node
 ## properties via a SceneReplicationConfig). The NodePaths these use (spawn_path, root_path, and
 ## per-property "Node:property" paths) are awkward to wire through node.set; this does it.

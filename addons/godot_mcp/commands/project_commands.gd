@@ -15,6 +15,7 @@ func get_commands() -> Dictionary:
 		"project.grep": _grep,
 		"project.settings": _settings,
 		"project.set_setting": _set_setting,
+		"project.remove_setting": _remove_setting,
 		"project.uid_to_path": _uid_to_path,
 		"project.path_to_uid": _path_to_uid,
 		"project.add_autoload": _add_autoload,
@@ -38,7 +39,7 @@ func _plugins(_params: Dictionary) -> Dictionary:
 				var cfg := ConfigFile.new()
 				cfg.load(cfg_path)
 				plugins.append({
-					"name": name,  # the folder name — pass this to enable/disable
+					"name": name,  # the folder name, passed to enable/disable
 					"display_name": cfg.get_value("plugin", "name", name),
 					"version": str(cfg.get_value("plugin", "version", "")),
 					"enabled": cfg_path in enabled,
@@ -79,6 +80,9 @@ func _tree(params: Dictionary) -> Dictionary:
 func _scan_dir(path: String, filter: String, max_depth: int, depth: int) -> Dictionary:
 	var result := {"name": path.get_file(), "path": path, "type": "directory"}
 	if depth >= max_depth:
+		# Nothing below was looked at, so a filtered scan cannot claim this holds no
+		# match. Say the scan stopped here and keep the node.
+		result["truncated"] = true
 		return result
 	var dir := DirAccess.open(path)
 	if dir == null:
@@ -90,7 +94,12 @@ func _scan_dir(path: String, filter: String, max_depth: int, depth: int) -> Dict
 		if not file_name.begins_with("."):
 			var full := path.path_join(file_name)
 			if dir.current_is_dir():
-				children.append(_scan_dir(full, filter, max_depth, depth + 1))
+				var sub := _scan_dir(full, filter, max_depth, depth + 1)
+				# Under a filter, a directory with no match anywhere beneath it is
+				# noise: `--filter "*.tscn"` used to answer with every asset folder
+				# in the project, each one empty.
+				if filter.is_empty() or sub.has("children") or sub.get("truncated", false):
+					children.append(sub)
 			elif filter.is_empty() or file_name.match(filter):
 				children.append({"name": file_name, "path": full, "type": "file"})
 		file_name = dir.get_next()
@@ -204,6 +213,11 @@ func _settings(params: Dictionary) -> Dictionary:
 	return success({"settings": settings, "count": settings.size()})
 
 
+## Set a project setting. Creating one is legitimate (plugins and games keep their
+## own keys here), so a key nobody has registered is still written. The result says
+## whether it EXISTED, because a typo used to be indistinguishable from a real
+## edit: `run/main_scene` for `application/run/main_scene` wrote a phantom section,
+## returned success, and left the project's actual main scene untouched.
 func _set_setting(params: Dictionary) -> Dictionary:
 	var r := require_string(params, "key")
 	if r[1] != null:
@@ -211,12 +225,61 @@ func _set_setting(params: Dictionary) -> Dictionary:
 	if not params.has("value"):
 		return error_invalid_params("Missing required parameter: value")
 	var key: String = r[0]
+	var existed := ProjectSettings.has_setting(key)
 	var value: Variant = PropertyParser.parse_value(params["value"], TYPE_NIL)
 	ProjectSettings.set_setting(key, value)
 	var err := ProjectSettings.save()
 	if err != OK:
 		return error_internal("Failed to save project settings: %s" % error_string(err))
-	return success({"key": key, "value": str(ProjectSettings.get_setting(key)), "saved": true})
+	var out := {"key": key, "value": str(ProjectSettings.get_setting(key)), "saved": true, "existed": existed}
+	if not existed:
+		var near := _closest_setting(key)
+		if not near.is_empty():
+			out["hint"] = "'%s' did not exist and was created as a new setting. Did you mean '%s'? Remove the new one with project.remove_setting." % [key, near]
+	return success(out)
+
+
+## Remove a project setting, the counterpart to a set that created one by mistake
+## (cleanup otherwise needed --allow-unsafe-editor-io). Clearing a built-in key
+## reverts it to the engine's default rather than deleting the concept.
+func _remove_setting(params: Dictionary) -> Dictionary:
+	var r := require_string(params, "key")
+	if r[1] != null:
+		return r[1]
+	var key: String = r[0]
+	if not ProjectSettings.has_setting(key):
+		var near := _closest_setting(key)
+		var hint := "Use project.settings --filter to find the real key."
+		if not near.is_empty():
+			hint = "Did you mean '%s'? %s" % [near, hint]
+		return error_not_found("Setting '%s'" % key, hint)
+	var old_value := str(ProjectSettings.get_setting(key))
+	ProjectSettings.clear(key)
+	var err := ProjectSettings.save()
+	if err != OK:
+		return error_internal("Failed to save project settings: %s" % error_string(err))
+	return success({"key": key, "old_value": old_value, "removed": true})
+
+
+## The existing setting a mistyped key most likely meant, or "" when nothing is
+## close. A key that is the tail of a real one (`run/main_scene` under
+## `application/run/main_scene`) is the common miss, so that wins outright; the
+## rest goes to String.similarity, the router's did-you-mean idiom.
+func _closest_setting(key: String) -> String:
+	var suffix := ""
+	var best := ""
+	var best_score := 0.6
+	for prop in ProjectSettings.get_property_list():
+		var name := String(prop["name"])
+		if name == key:
+			continue
+		if name.ends_with("/" + key) and (suffix.is_empty() or name.length() < suffix.length()):
+			suffix = name
+		var score := key.similarity(name)
+		if score > best_score:
+			best_score = score
+			best = name
+	return suffix if not suffix.is_empty() else best
 
 
 func _uid_to_path(params: Dictionary) -> Dictionary:
@@ -309,8 +372,8 @@ func get_command_docs() -> Dictionary:
 			"description": "Return the project's filesystem tree under --path, optionally filtered by a filename glob.",
 			"params": [
 				doc_param("path", "String", false, "Root directory to scan (default 'res://')."),
-				doc_param("filter", "String", false, "Filename glob to include (e.g. '*.gd')."),
-				doc_param("max_depth", "int", false, "Max directory depth (default 10)."),
+				doc_param("filter", "String", false, "Filename glob to include (e.g. '*.gd'). Directories holding no match anywhere beneath them are omitted."),
+				doc_param("max_depth", "int", false, "Max directory depth (default 10). A directory the scan stopped at is reported with truncated true."),
 			],
 		},
 		"project.search": {
@@ -341,10 +404,16 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"project.set_setting": {
-			"description": "Set a project setting (--key to --value, auto-parsed) and save project.godot. The safe way to change settings — never hand-edit project.godot.",
+			"description": "Set a project setting (--key to --value, auto-parsed) and save project.godot. The safe way to change settings: never hand-edit project.godot. The result reports existed false when the key was created rather than changed, with a hint naming the closest existing key, so a typo ('run/main_scene' for 'application/run/main_scene') is visible instead of passing as a real edit.",
 			"params": [
-				doc_param("key", "String", true, "Setting key (e.g. 'display/window/size/viewport_width')."),
+				doc_param("key", "String", true, "Full setting key, section included (e.g. 'application/run/main_scene', 'display/window/size/viewport_width')."),
 				doc_param("value", "JSON", true, "Value, auto-parsed to the right type."),
+			],
+		},
+		"project.remove_setting": {
+			"description": "Remove a project setting by --key and save. Refuses a key that does not exist (with a did-you-mean), so it cannot quietly do nothing. Clearing a built-in key reverts it to the engine default rather than deleting it.",
+			"params": [
+				doc_param("key", "String", true, "Full setting key to remove."),
 			],
 		},
 		"project.uid_to_path": {

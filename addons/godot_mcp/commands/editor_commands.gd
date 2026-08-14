@@ -21,15 +21,15 @@ func _is_noise(line: String) -> bool:
 
 
 ## The `<file>:<line>` an editor error line carries. The Output panel writes one
-## line per entry — "ERROR: core\variant\variant_utility.cpp:1023 - message" — so
+## line per entry, "ERROR: core\variant\variant_utility.cpp:1023 - message", so
 ## the source is already in the text; this pulls it out so it can be classified.
 const _SOURCE_PATTERN := "((?:res|user)://[^\\s:]+|[A-Za-z0-9_./\\\\+-]+\\.(?:cpp|hpp|h|inc|mm|m|gd|gdshader|cs|tscn|tres))(?::\\d+)?"
 
 
 ## True when an entry came from the ENGINE's own C++ source rather than the
 ## project's scripts. After editor.reload the buffer fills with dozens of these
-## (progress_dialog.cpp, class_db.cpp) and they drown the real findings —
-## editor.errors --internal=false drops them. A line with no recognizable source
+## (progress_dialog.cpp, class_db.cpp) and they drown the real findings, which is
+## what editor.errors --internal=false drops. A line with no recognizable source
 ## is never internal: we don't hide what we couldn't classify.
 func _is_internal(line: String, re: RegEx) -> bool:
 	var m := re.search(line)
@@ -42,7 +42,7 @@ func _is_internal(line: String, re: RegEx) -> bool:
 
 
 ## Empty the editor Output panel for real, by pressing EditorLog's own Clear
-## button (matched by theme-icon identity — the debugger bridge's idiom; the
+## button (matched by theme-icon identity, the debugger bridge's idiom; the
 ## class exposes no scriptable clear()). Falls back to scrolling the panel with
 ## blank lines when the button can't be located. Returns true if it was pressed.
 func _press_output_clear() -> bool:
@@ -99,7 +99,7 @@ func _selection(_params: Dictionary) -> Dictionary:
 
 
 ## Poll the editor activity buffer (services/activity_log.gd): what happened in
-## the editor since the given cursor — selection changes, scene switches, saves,
+## the editor since the given cursor: selection changes, scene switches, saves,
 ## and undo/redo history bumps. Same pull-based cursor contract as runtime.errors.
 func _activity(params: Dictionary) -> Dictionary:
 	if editor_plugin == null or editor_plugin.get("activity_log") == null:
@@ -248,7 +248,7 @@ func _screenshot(params: Dictionary) -> Dictionary:
 	var result := _emit_image(image, optional_string(params, "save_path", ""))
 	# WHAT was captured, not just that something was. This grabs the whole editor
 	# window, so a capture taken while the main screen sits on 2D shows the canvas
-	# even when the caller had just posed the 3D camera — reporting the screen
+	# even when the caller had just posed the 3D camera. Reporting the screen
 	# makes that diagnosable instead of a mystery image. Never force a switch:
 	# capturing the 2D editor is a legitimate thing to want.
 	if result.has("result") and result["result"] is Dictionary:
@@ -325,7 +325,7 @@ func _load_image(value: String, label: String) -> Array:
 
 func _run_script(params: Dictionary) -> Dictionary:
 	# Accept either inline `code` or a `path` to a script file (res://, user://, or
-	# an absolute OS path) — large scripts are awkward to pass inline via the shell.
+	# an absolute OS path), since large scripts are awkward to pass inline via the shell.
 	var code: String
 	if params.has("path") and not String(params["path"]).strip_edges().is_empty():
 		var loaded := _read_script_file(String(params["path"]))
@@ -399,7 +399,7 @@ func _read_script_file(path: String) -> Array:
 
 ## Re-indent a submitted body so it can be wrapped in a tab-indented run().
 ##
-## The body arrives however the caller's editor writes it — commonly SPACE
+## The body arrives however the caller's editor writes it, commonly SPACE
 ## indented, and often with a common leading indent from being lifted out of
 ## another function. Prefixing a tab to each line then produced a tab+space mix,
 ## which GDScript refuses ("used spaces instead of tabs"), so a perfectly good
@@ -547,7 +547,7 @@ func _set_camera(params: Dictionary) -> Dictionary:
 
 
 ## Accept a Vector3 as either a {x,y,z} dict (missing keys keep `fallback`) or a
-## "Vector3(x, y, z)" string — the CLI's standard form for vectors, parsed via
+## "Vector3(x, y, z)" string, the CLI's standard form for vectors, parsed via
 ## PropertyParser. The earlier `var p: Dictionary = params[...]` cast threw on the
 ## string form, so set_camera silently no-op'd on the convention every other
 ## spatial command accepts.
@@ -661,11 +661,11 @@ func _scan_log_file(max_lines: int, needles: Array) -> Array:
 func get_command_docs() -> Dictionary:
 	return {
 		"editor.errors": {
-			"description": "Return recent errors/warnings from the Output panel and the per-script analyzer panels (falls back to the log file when headless). Each line carries its own '<source>:<line>' — --internal=false drops the ones whose source is an engine C++ file, which is what an editor.reload rescan floods the buffer with. Benign engine noise is filtered by default; --clear empties the Output panel after reading.",
+			"description": "Return recent errors/warnings from the Output panel and the per-script analyzer panels (falls back to the log file when headless). Each line carries its own '<source>:<line>', and --internal=false drops the ones whose source is an engine C++ file, which is what an editor.reload rescan floods the buffer with. Benign engine noise is filtered by default; --clear empties the Output panel after reading.",
 			"params": [
 				doc_param("max_lines", "int", false, "How many trailing output lines to scan (default 50)."),
 				doc_param("include_noise", "bool", false, "Keep benign engine-internal lines that are filtered by default."),
-				doc_param("internal", "bool", false, "Include entries whose source is an engine C++ file (default true; false leaves the res:// script errors — note the engine attributes push_error/push_warning to variant_utility.cpp, so those go too)."),
+				doc_param("internal", "bool", false, "Include entries whose source is an engine C++ file (default true; false leaves the res:// script errors, but note the engine attributes push_error/push_warning to variant_utility.cpp, so those go too)."),
 				doc_param("clear", "bool", false, "Empty the Output panel after reading (the per-script analyzer panels are the compiler's live verdict and cannot be cleared)."),
 			],
 		},
@@ -697,7 +697,7 @@ func get_command_docs() -> Dictionary:
 			"description": "Rescan the project filesystem (EditorFileSystem.scan) so disk changes are picked up.",
 		},
 		"editor.reload_plugin": {
-			"description": "Toggle this addon off and on to re-run command registration (the WebSocket connection briefly drops). Does NOT re-parse changed command scripts from disk — that needs a full editor restart.",
+			"description": "Toggle this addon off and on to re-run command registration (the WebSocket connection briefly drops). Does NOT re-parse changed command scripts from disk, which needs a full editor restart.",
 		},
 		"editor.signals": {
 			"description": "List a node's signals with their arguments and current connections (targets resolved to scene paths).",

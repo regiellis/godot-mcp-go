@@ -3,7 +3,7 @@ extends Node
 ## Autoload that runs INSIDE the played game (declared in project.godot). It
 ## brokers inspection commands from the editor over file IPC: it polls
 ## user://mcp_game_request, runs the command against the live scene tree, and
-## writes user://mcp_game_response. Not @tool — it does nothing in the editor.
+## writes user://mcp_game_response. Not @tool, so it does nothing in the editor.
 ##
 ## Most commands respond immediately. A handful are STATEFUL: they set internal
 ## state and only call _respond() once the operation completes over several
@@ -11,8 +11,10 @@ extends Node
 ## the request file and dispatches via _handle_request().
 
 const PropertyParser := preload("res://addons/godot_mcp/utils/property_parser.gd")
-const GameErrorLog := preload("res://addons/godot_mcp/services/game_error_log.gd")
 const GameServer := preload("res://addons/godot_mcp/services/game_server.gd")
+## Loaded at RUNTIME, never preloaded: see _start_error_log.
+const GAME_ERROR_LOG_PATH := "res://addons/godot_mcp/services/game_error_log.gd"
+const ERROR_CAPTURE_MIN_VERSION := "4.5"
 const REQUEST_PATH := "user://mcp_game_request"
 const RESPONSE_PATH := "user://mcp_game_response"
 ## Responses are written here first and renamed into place, so the editor never
@@ -25,13 +27,23 @@ enum State { IDLE, CAPTURING_FRAMES, MONITORING, RECORDING, MOVING_TO, WATCHING_
 var _state: int = State.IDLE
 
 # Captures runtime errors/warnings from this game process for runtime.errors.
-var _error_log: Logger = null
+# Typed Object, not Logger: the Logger class is 4.5+, and naming it here would
+# be a parse error on 4.3 that takes this whole autoload -- and with it every
+# runtime.*/input.* command -- down on an engine that supports all of them.
+var _error_log: Object = null
 
 # When set, _respond() delivers the result to this Callable instead of writing the
 # file-IPC response. This is how the in-game direct server (game_server.gd) reuses
 # the same command handlers: it calls run_command() with a sink that ships the
 # result over its WebSocket. Empty for the editor file-IPC path (writes the file).
 var _sink: Callable = Callable()
+
+# Correlation id of the file-IPC request in flight, echoed back in the response
+# so the editor can tell this call's answer from an earlier one it finished late.
+# A debugger break landing mid-command produces exactly that: the editor gives
+# up, the break is released, and the stale reply appears while a NEW request is
+# waiting. Empty for the direct-server path, which correlates over its socket.
+var _request_id: String = ""
 
 # The direct WebSocket server, created in _ready only for a debug build with the
 # godot_mcp/runtime/direct_server setting on. Null otherwise (and in every export).
@@ -82,9 +94,29 @@ var _moveto_keys_held: Array = []
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS  # keep responding even if paused
-	_error_log = GameErrorLog.new()
-	OS.add_logger(_error_log)
+	_start_error_log()
 	_maybe_start_direct_server()
+
+
+## Register the runtime error capture, if this engine can host one. Both halves
+## are 4.5+: the Logger class game_error_log.gd extends, and OS.add_logger. That
+## script therefore cannot even PARSE below 4.5, so it is load()ed here rather
+## than preloaded -- a preload would make its parse error this autoload's parse
+## error, and a services file is invisible to the router's unavailable_groups,
+## so the failure would surface as every runtime.*/input.* command timing out.
+## load() on a script that failed to parse returns a GDScript object rather than
+## null, so the gate is can_instantiate(), the same trap the router carries.
+## Below 4.5 _error_log stays null and runtime.errors says so (_get_runtime_errors).
+func _start_error_log() -> void:
+	if not ClassDB.class_exists("Logger") or not ClassDB.can_instantiate("Logger"):
+		return
+	if not OS.has_method("add_logger"):
+		return
+	var script := load(GAME_ERROR_LOG_PATH) as Script
+	if script == null or not script.can_instantiate():
+		return
+	_error_log = script.new()
+	OS.call("add_logger", _error_log)
 
 
 ## Start the in-game direct WebSocket server iff BOTH the build is a debug build
@@ -107,7 +139,7 @@ func _process(delta: float) -> void:
 	match _state:
 		State.IDLE:
 			# Don't read a file-IPC request while a direct-server command holds the
-			# response sink — that would clobber it (_respond routes by _sink).
+			# response sink, which would clobber it (_respond routes by _sink).
 			if not _sink.is_valid() and FileAccess.file_exists(REQUEST_PATH):
 				_handle_request()
 		State.CAPTURING_FRAMES:
@@ -139,6 +171,7 @@ func _handle_request() -> void:
 
 	# The editor file-IPC path: _respond writes the response file, so clear any sink.
 	_sink = Callable()
+	_request_id = str(parsed.get("_id", ""))
 
 	# A new request aborts any in-progress stateful operation.
 	if _state != State.RECORDING:
@@ -150,16 +183,17 @@ func _handle_request() -> void:
 ## Shared entry for the in-game direct WebSocket server (game_server.gd). Runs the
 ## same game-side command handlers used over file IPC, but delivers the result to
 ## `sink` (a Callable taking one Dictionary) instead of the response file. The
-## caller MUST serialize calls — one command is in flight at a time (see is_busy).
+## caller MUST serialize calls: one command is in flight at a time (see is_busy).
 func run_command(command: String, params: Dictionary, sink: Callable) -> void:
 	if _state != State.RECORDING:
 		_state = State.IDLE
 	_sink = sink
+	_request_id = ""
 	_dispatch(command, params)
 
 
 ## True while a command is in flight (a response is still pending or a stateful
-## operation is running). RECORDING is not "busy" — it is a resting state that
+## operation is running). RECORDING is not "busy": it is a resting state that
 ## still accepts new commands. Lets game_server.gd avoid clobbering a file-IPC
 ## command in an editor-launched game where both channels are live at once.
 func is_busy() -> bool:
@@ -210,43 +244,156 @@ func _assert_node_state(params: Dictionary) -> void:
 	var actual: Variant = node.get(prop)
 	var expected: Variant = params.get("expected")
 	var op: String = params.get("operator", "eq")
-	_respond({
-		"passed": _compare(actual, expected, op),
+	var verdict := _compare(actual, expected, op)
+	var payload := {
+		"passed": bool(verdict["passed"]),
 		"node_path": _rel(node),
 		"property": prop,
 		"operator": op,
 		"actual": PropertyParser.serialize_value(actual),
 		"expected": expected,
-	})
+	}
+	var reason := String(verdict["reason"])
+	if not reason.is_empty():
+		payload["reason"] = reason
+	_respond(payload)
 
 
-func _compare(actual: Variant, expected: Variant, op: String) -> bool:
+## Compare a live property value against the caller's expected value. Returns
+## {"passed": bool, "reason": String}; a non-empty reason explains a comparison
+## the two values cannot support.
+##
+## `expected` arrives as JSON, so it is almost always a String or a number while
+## `actual` is any Variant. In Godot 4 a cross-type `==` is a HARD RUNTIME ERROR:
+## `Vector3 == String` broke the game into the debugger and every later runtime.*
+## call came back debugger_breaked. So the expected side is coerced toward the
+## live value's type FIRST, and a coercion the value cannot support is a failed
+## assertion naming both types, never an engine error. Stringifying is only a
+## fallback, and cannot stand alone: str(Vector3(0, 0, 0)) is "(0, 0, 0)", so the
+## natural "Vector3(0, 0, 0)" could never match by text.
+func _compare(actual: Variant, expected: Variant, op: String) -> Dictionary:
 	match op:
-		"eq": return str(actual) == str(expected) or actual == expected
-		"neq": return not (str(actual) == str(expected) or actual == expected)
-		"gt": return float(actual) > float(expected)
-		"lt": return float(actual) < float(expected)
-		"gte": return float(actual) >= float(expected)
-		"lte": return float(actual) <= float(expected)
-		"contains": return str(actual).contains(str(expected))
-		"type_is": return actual != null and (actual is Object and (actual as Object).get_class() == str(expected) or type_string(typeof(actual)) == str(expected))
-	return false
+		"contains":
+			return _verdict(str(actual).contains(str(expected)))
+		"type_is":
+			var want := str(expected)
+			var is_type := actual != null and ((actual is Object and (actual as Object).get_class() == want) or type_string(typeof(actual)) == want)
+			return _verdict(is_type)
+		"gt", "lt", "gte", "lte":
+			var a := _as_number(actual)
+			var b := _as_number(expected)
+			if not bool(a[0]) or not bool(b[0]):
+				return _refused(actual, expected, "%s needs two numbers" % op)
+			var x: float = a[1]
+			var y: float = b[1]
+			match op:
+				"gt": return _verdict(x > y)
+				"lt": return _verdict(x < y)
+				"gte": return _verdict(x >= y)
+				_: return _verdict(x <= y)
+		"eq", "neq":
+			var coerced := _coerce_expected(actual, expected)
+			if bool(coerced["ok"]):
+				var same: bool = actual == coerced["value"]
+				return _verdict(same if op == "eq" else not same)
+			# No coercion: compare the text forms, which is right for a String
+			# property and the only thing left for an Object one. Text that does
+			# not match is not an answer, so say why rather than reporting a
+			# confident false.
+			var text_same := str(actual) == str(expected)
+			if text_same:
+				return _verdict(op == "eq")
+			return _refused(actual, expected, "no shared type and the text forms differ")
+	return _verdict(false, "unknown operator '%s'" % op)
+
+
+func _verdict(passed: bool, reason: String = "") -> Dictionary:
+	return {"passed": passed, "reason": reason}
+
+
+func _refused(actual: Variant, expected: Variant, why: String) -> Dictionary:
+	return {
+		"passed": false,
+		"reason": "cannot compare a %s property value with expected %s value '%s': %s" % [
+			type_string(typeof(actual)), type_string(typeof(expected)), str(expected), why,
+		],
+	}
+
+
+## Read a value as a float. Returns [ok, value]; ok false for anything that is
+## not a number, which is what keeps float(Vector3(...)) from erroring.
+func _as_number(value: Variant) -> Array:
+	match typeof(value):
+		TYPE_INT, TYPE_FLOAT:
+			return [true, float(value)]
+		TYPE_BOOL:
+			return [true, 1.0 if value else 0.0]
+		TYPE_STRING, TYPE_STRING_NAME:
+			var s := str(value).strip_edges()
+			if s.is_valid_float() or s.is_valid_int():
+				return [true, s.to_float()]
+	return [false, 0.0]
+
+
+## Coerce `expected` to the live value's type so `==` is same-type and safe.
+## Returns {"ok": bool, "value": Variant}; ok false means the caller falls back
+## to a text comparison. The scalar branches gate on the input actually being of
+## that shape, because PropertyParser is a WRITE-path parser: int("banana") is 0
+## there by design, and here it would make "banana" equal to 0.
+func _coerce_expected(actual: Variant, expected: Variant) -> Dictionary:
+	var want := typeof(actual)
+	if typeof(expected) == want:
+		return {"ok": true, "value": expected}
+	if actual == null or expected == null:
+		return {"ok": false, "value": null}
+	var out: Variant = null
+	match want:
+		TYPE_BOOL:
+			var s := str(expected).to_lower().strip_edges()
+			if s not in ["true", "false", "1", "0", "yes", "no"]:
+				return {"ok": false, "value": null}
+			out = s in ["true", "1", "yes"]
+		TYPE_INT, TYPE_FLOAT:
+			var n := _as_number(expected)
+			if not bool(n[0]):
+				return {"ok": false, "value": null}
+			out = int(n[1]) if want == TYPE_INT else float(n[1])
+		TYPE_STRING:
+			out = str(expected)
+		TYPE_STRING_NAME:
+			out = StringName(str(expected))
+		TYPE_NODE_PATH:
+			out = NodePath(str(expected))
+		_:
+			var checked: Dictionary = PropertyParser.parse_checked(expected, want)
+			if not bool(checked["ok"]):
+				return {"ok": false, "value": null}
+			out = checked["value"]
+	# parse_checked refuses a short literal but has no case for every Variant
+	# type (a Vector4 literal falls through as its String), and a wrong-typed
+	# value is the hard error this whole path exists to avoid. Confirm the type.
+	if typeof(out) != want:
+		return {"ok": false, "value": null}
+	return {"ok": true, "value": out}
 
 
 func _respond(data: Dictionary) -> void:
-	# Direct server: hand the result to the pending sink (one-shot) and stop —
-	# never also write the file. Editor file-IPC: write the response file.
+	# Direct server: hand the result to the pending sink (one-shot) and stop,
+	# never also writing the file. Editor file-IPC: write the response file.
 	if _sink.is_valid():
 		var sink := _sink
 		_sink = Callable()
 		sink.call(data)
 		return
 	# Write to a scratch name and rename it into place. The editor polls for the
-	# response file's EXISTENCE, and FileAccess.open(WRITE) creates it empty — so a
+	# response file's EXISTENCE, and FileAccess.open(WRITE) creates it empty, so a
 	# poll landing between the open and the close read a half-written (or
 	# still-locked) file and the command failed with "Could not read game response
 	# file", which an immediate retry then made succeed. The rename publishes the
 	# file only once it is complete.
+	if not _request_id.is_empty():
+		data["_id"] = _request_id
+		_request_id = ""
 	var file := FileAccess.open(RESPONSE_TMP_PATH, FileAccess.WRITE)
 	if file == null:
 		return
@@ -431,7 +578,7 @@ static func _compile_source(src: String) -> GDScript:
 
 
 ## Compile eval source on a WORKER thread, never the main one. A GDScript parse
-## error calls debug_break_parse, which breaks into the remote debugger — but only
+## error calls debug_break_parse, which breaks into the remote debugger, but only
 ## when the compile runs on the main thread. Under a --headless editor there is no
 ## UI to resume that break, so the game froze and every later runtime command timed
 ## out with nothing surfaced anywhere; the channel just went dead. Compiling
@@ -1043,11 +1190,11 @@ func _click_button_by_text(params: Dictionary) -> void:
 	var center := rect.get_center()
 	var btn_text_value := btn.text
 
-	# Capture path before clicking — the click may trigger a scene transition
+	# Capture path before clicking, because the click may trigger a scene transition
 	# that removes the node from the tree.
 	var btn_path := _rel(btn) if btn.is_inside_tree() else ""
 
-	# Emit pressed directly — more reliable than Input.parse_input_event for GUI.
+	# Emit pressed directly, which is more reliable than Input.parse_input_event for GUI.
 	btn.emit_signal("pressed")
 
 	if not is_instance_valid(btn) or not btn.is_inside_tree():
@@ -1695,7 +1842,15 @@ func _make_await_callback(captured: Array, fired: Array, arg_count: int) -> Call
 
 func _get_runtime_errors(params: Dictionary) -> void:
 	if _error_log == null:
-		_respond({"error": "runtime error log not active"})
+		# No empty errors list here on purpose: "0 errors" and "nothing was ever
+		# watching" read identically, and only one of them is good news.
+		_respond({
+			"capture": "unavailable",
+			"reason": "Runtime error capture needs Godot %s+ (the Logger class and OS.add_logger); this game runs %s. Everything else in the runtime group works." % [
+				ERROR_CAPTURE_MIN_VERSION, Engine.get_version_info().get("string", "unknown")],
+			"required_godot_version": ERROR_CAPTURE_MIN_VERSION,
+			"godot_version": Engine.get_version_info().get("string", "unknown"),
+		})
 		return
 	var since_seq := int(params.get("since_seq", 0))
 	var clear := bool(params.get("clear", false))

@@ -1,16 +1,16 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## In-game documentation — "Gyms, Zoos, and Museums: your documentation should be in-game"
+## In-game documentation, from "Gyms, Zoos, and Museums: your documentation should be in-game"
 ## (the workflow-design talk). Document the game *in* the game, spatially and contextually close
 ## to the content, so you maintain one thing instead of two. For a solo/small team the "game of
-## telephone" is with your future self — these make the level itself the single source of truth.
+## telephone" is with your future self, so these make the level itself the single source of truth.
 ##
-##   doc.note    — spatial notes: Marker3D / existing-node markers carrying metadata (todo/bug/art…)
-##   doc.metric  — a labeled, colour-coded metric station (gap/height/slope/distance) — gym primitive
-##   doc.gym     — a metrics test level (jump gaps, step heights, slopes) for character-controller truth
-##   doc.zoo     — lay out a folder of assets in a labeled grid with scale refs + lighting
-##   doc.museum  — labeled exhibit pads for demonstrating systems, with links to API docs
+##   doc.note:    spatial notes: Marker3D / existing-node markers carrying metadata (todo/bug/art…)
+##   doc.metric:  a labeled, colour-coded metric station (gap/height/slope/distance), the gym primitive
+##   doc.gym:     a metrics test level (jump gaps, step heights, slopes) for character-controller truth
+##   doc.zoo:     lay out a folder of assets in a labeled grid with scale refs + lighting
+##   doc.museum:  labeled exhibit pads for demonstrating systems, with links to API docs
 
 const NOTE_META := "_doc_note"      # Dictionary of note fields
 const OWNED_META := "_doc_owned"    # true on nodes this group created (safe to delete on resolve)
@@ -85,6 +85,9 @@ func _spawn_container(parent: Node, name: String, action: String) -> Node3D:
 ## raw (scaffold builders, via _add_label) or through an UndoRedo action (doc.note).
 func _build_label(text: String, local_pos: Vector3, font_size: int, color: Color) -> Label3D:
 	var label := Label3D.new()
+	# Named so the label is addressable as a node path; unnamed it landed as an
+	# unstable @Label3D@NNNNN. Siblings auto-suffix (DocLabel2, ...).
+	label.name = "DocLabel"
 	label.text = text
 	label.font_size = font_size
 	label.modulate = color
@@ -99,7 +102,7 @@ func _build_label(text: String, local_pos: Vector3, font_size: int, color: Color
 
 func _add_label(parent: Node3D, text: String, local_pos: Vector3, font_size: int, color: Color) -> Label3D:
 	var label := _build_label(text, local_pos, font_size, color)
-	parent.add_child(label)
+	parent.add_child(label, true)
 	label.owner = get_edited_root()
 	return label
 
@@ -153,7 +156,11 @@ func _note_add(params: Dictionary) -> Dictionary:
 	var color := _difficulty_color("info")
 
 	if params.has("at"):
-		# new standalone Marker3D note
+		# New standalone Marker3D note. Only this branch is 3D-bound: --node-path
+		# attaches metadata to any node (the label already skips non-Node3D), and
+		# list/resolve are plain walks, so the guard sits here, not on the group.
+		if not root is Node3D:
+			return error_invalid_params("doc.note --at needs a 3D scene (it drops a Marker3D). In 2D, attach the note to an existing node with --node-path.")
 		var parent := _resolve_parent(params)
 		var marker := Marker3D.new()
 		marker.name = optional_string(params, "name", "Note_%s" % category.capitalize())
@@ -161,7 +168,10 @@ func _note_add(params: Dictionary) -> Dictionary:
 		marker.set_meta(OWNED_META, true)
 		var undo_redo := get_undo_redo()
 		undo_redo.create_action("MCP: Add spatial note")
-		undo_redo.add_do_method(parent, "add_child", marker)
+		# force_readable_name: a second note in the same category collides on the
+		# default Note_<Category> name, and a plain add_child mangles the duplicate
+		# into an internal @Marker3D@<id> that persists to the .tscn.
+		undo_redo.add_do_method(parent, "add_child", marker, true)
 		undo_redo.add_do_method(marker, "set_owner", root)
 		undo_redo.add_do_reference(marker)
 		undo_redo.add_undo_method(parent, "remove_child", marker)
@@ -266,7 +276,7 @@ func _note_resolve(params: Dictionary) -> Dictionary:
 
 # --- doc.metric --------------------------------------------------------------
 
-## A labeled, colour-coded metric station — the gym building block. Visualizes one character-
+## A labeled, colour-coded metric station, the gym building block. Visualizes one character-
 ## controller metric as geometry you can run at: gap (jump distance), height (step/vault),
 ## slope (max walk angle), distance (a pure measuring stick).
 func _metric(params: Dictionary) -> Dictionary:
@@ -377,7 +387,7 @@ func _build_scale_ref(zoo: Node3D, at: Vector3) -> void:
 
 
 ## Lay out a folder (or explicit list) of assets in a labeled grid, with scale references and
-## lighting — the "Generate Zoo". See all assets' scale/look at a glance, no name lookup needed.
+## lighting: the "Generate Zoo". See all assets' scale/look at a glance, no name lookup needed.
 func _zoo(params: Dictionary) -> Dictionary:
 	var root := get_edited_root()
 	if root == null:
@@ -475,7 +485,7 @@ func _zoo(params: Dictionary) -> Dictionary:
 
 ## Scaffold a museum: a row of labeled exhibit pads for demonstrating systems, each carrying a
 ## doc-note (with a link to API docs) so it shows up in doc.note list. You drop the live demo
-## onto each pad — the museum gives the layout, labels, and the "read more" links.
+## onto each pad, and the museum gives the layout, labels, and the "read more" links.
 ##   --exhibits '["Cloth", {"name":"Destruction","link":"https://…","text":"how it shatters"}]'
 func _museum(params: Dictionary) -> Dictionary:
 	var root := get_edited_root()
@@ -573,7 +583,7 @@ func _parse_floats(params: Dictionary, key: String, default: Array) -> Array:
 
 
 ## Scaffold a metrics gym: rows of jump gaps, step heights, and slope ramps at increasing values,
-## colour-graded green→orange→red, all labeled — the single source of truth for character-controller
+## colour-graded green→orange→red, all labeled: the single source of truth for character-controller
 ## metrics ("how far can a player jump?" → run the gym). Composes doc.metric.
 func _gym(params: Dictionary) -> Dictionary:
 	var root := get_edited_root()

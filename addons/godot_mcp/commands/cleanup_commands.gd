@@ -1,15 +1,15 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## Import hygiene — fix what a UE→Godot scene exporter (e.g. UnrealToGodot) gets wrong on the
+## Import hygiene: fix what a UE→Godot scene exporter (e.g. UnrealToGodot) gets wrong on the
 ## way over. Validated against a real export: lighting energy is hardcoded, a single bright
 ## default WorldEnvironment is stamped on every scene, textures land in the wrong colour space,
 ## and editor-only geometry (camera bodies, sky domes, water-info meshes) rides along as junk.
 ##
-##   cleanup.strip_junk    — delete editor-only / non-game nodes (CineCam, EnviroDome, WaterInfo, /Engine/Editor*)
-##   cleanup.unreal_env    — fix the exported WorldEnvironment (tonemap, blown background_intensity, auto-exposure)
-##   cleanup.unreal_lights — drop physical-light-units mode + normalize the garbage intensity the exporter dumps
-##   cleanup.fix_imports   — repair *.import source_file paths broken by dropping the export into a subfolder
+##   cleanup.strip_junk:    delete editor-only / non-game nodes (CineCam, EnviroDome, WaterInfo, /Engine/Editor*)
+##   cleanup.unreal_env:    fix the exported WorldEnvironment (tonemap, blown background_intensity, auto-exposure)
+##   cleanup.unreal_lights: drop physical-light-units mode + normalize the garbage intensity the exporter dumps
+##   cleanup.fix_imports:   repair *.import source_file paths broken by dropping the export into a subfolder
 ##
 ## Exporter-agnostic and re-runnable; wrap risky runs in authoring.checkpoint.
 
@@ -190,7 +190,7 @@ func _unreal_env(params: Dictionary) -> Dictionary:
 	var cleared_ae := optional_bool(params, "clear_auto_exposure", false) and we.camera_attributes != null
 
 	if do_env.is_empty() and not cleared_ae:
-		return error_invalid_params("Nothing to change — pass --tonemap / --background_intensity / --sdfgi / --clear_auto_exposure / …")
+		return error_invalid_params("Nothing to change. Pass --tonemap / --background_intensity / --sdfgi / --clear_auto_exposure / …")
 
 	var applied := {}
 	if not do_env.is_empty():
@@ -212,12 +212,12 @@ func _unreal_env(params: Dictionary) -> Dictionary:
 
 # NOTE: light_intensity_lumens and light_intensity_lux are two inspector aliases for ONE stored
 # intensity param (the inspector shows "lux" for directionals, "lumens" for omni/spot). So the UE
-# exporter writing a giant "lumens" onto a directional is live — Godot reads it as lux and blows the
+# exporter writing a giant "lumens" onto a directional is live, and Godot reads it as lux and blows the
 # scene out under use_physical_light_units. The magnitudes are garbage (no clean unit recovery), so
 # we normalize the intensity store to Godot's daylight/point defaults and lean on light_energy
 # (which the export already leaves at a sane 1.0) once physical units are off.
-const DIR_INTENSITY_DEFAULT := 100000.0   # DirectionalLight3D — ~midday-sun lux at energy 1.0
-const PT_INTENSITY_DEFAULT := 1000.0      # Omni/Spot — lumens at energy 1.0
+const DIR_INTENSITY_DEFAULT := 100000.0   # DirectionalLight3D: ~midday-sun lux at energy 1.0
+const PT_INTENSITY_DEFAULT := 1000.0      # Omni/Spot: lumens at energy 1.0
 
 
 func _collect_lights(root: Node) -> Array:
@@ -234,7 +234,7 @@ func _collect_lights(root: Node) -> Array:
 
 ## Fix lighting a UE export gets wrong. The exporter leaves the project in physical-light-units mode
 ## and dumps garbage-magnitude UE intensities onto the lights (e.g. 1.875e8 "lumens" on a
-## DirectionalLight3D — read as lux, it blows the scene out). This (default) turns off
+## DirectionalLight3D, which read as lux blows the scene out). This (default) turns off
 ## use_physical_light_units so lights use standard light_energy, and normalizes the garbage intensity
 ## store back to Godot's daylight/point default so the scene is sane in either unit mode. The export's
 ## own light_energy (typically a sane 1.0) is kept unless you pass --energy or --scale. --dry-run.
@@ -260,7 +260,7 @@ func _unreal_lights(params: Dictionary) -> Dictionary:
 			"type": li.get_class(),
 			"energy_before": li.light_energy,
 			"energy_after": base_energy * scale,
-			"intensity_before": li.light_intensity_lumens,  # alias of lux — same store
+			"intensity_before": li.light_intensity_lumens,  # alias of lux, one store
 		}
 		if normalize and not is_equal_approx(li.light_intensity_lumens, target):
 			entry["intensity_after"] = target
@@ -359,7 +359,7 @@ func _rewrite_source_file(import_path: String, new_source: String) -> bool:
 ## Fix the import metadata a UE export ships with the wrong source path. The exporter writes
 ## source_file="res://RailBridge/..." assuming the export sits at the project root, but if it was
 ## dropped into a subfolder (res://scenes/UnrealGodot…) every .import's source_file points at a path
-## that no longer exists — rendering still works (textures resolve by uid) but reimport-from-source
+## that no longer exists. Rendering still works (textures resolve by uid) but reimport-from-source
 ## is broken. This scans *.import under --path, flags each whose source_file != its actual sibling
 ## asset, and (unless --dry-run) rewrites it to the real path. --reimport re-imports the corrected
 ## assets. Safe by design: only rewrites when the actual sibling file truly exists.
@@ -396,7 +396,7 @@ func _fix_imports(params: Dictionary) -> Dictionary:
 	var rewritten := 0
 	var reimport_targets: PackedStringArray = []
 	for m: Dictionary in mismatched:
-		if not m["actual_exists"]:  # only the safe case — the real asset is present
+		if not m["actual_exists"]:  # only the safe case, where the real asset is present
 			continue
 		if not guard_project_path(m["import"]).is_empty():
 			continue

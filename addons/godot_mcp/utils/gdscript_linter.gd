@@ -1,7 +1,7 @@
 @tool
 extends RefCounted
 
-## Native GDScript style linter — the rule set from the official style guide, with
+## Native GDScript style linter: the rule set from the official style guide, with
 ## no external binary.
 ##
 ## Everything works off the source text rather than a loaded Script, for two
@@ -11,7 +11,7 @@ extends RefCounted
 ##
 ## The scan is comment- and string-aware. Every source rule reads the `code` view,
 ## where comment text is gone and string *contents* are blanked to spaces with the
-## quotes and column positions intact — so `a == a` inside a string never trips
+## quotes and column positions intact, so `a == a` inside a string never trips
 ## comparison-with-itself, and a `#` in a string never truncates a line. Rules that
 ## genuinely need string contents (duplicated-load) read the `text` view instead.
 ##

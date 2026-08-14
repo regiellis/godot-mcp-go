@@ -17,6 +17,7 @@ func get_commands() -> Dictionary:
 		"node.set_anchor": _set_anchor,
 		"node.connect": _connect_signal,
 		"node.disconnect": _disconnect_signal,
+		"node.set_editable_instance": _set_editable_instance,
 		"node.get_groups": _get_groups,
 		"node.set_groups": _set_groups,
 		"node.find_in_group": _find_in_group,
@@ -44,7 +45,7 @@ func _suggest_method(obj: Object, method: String) -> String:
 ##
 ## This closes the callable half of the design principle the property commands
 ## already serve: node.set/node.get reach anything the running binary exposes as a
-## property, but a method needed editor.run_script — arbitrary code execution to
+## property, but a method needed editor.run_script, meaning arbitrary code execution to
 ## invoke one named call. Several existing commands (lighting.bake, csg.bake,
 ## navigation.bake_mesh) are single-method wrappers that exist only because this
 ## did not.
@@ -119,6 +120,12 @@ func _add(params: Dictionary) -> Dictionary:
 	var parent := find_node_by_path(parent_path)
 	if parent == null:
 		return error_not_found("Parent node", "Use scene.tree to see available nodes")
+	# The packer skips a non-editable instance's subtree entirely, so a child added
+	# under one is dropped on save even though the new node's owner is this scene:
+	# verified live, the node came back in scene.tree and never reached the .tscn.
+	var guard := guard_instance_write(parent)
+	if not guard.is_empty():
+		return guard
 
 	var node: Node
 	if ClassDB.class_exists(type):
@@ -316,6 +323,9 @@ func _set_property(params: Dictionary) -> Dictionary:
 		return ctx[1]
 	var node: Node = ctx[0]
 	var root := get_edited_root()
+	var guard := guard_instance_write(node)
+	if not guard.is_empty():
+		return guard
 
 	# Two forms: a `properties` dict (batch, mirrors node.add) OR singular `property`+`value`.
 	var to_set := {}
@@ -445,6 +455,9 @@ func _add_resource(params: Dictionary) -> Dictionary:
 	var node: Node = ctx[0]
 	var property: String = rp[0]
 	var resource_type: String = rt[0]
+	var guard := guard_instance_write(node)
+	if not guard.is_empty():
+		return guard
 
 	var resource: Resource = make_resource(resource_type)
 	if resource == null:
@@ -504,6 +517,9 @@ func _set_anchor(params: Dictionary) -> Dictionary:
 	var node: Node = ctx[0]
 	if not node is Control:
 		return error_invalid_params("Node is not a Control (is %s)" % node.get_class())
+	var guard := guard_instance_write(node)
+	if not guard.is_empty():
+		return guard
 	var preset_name: String = r[0]
 	if not _ANCHOR_PRESETS.has(preset_name):
 		return error_invalid_params("Unknown preset '%s'. Available: %s" % [preset_name, _ANCHOR_PRESETS.keys()])
@@ -530,6 +546,12 @@ func _set_anchor(params: Dictionary) -> Dictionary:
 	return success({"node_path": str(get_edited_root().get_path_to(control)), "preset": preset_name})
 
 
+## Connect a signal so it SURVIVES THE SAVE. PackedScene serializes only
+## connections carrying CONNECT_PERSIST, so a plain connect() produced a live
+## in-memory wire, a clean scene.save, and no [connection] line in the .tscn: the
+## signal was dead on the next reload, and editor.signals reported it as connected
+## the whole time. An existing non-persistent connection (one an older build made)
+## is re-made persistent rather than reported as already done.
 func _connect_signal(params: Dictionary) -> Dictionary:
 	var pair := _signal_pair(params)
 	if pair[2] != null:
@@ -540,15 +562,55 @@ func _connect_signal(params: Dictionary) -> Dictionary:
 	var method_name := optional_string(params, "method_name")
 	if not source.has_signal(signal_name):
 		return error_invalid_params("Signal '%s' not found on %s" % [signal_name, source.get_class()])
+
+	for node: Node in [source, target]:
+		var guard := guard_instance_write(node)
+		if not guard.is_empty():
+			return guard
+
+	# A method the target lacks connects fine and fails at EMISSION time, far from
+	# the call that got it wrong. Refuse unless the caller says the script will
+	# grow it later.
+	var allow_missing := optional_bool(params, "allow_missing_method", false)
+	var method_missing := not target.has_method(method_name)
+	if method_missing and not allow_missing:
+		var suggestion := _suggest_method(target, method_name)
+		var hint := "Pass --allow-missing-method if the target's script will define it later."
+		if not suggestion.is_empty():
+			hint = "Did you mean '%s'? %s" % [suggestion, hint]
+		return error_not_found("Method '%s' on %s (%s)" % [method_name, target.name, target.get_class()], hint)
+
 	var callable := Callable(target, method_name)
-	if source.is_connected(signal_name, callable):
-		return success({"already_connected": true, "signal": signal_name})
+	var flags := _connection_flags(source, signal_name, callable)
+	var already := flags >= 0
+	if already and (flags & Object.CONNECT_PERSIST) != 0:
+		return success({"already_connected": true, "signal": signal_name, "persisted": true})
+
 	var undo_redo := get_undo_redo()
 	undo_redo.create_action("MCP: Connect signal")
-	undo_redo.add_do_method(source, "connect", signal_name, callable)
+	if already:
+		undo_redo.add_do_method(source, "disconnect", signal_name, callable)
+	undo_redo.add_do_method(source, "connect", signal_name, callable, Object.CONNECT_PERSIST)
 	undo_redo.add_undo_method(source, "disconnect", signal_name, callable)
+	if already:
+		undo_redo.add_undo_method(source, "connect", signal_name, callable, flags)
 	undo_redo.commit_action()
-	return success({"signal": signal_name, "method": method_name, "connected": true})
+
+	var out := {"signal": signal_name, "method": method_name, "connected": true, "persisted": true}
+	if already:
+		out["already_connected"] = true
+		out["upgraded_to_persistent"] = true
+	if method_missing:
+		out["target_method_missing"] = true
+	return success(out)
+
+
+## Connect flags for an existing source-to-callable connection, or -1 when there is none.
+func _connection_flags(source: Node, signal_name: String, callable: Callable) -> int:
+	for c: Dictionary in source.get_signal_connection_list(signal_name):
+		if c.get("callable") == callable:
+			return int(c.get("flags", 0))
+	return -1
 
 
 func _disconnect_signal(params: Dictionary) -> Dictionary:
@@ -560,14 +622,49 @@ func _disconnect_signal(params: Dictionary) -> Dictionary:
 	var signal_name := optional_string(params, "signal_name")
 	var method_name := optional_string(params, "method_name")
 	var callable := Callable(target, method_name)
-	if not source.is_connected(signal_name, callable):
+	# Flags are matched by callable, not by flags, so a persistent connection
+	# disconnects like any other; capture them so undo restores the same wire.
+	var flags := _connection_flags(source, signal_name, callable)
+	if flags < 0:
 		return success({"was_connected": false})
 	var undo_redo := get_undo_redo()
 	undo_redo.create_action("MCP: Disconnect signal")
 	undo_redo.add_do_method(source, "disconnect", signal_name, callable)
-	undo_redo.add_undo_method(source, "connect", signal_name, callable)
+	undo_redo.add_undo_method(source, "connect", signal_name, callable, flags)
 	undo_redo.commit_action()
 	return success({"signal": signal_name, "method": method_name, "disconnected": true})
+
+
+## Mark an instanced child scene's children editable, so the packer keeps edits
+## made to them (Godot's "Editable Children"). Deliberately explicit: enabling it
+## rewrites the .tscn's structure, so guard_instance_write refuses the edit and
+## names this command rather than flipping the flag behind the caller's back.
+func _set_editable_instance(params: Dictionary) -> Dictionary:
+	var ctx := _resolve_node(params)
+	if ctx[1] != null:
+		return ctx[1]
+	var node: Node = ctx[0]
+	var root := get_edited_root()
+	if node == root:
+		return error_invalid_params("The scene root is not an instance in this scene; pass the instanced child node")
+	if node.scene_file_path.is_empty():
+		return error_invalid_params("'%s' is not an instanced scene (it has no scene_file_path)" % node.name)
+
+	var editable := optional_bool(params, "editable", true)
+	var was := root.is_editable_instance(node)
+	if was != editable:
+		var undo_redo := get_undo_redo()
+		undo_redo.create_action("MCP: %s editable children on %s" % ["Enable" if editable else "Disable", node.name])
+		undo_redo.add_do_method(root, "set_editable_instance", node, editable)
+		undo_redo.add_undo_method(root, "set_editable_instance", node, was)
+		undo_redo.commit_action()
+	return success({
+		"node_path": str(root.get_path_to(node)),
+		"instance_scene": node.scene_file_path,
+		"editable": root.is_editable_instance(node),
+		"was_editable": was,
+		"changed": was != editable,
+	})
 
 
 func _get_groups(params: Dictionary) -> Dictionary:
@@ -590,6 +687,9 @@ func _set_groups(params: Dictionary) -> Dictionary:
 	if not params.has("groups") or not params["groups"] is Array:
 		return error_invalid_params("'groups' array is required")
 	var node: Node = ctx[0]
+	var guard := guard_instance_write(node)
+	if not guard.is_empty():
+		return guard
 	var desired: Array = params["groups"]
 	var current: Array = []
 	for group: StringName in node.get_groups():
@@ -677,7 +777,7 @@ func _signal_pair(params: Dictionary) -> Array:
 	return [source, target, null]
 
 
-## Set arbitrary node metadata (node.set_meta) — the general-purpose store that
+## Set arbitrary node metadata (node.set_meta), the general-purpose store that
 ## node.set (properties only) can't reach; drives many Godot patterns and our own
 ## doc.note. Undoable; --value is auto-parsed (JSON / Godot literal / scalar).
 func _set_meta(params: Dictionary) -> Dictionary:
@@ -685,6 +785,9 @@ func _set_meta(params: Dictionary) -> Dictionary:
 	if nr[1] != null:
 		return nr[1]
 	var node: Node = nr[0]
+	var guard := guard_instance_write(node)
+	if not guard.is_empty():
+		return guard
 	var kr := require_string(params, "key")
 	if kr[1] != null:
 		return kr[1]
@@ -806,7 +909,17 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"node.connect": {
-			"description": "Connect --source-path's --signal-name to --target-path's --method-name. Undoable; a no-op if already connected.",
+			"description": "Connect --source-path's --signal-name to --target-path's --method-name. The connection is made with CONNECT_PERSIST, so scene.save writes it into the .tscn and it survives a reload; a connection that exists without that flag is re-made persistent (upgraded_to_persistent). A method the target lacks is refused with a did-you-mean unless --allow-missing-method. Undoable.",
+			"params": [
+				doc_param("source_path", "NodePath", true, "Node emitting the signal."),
+				doc_param("target_path", "NodePath", true, "Node receiving the call."),
+				doc_param("signal_name", "String", true, "Signal on the source node."),
+				doc_param("method_name", "String", true, "Method on the target node."),
+				doc_param("allow_missing_method", "bool", false, "Connect even though the target has no such method yet (its script will define it later); the result then carries target_method_missing true."),
+			],
+		},
+		"node.disconnect": {
+			"description": "Disconnect a previously connected signal (same four params as node.connect); undo restores it with the flags it had. Undoable.",
 			"params": [
 				doc_param("source_path", "NodePath", true, "Node emitting the signal."),
 				doc_param("target_path", "NodePath", true, "Node receiving the call."),
@@ -814,13 +927,11 @@ func get_command_docs() -> Dictionary:
 				doc_param("method_name", "String", true, "Method on the target node."),
 			],
 		},
-		"node.disconnect": {
-			"description": "Disconnect a previously connected signal (same four params as node.connect). Undoable.",
+		"node.set_editable_instance": {
+			"description": "Turn Godot's Editable Children on or off for an instanced child scene. Without it the scene packer discards every edit made to that instance's children, so the write paths refuse rather than report a success the .tscn will not hold. Turning it off stops those overrides being saved. Undoable.",
 			"params": [
-				doc_param("source_path", "NodePath", true, "Node emitting the signal."),
-				doc_param("target_path", "NodePath", true, "Node receiving the call."),
-				doc_param("signal_name", "String", true, "Signal on the source node."),
-				doc_param("method_name", "String", true, "Method on the target node."),
+				doc_param("node_path", "NodePath", true, "The instanced node (the one carrying scene_file_path), relative to the scene root."),
+				doc_param("editable", "bool", false, "true (default) to make its children editable, false to turn that back off."),
 			],
 		},
 		"node.get_groups": {
@@ -843,7 +954,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"node.set_meta": {
-			"description": "Set arbitrary node metadata (--key to --value) — the general store node.set can't reach. --value is auto-parsed (JSON / Godot literal / scalar). Undoable.",
+			"description": "Set arbitrary node metadata (--key to --value), the general store node.set can't reach. --value is auto-parsed (JSON / Godot literal / scalar). Undoable.",
 			"params": [
 				doc_param("node_path", "NodePath", true, "Target node."),
 				doc_param("key", "String", true, "Metadata key."),
@@ -858,7 +969,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"node.call": {
-			"description": "Call a method on a node in the edited scene and return its result. The callable counterpart to node.set/node.get: anything the running build exposes as a method is reachable without editor.run_script. Arguments coerce toward the method's declared parameter types, so '\"Vector3(1,2,3)\"' arrives as a Vector3; list a class's methods with engine class-info. Audited. NOT undoable — a call is not a property write, so Ctrl+Z will not reverse its side effects.",
+			"description": "Call a method on a node in the edited scene and return its result. The callable counterpart to node.set/node.get: anything the running build exposes as a method is reachable without editor.run_script. Arguments coerce toward the method's declared parameter types, so '\"Vector3(1,2,3)\"' arrives as a Vector3; list a class's methods with engine class-info. Audited. NOT undoable: a call is not a property write, so Ctrl+Z will not reverse its side effects.",
 			"params": [
 				doc_param("node_path", "NodePath", true, "Target node."),
 				doc_param("method", "String", true, "Method name; an unknown one errors with a did-you-mean."),

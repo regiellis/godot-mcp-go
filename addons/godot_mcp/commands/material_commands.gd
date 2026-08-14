@@ -2,7 +2,7 @@
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
 ## Reusable material resources. The gap this fills: scene3d.set_material bakes a
-## throwaway StandardMaterial3D as a single MeshInstance3D surface-override — it can't
+## throwaway StandardMaterial3D as a single MeshInstance3D surface-override, so it can't
 ## save a shareable .tres, can't do triplanar (the greybox prototype-texture need), and
 ## can't target CSG / Sprite3D / a GridMap mesh-library item. This group does all three.
 ##
@@ -184,7 +184,7 @@ func _configure(mat: BaseMaterial3D, params: Dictionary) -> Array:
 			"PER_VERTEX", "2": mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_VERTEX
 			_: warnings.append("unknown shading_mode '%s'" % params["shading_mode"])
 
-	# Crisp/pixel filtering — common for prototype grid skins.
+	# Crisp/pixel filtering, common for prototype grid skins.
 	if params.has("texture_filter"):
 		match str(params["texture_filter"]).to_upper():
 			"NEAREST", "0": mat.texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST
@@ -204,11 +204,11 @@ func _apply_texture(mat: BaseMaterial3D, prop: String, params: Dictionary, key: 
 		mat.set(prop, null)
 		return
 	if not ResourceLoader.exists(tex_path):
-		warnings.append("%s '%s' not found — skipped" % [key, tex_path])
+		warnings.append("%s '%s' not found, skipped" % [key, tex_path])
 		return
 	var tex: Resource = load(tex_path)
 	if not tex is Texture2D:
-		warnings.append("%s '%s' is not a Texture2D — skipped" % [key, tex_path])
+		warnings.append("%s '%s' is not a Texture2D, skipped" % [key, tex_path])
 		return
 	mat.set(prop, tex as Texture2D)
 
@@ -383,7 +383,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"material.set": {
-			"description": "Edit an existing material .tres in place — same property/texture params as material.create (minus --type/--force). Missing texture files come back as warnings, not errors.",
+			"description": "Edit an existing material .tres in place, with the same property/texture params as material.create (minus --type/--force). Missing texture files come back as warnings, not errors.",
 			"params": [
 				doc_param("path", "String", true, "Path to the existing StandardMaterial3D/ORMMaterial3D .tres to edit."),
 				doc_param("albedo_color", "Color", false, "Base color (name, #hex, or Color(r,g,b,a))."),

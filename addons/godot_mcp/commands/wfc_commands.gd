@@ -1,17 +1,17 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## Constraint tile-assembly — the *other* PCG family (the pcg/scatter groups do point-scatter;
+## Constraint tile-assembly, the *other* PCG family (the pcg/scatter groups do point-scatter;
 ## this does handmade-tile assembly driven by constraints, à la Townscaper / Bad North).
 ##
 ## Phase A: the DUAL-GRID marching-squares solver (the "fix" from Stålberg's approach).
 ## Instead of typing whole cells (where shared corners conflict), type the grid's *corners*:
 ## each main cell reads its 4 corners and picks a module + rotation. For 2 states that's
-## 2^4 = 16 corner configs, which collapse under rotation to just 6 canonical tiles — and
+## 2^4 = 16 corner configs, which collapse under rotation to just 6 canonical tiles, and
 ## modeling corners *inside* a tile fixes the convex/concave rounded-corner problem for free.
 ##
 ## GridMap orientations are the 24 PROPER rotations (no reflections), so canonicalization is
-## rotation-only — which is exactly what yields 6 tiles for binary. Mirror folding would emit
+## rotation-only, which is exactly what yields 6 tiles for binary. Mirror folding would emit
 ## reflected variants GridMap can't place, so it's deliberately omitted.
 ##
 ## Corner winding (document this so authored meshes match): a main cell at (cx,cz) on layer y
@@ -134,8 +134,8 @@ func _binary_label(mask: Array) -> String:
 	match n:
 		0: return "empty"
 		4: return "full"
-		1: return "outer_corner"  # one land corner — convex
-		3: return "inner_corner"  # three land corners — concave
+		1: return "outer_corner"  # one land corner, convex
+		3: return "inner_corner"  # three land corners, concave
 		2:
 			# adjacent (edge) vs diagonal (saddle)
 			if int(mask[0]) == int(mask[2]):
@@ -358,7 +358,7 @@ func _solve_dual(params: Dictionary) -> Dictionary:
 			var mkey := _key(cfg)
 			if not mapping.has(mkey):
 				# A corner was painted with a state >= `states`; its config has no table
-				# entry. Skip (can't return here — the undo action is already open).
+				# entry. Skip (can't return here, since the undo action is already open).
 				out_of_range += 1
 				continue
 			var entry: Dictionary = mapping[mkey]
@@ -424,8 +424,8 @@ func _rule_item(rules: Dictionary, tile: int, cell: Vector3i, seed: int) -> int:
 
 ## Learn adjacency rules + tile weights by scanning an authored example GridMap: for every
 ## pair of horizontally-adjacent placed cells, record "item A may sit <dir> of item B". The
-## "simple tiled model" — author a small hand-built example, get the constraints for free.
-## (v1: orientation-agnostic — each MeshLibrary item id is one tile; empties aren't a tile.)
+## "simple tiled model": author a small hand-built example, get the constraints for free.
+## (v1: orientation-agnostic, so each MeshLibrary item id is one tile; empties aren't a tile.)
 func _rules_from_example(params: Dictionary) -> Dictionary:
 	var ctx := _resolve_gridmap(params)
 	if ctx[1] != null:
@@ -589,7 +589,7 @@ func _collapse(params: Dictionary) -> Dictionary:
 			break
 		attempt += 1
 	if not result.get("ok", false):
-		return error(-32000, "WFC hit a contradiction after %d attempts at %s — the example may lack a consistent tiling, or the region/fixed set is over-constrained." % [max_retries, result.get("at", "?")],
+		return error(-32000, "WFC hit a contradiction after %d attempts at %s. The example may lack a consistent tiling, or the region/fixed set is over-constrained." % [max_retries, result.get("at", "?")],
 			{"attempts": max_retries, "contradiction_at": result.get("at", "")})
 
 	# Write the collapsed grid (undoable).
@@ -730,7 +730,7 @@ func _parse_offset_map(d: Dictionary) -> Dictionary:
 	return out
 
 
-## Scan the GridMap for a multi-cell pattern and swap each match for a special piece — the
+## Scan the GridMap for a multi-cell pattern and swap each match for a special piece: the
 ## Townscaper moment ("4 grass cells touching → a fountain"). The pattern's origin is tried at
 ## every placed cell (and, by default, in all 4 rotations); on a match the `replace` cells are
 ## written. Matched/replaced cells are consumed so pieces never overlap.

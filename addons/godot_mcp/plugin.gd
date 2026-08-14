@@ -5,11 +5,11 @@ extends EditorPlugin
 ## on exit. The addon is the SERVER; the godot-mcp Go CLI is a client.
 
 ## Game-side autoloads needed for runtime/input commands. Injected on enable so
-## the addon works in any project; removed on disable by OWNERSHIP — an entry is
+## the addon works in any project; removed on disable by OWNERSHIP, where an entry is
 ## ours iff its value points at the addon's own service script, so even an
 ## autoload persisted into project.godot by an earlier session is cleaned up
 ## (injection saves ProjectSettings, so session-only provenance tracking never
-## fired on later sessions and disable left the autoloads behind — the one
+## fired on later sessions and disable left the autoloads behind, the one
 ## manual step in every ship-the-game flow). Unrelated autoloads are untouched.
 const _AUTOLOADS: Array = [
 	["MCPGameInspector", "res://addons/godot_mcp/services/game_inspector.gd"],
@@ -66,7 +66,7 @@ func _enter_tree() -> void:
 	add_child(activity_log)
 	activity_log.setup(self)
 
-	# In-memory, per-session wiring like the activity log above — NOT a project.godot
+	# In-memory, per-session wiring like the activity log above. NOT a project.godot
 	# write, so it belongs here rather than in _enable_plugin. Registering is the only
 	# scriptable route to EditorDebuggerSession objects.
 	debugger_bridge = preload("res://addons/godot_mcp/services/debugger_bridge.gd").new()
@@ -81,7 +81,7 @@ func _enter_tree() -> void:
 	# A right-side dock: the panel is a narrow, tall instrument column that stays
 	# open beside the work, not a drawer over it. Its tab label IS the node name
 	# ("MCP", set in the panel's _init, before this add). In-memory wiring like
-	# the activity log — no project.godot write, so it does not belong in
+	# the activity log: no project.godot write, so it does not belong in
 	# _enable_plugin. Built after the router because that is its data source.
 	stats_panel = preload("res://addons/godot_mcp/services/stats_panel.gd").new()
 	add_control_to_dock(EditorPlugin.DOCK_SLOT_RIGHT_BL, stats_panel)
@@ -130,18 +130,18 @@ func _exit_tree() -> void:
 
 ## Autoloads are injected when the plugin is ENABLED and removed only on an actual DISABLE.
 ##
-## They used to ride `_enter_tree` / `_exit_tree`, which run on every editor launch and shutdown — so
+## They used to ride `_enter_tree` / `_exit_tree`, which run on every editor launch and shutdown, so
 ## the addon rewrote the host's `project.godot` twice per session. Two costs, both paid by the user:
 ## the file is permanently dirty, so the autoloads have to be kept out of every commit by hand; and
 ## the shutdown save can drop OTHER plugins' committed autoloads, because it persists whatever the
 ## in-memory settings hold after every plugin has torn itself down. Seen 2026-07-27 in a consumer
-## project — one quit stripped a different addon's seven autoloads, which would have shipped a game
+## project: one quit stripped a different addon's seven autoloads, which would have shipped a game
 ## that could not boot.
 ##
 ## `_enable_plugin` / `_disable_plugin` fire exactly when the user ticks or unticks the plugin, which
 ## is what these are for. The export flow is unchanged: disabling still removes them, so they never
 ## reach a release `project.binary`. A project that keeps the plugin enabled should COMMIT the two
-## autoloads — nothing re-adds them at load any more, by design.
+## autoloads, because nothing re-adds them at load any more, by design.
 func _enable_plugin() -> void:
 	_inject_autoloads()
 

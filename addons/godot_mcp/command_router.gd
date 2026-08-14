@@ -9,6 +9,7 @@ var editor_plugin: EditorPlugin
 
 var _handlers: Dictionary = {}  # "group.command" -> Callable
 var _docs: Dictionary = {}      # "group.command" -> {description, params:[...]} (optional per command)
+var _unavailable: Array = []    # [{file, reason}] built-in groups this engine could not load
 
 const HISTORY_MAX := 200
 const SNAPSHOT_RECENT := 50  # cap the snapshot payload small (frequent dashboard polling)
@@ -23,70 +24,93 @@ var _active_conn: int = 0
 var _total_conn: int = 0
 
 
+## The built-in command groups, in registration order. Paths, not preloads, and
+## loaded one at a time on purpose: the addon's floor is Godot 4.3, and a group
+## that names an API a newer engine added is a PARSE error on an older one. A
+## preload makes that error the router's own, so a single unsupported group takes
+## the whole plugin down; loading at runtime skips just that group (recorded in
+## _unavailable, reported by engine.commands) and everything else still serves.
+const _BUILTIN_GROUPS: Array = [
+	"res://addons/godot_mcp/commands/project_commands.gd",
+	"res://addons/godot_mcp/commands/scene_commands.gd",
+	"res://addons/godot_mcp/commands/node_commands.gd",
+	"res://addons/godot_mcp/commands/spatial_commands.gd",
+	"res://addons/godot_mcp/commands/authoring_commands.gd",
+	"res://addons/godot_mcp/commands/script_commands.gd",
+	"res://addons/godot_mcp/commands/csharp_commands.gd",
+	"res://addons/godot_mcp/commands/editor_commands.gd",
+	"res://addons/godot_mcp/commands/debug_commands.gd",
+	"res://addons/godot_mcp/commands/runtime_commands.gd",
+	"res://addons/godot_mcp/commands/engine_commands.gd",
+	"res://addons/godot_mcp/commands/input_commands.gd",
+	"res://addons/godot_mcp/commands/animation_commands.gd",
+	"res://addons/godot_mcp/commands/animation_tree_commands.gd",
+	"res://addons/godot_mcp/commands/tilemap_commands.gd",
+	"res://addons/godot_mcp/commands/theme_commands.gd",
+	"res://addons/godot_mcp/commands/shader_commands.gd",
+	"res://addons/godot_mcp/commands/particle_commands.gd",
+	"res://addons/godot_mcp/commands/scene_3d_commands.gd",
+	"res://addons/godot_mcp/commands/scene_2d_commands.gd",
+	"res://addons/godot_mcp/commands/material_commands.gd",
+	"res://addons/godot_mcp/commands/csg_commands.gd",
+	"res://addons/godot_mcp/commands/gridmap_commands.gd",
+	"res://addons/godot_mcp/commands/scatter_commands.gd",
+	"res://addons/godot_mcp/commands/lighting_commands.gd",
+	"res://addons/godot_mcp/commands/path_commands.gd",
+	"res://addons/godot_mcp/commands/pcg_commands.gd",
+	"res://addons/godot_mcp/commands/wfc_commands.gd",
+	"res://addons/godot_mcp/commands/mesh_commands.gd",
+	"res://addons/godot_mcp/commands/doc_commands.gd",
+	"res://addons/godot_mcp/commands/cleanup_commands.gd",
+	"res://addons/godot_mcp/commands/physics_commands.gd",
+	"res://addons/godot_mcp/commands/navigation_commands.gd",
+	"res://addons/godot_mcp/commands/audio_commands.gd",
+	"res://addons/godot_mcp/commands/input_map_commands.gd",
+	"res://addons/godot_mcp/commands/resource_commands.gd",
+	"res://addons/godot_mcp/commands/fs_commands.gd",
+	"res://addons/godot_mcp/commands/import_commands.gd",
+	"res://addons/godot_mcp/commands/multiplayer_commands.gd",
+	"res://addons/godot_mcp/commands/skeleton_commands.gd",
+	"res://addons/godot_mcp/commands/localization_commands.gd",
+	"res://addons/godot_mcp/commands/ui_commands.gd",
+	"res://addons/godot_mcp/commands/camera_commands.gd",
+	"res://addons/godot_mcp/commands/analysis_commands.gd",
+	"res://addons/godot_mcp/commands/batch_commands.gd",
+	"res://addons/godot_mcp/commands/profiling_commands.gd",
+	"res://addons/godot_mcp/commands/export_commands.gd",
+	"res://addons/godot_mcp/commands/test_commands.gd",
+	"res://addons/godot_mcp/commands/android_commands.gd",
+	"res://addons/godot_mcp/commands/stats_commands.gd",
+]
+
+
 func _ready() -> void:
 	_start_ms = Time.get_ticks_msec()
-	_register([
-		preload("res://addons/godot_mcp/commands/project_commands.gd"),
-		preload("res://addons/godot_mcp/commands/scene_commands.gd"),
-		preload("res://addons/godot_mcp/commands/node_commands.gd"),
-		preload("res://addons/godot_mcp/commands/spatial_commands.gd"),
-		preload("res://addons/godot_mcp/commands/authoring_commands.gd"),
-		preload("res://addons/godot_mcp/commands/script_commands.gd"),
-		preload("res://addons/godot_mcp/commands/csharp_commands.gd"),
-		preload("res://addons/godot_mcp/commands/editor_commands.gd"),
-		preload("res://addons/godot_mcp/commands/debug_commands.gd"),
-		preload("res://addons/godot_mcp/commands/runtime_commands.gd"),
-		preload("res://addons/godot_mcp/commands/engine_commands.gd"),
-		preload("res://addons/godot_mcp/commands/input_commands.gd"),
-		preload("res://addons/godot_mcp/commands/animation_commands.gd"),
-		preload("res://addons/godot_mcp/commands/animation_tree_commands.gd"),
-		preload("res://addons/godot_mcp/commands/tilemap_commands.gd"),
-		preload("res://addons/godot_mcp/commands/theme_commands.gd"),
-		preload("res://addons/godot_mcp/commands/shader_commands.gd"),
-		preload("res://addons/godot_mcp/commands/particle_commands.gd"),
-		preload("res://addons/godot_mcp/commands/scene_3d_commands.gd"),
-		preload("res://addons/godot_mcp/commands/scene_2d_commands.gd"),
-		preload("res://addons/godot_mcp/commands/material_commands.gd"),
-		preload("res://addons/godot_mcp/commands/csg_commands.gd"),
-		preload("res://addons/godot_mcp/commands/gridmap_commands.gd"),
-		preload("res://addons/godot_mcp/commands/scatter_commands.gd"),
-		preload("res://addons/godot_mcp/commands/lighting_commands.gd"),
-		preload("res://addons/godot_mcp/commands/path_commands.gd"),
-		preload("res://addons/godot_mcp/commands/pcg_commands.gd"),
-		preload("res://addons/godot_mcp/commands/wfc_commands.gd"),
-		preload("res://addons/godot_mcp/commands/mesh_commands.gd"),
-		preload("res://addons/godot_mcp/commands/doc_commands.gd"),
-		preload("res://addons/godot_mcp/commands/cleanup_commands.gd"),
-		preload("res://addons/godot_mcp/commands/physics_commands.gd"),
-		preload("res://addons/godot_mcp/commands/navigation_commands.gd"),
-		preload("res://addons/godot_mcp/commands/audio_commands.gd"),
-		preload("res://addons/godot_mcp/commands/input_map_commands.gd"),
-		preload("res://addons/godot_mcp/commands/resource_commands.gd"),
-		preload("res://addons/godot_mcp/commands/fs_commands.gd"),
-		preload("res://addons/godot_mcp/commands/import_commands.gd"),
-		preload("res://addons/godot_mcp/commands/multiplayer_commands.gd"),
-		preload("res://addons/godot_mcp/commands/skeleton_commands.gd"),
-		preload("res://addons/godot_mcp/commands/localization_commands.gd"),
-		preload("res://addons/godot_mcp/commands/ui_commands.gd"),
-		preload("res://addons/godot_mcp/commands/camera_commands.gd"),
-		preload("res://addons/godot_mcp/commands/analysis_commands.gd"),
-		preload("res://addons/godot_mcp/commands/batch_commands.gd"),
-		preload("res://addons/godot_mcp/commands/profiling_commands.gd"),
-		preload("res://addons/godot_mcp/commands/export_commands.gd"),
-		preload("res://addons/godot_mcp/commands/test_commands.gd"),
-		preload("res://addons/godot_mcp/commands/android_commands.gd"),
-		preload("res://addons/godot_mcp/commands/stats_commands.gd"),
-	])
+	_register(_BUILTIN_GROUPS)
 	_register_project_commands()
 
 
-func _register(command_classes: Array) -> void:
-	for cmd_class in command_classes:
-		var cmd: Node = cmd_class.new()
+func _register(paths: Array) -> void:
+	for path: String in paths:
+		var script: Variant = load(path)
+		# `is Script` is not enough: load() on a file that failed to PARSE hands back
+		# a GDScript object anyway, and calling new() on it is a hard runtime error
+		# that aborts this loop, so every group after the bad one silently vanishes
+		# (seen exactly that way while testing the fault path). can_instantiate() is
+		# what actually reports the compile.
+		if not (script is Script) or not (script as Script).can_instantiate():
+			_note_unavailable(path, "failed to compile (it names an API this Godot build does not have, or has a syntax error)")
+			continue
+		var inst: Variant = (script as Script).new()
+		if not (inst is Node):
+			_note_unavailable(path, "script must instantiate to a Node")
+			continue
+		var cmd: Node = inst
 		cmd.editor_plugin = editor_plugin
 		add_child(cmd)
-		for method: String in cmd.get_commands():
-			_handlers[method] = cmd.get_commands()[method]
+		var commands: Dictionary = cmd.get_commands()
+		for method: String in commands:
+			_handlers[method] = commands[method]
 		# Optional per-command param metadata (the [CliArg] equivalent).
 		if cmd.has_method("get_command_docs"):
 			var docs: Variant = cmd.get_command_docs()
@@ -96,24 +120,32 @@ func _register(command_classes: Array) -> void:
 	print("[MCP] Registered %d commands" % _handlers.size())
 
 
+## Record a built-in group this engine could not register. Never fatal: the rest
+## of the surface still serves, and engine.commands reports what is missing so an
+## agent on an older editor sees the gap instead of guessing at a -32601.
+func _note_unavailable(path: String, reason: String) -> void:
+	_unavailable.append({"file": path.get_file(), "reason": reason})
+	push_warning("[MCP] Skipping command group '%s': %s" % [path.get_file(), reason])
+
+
 ## Register project-local command groups from res://mcp_commands/*.gd, so a
 ## consumer project extends the MCP without forking the addon. Each valid file
 ## instantiates to a Node exposing get_commands() -> {"group.command": Callable};
 ## a bad file (fails to load, not a Node, no get_commands) is skipped with a
 ## push_warning and never breaks startup, and a name that collides with a
-## built-in (or an earlier project command) is skipped — built-ins win.
+## built-in (or an earlier project command) is skipped, since built-ins win.
 ## Editing a file here needs a full editor restart to recompile (reload_plugin
 ## re-runs registration but does not re-parse changed GDScript from disk).
 func _register_project_commands() -> void:
 	const PROJECT_DIR := "res://mcp_commands"
 	var dir := DirAccess.open(PROJECT_DIR)
 	if dir == null:
-		return  # no project-local commands — silently skip
+		return  # no project-local commands, so skip silently
 	var registered := 0
 	dir.list_dir_begin()
 	var file_name := dir.get_next()
 	while not file_name.is_empty():
-		# Only .gd files: Godot 4.7 writes a .uid sidecar per script — ignore it.
+		# Only .gd files: Godot 4.7 writes a .uid sidecar per script, ignored here.
 		if not dir.current_is_dir() and file_name.get_extension() == "gd":
 			registered += _register_project_file(PROJECT_DIR.path_join(file_name))
 		file_name = dir.get_next()
@@ -126,7 +158,10 @@ func _register_project_commands() -> void:
 ## commands it added (0 if the file is invalid or all its names collide).
 func _register_project_file(path: String) -> int:
 	var script: Variant = load(path)
-	if not (script is Script):
+	# can_instantiate() as well as `is Script`: a file that failed to parse still
+	# loads as a GDScript, and new() on it faults hard enough to abandon the rest
+	# of the scan, which is the one thing this path promises never to do.
+	if not (script is Script) or not (script as Script).can_instantiate():
 		push_warning("[MCP] Skipping project command file '%s': failed to load as a script" % path)
 		return 0
 	var inst: Variant = (script as Script).new()
@@ -199,7 +234,7 @@ func execute(method: String, params: Dictionary) -> Dictionary:
 
 # A param the command's docs don't declare is almost always a typo or a
 # flag borrowed from a sibling command, and a handler reads only the keys it
-# knows — the call "succeeds" while the value goes nowhere. Annotate the
+# knows, so the call "succeeds" while the value goes nowhere. Annotate the
 # success payload so the miss is visible in the result itself, with the
 # closest declared name as a hint. Annotation, not an error: docs are the
 # best available map of a handler's params, not a proven-complete one.
@@ -232,7 +267,7 @@ func _flag_unknown_params(method: String, params: Dictionary, result: Dictionary
 				best_score = score
 				best = str(d)
 		if best_score >= 0.4:
-			hints.append("'%s' is not a %s param — did you mean '%s'?" % [k, method, best])
+			hints.append("'%s' is not a %s param. Did you mean '%s'?" % [k, method, best])
 		else:
 			hints.append("'%s' is not a %s param (see %s --help)" % [k, method, method])
 	if unknown.is_empty():
@@ -249,6 +284,12 @@ func get_available_methods() -> Array:
 ## {description, params:[...]}), for commands whose group exposes get_command_docs().
 func get_command_docs() -> Dictionary:
 	return _docs
+
+
+## Built-in groups that did not register on this engine, as [{file, reason}].
+## Empty on a supported build; non-empty means the surface is short those groups.
+func get_unavailable_groups() -> Array:
+	return _unavailable
 
 
 # --- Stats ------------------------------------------------------------------

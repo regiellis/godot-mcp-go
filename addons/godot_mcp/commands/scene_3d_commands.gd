@@ -18,7 +18,7 @@ const _BODY_TYPES_3D := ["StaticBody3D", "CharacterBody3D", "RigidBody3D", "Area
 const _SHAPES_3D := ["box", "sphere", "capsule", "trimesh", "convex"]
 
 
-## A 3D physics body with its CollisionShape3D + shape resource in one call — the
+## A 3D physics body with its CollisionShape3D + shape resource in one call, the
 ## scene2d.add_body counterpart the 3D side lacked. Primitive shapes come from --size/
 ## --radius/--height; trimesh/convex build a collider from a --from-mesh MeshInstance3D
 ## (the common "make this imported geometry collidable" need).
@@ -83,6 +83,15 @@ func _add_body(params: Dictionary) -> Dictionary:
 
 
 # --- Parameter parsing helpers ----------------------------------------------
+
+## Environment.TONE_MAPPER_AGX read from the live build, -1 when this engine has
+## no such tonemapper (below 4.4). Naming the constant would be a parse error
+## there, which costs the whole scene3d group rather than the one option.
+func _agx_tonemap() -> int:
+	if not ClassDB.class_has_integer_constant("Environment", "TONE_MAPPER_AGX"):
+		return -1
+	return ClassDB.class_get_integer_constant("Environment", "TONE_MAPPER_AGX")
+
 
 func _color_param(params: Dictionary, key: String, default: Color) -> Color:
 	if not params.has(key):
@@ -371,6 +380,14 @@ func _setup_environment(params: Dictionary) -> Dictionary:
 	if root == null:
 		return error_no_scene()
 
+	# AGX tonemapping is 4.4+, and the constant resolves at COMPILE time, so it is
+	# read from ClassDB instead of named. Checked here rather than at the tonemap
+	# branch below: refusing halfway through would leave a half-configured
+	# environment behind for a call that reports failure.
+	var tonemap := str(params.get("tonemap_mode", "")).to_upper()
+	if (tonemap == "AGX" or tonemap == "4") and _agx_tonemap() < 0:
+		return editor_method_error("TONE_MAPPER_AGX", "4.4", "Environment")
+
 	var parent_path := optional_string(params, "parent_path", ".")
 	var parent := find_node_by_path(parent_path)
 	if parent == null:
@@ -451,7 +468,7 @@ func _setup_environment(params: Dictionary) -> Dictionary:
 			"ACES", "3":
 				env.tonemap_mode = Environment.TONE_MAPPER_ACES
 			"AGX", "4":
-				env.tonemap_mode = Environment.TONE_MAPPER_AGX
+				env.tonemap_mode = _agx_tonemap()
 	if params.has("tonemap_exposure"):
 		env.tonemap_exposure = float(params["tonemap_exposure"])
 	if params.has("tonemap_white"):

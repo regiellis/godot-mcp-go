@@ -10,7 +10,7 @@ extends "res://addons/godot_mcp/commands/base_command.gd"
 ##
 ## 3D only (the spatial gap lives in 3D). World bounds come from VisualInstance3D
 ## AABBs (MeshInstance3D, CSGShape3D, ...) transformed to global by the node's
-## global_transform — verified against Godot 4.7.
+## global_transform, verified against Godot 4.7.
 
 const _CENTER_TOL := 0.05 # meters; |center delta| within this counts as "centered"
 
@@ -80,8 +80,8 @@ func _world_aabb(node: Node) -> Dictionary:
 
 ## Bounds for a node, as [AABB, error_or_null, point_only].
 ##
-## A node with no visual geometry falls back to a ZERO-SIZE box at its origin —
-## a Marker3D, a bare Node3D anchor, a Path3D follower: all things a level is
+## A node with no visual geometry falls back to a ZERO-SIZE box at its origin.
+## A Marker3D, a bare Node3D anchor, a Path3D follower: all things a level is
 ## laid out around, and refusing them made marker-to-marker questions ("how far
 ## is BerthA from Approach?") unanswerable through this group at all. The
 ## fallback is flagged, never silent, so a caller can tell a real footprint from
@@ -238,7 +238,7 @@ func _place_on(params: Dictionary) -> Dictionary:
 	var a: AABB = aa[0]
 
 	# `samples >= 1` switches to TIER 2: a footprint-aligned bundle of parallel
-	# DOWN-rays (not a cone — seating is a footprint problem, not a viewpoint one).
+	# DOWN-rays (not a cone, since seating is a footprint problem, not a viewpoint one).
 	# Needs colliders (CSG use_collision / StaticBody), conforms to slopes, and
 	# detects overhang (rays that miss). samples == 0 keeps TIER 1 AABB seating.
 	var samples := optional_int(params, "samples", 0)
@@ -348,7 +348,7 @@ func _place_on_physics(node: Node3D, a: AABB, params: Dictionary, samples: int) 
 	undo_redo.create_action("MCP: Place %s on surface (%d samples)" % [node.name, samples])
 	if conform:
 		# Re-frame so local +Y follows the averaged surface normal, preserving yaw
-		# as much as possible. Engine basis math — never hand-rolled Euler.
+		# as much as possible. Engine basis math, never hand-rolled Euler.
 		var up := avg_n
 		var fwd := old_xform.basis.z
 		var right := up.cross(fwd)
@@ -395,7 +395,7 @@ func _footprint_samples(a: AABB, n: int) -> Array:
 	return pts
 
 
-## RIDs of every CollisionObject3D in `node`'s subtree — so a down-ray seating the
+## RIDs of every CollisionObject3D in `node`'s subtree, so a down-ray seating the
 ## node doesn't hit the node's own colliders.
 func _collision_rids(node: Node) -> Array:
 	var out: Array = []
@@ -522,7 +522,7 @@ func _lint(params: Dictionary) -> Dictionary:
 		# "Floating/unsupported" only applies to solid placeable geometry (meshes,
 		# CSG). Lights, decals, fog, GI probes, particles, sprites/labels and
 		# MultiMesh scatter are VisualInstance3D too but have no "rests on a surface"
-		# semantics — they were false-flagged. Restrict both the candidates and the
+		# semantics, so they were false-flagged. Restrict both the candidates and the
 		# supporters to solid geometry.
 		var solids: Array = []
 		for b in boxes:
@@ -537,7 +537,7 @@ func _lint(params: Dictionary) -> Dictionary:
 					continue
 				var aj: AABB = solids[j]["aabb"]
 				# Connected to the structure: AABBs touch/overlap (mounted, hanging,
-				# attached) — not floating in empty space. Grow by a 5 cm contact
+				# attached), not floating in empty space. Grow by a 5 cm contact
 				# tolerance so flush/edge-touching decals & trim count as attached
 				# (AABB.intersects misses exact-boundary contact).
 				if ai.grow(0.05).intersects(aj):
@@ -629,7 +629,7 @@ func _raycast(params: Dictionary) -> Dictionary:
 
 
 ## TIER 3 seating: snap `node_path`'s anchor point onto the target's real mesh
-## geometry. The scriptable analog of 4.7's editor-only vertex snapping — 4.7
+## geometry. The scriptable analog of 4.7's editor-only vertex snapping, which 4.7
 ## exposes no callable for it, so we read the actual vertices via Mesh.get_faces()
 ## (CSG via bake_static_mesh()), transform to world, and move to the nearest one.
 ## `mode=vertex` snaps to the closest mesh vertex; `mode=face` to the closest point
@@ -749,8 +749,14 @@ func _gather_world_faces(root: Node) -> PackedVector3Array:
 			mesh = (n as MeshInstance3D).mesh
 			xform = (n as MeshInstance3D).global_transform
 		elif n is CSGShape3D:
-			mesh = (n as CSGShape3D).bake_static_mesh()
-			xform = (n as CSGShape3D).global_transform
+			var csg := n as CSGShape3D
+			# bake_static_mesh is 4.4+ and this call parses either way, so without
+			# the gate it is a hard runtime error on 4.3 rather than a missing
+			# surface. Below 4.4 a CSG tree contributes no snap geometry; its
+			# children are CSG shapes too, so skipping them loses nothing extra.
+			if csg.has_method("bake_static_mesh"):
+				mesh = csg.call("bake_static_mesh") as Mesh
+			xform = csg.global_transform
 			skip_children = true
 		if mesh != null:
 			for v in mesh.get_faces():
@@ -761,7 +767,7 @@ func _gather_world_faces(root: Node) -> PackedVector3Array:
 	return out
 
 
-## Closest point on triangle (a,b,c) to p — Ericson, Real-Time Collision Detection.
+## Closest point on triangle (a,b,c) to p, after Ericson, Real-Time Collision Detection.
 ## GDScript Geometry3D has no direct call for this.
 func _closest_point_on_triangle(p: Vector3, a: Vector3, b: Vector3, c: Vector3) -> Vector3:
 	var ab := b - a
@@ -803,7 +809,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"spatial.relate": {
-			"description": "Compare two nodes numerically: center delta and distance, per-axis centered flags, per-axis gap (negative = overlap depth), and whether their AABBs intersect. Either side may be a geometry-less Node3D (a Marker3D anchor), read as a point at its origin and reported under point_only — so marker-to-marker math works. 3D only.",
+			"description": "Compare two nodes numerically: center delta and distance, per-axis centered flags, per-axis gap (negative = overlap depth), and whether their AABBs intersect. Either side may be a geometry-less Node3D (a Marker3D anchor), read as a point at its origin and reported under point_only, so marker-to-marker math works. 3D only.",
 			"params": [
 				doc_param("node_path", "NodePath", true, "First node."),
 				doc_param("other", "NodePath", true, "Node to compare against."),

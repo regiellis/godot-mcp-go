@@ -122,7 +122,7 @@ func _setup(params: Dictionary) -> Dictionary:
 func _build(params: Dictionary) -> Dictionary:
 	var csproj := find_file_at_root("csproj")
 	if csproj == null:
-		return error_invalid_params("No .csproj found at the project root — run csharp.setup first")
+		return error_invalid_params("No .csproj found at the project root. Run csharp.setup first")
 
 	var out: Array = []
 	if OS.execute("dotnet", ["--version"], out, true) != 0:

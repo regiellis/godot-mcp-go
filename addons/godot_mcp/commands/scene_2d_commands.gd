@@ -1,7 +1,7 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## 2D scene-assembly helpers — the canvas-side counterpart to scene3d, for the 2D
+## 2D scene-assembly helpers, the canvas-side counterpart to scene3d, for the 2D
 ## workflows that are tedious through raw node.add: a Sprite2D with its texture, a
 ## configured Camera2D, and (the biggest win) a physics body with its CollisionShape2D
 ## and shape resource wired in one call. scene3d has no body/collision helper either,
@@ -100,7 +100,7 @@ func _add_animated_sprite(params: Dictionary) -> Dictionary:
 		frames.remove_animation(&"default")
 
 	# Param dicts arrive orderless over the wire, so "first animation" is
-	# nondeterministic — pick deterministically: "default", else alphabetical.
+	# nondeterministic. Pick deterministically: "default", else alphabetical.
 	var anim_names: Array = anims.keys()
 	anim_names.sort()
 	var start_anim: String = "default" if anims.has("default") else String(anim_names[0])
@@ -239,7 +239,7 @@ func _add_body(params: Dictionary) -> Dictionary:
 	col.name = "CollisionShape2D"
 	col.shape = shape
 
-	# Two committed actions: body under parent, then its collision child — both owned
+	# Two committed actions: body under parent, then its collision child, both owned
 	# by root so they persist in the saved scene.
 	add_child_with_undo(parent, body, root, "MCP: Add %s" % type)
 	add_child_with_undo(body, col, root, "MCP: Add CollisionShape2D")

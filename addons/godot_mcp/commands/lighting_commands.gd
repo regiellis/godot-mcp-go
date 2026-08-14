@@ -1,19 +1,19 @@
 @tool
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
-## Lighting / global-illumination authoring — the art-pass layer scene3d.setup_lighting
+## Lighting / global-illumination authoring: the art-pass layer scene3d.setup_lighting
 ## (which only places Light3D nodes) doesn't cover. Adds GI nodes (VoxelGI/LightmapGI/
 ## ReflectionProbe/OccluderInstance3D/LightmapProbe), sets GI participation (light bake mode,
 ## geometry gi_mode), toggles SDFGI on the WorldEnvironment, and bakes.
 ##
 ## Reality check from the live 4.7 API (verified via engine.class_info, not memory): only
 ## VoxelGI exposes a script-callable bake(). LightmapGI and OccluderInstance3D bake ONLY through
-## the editor toolbar/plugin in 4.7 — there is no node bake() — so lighting.bake configures and
+## the editor toolbar/plugin in 4.7 (there is no node bake()), so lighting.bake configures and
 ## bakes VoxelGI, and returns a clear error for the others telling you to bake from the toolbar.
 ##
 ## The *_2d commands cover 2D lighting (a separate render path). A PointLight2D is INVISIBLE
-## without a texture, so lighting.add_2d generates a radial GradientTexture2D and assigns it —
-## the whole point of the wrapper over raw node.add. occluder_2d builds the OccluderPolygon2D a
+## without a texture, so lighting.add_2d generates a radial GradientTexture2D and assigns it,
+## which is the whole point of the wrapper over raw node.add. occluder_2d builds the OccluderPolygon2D a
 ## LightOccluder2D needs; canvas_modulate sets the scene-wide ambient (darkness) a 2D light lifts.
 
 const _GI_TYPES := ["VoxelGI", "LightmapGI", "ReflectionProbe", "OccluderInstance3D", "LightmapProbe"]
@@ -112,7 +112,7 @@ func _bake(params: Dictionary) -> Dictionary:
 		(node as VoxelGI).bake()
 		var baked: bool = (node as VoxelGI).get_probe_data() != null
 		return success({"node_path": rn[0], "type": "VoxelGI", "baked": baked,
-			"note": "" if baked else "bake() ran but produced no probe_data — a headless editor has no rendering device for GI; bake from a windowed editor."})
+			"note": "" if baked else "bake() ran but produced no probe_data. A headless editor has no rendering device for GI; bake from a windowed editor."})
 
 	if node is LightmapGI or node is OccluderInstance3D:
 		return error(-32000, "%s cannot be baked from script in 4.7 (no node bake() exists)" % node.get_class(),
@@ -263,7 +263,7 @@ func _add_2d(params: Dictionary) -> Dictionary:
 	node.name = optional_string(params, "name", type)
 	var made_texture := false
 	if type == "PointLight2D":
-		# A PointLight2D renders nothing without a texture — generate one so the light shows.
+		# A PointLight2D renders nothing without a texture, so generate one and the light shows.
 		var radius := optional_int(params, "range", 128)
 		(node as PointLight2D).texture = _make_radial_texture(radius)
 		made_texture = true
@@ -475,7 +475,7 @@ func _glow_2d(params: Dictionary) -> Dictionary:
 	})
 
 
-## Add or update the scene's CanvasModulate — the global 2D tint that makes a lit
+## Add or update the scene's CanvasModulate, the global 2D tint that makes a lit
 ## scene dark so 2D lights read. One per canvas; updates the existing one if present.
 func _canvas_modulate(params: Dictionary) -> Dictionary:
 	var rr := _require_scene_root_2d()

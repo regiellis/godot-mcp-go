@@ -5,7 +5,7 @@ extends VBoxContainer
 ## `godot-mcp dashboard` web UI (both surfaces stay; this one costs no process
 ## and no port).
 ##
-## Data comes from command_router.stats_snapshot() IN-PROCESS — never a stats.*
+## Data comes from command_router.stats_snapshot() IN-PROCESS, never a stats.*
 ## call over the wire, for the same reason the router excludes stats.* from its
 ## own counters: a dashboard that measures itself is measuring noise.
 ##
@@ -43,7 +43,7 @@ const DISCOVERY_PATH := "res://.godot/godot-mcp.json"
 const PORT_RECHECK_MS := 10000
 
 ## Godot blue, #2b7fff. The one colour that does NOT derive from the editor
-## theme — it is the brand mark, the same accent the web dashboard uses. Spelled
+## theme: it is the brand mark, the same accent the web dashboard uses. Spelled
 ## as floats so it stays a foldable constant expression.
 const ACCENT := Color(0.169, 0.498, 1.0)
 
@@ -363,7 +363,7 @@ func _make_stat_cell(parent: Node, title: String, num_size: int, sub_text: Strin
 	box.add_child(_make_micro(title))
 
 	var value := Label.new()
-	value.text = "—"
+	value.text = "-"
 	value.add_theme_font_size_override("font_size", _s(num_size))
 	value.clip_text = true
 	value.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
@@ -422,7 +422,7 @@ func _build_session_section(parent: VBoxContainer) -> void:
 		row.add_child(k)
 
 		var v := Label.new()
-		v.text = "—"
+		v.text = "-"
 		v.add_theme_font_size_override("font_size", _s(11))
 		v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		v.clip_text = true
@@ -636,8 +636,8 @@ func _make_section(parent: VBoxContainer, title: String, err: bool) -> Dictionar
 ## Uppercase micro-label: the workhorse of this design language.
 ##
 ## Clipping is tied to min_width on purpose. A clipped label reports a minimum
-## width of ~1px, so a NON-expanding one inside an HBox collapses to nothing —
-## clip only the fixed-width columns, and let the short constant captions size
+## width of ~1px, so a NON-expanding one inside an HBox collapses to nothing.
+## Clip only the fixed-width columns, and let the short constant captions size
 ## to themselves.
 func _make_micro(text: String, min_width: int = 0) -> Label:
 	var lbl := Label.new()
@@ -789,7 +789,7 @@ func _update_session(snap: Dictionary) -> void:
 		str(int(snap.get("total_connections", 0))),
 		str(int(snap.get("command_count", 0))),
 		_human_dur(int(snap.get("uptime_ms", 0))),
-		str(_ws_port) if _ws_port > 0 else "—",
+		str(_ws_port) if _ws_port > 0 else "-",
 		str(_http_port) if _http_port > 0 else "off",
 	]
 	for i in mini(values.size(), _session_values.size()):
@@ -914,7 +914,7 @@ func _append_feed_row(entry: Dictionary) -> void:
 
 ## One feed row. Newest rows land at the BOTTOM: this is a live tail like the
 ## Output panel, which inverts the web dashboard's newest-first order. Params
-## live in the row TOOLTIP — the dock has no width for a params column, and a
+## live in the row TOOLTIP, because the dock has no width for a params column, and a
 ## tooltip carries the whole string, which the web layout cannot.
 func _make_feed_row(entry: Dictionary) -> Control:
 	var method := String(entry.get("method", ""))

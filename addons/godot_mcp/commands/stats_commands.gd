@@ -2,7 +2,7 @@
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
 ## Activity stats for the opt-in dashboard. The data lives in the command_router
-## (which is this node's parent — command groups are added as its children).
+## (which is this node's parent, since command groups are added as its children).
 
 
 func get_commands() -> Dictionary:

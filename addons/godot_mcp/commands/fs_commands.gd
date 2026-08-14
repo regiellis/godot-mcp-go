@@ -2,7 +2,7 @@
 extends "res://addons/godot_mcp/commands/base_command.gd"
 
 ## Filesystem / asset-management commands: create folders, and move/rename, copy,
-## or delete resource files WITH dependency fixup — the one workflow the generic
+## or delete resource files WITH dependency fixup, the one workflow the generic
 ## node.* layer can't reach (there is no property to "move res://a.tscn and fix its
 ## referencers"). Godot's EditorFileSystem exposes no move/rename, so we move on disk
 ## via DirAccess, update the ResourceUID cache, rewrite path-based references, and
@@ -210,7 +210,7 @@ func _rewrite_refs(old: String, new: String, is_dir: bool) -> Array:
 
 
 ## Files that depend on `path` (by path or by its uid). No reverse index exists, so
-## this is O(files) get_dependencies calls — same approach as resource.info.
+## this is O(files) get_dependencies calls, the same approach as resource.info.
 func _referencers(path: String) -> Array:
 	var uid_id := ResourceLoader.get_resource_uid(path)
 	var uid_text := ResourceUID.id_to_text(uid_id) if uid_id != ResourceUID.INVALID_ID else ""

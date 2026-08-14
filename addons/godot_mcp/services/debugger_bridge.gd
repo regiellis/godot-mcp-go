@@ -3,7 +3,7 @@ extends EditorDebuggerPlugin
 
 ## The addon's foothold in the editor debugger, behind the `debug` command group.
 ## plugin.gd registers it with add_debugger_plugin, which is the only scriptable
-## route to EditorDebuggerSession objects — and so to is_active()/is_breaked() and
+## route to EditorDebuggerSession objects, and so to is_active()/is_breaked() and
 ## the send_message channel debug.reload_scripts rides.
 ##
 ## Nothing here ASKS the game for a stack. On every break the editor itself sends
@@ -70,7 +70,7 @@ func active_sessions() -> Array:
 ## Hook every debugger panel's break signals, idempotently. Called at creation and
 ## again from every entry point, so a panel created later is still picked up.
 ## Returns {found, hooked} to separate "no debugger panel in this build" from
-## "this build's panel raises no break signals" — two different honest refusals.
+## "this build's panel raises no break signals", two different honest refusals.
 func ensure_connected() -> Dictionary:
 	var found := 0
 	var hooked := 0
@@ -138,7 +138,7 @@ func _on_stopped(panel: Node) -> void:
 
 
 ## The panel's own instance id rides the record, so a button press or a frame
-## selection can be scoped to the session that is actually paused — a
+## selection can be scoped to the session that is actually paused, since a
 ## multi-instance run has several panels, and the others hold stale stacks.
 func _state(panel: Node) -> Dictionary:
 	var key := panel.get_instance_id()
@@ -191,7 +191,7 @@ func stack_landed(state: Dictionary) -> bool:
 
 
 ## Wait, bounded, for the stack and variables the editor already asked for. Never
-## a request of its own — see the class note.
+## a request of its own, as the class note explains.
 func settle(state: Dictionary) -> void:
 	var deadline := Time.get_ticks_msec() + SETTLE_MS
 	while Time.get_ticks_msec() < deadline and not stack_landed(state):
@@ -244,7 +244,7 @@ func press(action: String, panel: Node) -> Dictionary:
 
 
 ## The stack tree's item for one frame index, found by the frame dictionary the
-## editor stamps on every row — the only fingerprint separating this Tree from the
+## editor stamps on every row, the only fingerprint separating this Tree from the
 ## debugger's other single-column ones.
 func frame_item(tree: Tree, frame: int) -> TreeItem:
 	if tree.columns != 1:
@@ -285,8 +285,8 @@ func select_frame(state: Dictionary, frame: int) -> Dictionary:
 
 ## The frame the debugger's stack tree ACTUALLY has selected, synced into the
 ## record and returned. Our own memory only tracks selections we made, but the user
-## can click a frame by hand between calls — the editor then fetches THAT frame's
-## variables, which the signal handlers duly record — so trusting the memory would
+## can click a frame by hand between calls, and the editor then fetches THAT frame's
+## variables, which the signal handlers duly record, so trusting the memory would
 ## caption one frame's variables with another frame's number.
 func synced_selection(state: Dictionary) -> int:
 	var panel := panel_for(state)
@@ -306,7 +306,7 @@ func synced_selection(state: Dictionary) -> int:
 
 ## Remember (or forget) a breakpoint the debug group armed. The editor exposes no
 ## way to enumerate the user's own breakpoints, so this record is what a report can
-## honestly name — and every result that reads it says so.
+## honestly name, and every result that reads it says so.
 func record_armed(path: String, line: int, enabled: bool) -> void:
 	var lines: Array = _armed.get(path, [])
 	if enabled:
@@ -377,7 +377,7 @@ func restore_reload_flags(previous: Dictionary) -> void:
 
 
 ## The hot-reload flags currently switched off in the user's Debug menu, by their
-## menu labels — the only evidence about a run this session did not launch.
+## menu labels, the only evidence about a run this session did not launch.
 func reload_flags_off() -> Array:
 	var settings := EditorInterface.get_editor_settings()
 	var off: Array = []
