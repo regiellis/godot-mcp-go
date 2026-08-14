@@ -6,6 +6,8 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-08-13
+
 ### Added
 
 - **The addon runs on Godot 4.3 through 4.8** (beta). Development still targets
@@ -42,6 +44,15 @@ follow [Semantic Versioning](https://semver.org/).
   `config/features` string the upgrade never rewrites. Scope is 4.x to 4.x; a
   Godot 3 project goes through the engine's own converter first. It is marked
   beta on the strength of that single port.
+- **`node.set_editable_instance` and `project.remove_setting`**. The first flips
+  Godot's editable-children flag from the CLI, which the instanced-scene write
+  guard (under Fixed) names as its remedy; the second removes a project setting,
+  which until now required `--allow-unsafe-editor-io` code execution. The
+  catalog is **332 commands** across the same 50 groups.
+- **The `test.run_scenario` screenshot step saves evidence**: `save_path`
+  routes the capture through the game-side screenshot handler and the step
+  result names the file; without it the step reports `saved: false` instead of
+  a bare `captured: true` that wrote nothing anywhere.
 - **Four craft guides gained the breadth their titles promised**. `level-design`
   restructures around space families: the shared spine stays, the combat-interior
   material is named as one family, and exterior/open space (landmarks, terrain
@@ -74,6 +85,42 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- **`node.connect` never persisted a connection**. It connected without
+  `CONNECT_PERSIST`, so the wire worked all session, `editor.signals` reported
+  it, and the scene file never carried a `[connection]` line: everything built
+  on it was dead on reload. Connections now persist (`persisted: true` in the
+  result), and re-connecting an old non-persistent wire upgrades it in one undo
+  step. `node.connect` also now refuses a target method that does not exist,
+  with a nearest-name hint; `--allow-missing-method` overrides for a script
+  that gains the method later.
+- **Writes into an instanced scene's children were dropped on save, with a
+  success envelope**. Godot's packer discards overrides on a non-editable
+  instance, so `node.set` reported old and new values while the scene file
+  never changed. Write paths across the node group now refuse (`-32009`)
+  naming the instance and the remedy, `node set-editable-instance`.
+- **Adjacent scenario input steps destroyed each other**. The editor-to-game
+  input channel is a single file slot, and writing truncates it, so a press
+  adjacent to another input step vanished while both reported `sent: true`; a
+  payload arriving mid-`input.sequence` likewise discarded the sequence's
+  remainder. Editor-side writers now wait for the game to consume the slot
+  (bounded, naming a debugger break when the wait expires) and the game-side
+  queue appends instead of replacing.
+- **`test.report` scored every wait, input, and screenshot step as a failure**,
+  so a green session read as 13 passed, 81 failed. It scores assertions only
+  now and reports the other steps as `steps_recorded`.
+- **`project.set_setting` silently created phantom settings on typos**: a
+  mistyped key wrote a brand-new section into `project.godot` and reported
+  success while the intended setting stayed unset. The result now carries
+  `existed`, plus a nearest-key hint when a created key looks like a typo of a
+  real one.
+- **Packed-array properties truncated silently when handed one string
+  literal**: a three-point polygon written as a single `"[Vector2(...),...]"`
+  string became one point. The strict write path now parses the whole literal
+  or refuses, naming the documented JSON-array-of-literals form.
+- **`script.edit --insert-at-line` past the end of the file clamped silently**;
+  the result now reports `inserted_at`, `clamped`, and the requested line.
+- **`status --all` exited 1 when a successful scan found nothing running.** A
+  scan that finds nothing has still answered; it exits 0 with the empty payload.
 - **`script validate --path` false-failed on files under `addons/`**. The
   throwaway compile the command runs has no `resource_path`, so the
   `debug/gdscript/warnings/exclude_addons` exclusion (default on) never applied

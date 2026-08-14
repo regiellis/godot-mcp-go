@@ -95,6 +95,8 @@ Godot conventions to reason in: **+Y up, −Z forward, right-handed, meters** (1
 
 `"Vector2(100, 200)"` · `"Vector3(1, 2, 3)"` · `"Color(1, 0, 0, 1)"` or `"#ff0000"` · `"true"`/`"false"` · `"42"`, `"3.14"` · enums as integers (`0` = first value). Arrays/objects as JSON: `--groups '["enemy","hittable"]'`.
 
+**Packed arrays take a JSON array of element literals, one string per element.** `polygon`, `points`, and every `Packed*Array` property parse per element, so a `Polygon2D` outline is `--value '["Vector2(-64,-64)","Vector2(64,-64)","Vector2(64,64)","Vector2(-64,64)"]'`. A single flat literal such as `"-64,-64,64,-64"` or one `"Vector2(...)"` string is not a packed array. Pass the elements.
+
 ## Command groups
 
 Run `godot-mcp <group>` patterns; discover exact names per group by reading the addon or just trying `--help`-style exploration. Groups: `project` `scene` `node` `spatial` `authoring` `script` `editor` `debug` `runtime` `engine` `input` `animation` `anim_tree` `tilemap` `theme` `shader` `particles` `scene3d` `scene2d` `material` `mesh` `csg` `gridmap` `scatter` `lighting` `path` `pcg` `wfc` `camera` `ui` `doc` `skeleton` `physics` `navigation` `audio` `input_map` `multiplayer` `resource` `fs` `import` `localization` `analysis` `batch` `profiling` `export` `test` `android`.
@@ -140,6 +142,8 @@ Godot is built around **node and scene composition**, so lean into it. Do **not*
 - **Prefer inspector data over hard-coded values** so designers (and you) can tweak without editing code.
 
 How this maps to the tools: `scene.create` per entity → `node.add` the capability nodes → `script.create`/`script.attach` a focused script → `scene.instance` to compose into a level → `node.connect` for signals → `node.set` to wire `@export`ed references and set inspector values. When you catch yourself adding a fifth responsibility to one script or one scene, split it into a child node or a separate scene instead.
+
+Two rules that keep this composition honest on disk. `node.connect` writes a persistent connection (it survives `scene.save` and reload) and refuses a target method that does not exist; pass `--allow-missing-method` when the script gains it later. And a node *inside* an instanced child scene is read-only until its instance is made editable: writes refuse with the remedy, `node set-editable-instance --node-path <instance> --editable true`, after which overrides persist into the scene file.
 
 ## Write like a Godot developer (read these)
 
@@ -223,7 +227,29 @@ godot-mcp runtime screenshot --save-path user://shot.png
 godot-mcp runtime capture-frames --count 5 --frame-interval 6   # observe motion
 godot-mcp scene stop
 ```
-Input is **fire-and-forget** (`sent:true` ≠ applied), so confirm effects by reading state back with `runtime get`/`runtime eval`. `runtime.screenshot` works even with a headless editor (the game is a separate window). Stateful runtime commands (`capture_frames`, `monitor`, `watch_signals`, `move_to`, `replay`, `await_signal`) take time. Let them finish. For event-driven checks, `runtime await-signal --node-path Enemy --signal died --timeout 5` blocks until the signal fires and returns its args (`fired:false` on timeout, not an error), which is sharper than polling with `runtime get`. Arm the trigger *before* awaiting (the await connects when the command arrives; an emission during the CLI round-trip is missed). `runtime errors [--clear]` polls errors/warnings the running game logged (`push_error`, script/shader errors) as structured entries with a game-script backtrace. Treat it as an **on-demand** health check when something looks wrong, not a reflex after every action; runtime errors are unambiguously real. (A script error in the *game's own code* under a `--headless` editor freezes the game on the debugger break; recover with `scene stop`/`scene play`. Bad `runtime eval` code doesn't do this: it comes back as a compile error naming the line in your snippet.)
+Input is **fire-and-forget** (`sent:true` ≠ applied), so confirm effects by reading state back with `runtime get`/`runtime eval`. `runtime.screenshot` works even with a headless editor (the game is a separate window). The **game** writes `--save-path`, so `user://` resolves to the game's user-data dir rather than anything under the project folder. That is `%APPDATA%\Godot\app_userdata\<ProjectName>\` on Windows and `~/.local/share/godot/app_userdata/<ProjectName>/` on Linux, and it is where the PNG lands. Stateful runtime commands (`capture_frames`, `monitor`, `watch_signals`, `move_to`, `replay`, `await_signal`) take time. Let them finish. For event-driven checks, `runtime await-signal --node-path Enemy --signal died --timeout 5` blocks until the signal fires and returns its args (`fired:false` on timeout, not an error), which is sharper than polling with `runtime get`. Arm the trigger *before* awaiting (the await connects when the command arrives; an emission during the CLI round-trip is missed). `runtime errors [--clear]` polls errors/warnings the running game logged (`push_error`, script/shader errors) as structured entries with a game-script backtrace. Treat it as an **on-demand** health check when something looks wrong, not a reflex after every action; runtime errors are unambiguously real. (A script error in the *game's own code* under a `--headless` editor freezes the game on the debugger break; recover with `scene stop`/`scene play`. Bad `runtime eval` code doesn't do this: it comes back as a compile error naming the line in your snippet.)
+
+### Scripted scenarios
+`test run-scenario` drives a whole step list against the playing game in one call: `input`, `wait`, `assert`, and `screenshot` steps, run in order. It sequences the steps itself, waiting for the game to read each input payload before the next step runs, and every input step reports `consumed`.
+
+```
+godot-mcp test run-scenario --steps '[
+  {"type":"input","action":"move_right","pressed":true,"auto_release":false},
+  {"type":"wait","seconds":0.5},
+  {"type":"assert","node_path":"Player","property":"position","operator":"neq","expected":"Vector2(0, 0)"},
+  {"type":"input","action":"move_right","pressed":false},
+  {"type":"screenshot","save_path":"user://run_01.png"}
+]'
+godot-mcp test report
+```
+
+Three details decide whether the result is trustworthy:
+
+- **Holding an action needs `auto_release: false`**. A press is released in the same batch by default, so a press followed by a wait runs as a one-frame tap and the player moves a fraction of what you expected. Release it explicitly in a later step, as above.
+- **Assertions are the only steps scored**. `test report` counts assertion steps into `total`, `passed`, `failed` and `pass_rate`, and reports the input, wait and screenshot steps as `steps_recorded`, so a green run reads as green.
+- **A screenshot step keeps nothing without `save_path`**. With one, the game writes the PNG (`user://` is the game's user-data dir) and the step result names the path. Without one the step reports `saved: false`.
+
+An input step that reports `consumed: false` means the game never read the payload within the wait, which is a stopped game or a debugger break, not a slow one. Read it with `debug state`.
 
 ## Pitfalls
 

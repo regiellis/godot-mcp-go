@@ -15,6 +15,7 @@ func get_commands() -> Dictionary:
 		"project.grep": _grep,
 		"project.settings": _settings,
 		"project.set_setting": _set_setting,
+		"project.remove_setting": _remove_setting,
 		"project.uid_to_path": _uid_to_path,
 		"project.path_to_uid": _path_to_uid,
 		"project.add_autoload": _add_autoload,
@@ -212,6 +213,11 @@ func _settings(params: Dictionary) -> Dictionary:
 	return success({"settings": settings, "count": settings.size()})
 
 
+## Set a project setting. Creating one is legitimate (plugins and games keep their
+## own keys here), so a key nobody has registered is still written. The result says
+## whether it EXISTED, because a typo used to be indistinguishable from a real
+## edit: `run/main_scene` for `application/run/main_scene` wrote a phantom section,
+## returned success, and left the project's actual main scene untouched.
 func _set_setting(params: Dictionary) -> Dictionary:
 	var r := require_string(params, "key")
 	if r[1] != null:
@@ -219,12 +225,61 @@ func _set_setting(params: Dictionary) -> Dictionary:
 	if not params.has("value"):
 		return error_invalid_params("Missing required parameter: value")
 	var key: String = r[0]
+	var existed := ProjectSettings.has_setting(key)
 	var value: Variant = PropertyParser.parse_value(params["value"], TYPE_NIL)
 	ProjectSettings.set_setting(key, value)
 	var err := ProjectSettings.save()
 	if err != OK:
 		return error_internal("Failed to save project settings: %s" % error_string(err))
-	return success({"key": key, "value": str(ProjectSettings.get_setting(key)), "saved": true})
+	var out := {"key": key, "value": str(ProjectSettings.get_setting(key)), "saved": true, "existed": existed}
+	if not existed:
+		var near := _closest_setting(key)
+		if not near.is_empty():
+			out["hint"] = "'%s' did not exist and was created as a new setting. Did you mean '%s'? Remove the new one with project.remove_setting." % [key, near]
+	return success(out)
+
+
+## Remove a project setting, the counterpart to a set that created one by mistake
+## (cleanup otherwise needed --allow-unsafe-editor-io). Clearing a built-in key
+## reverts it to the engine's default rather than deleting the concept.
+func _remove_setting(params: Dictionary) -> Dictionary:
+	var r := require_string(params, "key")
+	if r[1] != null:
+		return r[1]
+	var key: String = r[0]
+	if not ProjectSettings.has_setting(key):
+		var near := _closest_setting(key)
+		var hint := "Use project.settings --filter to find the real key."
+		if not near.is_empty():
+			hint = "Did you mean '%s'? %s" % [near, hint]
+		return error_not_found("Setting '%s'" % key, hint)
+	var old_value := str(ProjectSettings.get_setting(key))
+	ProjectSettings.clear(key)
+	var err := ProjectSettings.save()
+	if err != OK:
+		return error_internal("Failed to save project settings: %s" % error_string(err))
+	return success({"key": key, "old_value": old_value, "removed": true})
+
+
+## The existing setting a mistyped key most likely meant, or "" when nothing is
+## close. A key that is the tail of a real one (`run/main_scene` under
+## `application/run/main_scene`) is the common miss, so that wins outright; the
+## rest goes to String.similarity, the router's did-you-mean idiom.
+func _closest_setting(key: String) -> String:
+	var suffix := ""
+	var best := ""
+	var best_score := 0.6
+	for prop in ProjectSettings.get_property_list():
+		var name := String(prop["name"])
+		if name == key:
+			continue
+		if name.ends_with("/" + key) and (suffix.is_empty() or name.length() < suffix.length()):
+			suffix = name
+		var score := key.similarity(name)
+		if score > best_score:
+			best_score = score
+			best = name
+	return suffix if not suffix.is_empty() else best
 
 
 func _uid_to_path(params: Dictionary) -> Dictionary:
@@ -349,10 +404,16 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"project.set_setting": {
-			"description": "Set a project setting (--key to --value, auto-parsed) and save project.godot. The safe way to change settings: never hand-edit project.godot.",
+			"description": "Set a project setting (--key to --value, auto-parsed) and save project.godot. The safe way to change settings: never hand-edit project.godot. The result reports existed false when the key was created rather than changed, with a hint naming the closest existing key, so a typo ('run/main_scene' for 'application/run/main_scene') is visible instead of passing as a real edit.",
 			"params": [
-				doc_param("key", "String", true, "Setting key (e.g. 'display/window/size/viewport_width')."),
+				doc_param("key", "String", true, "Full setting key, section included (e.g. 'application/run/main_scene', 'display/window/size/viewport_width')."),
 				doc_param("value", "JSON", true, "Value, auto-parsed to the right type."),
+			],
+		},
+		"project.remove_setting": {
+			"description": "Remove a project setting by --key and save. Refuses a key that does not exist (with a did-you-mean), so it cannot quietly do nothing. Clearing a built-in key reverts it to the engine default rather than deleting it.",
+			"params": [
+				doc_param("key", "String", true, "Full setting key to remove."),
 			],
 		},
 		"project.uid_to_path": {

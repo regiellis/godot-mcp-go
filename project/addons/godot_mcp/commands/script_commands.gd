@@ -218,6 +218,7 @@ func _edit(params: Dictionary) -> Dictionary:
 		return edited[1]
 	var new_content: String = edited[0]
 	var changes: int = edited[2]
+	var details: Dictionary = edited[3]
 
 	if changes == 0:
 		return success({"path": path, "changes_made": 0, "message": "No changes applied"})
@@ -229,10 +230,13 @@ func _edit(params: Dictionary) -> Dictionary:
 	file.close()
 
 	_reload_script(path)
-	return success({"path": path, "changes_made": changes})
+	var out := {"path": path, "changes_made": changes}
+	out.merge(details)
+	return success(out)
 
 
-## Apply one edit mode to `content`. Returns [new_content, error_or_null, changes].
+## Apply one edit mode to `content`. Returns [new_content, error_or_null, changes,
+## details], where `details` is extra result fields the mode wants reported.
 ## Modes (checked in order): replacements[] | content+start_line/end_line |
 ## content (full replace) | insert_at_line+text.
 func _apply_edit(content: String, params: Dictionary) -> Array:
@@ -255,38 +259,47 @@ func _apply_edit(content: String, params: Dictionary) -> Array:
 			elif content.contains(search):
 				content = content.replace(search, replace)
 				changes += 1
-		return [content, null, changes]
+		return [content, null, changes, {}]
 
 	if params.has("content") and (params.has("start_line") or params.has("end_line")):
 		if not params.has("start_line"):
-			return [content, error_invalid_params("start_line is required when end_line is provided"), 0]
+			return [content, error_invalid_params("start_line is required when end_line is provided"), 0, {}]
 		var start_line := int(params["start_line"])
 		var end_line := int(params.get("end_line", start_line))
 		var lines := content.split("\n")
 		if start_line < 1:
-			return [content, error_invalid_params("start_line must be >= 1"), 0]
+			return [content, error_invalid_params("start_line must be >= 1"), 0, {}]
 		if end_line < start_line:
-			return [content, error_invalid_params("end_line must be >= start_line"), 0]
+			return [content, error_invalid_params("end_line must be >= start_line"), 0, {}]
 		if start_line > lines.size() or end_line > lines.size():
-			return [content, error_invalid_params("line range is beyond the end of the file (%d lines)" % lines.size()), 0]
+			return [content, error_invalid_params("line range is beyond the end of the file (%d lines)" % lines.size()), 0, {}]
 		var replacement_lines := str(params["content"]).split("\n")
 		var start_index := start_line - 1
 		for _i in range(end_line - start_line + 1):
 			lines.remove_at(start_index)
 		for i in range(replacement_lines.size()):
 			lines.insert(start_index + i, replacement_lines[i])
-		return ["\n".join(lines), null, 1]
+		return ["\n".join(lines), null, 1, {}]
 
 	if params.has("content"):
-		return [str(params["content"]), null, 1]
+		return [str(params["content"]), null, 1, {}]
 
 	if params.has("insert_at_line") and params.has("text"):
 		var lines := content.split("\n")
-		var line_num := clampi(int(params["insert_at_line"]), 0, lines.size())
+		var requested := int(params["insert_at_line"])
+		# An insert past the end still appends, which is the useful behaviour, but it
+		# used to do so silently: a caller who meant line 200 of a 25-line file read
+		# `changes_made: 1` and never learned where the text went.
+		var line_num := clampi(requested, 0, lines.size())
+		var details := {"inserted_at": line_num}
+		if line_num != requested:
+			details["clamped"] = true
+			details["requested_line"] = requested
+			details["line_count"] = lines.size()
 		lines.insert(line_num, str(params["text"]))
-		return ["\n".join(lines), null, 1]
+		return ["\n".join(lines), null, 1, details]
 
-	return [content, error_invalid_params("No edit specified. Provide replacements, content, or insert_at_line+text."), 0]
+	return [content, error_invalid_params("No edit specified. Provide replacements, content, or insert_at_line+text."), 0, {}]
 
 
 ## Reload a script so the editor reflects disk changes immediately.
@@ -817,7 +830,7 @@ func get_command_docs() -> Dictionary:
 				doc_param("content", "String", false, "Replacement text: a line range (with --start-line/--end-line) or the whole file."),
 				doc_param("start_line", "int", false, "1-based first line to replace (with --content)."),
 				doc_param("end_line", "int", false, "1-based last line to replace (default start_line)."),
-				doc_param("insert_at_line", "int", false, "Line index to insert --text at."),
+				doc_param("insert_at_line", "int", false, "Line index to insert --text at (0-based). A value past the end appends, and the result then reports inserted_at with clamped true."),
 				doc_param("text", "String", false, "Text to insert (with --insert-at-line)."),
 				doc_param("force", "bool", false, "Overwrite a file open in the script editor."),
 			],

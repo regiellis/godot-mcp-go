@@ -7,6 +7,12 @@ extends Node
 
 const COMMANDS_PATH := "user://mcp_input_commands"
 
+## Ceiling on the pending sequence queue. Payloads APPEND (see inject_payload),
+## so a caller firing faster than the queue drains would otherwise grow it without
+## limit. Events past the bound are refused with a warning rather than dropped
+## from the front: an in-flight press/release pair stays intact that way.
+const MAX_QUEUED_EVENTS := 512
+
 var _queue: Array = []        # pending sequence events
 var _frame_delay: int = 1     # frames between sequence events
 var _frames_waited: int = 0
@@ -46,12 +52,28 @@ func _read_commands() -> void:
 ## reuse the same event-creation/injection handlers below. A payload is either a
 ## single event dict, an Array of event dicts, or a {sequence_events, frame_delay}
 ## dict that spaces the events one per N frames.
+##
+## A sequence APPENDS to whatever is still pending. It used to replace the queue,
+## so a payload arriving mid-sequence discarded every event the running sequence
+## had left -- silently, since this channel is fire-and-forget and the editor was
+## already told "sent": true. The queue is bounded by MAX_QUEUED_EVENTS.
 func inject_payload(payload: Variant) -> void:
 	if payload is Dictionary and payload.has("sequence_events"):
-		_queue = (payload["sequence_events"] as Array).duplicate()
+		var incoming: Array = payload["sequence_events"] as Array
+		var was_idle := _queue.is_empty()
+		var room := MAX_QUEUED_EVENTS - _queue.size()
+		if incoming.size() > room:
+			push_warning("[MCP Input] Input queue is full (%d events); refused %d of %d new events" % [
+				MAX_QUEUED_EVENTS, incoming.size() - maxi(room, 0), incoming.size()])
+			incoming = incoming.slice(0, maxi(room, 0))
+		_queue.append_array(incoming)
 		_frame_delay = maxi(int(payload.get("frame_delay", 1)), 1)
-		_frames_waited = 0
-		_dispatch_next()
+		# Only start dispatching here when nothing was already running: a sequence
+		# in flight is paced by _process, and firing an extra event on arrival
+		# would collapse the frame spacing the caller asked for.
+		if was_idle:
+			_frames_waited = 0
+			_dispatch_next()
 		return
 	var events: Array = payload if payload is Array else [payload]
 	for data in events:

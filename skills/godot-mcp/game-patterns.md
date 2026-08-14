@@ -24,6 +24,9 @@ but signatures evolve.
 2. **Input map first**: `input_map set-action` for every action (`move_left`, `jump`, …).
 3. **Player scene** in its own `.tscn`, with a movement script and collision.
 4. **One level scene**. Instance the player, then build the world (TileMapLayer / 3D meshes).
+   An instanced child's own subtree is sealed, so tuning a node *inside* it from the level needs
+   editable children first: `node set-editable-instance --node-path Player --editable true`, and
+   `node set` then reaches `Player/Sprite2D`.
 5. **Core loop**: enemies, pickups, win/lose, all via component scenes.
 6. **UI/HUD**, Control nodes bound to gameplay by signals.
 7. **Playtest**: `scene play` → `input.*` → `runtime.get`/`screenshot` → fix → repeat.

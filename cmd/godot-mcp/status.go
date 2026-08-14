@@ -27,7 +27,8 @@ func runStatus(args []string) int {
 			"godot-mcp status --all",
 		},
 		`The verdict (running / starting / crashed / closed) drives the launch policy:
-never start a second editor when one is running. Exit 0 when reachable.`)
+never start a second editor when one is running. Exit 0 when reachable; --all
+completes with exit 0 whether or not the scan found anything.`)
 	if rc := parseSub(fs, args); rc >= 0 {
 		return rc
 	}
@@ -57,7 +58,12 @@ never start a second editor when one is running. Exit 0 when reachable.`)
 // found across the auto range and pinned ports (identified via project.info),
 // and direct game servers (TCP presence only, since that channel has no identity
 // to ask for). A terminal gets the table render; piped output is JSON, same
-// contract as command results. Exit 0 when at least one editor is live.
+// contract as command results.
+//
+// A completed scan exits 0 even when it found nothing: "no editor is running" is
+// the answer, not a failure. Exiting 1 on an empty list made an agent's preflight
+// read as a broken command and cost one relaunch loop; the single-project
+// `status` (whose verdict IS the question) keeps its non-zero exit.
 func runStatusAll(cwd string) int {
 	editors, games := client.ScanInstances(context.Background(), cwd)
 
@@ -96,8 +102,5 @@ func runStatusAll(cwd string) int {
 		}
 	}
 
-	if len(editors) > 0 {
-		return 0
-	}
-	return 1
+	return 0
 }

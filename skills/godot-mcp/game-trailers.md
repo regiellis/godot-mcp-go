@@ -490,6 +490,10 @@ godot-mcp runtime screenshot --save-path user://t.png       # repeat along the t
 godot-mcp runtime capture-frames --count 8 --frame-interval 30
 ```
 
+- **The game writes those PNGs, so `user://` is the game's user-data dir**
+  (`%APPDATA%\Godot\app_userdata\<ProjectName>\` on Windows,
+  `~/.local/share/godot/app_userdata/<ProjectName>/` on Linux). Look for the stills there, not
+  under the project folder.
 - **Screenshot the shot, not the film.** Play the director scene, grab frames at the moments the
   shot list names, and look at what is actually on screen: a bubble on a face, a card over a
   button, a hand frozen over dead space.

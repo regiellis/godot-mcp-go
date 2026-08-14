@@ -522,6 +522,37 @@ func is_active_scene_path(path: String) -> bool:
 	return normalize_project_path(root.scene_file_path) == normalize_project_path(path)
 
 
+## Block a write the scene packer would throw away.
+##
+## PackedScene.pack() keeps a node only if the edited scene owns it, or if the
+## instance that owns it is marked editable. So an edit to a node inside an
+## instanced child scene lands in memory, scene.save reports success, and the
+## .tscn gains nothing: the value is gone on the next reload, and reading it back
+## from the live tree agrees with the caller the whole time. Refuse instead, and
+## name the remedy (node.set_editable_instance), which is deliberately a separate
+## call because enabling it rewrites the .tscn's structure.
+##
+## Returns {} when the write will persist.
+func guard_instance_write(node: Node) -> Dictionary:
+	var root := get_edited_root()
+	if root == null or node == null or node == root:
+		return {}
+	var holder := node.owner
+	if holder == null or holder == root or root.is_editable_instance(holder):
+		return {}
+	var holder_path := str(root.get_path_to(holder))
+	return error_conflict(
+		"'%s' is inside the instanced scene '%s', whose children are not editable, so this edit would be discarded when the scene is saved" % [
+			str(root.get_path_to(node)), holder_path],
+		{
+			"instance": holder_path,
+			"instance_scene": holder.scene_file_path,
+			"suggestion": "Run node.set_editable_instance --node-path %s --editable true and repeat this call, or edit %s directly." % [
+				holder_path, holder.scene_file_path],
+		}
+	)
+
+
 ## True if `path` is currently open in the script editor (script or shader tab).
 func is_text_resource_open_in_script_editor(path: String) -> bool:
 	var target := normalize_project_path(path)

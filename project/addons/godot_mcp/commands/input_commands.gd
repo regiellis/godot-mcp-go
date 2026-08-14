@@ -5,6 +5,11 @@ extends "res://addons/godot_mcp/commands/base_command.gd"
 ## the game's user dir and injected by the MCPGameInput autoload. Requires a
 ## scene to be playing (scene.play). Mouse coords are in viewport space.
 
+## Seconds to wait for the game to empty the one-slot input file before refusing
+## a write. A running game polls it every frame, so this is far more than the
+## healthy case needs and only expires when the game is not processing at all.
+const _SLOT_WAIT_SECONDS := 2.0
+
 
 func get_commands() -> Dictionary:
 	return {
@@ -23,7 +28,7 @@ func _key(params: Dictionary) -> Dictionary:
 		return r[1]
 	var event := _key_dict(params, r[0])
 	event["pressed"] = optional_bool(params, "pressed", true)
-	var err := _write([event])
+	var err: Dictionary = await _write([event])
 	return err if not err.is_empty() else success({"sent": true, "event": event})
 
 
@@ -35,7 +40,7 @@ func _tap(params: Dictionary) -> Dictionary:
 	press["pressed"] = true
 	var release := _key_dict(params, r[0])
 	release["pressed"] = false
-	var err := _write({"sequence_events": [press, release], "frame_delay": optional_int(params, "frame_delay", 1)})
+	var err: Dictionary = await _write({"sequence_events": [press, release], "frame_delay": optional_int(params, "frame_delay", 1)})
 	return err if not err.is_empty() else success({"sent": true, "keycode": r[0], "tapped": true})
 
 
@@ -61,9 +66,9 @@ func _click(params: Dictionary) -> Dictionary:
 	if press["pressed"] and optional_bool(params, "auto_release", true):
 		var release := press.duplicate()
 		release["pressed"] = false
-		var err := _write({"sequence_events": [press, release], "frame_delay": 1})
-		return err if not err.is_empty() else success({"sent": true, "event": press, "auto_release": true})
-	var err := _write([press])
+		var paired: Dictionary = await _write({"sequence_events": [press, release], "frame_delay": 1})
+		return paired if not paired.is_empty() else success({"sent": true, "event": press, "auto_release": true})
+	var err: Dictionary = await _write([press])
 	return err if not err.is_empty() else success({"sent": true, "event": press})
 
 
@@ -76,7 +81,7 @@ func _move(params: Dictionary) -> Dictionary:
 	}
 	if params.has("unhandled"):
 		event["unhandled"] = optional_bool(params, "unhandled", false)
-	var err := _write([event])
+	var err: Dictionary = await _write([event])
 	return err if not err.is_empty() else success({"sent": true, "event": event})
 
 
@@ -90,7 +95,7 @@ func _action(params: Dictionary) -> Dictionary:
 		"pressed": optional_bool(params, "pressed", true),
 		"strength": float(params.get("strength", 1.0)),
 	}
-	var err := _write([event])
+	var err: Dictionary = await _write([event])
 	return err if not err.is_empty() else success({"sent": true, "event": event})
 
 
@@ -106,14 +111,20 @@ func _sequence(params: Dictionary) -> Dictionary:
 	var frame_delay := optional_int(params, "frame_delay", 1)
 	var err: Dictionary
 	if frame_delay <= 0:
-		err = _write(events)  # all in one frame
+		err = await _write(events)  # all in one frame
 	else:
-		err = _write({"sequence_events": events, "frame_delay": frame_delay})
+		err = await _write({"sequence_events": events, "frame_delay": frame_delay})
 	return err if not err.is_empty() else success({"sent": true, "event_count": events.size(), "frame_delay": frame_delay})
 
 
 ## Write the payload to the game's input-command file. Returns {} on success or
 ## an error dict (game not playing / write failure).
+##
+## The file is ONE slot and FileAccess.WRITE truncates it, so two input calls
+## arriving inside a single game frame used to destroy each other while both
+## returned "sent": true. Wait for MCPGameInput to take a pending payload (it
+## deletes the file on read) before writing over it. The wait is bounded: a game
+## stopped at a debugger break never polls, and this channel must not hang on it.
 func _write(payload: Variant) -> Dictionary:
 	if not EditorInterface.is_playing_scene():
 		return error(-32000, "No scene is currently playing", {"suggestion": "Use scene.play first"})
@@ -124,12 +135,30 @@ func _write(payload: Variant) -> Dictionary:
 	if not no_autoload.is_empty():
 		return no_autoload
 	var path := get_game_user_dir() + "/mcp_input_commands"
+	if not await _await_slot_clear(path, _SLOT_WAIT_SECONDS):
+		return error(-32000, "The running game has not read the previous input payload, so sending this one would overwrite it", {
+			"suggestion": "The game is usually stopped at a debugger break (debug.state, then debug.resume) or paused with processing off. Retry once it is running.",
+		})
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		return error_internal("Could not write input commands to %s" % path)
 	file.store_string(JSON.stringify(payload))
 	file.close()
 	return {}
+
+
+func _await_slot_clear(path: String, timeout_sec: float) -> bool:
+	if not FileAccess.file_exists(path):
+		return true
+	var attempts := maxi(int(timeout_sec / 0.05), 1)
+	while attempts > 0:
+		await get_tree().create_timer(0.05).timeout
+		if not FileAccess.file_exists(path):
+			return true
+		if not EditorInterface.is_playing_scene():
+			return false
+		attempts -= 1
+	return false
 
 
 ## Every input.* command is fire-and-forget into the RUNNING game and requires a

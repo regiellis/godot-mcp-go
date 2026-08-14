@@ -261,6 +261,10 @@ static func parse_checked(value: Variant, target_type: int, expected_class: Stri
 		var want := expected_class if not expected_class.is_empty() else "Object"
 		return {"ok": false, "value": null, "reason": "expected a res:// or uid:// path for the %s property, got '%s'" % [want, s]}
 
+	# Packed arrays parse element-wise, and a String has to yield the WHOLE list.
+	if _PACKED_ELEMENT.has(target_type):
+		return _parse_packed(value, target_type)
+
 	# Composite numeric types: the lenient path pads with zeros when the input is
 	# short, which is how a scalar became Vector2(0, 0).
 	var needed := _components_needed(target_type)
@@ -287,6 +291,118 @@ static func _is_a(res: Object, cls: String) -> bool:
 			if gname == want:
 				return true
 	return false
+
+
+## Element type per packed-array type. Membership doubles as "parse_checked reads
+## this one element-wise".
+const _PACKED_ELEMENT := {
+	TYPE_PACKED_VECTOR2_ARRAY: TYPE_VECTOR2,
+	TYPE_PACKED_VECTOR3_ARRAY: TYPE_VECTOR3,
+	TYPE_PACKED_COLOR_ARRAY: TYPE_COLOR,
+	TYPE_PACKED_FLOAT32_ARRAY: TYPE_FLOAT,
+	TYPE_PACKED_FLOAT64_ARRAY: TYPE_FLOAT,
+	TYPE_PACKED_INT32_ARRAY: TYPE_INT,
+	TYPE_PACKED_INT64_ARRAY: TYPE_INT,
+	TYPE_PACKED_STRING_ARRAY: TYPE_STRING,
+}
+
+
+## Parse a packed array completely or refuse it. A String used to fall through
+## _as_array as ONE item, and the number scanner then read a single element out of
+## it: `"[Vector2(0,-18),Vector2(15,10),Vector2(-15,10)]"` set a three-point polygon
+## to one point and returned success. The string is now split (JSON first, then a
+## bracket/paren/quote-aware scan) and every element goes through parse_checked, so
+## a list either lands whole or names the element that failed.
+static func _parse_packed(value: Variant, target_type: int) -> Dictionary:
+	if typeof(value) == target_type:
+		return {"ok": true, "value": value, "reason": ""}
+	var elem_type: int = _PACKED_ELEMENT[target_type]
+	var items: Array = []
+	if value is Array:
+		items = value
+	elif value is String:
+		var split := _split_literal_list(value)
+		if not bool(split["ok"]):
+			return {"ok": false, "value": null, "reason": "expected a list of %s for %s (e.g. %s), got '%s'" % [
+				_type_label(elem_type), _type_label(target_type), _literal_example(target_type), value]}
+		items = split["items"]
+	else:
+		items = [value]
+
+	var out: Array = []
+	for i in range(items.size()):
+		var item: Variant = items[i]
+		# int("banana") is 0 and float("") is 0.0, so a numeric element has to be
+		# checked as text before parse_checked's permissive scalar path sees it.
+		if item is String and (elem_type == TYPE_INT or elem_type == TYPE_FLOAT) \
+				and not String(item).strip_edges().is_valid_float():
+			return {"ok": false, "value": null, "reason": "element %d of %s: '%s' is not a number" % [i, _type_label(target_type), item]}
+		var parsed := parse_checked(item, elem_type)
+		if not bool(parsed["ok"]):
+			return {"ok": false, "value": null, "reason": "element %d of %s: %s" % [i, _type_label(target_type), String(parsed["reason"])]}
+		out.append(parsed["value"])
+	return {"ok": true, "value": parse_value(out, target_type), "reason": ""}
+
+
+## Split a bracketed list written as text into its elements. JSON first (the
+## documented form arrives that way when it is nested inside another JSON string);
+## otherwise a depth- and quote-aware scan, so a Godot literal's own commas
+## (`Vector2(0, -18)`) do not split an element in half. Returns {ok, items}; an
+## unbalanced or non-bracketed string is refused rather than half-read.
+static func _split_literal_list(text: String) -> Dictionary:
+	var s := text.strip_edges()
+	var as_json: Variant = JSON.parse_string(s)
+	if as_json is Array:
+		return {"ok": true, "items": as_json}
+	if not (s.begins_with("[") and s.ends_with("]")):
+		return {"ok": false, "items": []}
+	var inner := s.substr(1, s.length() - 2).strip_edges()
+	if inner.is_empty():
+		return {"ok": true, "items": []}
+
+	var items: Array = []
+	var current := ""
+	var depth := 0
+	var quote := ""
+	for i in range(inner.length()):
+		var ch := inner[i]
+		if not quote.is_empty():
+			current += ch
+			if ch == quote:
+				quote = ""
+			continue
+		match ch:
+			"\"", "'":
+				quote = ch
+				current += ch
+			"(", "[", "{":
+				depth += 1
+				current += ch
+			")", "]", "}":
+				depth -= 1
+				current += ch
+			",":
+				if depth == 0:
+					items.append(_unquote(current))
+					current = ""
+				else:
+					current += ch
+			_:
+				current += ch
+	if depth != 0 or not quote.is_empty():
+		return {"ok": false, "items": []}
+	items.append(_unquote(current))
+	for item: String in items:
+		if item.is_empty():
+			return {"ok": false, "items": []}
+	return {"ok": true, "items": items}
+
+
+static func _unquote(part: String) -> String:
+	var s := part.strip_edges()
+	if s.length() >= 2 and (s.begins_with("\"") and s.ends_with("\"") or s.begins_with("'") and s.ends_with("'")):
+		return s.substr(1, s.length() - 2)
+	return s
 
 
 static func _components_needed(target_type: int) -> int:
@@ -329,6 +445,17 @@ static func _type_label(target_type: int) -> String:
 		TYPE_RECT2: return "Rect2"
 		TYPE_RECT2I: return "Rect2i"
 		TYPE_COLOR: return "Color"
+		TYPE_INT: return "int"
+		TYPE_FLOAT: return "float"
+		TYPE_STRING: return "String"
+		TYPE_PACKED_VECTOR2_ARRAY: return "PackedVector2Array"
+		TYPE_PACKED_VECTOR3_ARRAY: return "PackedVector3Array"
+		TYPE_PACKED_COLOR_ARRAY: return "PackedColorArray"
+		TYPE_PACKED_FLOAT32_ARRAY: return "PackedFloat32Array"
+		TYPE_PACKED_FLOAT64_ARRAY: return "PackedFloat64Array"
+		TYPE_PACKED_INT32_ARRAY: return "PackedInt32Array"
+		TYPE_PACKED_INT64_ARRAY: return "PackedInt64Array"
+		TYPE_PACKED_STRING_ARRAY: return "PackedStringArray"
 		_: return "value"
 
 
@@ -339,6 +466,12 @@ static func _literal_example(target_type: int) -> String:
 		TYPE_VECTOR4, TYPE_VECTOR4I, TYPE_QUATERNION: return "Vector4(0, 0, 0, 1)"
 		TYPE_RECT2, TYPE_RECT2I: return "Rect2(0, 0, 10, 10)"
 		TYPE_COLOR: return "Color(1, 0, 0, 1)"
+		TYPE_PACKED_VECTOR2_ARRAY: return "[\"Vector2(0, -18)\", \"Vector2(15, 10)\"]"
+		TYPE_PACKED_VECTOR3_ARRAY: return "[\"Vector3(0, 0, 0)\", \"Vector3(1, 0, 0)\"]"
+		TYPE_PACKED_COLOR_ARRAY: return "[\"Color(1, 0, 0, 1)\", \"#00ff00\"]"
+		TYPE_PACKED_FLOAT32_ARRAY, TYPE_PACKED_FLOAT64_ARRAY: return "[0.0, 1.5]"
+		TYPE_PACKED_INT32_ARRAY, TYPE_PACKED_INT64_ARRAY: return "[0, 1, 2]"
+		TYPE_PACKED_STRING_ARRAY: return "[\"idle\", \"run\"]"
 		_: return ""
 
 
