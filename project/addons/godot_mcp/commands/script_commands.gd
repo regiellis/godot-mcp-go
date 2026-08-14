@@ -438,7 +438,19 @@ func _validate_one(path: String) -> Dictionary:
 	# BEFORE the first compile instead. _strip_class_name keeps the line count and
 	# any same-line `extends`, and returns the source unchanged when the declaration
 	# is malformed, which has to be compiled to be reported.
-	var err := _compile(_strip_class_name(source))
+	# The throwaway GDScript below normally has no resource_path, so the engine
+	# cannot tell it holds an addons/ file and debug/gdscript/warnings/
+	# exclude_addons (default on) never applies: any warning the project escalates
+	# to an error then fails a file the editor itself compiles clean. Handing the
+	# throwaway a path under res://addons/ makes the parser apply the exclusion
+	# exactly as it does to the real file; a real parse error is not a warning and
+	# still fails either way, and a project running with exclude_addons off keeps
+	# its addon warnings, since the exclusion is then inactive no matter the path.
+	# (Toggling the warning settings around the compile does NOT work: the parser
+	# reads them through the engine's cached settings path, so a set_setting made
+	# mid-session is invisible to it. Verified live before landing here.)
+	var context_path := path if path.begins_with("res://addons/") else ""
+	var err := _compile(_strip_class_name(source), context_path)
 
 	if err == OK:
 		return {"path": path, "valid": true, "message": "Script compiles successfully"}
@@ -571,8 +583,15 @@ func _collect_all_gd(dir_path: String, out: Array) -> void:
 	dir.list_dir_end()
 
 
-func _compile(source: String) -> int:
+func _compile(source: String, context_path: String = "") -> int:
 	var script := GDScript.new()
+	if not context_path.is_empty():
+		# A ".mcpcheck.gd" suffix keeps the throwaway clear of the resource-cache
+		# slot the real, loaded script occupies (claiming an occupied path fails and
+		# would leave the compile pathless, which degrades to the old behaviour
+		# rather than breaking). The throwaway is released when this function
+		# returns, taking its cache entry with it.
+		script.resource_path = context_path + ".mcpcheck.gd"
 	script.source_code = source
 	return script.reload()
 

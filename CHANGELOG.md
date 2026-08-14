@@ -74,6 +74,14 @@ follow [Semantic Versioning](https://semver.org/).
 
 ### Fixed
 
+- **`script validate --path` false-failed on files under `addons/`**. The
+  throwaway compile the command runs has no `resource_path`, so the
+  `debug/gdscript/warnings/exclude_addons` exclusion (default on) never applied
+  to it and any warning the project escalates to an error failed a file the
+  editor itself compiles clean. The throwaway now carries a path under the real
+  file's own `addons/` location, so the parser applies the exclusion the same
+  way the editor does. A real parse error still fails, and a project running
+  with the exclusion off keeps its addon warnings.
 - **`install --enable` left out the two autoloads `runtime` and `input` need**,
   so a project installed that way answered every `runtime.*` and `input.*` call
   with a missing-singleton failure while the addon reported as installed and
