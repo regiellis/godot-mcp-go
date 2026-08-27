@@ -10,6 +10,11 @@ extends "res://addons/godot_mcp/commands/base_command.gd"
 const _NOISE: PackedStringArray = [
 	"ProgressDialog::task_step",
 	"Parameter \"t\" is null",
+	# 4.7.2 spells the save-path progress-dialog complaints differently: one
+	# scene.save deterministically emits six of these (progress_dialog.cpp
+	# 196/231/254), found by the 2026-08-19 eval smoke run.
+	"Do not use progress dialog (task)",
+	"\"!tasks.has(p_task)\" is true",
 ]
 
 
@@ -661,7 +666,7 @@ func _scan_log_file(max_lines: int, needles: Array) -> Array:
 func get_command_docs() -> Dictionary:
 	return {
 		"editor.errors": {
-			"description": "Return recent errors/warnings from the Output panel and the per-script analyzer panels (falls back to the log file when headless). Each line carries its own '<source>:<line>', and --internal=false drops the ones whose source is an engine C++ file, which is what an editor.reload rescan floods the buffer with. Benign engine noise is filtered by default; --clear empties the Output panel after reading.",
+			"description": "Return recent errors/warnings from the Output panel and the per-script analyzer panels (falls back to the log file when headless). Each line carries its own '<source>:<line>', and --internal=false drops the ones whose source is an engine C++ file, which is what an editor.reload rescan floods the buffer with. Benign engine noise is filtered by default and the count of dropped lines comes back as suppressed_noise, so a result reading count 0 alongside a non-zero suppressed_noise means real errors none, filtered noise some; --include-noise shows them. --clear empties the Output panel after reading.",
 			"params": [
 				doc_param("max_lines", "int", false, "How many trailing output lines to scan (default 50)."),
 				doc_param("include_noise", "bool", false, "Keep benign engine-internal lines that are filtered by default."),

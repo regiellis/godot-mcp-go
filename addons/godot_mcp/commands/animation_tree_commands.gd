@@ -706,6 +706,9 @@ func get_command_docs() -> Dictionary:
 				doc_param("snap", "Vector2", false, "Blend-space snap step (blend_space_* types)."),
 				doc_param("sync", "bool", false, "Blend-space sync playback (blend_space_* types)."),
 				doc_param("auto_triangles", "bool", false, "2D blend space auto-triangles."),
+				doc_param("value_label", "String", false, "1D blend space axis label."),
+				doc_param("x_label", "String", false, "2D blend space X axis label."),
+				doc_param("y_label", "String", false, "2D blend space Y axis label."),
 			],
 		},
 		"anim_tree.remove_state": {

@@ -28,7 +28,7 @@ The agent stays in one loop from an empty project to a proven game. It asks the 
 
 Registered commands provide structured shortcuts through that workflow. Generic ClassDB discovery, property access, method calls, and script execution keep engine APIs reachable when no dedicated command wraps them. The CLI, typed MCP tools, and single-tool MCP mode all enter the same loop.
 
-The same loop is the release gate. Every command is exercised against a live editor and read back, then an agent that did not build the tool must create and playtest a complete game slice through the public interface. That second check found twelve sequence, state, timing, and missing-step defects after six releases had passed the command sweep. [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testing).
+The same loop is the release gate. Every command is exercised against a live editor and read back, then an agent that did not build the tool must create and playtest a complete game slice through the public interface. That second check found twelve sequence, state, timing, and missing-step defects after six releases had passed the command sweep, and it now also runs as a scripted eval suite: fixed scenarios handed to a blind worker agent, graded by deterministic checks against the live editor rather than by the agent's own report. [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testing) and [Agent evals](https://regiellis.github.io/godot-mcp-go/docs/evals).
 
 <p align="center">
   <a href="https://youtu.be/XnoW6EHXaBw"><b>Watch the three-minute demo</b></a>. A seascape built inside a live editor: water tuned while the game runs, boids for the fish and gulls, audio buses wired from a panel, and the dock counting every call as it lands.
@@ -40,7 +40,7 @@ The same loop is the release gate. Every command is exercised against a live edi
 > [!NOTE]
 > **This repository is a one-way public mirror**, published as a squashed snapshot. It shares no commit history with the canonical development repo, so **pull requests can't be merged directly**. For bugs, feature requests, or changes, please open an [**Issue**](../../issues) or start a [**Discussion**](../../discussions). That's where development is tracked. The **`asset-library` branch** is a packaging artifact for the [Godot Asset Library](https://godotengine.org/asset-library) (an `addons/`-rooted snapshot of just the addon), and it is never merged into `main`.
 >
-> The snapshot also omits maintainer tooling, so `scripts/` is absent here. `Taskfile.yml` ships whole and a few of its tasks call into that folder (`task test:http`, `task release`, `task mirror:audit`); those are maintainer-only and will not run from a clone of this mirror. The build, editor, and play tasks cover the user-facing workflow. Where the CHANGELOG names a path under `scripts/`, it refers to the development repo.
+> The snapshot also omits maintainer tooling, so `scripts/` is absent here. `Taskfile.yml` ships whole and a few of its tasks call into that folder (`task test:http`, `task eval`, `task eval:sandbox`, `task release`, `task mirror`, `task mirror:audit`, `task asset:check`); those are maintainer-only and will not run from a clone of this mirror. The build, editor, and play tasks cover the user-facing workflow. Where the CHANGELOG names a path under `scripts/`, it refers to the development repo.
 
 ## What the tool surface costs
 
