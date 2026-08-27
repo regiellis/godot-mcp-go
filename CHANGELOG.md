@@ -4,6 +4,37 @@ All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project aims to
 follow [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Verified
+
+- **Godot 4.8-dev4** (`b56a91878`, released 26 August 2026),
+  the first check of the 4.8 claim since the command router changed. All 336
+  commands across 51 groups register with no group skipped, the live ClassDB
+  reads, the game IPC answers, the new param refusal behaves as it does on
+  4.7, and the HTTP MCP conformance sweep passes 37/37. No code change was
+  needed. The previous evidence was 4.8-dev3 at 329 commands. There is still
+  no 4.8 beta; dev4 is the newest snapshot. dev4 converts the editor's main
+  screens into docks, which is the kind of change that could break `editor
+  errors`, since it reads the editor's own panels rather than a log file. That
+  was checked from a windowed editor with a planted parse error, not only
+  headless, because a headless run falls through to the log file and proves
+  nothing about the panel path.
+
+### Fixed
+
+- **The Asset Library check compared against the wrong sha**. It diffed the
+  addon against the `asset-library` branch tip, which matches what the portal
+  serves only until a release refreshes that branch. Refresh the branch first,
+  as the release ritual does, and the check compares the working tree with
+  itself and reports that nothing needs submitting, while the portal goes on
+  serving the previous release. It now reads the sha the portal actually
+  stores from the library API and compares against that, so the answer no
+  longer depends on running the check before the refresh. It also says when
+  the branch is ahead of the portal, which is the state that produced the
+  wrong answer, and refuses to guess if the API cannot be reached.
+  Maintainer-only.
+
 ## [0.9.1] - 2026-08-27
 
 ### Added
