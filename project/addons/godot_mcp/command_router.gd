@@ -207,6 +207,38 @@ const _PARAM_ALIASES := {
 	"node.add": ["parent"],
 	"node.add_resource": ["properties"],
 	"scene.instance": ["path"],
+	# `parent` as an alias for `parent_path`, matching node.add. Every one of
+	# these handlers reads it deliberately; the grant is what keeps the refusal
+	# below from rejecting a call that works.
+	"csg.add": ["parent"],
+	"doc.note": ["parent"],
+	"lighting.add": ["parent"],
+	"lighting.add_2d": ["parent"],
+	"lighting.occluder_2d": ["parent"],
+	"multiplayer.add_spawner": ["parent"],
+	"multiplayer.add_synchronizer": ["parent"],
+	"navigation.add_link": ["parent"],
+	"path.create": ["parent"],
+	"pcg.scatter": ["parent"],
+	"physics.add_joint": ["parent"],
+	"scatter.populate": ["parent"],
+	"scene2d.add_sprite": ["parent"],
+	"scene2d.add_camera": ["parent"],
+	"scene2d.add_body": ["parent"],
+	"scene2d.add_animated_sprite": ["parent"],
+	"scene3d.add_body": ["parent"],
+	"ui.add_container": ["parent"],
+	"ui.add_control": ["parent"],
+	# Discrete cell coordinates, named in the `cell` param's own description.
+	"gridmap.set_cell": ["x", "y", "z"],
+	"gridmap.set_cell_variant": ["x", "y", "z"],
+	"gridmap.fill": ["x", "y", "z"],
+	"gridmap.get_cell": ["x", "y", "z"],
+	# Discrete form of `position`.
+	"anim_tree.set_blend_point": ["pos_x", "pos_y"],
+	# Read only to refuse it with a message naming node.add_resource; granting it
+	# lets that specific answer win over this file's generic one.
+	"physics.setup_body": ["physics_material_override"],
 }
 
 # Params a transport injects for routing; never the handler's business.
@@ -223,31 +255,46 @@ func execute(method: String, params: Dictionary) -> Dictionary:
 			"data": {"available_methods": _handlers.keys()},
 		}}
 	else:
-		result = await _handlers[method].call(params)
-		if not result.has("error"):
-			_flag_unknown_params(method, params, result)
+		# Before the handler, never after: a refusal that arrives once the work is
+		# done reports failure on a call that already mutated the project.
+		var rejection := _reject_unknown_params(method, params)
+		if not rejection.is_empty():
+			result = rejection
+		else:
+			result = await _handlers[method].call(params)
 	# Don't record the dashboard's own stats polling.
 	if not method.begins_with("stats."):
 		_record(method, not result.has("error"), Time.get_ticks_msec() - t0, params)
 	return result
 
 
-# A param the command's docs don't declare is almost always a typo or a
-# flag borrowed from a sibling command, and a handler reads only the keys it
-# knows, so the call "succeeds" while the value goes nowhere. Annotate the
-# success payload so the miss is visible in the result itself, with the
-# closest declared name as a hint. Annotation, not an error: docs are the
-# best available map of a handler's params, not a proven-complete one.
-func _flag_unknown_params(method: String, params: Dictionary, result: Dictionary) -> void:
+# A param the command's docs don't declare is almost always a typo or a flag
+# borrowed from a sibling command, and a handler reads only the keys it knows, so
+# the call would otherwise succeed while the value goes nowhere. Three eval
+# workers walked into that on 2026-08-26 (`scene.validate --path`, `node.get
+# --property`, a trailing `--format`), each getting a plausible answer to a
+# question they had not asked.
+#
+# This used to annotate the success payload instead of refusing, because docs
+# were "the best available map of a handler's params, not a proven-complete one".
+# They are proven now: scripts/lib/audit_params.py walks every handler for the
+# keys it reads and fails `task check` on one the docs don't declare, so an
+# undeclared param here is a caller mistake rather than a gap in our own map.
+# A param a handler deliberately accepts without advertising goes in
+# _PARAM_ALIASES above, which is what keeps this from rejecting a working call.
+func _reject_unknown_params(method: String, params: Dictionary) -> Dictionary:
 	if not _docs.has(method):
-		return
-	var payload: Variant = result.get("result")
-	if not payload is Dictionary:
-		return
-	var declared := {}
+		return {}
+	# `documented` is what the caller should have passed and what the refusal
+	# names; `declared` additionally carries the unadvertised grants, which are
+	# accepted but deliberately absent from --help. Listing a transport param in
+	# the refusal made the payload disagree with a help text that reads "Takes no
+	# parameters" (eval worker, 2026-08-27).
+	var documented := {}
 	for p in (_docs[method] as Dictionary).get("params", []):
 		if p is Dictionary:
-			declared[str((p as Dictionary).get("name", ""))] = true
+			documented[str((p as Dictionary).get("name", ""))] = true
+	var declared := documented.duplicate()
 	for alias in _PARAM_ALIASES.get(method, []):
 		declared[alias] = true
 	for t in _TRANSPORT_PARAMS:
@@ -261,7 +308,7 @@ func _flag_unknown_params(method: String, params: Dictionary, result: Dictionary
 		unknown.append(k)
 		var best := ""
 		var best_score := 0.0
-		for d in declared:
+		for d in documented:
 			var score: float = k.similarity(str(d))
 			if score > best_score:
 				best_score = score
@@ -271,9 +318,16 @@ func _flag_unknown_params(method: String, params: Dictionary, result: Dictionary
 		else:
 			hints.append("'%s' is not a %s param (see %s --help)" % [k, method, method])
 	if unknown.is_empty():
-		return
-	(payload as Dictionary)["unknown_params"] = unknown
-	(payload as Dictionary)["unknown_params_hint"] = "; ".join(hints)
+		return {}
+	return {"error": {
+		"code": -32602,
+		"message": "Unknown param(s) for %s: %s" % [method, ", ".join(unknown)],
+		"data": {
+			"unknown_params": unknown,
+			"unknown_params_hint": "; ".join(hints),
+			"declared_params": documented.keys(),
+		},
+	}}
 
 
 func get_available_methods() -> Array:

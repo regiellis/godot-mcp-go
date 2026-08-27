@@ -34,3 +34,5 @@ All twelve are fixed in [0.8.2](/docs/changelog). None of them was a broken comm
 The session follows the rules the [agent skill](/docs/discover-then-drive) teaches: ask the live engine instead of guessing, verify state by reading it back, and stop to root-cause anything odd, including a retry that "fixes" a failure. A wrong number is a finding. An error with useless advice is a finding. A flag that does nothing is a finding.
 
 Each session also leaves a playable sample behind in the test project, so the next sweep has one more real scene to run against.
+
+The build gate now also runs in a scripted, repeatable form: fixed scenarios handed to a blind worker agent and graded by deterministic checks against the live editor. [Agent evals](/docs/evals) describes the harness.

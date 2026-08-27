@@ -4,7 +4,8 @@ version: "3"
 # GODOT selects the Godot binary; override with `task editor GODOT=/path/to/godot`.
 
 vars:
-  BIN: bin/godot-mcp.exe
+  # Windows needs the .exe suffix; every other platform must not have it.
+  BIN: '{{if eq OS "windows"}}bin/godot-mcp.exe{{else}}bin/godot-mcp{{end}}'
   GODOT: godot
   PROJECT: project
 
@@ -47,11 +48,17 @@ tasks:
       - go vet ./...
 
   check:
-    desc: fmt + vet + test
+    desc: fmt + vet + test + param audit
     cmds:
       - task: fmt
       - task: vet
       - task: test
+      - task: audit:params
+
+  audit:params:
+    desc: every command's docs declare every param its handler reads (gates the router's -32602 refusal)
+    cmds:
+      - python3 scripts/lib/audit_params.py
 
   editor:
     desc: Open the test project in the Godot editor (starts the addon server)
@@ -79,6 +86,16 @@ tasks:
     cmds:
       - pwsh -NoProfile -File scripts/test-http-mcp.ps1 {{.CLI_ARGS}}
 
+  eval:
+    desc: "Run eval scenario checks against a live project (e.g. task eval -- -Project <dir> -Scenario 00-smoke)"
+    cmds:
+      - pwsh -NoProfile -File scripts/eval-check.ps1 {{.CLI_ARGS}}
+
+  eval:sandbox:
+    desc: "Eval sandbox baseline/verify/cleanup (e.g. task eval:sandbox -- -Project <dir> -Capture)"
+    cmds:
+      - pwsh -NoProfile -File scripts/eval-sandbox.ps1 {{.CLI_ARGS}}
+
   dashboard:
     desc: Build and run the live stats dashboard (editor must be open)
     deps: [build]
@@ -88,7 +105,15 @@ tasks:
   release:
     desc: "Build CLI binaries + package addon/skill into dist/ (e.g. task release -- -Version 0.1.0)"
     cmds:
-      - pwsh -NoProfile -File scripts/release.ps1 {{.CLI_ARGS}}
+      # Same platform dispatch as `task mirror`: both scripts accept -Version.
+      - '{{if eq OS "windows"}}pwsh -NoProfile -File scripts/release.ps1{{else}}scripts/release.sh{{end}} {{.CLI_ARGS}}'
+
+  mirror:
+    desc: "Build a filtered mirror snapshot commit (e.g. task mirror -- -Parent <sha> -Message \"...\"); prints the sha, pushes nothing"
+    cmds:
+      # Windows runs the pwsh original, everything else the POSIX port. Both accept
+      # the -Parent/-Message spellings, so one CLI_ARGS passthrough serves both.
+      - '{{if eq OS "windows"}}pwsh -NoProfile -File scripts/mirror.ps1{{else}}scripts/mirror.sh{{end}} {{.CLI_ARGS}}'
 
   mirror:audit:
     desc: Audit what is already public (github/main + asset-library) against the publish policy

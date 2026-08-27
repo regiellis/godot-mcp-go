@@ -1,0 +1,45 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://hr7htor5vejw"]
+
+[ext_resource type="Shader" uid="uid://cu5i42i76lbgs" path="res://water/shervheim_water.gdshader" id="1_shader"]
+[ext_resource type="Texture2D" uid="uid://c28u0o5t0bjhy" path="res://assets/shervheim_demo/CausticsShallow.jpg" id="2_cj6r4"]
+[ext_resource type="Texture2D" path="res://assets/shervheim_demo/SeaPattern.png" id="3_1ouad"]
+[ext_resource type="Texture2D" uid="uid://b5x1gtn6cc4hl" path="res://assets/shervheim_demo/GentleWaves_normal.png" id="3_wia2b"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_shader")
+shader_parameter/depth_density = 0.5
+shader_parameter/distance_density = 0.025
+shader_parameter/wave_normal_map = ExtResource("3_wia2b")
+shader_parameter/wave_normal_scale = 20.0
+shader_parameter/wave_normal_speed = 0.05
+shader_parameter/shallow_color = Color(0.443, 0.914, 0.663, 1)
+shader_parameter/deep_color = Color(0, 0.012, 0.123, 1)
+shader_parameter/far_color = Color(0.119, 0.48, 0.811, 1)
+shader_parameter/reflection_contribution = 1.0
+shader_parameter/sky_horizon_color = Color(0.66, 0.82, 0.92, 1)
+shader_parameter/sky_top_color = Color(0.25, 0.5, 0.85, 1)
+shader_parameter/sss_color = Color(0.152, 0.274, 0.063, 1)
+shader_parameter/foam_texture = ExtResource("2_cj6r4")
+shader_parameter/foam_contribution = 0.549
+shader_parameter/foam_scale = 14.0
+shader_parameter/foam_speed = 0.1
+shader_parameter/foam_noise_scale = 0.32
+shader_parameter/sun_specular_color = Color(1, 1, 1, 1)
+shader_parameter/sun_specular_exponent = 3500.0
+shader_parameter/sparkles_normal_map = ExtResource("3_1ouad")
+shader_parameter/sparkle_scale = 75.0
+shader_parameter/sparkle_speed = 0.025
+shader_parameter/sparkle_color = Color(0.549, 0.961, 0.816, 1)
+shader_parameter/sparkle_exponent = 20000.0
+shader_parameter/edge_foam_color = Color(1, 1, 1, 1)
+shader_parameter/edge_foam_depth = 0.25
+shader_parameter/wave1_direction = 0.5
+shader_parameter/wave1_amplitude = 0.25
+shader_parameter/wave1_wavelength = 10.0
+shader_parameter/wave1_speed = 0.25
+shader_parameter/wave2_direction = 0.25
+shader_parameter/wave2_amplitude = 0.2
+shader_parameter/wave2_wavelength = 10.0
+shader_parameter/wave2_speed = 1.0
+shader_parameter/wave_time = 0.0

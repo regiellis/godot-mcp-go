@@ -1,0 +1,20 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://trees/ghibli_tree.gdshader" id="1_tree"]
+[ext_resource type="Texture2D" uid="uid://sf8fpwgr7ckp" path="res://grass/ghibli_patch_noise.tres" id="2_patch"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_tree")
+shader_parameter/tone_shadowed = Color(0.07, 0.24, 0.17, 1)
+shader_parameter/tone_lit = Color(0.42, 0.68, 0.26, 1)
+shader_parameter/patch_noise = ExtResource("2_patch")
+shader_parameter/patch_scale = 0.35
+shader_parameter/patch_contrast = 1.1
+shader_parameter/crown_lift = 0.35
+shader_parameter/crown_origin = 1.5
+shader_parameter/crown_span = 3.5
+shader_parameter/toon_edge = 0.45
+shader_parameter/toon_softness = 0.06
+shader_parameter/shadow_tint = Color(0.38, 0.52, 0.62, 1)
+shader_parameter/terminator_band = 0.2

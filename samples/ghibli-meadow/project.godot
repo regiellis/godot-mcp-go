@@ -1,0 +1,12 @@
+; Engine configuration file.
+; It's actually a "ProjectSettings" file in INI text format.
+
+config_version=5
+
+[application]
+
+config/name="Ghibli Meadow"
+config/features=PackedStringArray("4.7", "Forward Plus")
+config/icon="res://icon.svg"
+run/main_scene="res://ghibli_meadow.tscn"
+

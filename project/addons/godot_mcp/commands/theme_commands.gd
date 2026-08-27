@@ -89,7 +89,22 @@ func _set_color(params: Dictionary) -> Dictionary:
 	var control: Control = ctx[0]
 	var color_name: String = rn[0]
 	var color_str: String = rc[0]
-	var color := Color(color_str)
+	# Color(String) reads only #hex and NAMED colors; a "Color(1, 0, 0, 1)"
+	# literal was looked up as a name, logged "Invalid color name", and fell
+	# back to BLACK under a success envelope (2026-08-19 eval finding). A name
+	# or hex resolves through from_string (the two-fallback probe tells a
+	# recognized name from a miss, silently); everything else goes through the
+	# strict parser, which takes the documented literal forms and refuses garbage.
+	var color: Color
+	var probe_a := Color.from_string(color_str, Color(0, 0, 0, 0))
+	var probe_b := Color.from_string(color_str, Color(1, 1, 1, 1))
+	if probe_a == probe_b:
+		color = probe_a
+	else:
+		var parsed := PropertyParser.parse_checked(color_str, TYPE_COLOR)
+		if not parsed["ok"]:
+			return error_invalid_params("--color: %s" % parsed["reason"])
+		color = parsed["value"]
 
 	var had_old := control.has_theme_color_override(color_name)
 	var old_value: Variant = control.get("theme_override_colors/" + color_name) if had_old else null
@@ -99,7 +114,7 @@ func _set_color(params: Dictionary) -> Dictionary:
 	undo_redo.add_undo_method(self, "_restore_theme_override", control, "color", color_name, had_old, old_value)
 	undo_redo.commit_action()
 
-	return success({"node_path": str(get_edited_root().get_path_to(control)), "name": color_name, "color": color_str})
+	return success({"node_path": str(get_edited_root().get_path_to(control)), "name": color_name, "color": color_str, "applied": "#" + color.to_html()})
 
 
 func _set_constant(params: Dictionary) -> Dictionary:
@@ -288,18 +303,38 @@ func _get_info(params: Dictionary) -> Dictionary:
 		info["theme_path"] = theme.resource_path
 		info["type_list"] = Array(theme.get_type_list())
 
-	var overrides := {"colors": {}, "constants": {}, "font_sizes": {}, "styleboxes": {}}
+	# Walk the class's override slots from the property list, but include only
+	# names an override is actually SET for. Reading an unset slot returns null,
+	# and the old unconditional `as Color` on that null was a runtime error that
+	# killed this function mid-walk: a Label answered `{}` with exit 0 and every
+	# bucket read empty (2026-08-19 eval finding). An override added under a name
+	# the class has no theme item for is not in the property list and stays
+	# invisible here; has_theme_*_override is the check that still sees it.
+	var overrides := {"colors": {}, "constants": {}, "fonts": {}, "font_sizes": {}, "styleboxes": {}}
 	for prop in control.get_property_list():
 		var pname: String = prop["name"]
 		if pname.begins_with("theme_override_colors/"):
-			overrides["colors"][pname.substr(22)] = "#" + (control.get(pname) as Color).to_html()
+			var cn := pname.substr(22)
+			if control.has_theme_color_override(cn):
+				overrides["colors"][cn] = "#" + (control.get(pname) as Color).to_html()
 		elif pname.begins_with("theme_override_constants/"):
-			overrides["constants"][pname.substr(25)] = control.get(pname)
+			var kn := pname.substr(25)
+			if control.has_theme_constant_override(kn):
+				overrides["constants"][kn] = control.get(pname)
+		elif pname.begins_with("theme_override_fonts/"):
+			var fn := pname.substr(21)
+			if control.has_theme_font_override(fn):
+				var fnt: Variant = control.get(pname)
+				overrides["fonts"][fn] = fnt.resource_path if (fnt is Resource and not fnt.resource_path.is_empty()) else (fnt.get_class() if fnt else null)
 		elif pname.begins_with("theme_override_font_sizes/"):
-			overrides["font_sizes"][pname.substr(26)] = control.get(pname)
+			var sn := pname.substr(26)
+			if control.has_theme_font_size_override(sn):
+				overrides["font_sizes"][sn] = control.get(pname)
 		elif pname.begins_with("theme_override_styles/"):
-			var style: Variant = control.get(pname)
-			overrides["styleboxes"][pname.substr(22)] = style.get_class() if style else null
+			var yn := pname.substr(22)
+			if control.has_theme_stylebox_override(yn):
+				var style: Variant = control.get(pname)
+				overrides["styleboxes"][yn] = style.get_class() if style else null
 
 	info["overrides"] = overrides
 	return success(info)

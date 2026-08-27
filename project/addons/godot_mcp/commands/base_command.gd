@@ -660,7 +660,26 @@ func apply_initial_properties(obj: Object, props: Dictionary) -> Dictionary:
 		if not bool(res["ok"]):
 			failures.append("%s: %s" % [prop_name, String(res["reason"])])
 			continue
-		obj.set(prop_name, res["value"])
+		var value: Variant = res["value"]
+		# A typed Array[X] property refuses an untyped Array silently (or takes a
+		# value the serializer drops); build the typed copy first. 2026-08-19
+		# gate finding: `planets` sat in properties_set while the file held [].
+		if target_type == TYPE_ARRAY:
+			var current: Variant = obj.get(prop_name)
+			if current is Array and (current as Array).is_typed():
+				var built := PropertyParser.build_typed_array(current, value)
+				if not bool(built["ok"]):
+					failures.append("%s: %s" % [prop_name, String(built["reason"])])
+					continue
+				value = built["value"]
+		obj.set(prop_name, value)
+		# Containers can refuse an assignment with no error the caller sees;
+		# read the size back so a refusal cannot hide inside a success.
+		if target_type == TYPE_ARRAY and value is Array:
+			var now: Variant = obj.get(prop_name)
+			if not (now is Array) or (now as Array).size() != (value as Array).size():
+				failures.append("%s: the engine refused the array assignment" % prop_name)
+				continue
 		applied.append(prop_name)
 	return {"applied": applied, "ignored": ignored, "failures": failures}
 

@@ -429,7 +429,10 @@ func _execute_screenshot_step(step: Dictionary) -> Dictionary:
 		var why: Dictionary = guard["error"]
 		return {"captured": false, "saved": false, "error": str(why.get("message", "Invalid save_path"))}
 
-	var saved := await _send_game_command("screenshot", {"save_path": save_path}, 8.0)
+	var saved := await _send_game_command("screenshot", {
+		"save_path": save_path,
+		"half_resolution": optional_bool(step, "half_resolution", false),
+	}, 8.0)
 	if not saved.has("result"):
 		return {"captured": false, "saved": false, "error": "Screenshot capture failed"}
 	var payload: Dictionary = saved["result"]
@@ -590,7 +593,7 @@ func get_command_docs() -> Dictionary:
 		"test.run_scenario": {
 			"description": "Run a scripted scenario against the playing game: a sequence of --steps (input/wait/assert/screenshot) driven over file IPC. Optionally (re)starts the scene first. Requires a playing scene. An 'input' step with an action and pressed true is RELEASED in the same batch unless it sets auto_release false, so a hold-then-wait needs that flag or it runs as a one-frame tap; a step that auto-released reports auto_released true. Each input step waits for the game to read its payload before the next step runs and reports consumed true or false, so adjacent steps no longer overwrite each other.",
 			"params": [
-				doc_param("steps", "Array", true, "Non-empty JSON array of step objects, each with a 'type': 'input' ({action|keycode, pressed, strength, frame_delay, auto_release, consume_timeout}), 'wait' ({seconds} or {node_path, timeout}), 'assert' ({text} or {node_path, property, expected, operator}), or 'screenshot' ({save_path, half_resolution}). A screenshot step with save_path has the GAME write the PNG there (user:// is the game's user-data dir) and reports save_path; without one the capture is discarded and the step reports saved false."),
+				doc_param("steps", "Array", true, "Non-empty JSON array of step objects, each with a 'type': 'input' ({action|keycode, pressed, strength, frame_delay, auto_release, consume_timeout}), 'wait' ({seconds} or {node_path, timeout}), 'assert' ({text} or {node_path, property, expected, operator}), or 'screenshot' ({save_path, half_resolution}). A screenshot step with save_path has the GAME write the PNG there (user:// is the game's user-data dir) and reports save_path plus the written width/height; without one the capture is discarded and the step reports saved false. half_resolution defaults false when saving (a saved PNG is evidence, so downscaling is opt-in) and true for the discarded capture."),
 				doc_param("scene_path", "String", false, "'main', 'current', or a scene file path to (re)start before running; omit to use the already-playing scene."),
 			],
 		},

@@ -803,7 +803,7 @@ func _closest_point_on_triangle(p: Vector3, a: Vector3, b: Vector3, c: Vector3) 
 func get_command_docs() -> Dictionary:
 	return {
 		"spatial.bounds": {
-			"description": "Return a node's real world-space AABB (center/size/min/max as Vector3 strings) plus its pivot, from its VisualInstance3D geometry. A node with no visual geometry (Marker3D, a bare Node3D anchor) reads as a zero-size box at its origin, flagged point_only. 3D only.",
+			"description": "Return a node's real world-space AABB (center/size/min/max as Vector3 strings) plus its pivot, from its VisualInstance3D geometry. A node with no visual geometry (Marker3D, a bare Node3D anchor) reads as a zero-size box at its origin, flagged point_only. A Light3D is a VisualInstance3D, so it reports its influence volume rather than a point, and spatial.relate against it will say it overlaps whatever it lights: read a light's placement from pivot/position instead. 3D only.",
 			"params": [
 				doc_param("node_path", "NodePath", true, "Target node (a Node3D; geometry optional)."),
 			],

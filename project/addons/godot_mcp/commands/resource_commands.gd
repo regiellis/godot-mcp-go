@@ -210,7 +210,21 @@ func _edit(params: Dictionary) -> Dictionary:
 		if not bool(pres["ok"]):
 			failures.append("%s: %s" % [prop_name, String(pres["reason"])])
 			continue
-		resource.set(prop_name, pres["value"])
+		var new_value: Variant = pres["value"]
+		# Same typed-array gate as apply_initial_properties: an untyped Array on
+		# an Array[X] export either bounces or stores a value the save drops.
+		if ttype == TYPE_ARRAY and old_value is Array and (old_value as Array).is_typed():
+			var built := PropertyParser.build_typed_array(old_value, new_value)
+			if not bool(built["ok"]):
+				failures.append("%s: %s" % [prop_name, String(built["reason"])])
+				continue
+			new_value = built["value"]
+		resource.set(prop_name, new_value)
+		if ttype == TYPE_ARRAY and new_value is Array:
+			var now_val: Variant = resource.get(prop_name)
+			if not (now_val is Array) or (now_val as Array).size() != (new_value as Array).size():
+				failures.append("%s: the engine refused the array assignment" % prop_name)
+				continue
 		changed[prop_name] = {
 			"old": PropertyParser.serialize_value(old_value),
 			"new": PropertyParser.serialize_value(resource.get(prop_name)),

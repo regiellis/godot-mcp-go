@@ -1,0 +1,40 @@
+---
+title: Agent evals
+description: Scripted capability scenarios hand a blind worker agent a real task in a live project; deterministic checks grade the outcome, never the agent's own report.
+---
+
+[How it's tested](/docs/testing) describes two checks: the per-command sweep and a full game build before each release. The eval suite makes the second one repeatable. Instead of one open-ended build session, a set of scripted scenarios hands a worker agent a concrete task against a live editor, and a harness grades the result with machine checks. The agent's own report is never the grade.
+
+## The shape of a scenario
+
+A scenario is three parts:
+
+- **A task prompt** that pins the deliverables exactly: `res://` paths, node names, dimensions, behaviors. "A `CSGBox3D` named `Pillar`, 1 by 2.5 by 1, standing on the floor's top face" is checkable; "build a room" is not.
+- **A fixed briefing** every worker receives unchanged: how to invoke the CLI, what the sandbox is, what it may not touch, and the required shape of its final report. Keeping the briefing identical is what makes runs comparable.
+- **A check script** the harness runs after the worker finishes, against the same live editor, reading everything back: scene-tree shape, property values, world bounds with tolerances, in-game assertions driven through `test run-scenario`, and the editor's error buffer. A failing check reports the measured value, not just a verdict.
+
+The worker gets the briefing and the task, nothing else. It drives the tool the way any consumer agent would: discovering commands through `--help` and the `engine` group, building, and verifying by reading state back.
+
+## What the first wave measures
+
+Five scenarios, 37 deterministic checks, each aimed at one discipline the [agent skill](/docs/discover-then-drive) teaches:
+
+- **Smoke**: one scene, one label, five readbacks. A self-test that exercises every harness stage cheaply.
+- **Greybox**: a 3D room with walls that must touch without overlapping, a crate seated on a pillar, a light at an exact height. Every placement is graded by bounds arithmetic, so [spatial discipline](/docs/spatial-placement) is the whole score.
+- **Playtest**: a script with a signal, a player moved by the built-in input actions, and proof from the running game that the pickup scores exactly once. The harness replays the drive itself before believing it.
+- **Repair**: a seeded scene with three faults behind one observable, a compile error, a runtime null, and a timer that never starts. Fixing the first fault found is not enough, and the checks verify the observable, not any particular fix.
+- **Discovery**: a `Label` configured by settings named only in prose, whose numeric values must be read from the connected engine build rather than recalled.
+
+## The sandbox
+
+Scenarios run inside a real, lived-in Godot project, not a clean room, because real projects are where sequences break. Each scenario builds only under a reserved folder, the harness deletes that folder after every run, and a `git status` baseline diff proves nothing outside it changed. The diff fails closed: a missing baseline is an error, never a pass.
+
+The instrument itself is proven before any score counts. Every check has been shown to fail correctly: a scene deleted out from under the suite fails the right checks with the tool's own errors attached, a single wrong property fails exactly one check naming the value it measured, and a file planted outside the sandbox trips the baseline diff. An eval that cannot be shown to fail measures nothing.
+
+## The gate
+
+The suite runs before a release, after changes to command registration or the shared command helpers, and on demand. The gate is deliberately not perfection: every scenario must score at least 90% of its checks with none at zero, the sandbox diff must be clean, and anything surprising the run exposed must be fixed or filed before the tag. A gate that demands 100% turns a capability eval into a regression suite and stops asking the interesting question.
+
+Surprises feed back into the suite the same way the [build gate](/docs/testing) always has: each one becomes a fix or a filed issue, and where practical a kept check appended to the scenario that found it, so the suite accretes regression coverage from real use.
+
+The harness rides the maintainer tooling (`task eval` and `task eval:sandbox` in the Taskfile), so like `task test:http` it will not run from a clone of the public mirror. The methodology is documented here because it is part of the product contract: what ships has been driven, end to end, by an agent that did not build it.

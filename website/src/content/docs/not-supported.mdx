@@ -1,0 +1,34 @@
+---
+title: What's not supported
+description: Features that were considered and deliberately not built, with the reasoning and what to use instead.
+---
+
+Most gaps in this tool surface are not gaps. If the engine exposes something as a property or a callable method, `node set`, `node call`, and `editor run-script` reach it with no dedicated command, so a missing command name is usually not a missing capability. That is the design: see [Discover, then drive](/docs/discover-then-drive).
+
+This page covers the other kind. Each entry was considered, turned down for a stated reason, and is not planned. Each one says what to use instead.
+
+## VisualShader graph authoring
+
+`shader create-visual` writes an empty VisualShader resource in a given mode, and the graph itself is authored in the editor's VisualShader panel. Building that graph from a declarative spec of nodes and connections is not supported.
+
+The engine does not expose what such a command would need to be correct. Godot 4.7 ships 110 `VisualShaderNode` subclasses, and the port metadata describing them (`get_output_port_count`, `get_output_port_name`, `get_output_port_type`) is not bound to GDScript. A command wiring ports by index would therefore carry a hand-written table for every node class, with no way to validate it against the running engine and no signal when a release renumbers a port.
+
+`connect_nodes` compounds the problem instead of catching it. It accepts a type-mismatched edge, such as a color output feeding a scalar input, and returns success. A wrong port index then yields a shader that compiles, renders incorrectly, and reports no error anywhere in the chain.
+
+**Use instead:** `shader create` for code-first `.gdshader` work, which reports a compile result you can act on. For graph construction, `editor run-script` reaches the whole `VisualShader` API directly, and `VisualShader.get_code()` returns the generated shader source, which is the one reliable way to confirm a graph is wired as intended.
+
+## Per-domain tool subsets
+
+The MCP tool surface is all typed tools or one generic tool. There is no curated middle setting that exposes, say, only the 2D commands or only the scene commands.
+
+Subsets sound cheaper than they are. Every split has to be chosen for someone, kept in step with 332 commands as they change, and explained when an agent cannot find a tool that exists. The project targets models with large context windows, where the full surface fits, so the tradeoff was not worth the permanent maintenance.
+
+**Use instead:** `serve --typed=false` collapses the surface to the single `godot_run` tool, which still reaches every command by its dotted name. [What the tool surface costs](/docs/context-cost) measures both settings and lists the situations each one suits.
+
+## Driving an editor on another machine
+
+Both servers bind `127.0.0.1` and nothing else. There is no setting to bind a routable address, and none is planned.
+
+This is a local dev bridge, and the ports are unauthenticated by design, which is what lets the CLI work with no keys or pairing step. Binding beyond loopback would put arbitrary code execution on the network, so the choice is deliberate rather than unfinished. [How it works](/docs/how-it-works#threat-model) states the full threat model, including one known limitation on the WebSocket transport.
+
+**Use instead:** run the editor and the agent on the same workstation. For remote work, forward a port over SSH so the connection stays authenticated by the tunnel rather than by nothing.

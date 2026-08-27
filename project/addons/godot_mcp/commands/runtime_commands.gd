@@ -277,7 +277,7 @@ func _eval(params: Dictionary) -> Dictionary:
 
 
 func _screenshot(params: Dictionary) -> Dictionary:
-	var cmd := {}
+	var cmd := {"half_resolution": optional_bool(params, "half_resolution", false)}
 	var save_path := optional_string(params, "save_path", "")
 	if not save_path.is_empty():
 		cmd["save_path"] = save_path
@@ -396,9 +396,10 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"runtime.screenshot": {
-			"description": "Capture the running game's viewport to a PNG (base64, or --save-path). Works headless. Requires scene.play.",
+			"description": "Capture the running game's viewport to a PNG (base64, or --save-path). Works headless. Requires scene.play. --half-resolution downscales the image and is off by default here, unlike capture_frames.",
 			"params": [
 				doc_param("save_path", "String", false, "Path to save the PNG; omit to return base64."),
+				doc_param("half_resolution", "bool", false, "Downscale the capture to half resolution (default false)."),
 			],
 		},
 		"runtime.capture_frames": {

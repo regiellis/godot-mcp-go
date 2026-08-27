@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/bynine/godot-mcp-go/internal/client"
 )
 
 // runConfigure is a local subcommand (it never dials the addon) that writes an
@@ -24,6 +26,18 @@ import (
 // The generated invocation is `<abs binary> serve --project <abs project>`. Note
 // the serve subcommand's flag is --project (see serve.go), not --path; pointing
 // it at an unknown flag would make flag parsing fail and the server never start.
+//
+// --project must name a real Godot project, resolved with FindProjectRoot as
+// install does. A dir with no project.godot would still produce a config, but
+// serve launched from it cannot resolve a project root, so it falls back to the
+// default port AND skips the wrong-editor check in project_check.go (which needs
+// a caller project root to compare against). That config looks fine and silently
+// drives whichever editor holds 9080.
+//
+// --config-dir decouples where the config file lands from which project serve
+// drives. They are the same dir in a normal project, but not in a repo whose
+// Godot project is nested (this one: the client reads .mcp.json at the repo root
+// while serve must target project/).
 func runConfigure(args []string) int {
 	// Pull the positional <client> out so flags may sit on either side of it
 	// (flag.Parse stops at the first non-flag token, so the common
@@ -36,12 +50,13 @@ func runConfigure(args []string) int {
 
 	fs := flag.NewFlagSet("configure", flag.ContinueOnError)
 	project := fs.String("project", "", "Godot project dir to target (default: cwd)")
+	configDir := fs.String("config-dir", "", "dir to write the project-scoped config into (default: the project dir)")
 	global := fs.Bool("global", false, "write the user-global client config instead of a project-scoped file")
 	printSnippet := fs.Bool("print", false, "print the config snippet and its target path without writing anything")
 	name := fs.String("name", "godot-mcp", "MCP server key to write")
 	force := fs.Bool("force", false, "replace an existing server entry of the same name")
 	fs.Usage = subHelp(fs, "point an AI client at godot-mcp's stdio MCP server",
-		[]string{"godot-mcp configure <client> [--project DIR] [--global] [--print] [--name NAME] [--force]"},
+		[]string{"godot-mcp configure <client> [--project DIR] [--config-dir DIR] [--global] [--print] [--name NAME] [--force]"},
 		"Clients: claude, cursor, vscode, codex")
 	if rc := parseSub(fs, args); rc >= 0 {
 		return rc
@@ -62,15 +77,48 @@ func runConfigure(args []string) int {
 		return 2
 	}
 
-	// Resolve the target project to an absolute path, used both as serve's
-	// --project arg and to locate project-scoped config files.
-	proj := *project
-	if proj == "" {
-		proj, _ = os.Getwd()
+	// Resolve the target project, which becomes serve's --project arg. Walking
+	// up (as install does) means a subdirectory of a project resolves to its
+	// root; a dir that is in no project at all is a hard error, because the
+	// config it would produce is the silent-wrong-editor one described above.
+	start := *project
+	if start == "" {
+		start, _ = os.Getwd()
 	}
-	absProj, err := filepath.Abs(proj)
-	if err != nil {
-		absProj = proj
+	absProj, perr := client.FindProjectRoot(start)
+	if perr != nil {
+		absStart, aerr := filepath.Abs(start)
+		if aerr != nil {
+			absStart = start
+		}
+		fmt.Fprintf(os.Stderr, "configure: no Godot project found from %s upward: %v\n", absStart, perr)
+		if nested := nestedProjects(absStart); len(nested) > 0 {
+			fmt.Fprintln(os.Stderr, "A project.godot does sit below that dir. Point --project at it:")
+			for _, n := range nested {
+				fmt.Fprintf(os.Stderr, "  godot-mcp configure %s --project %s --config-dir %s\n", clientName, n, absStart)
+			}
+		}
+		return 1
+	}
+
+	// Where the config file itself lands. Same as the project by default.
+	configRoot := absProj
+	if *configDir != "" {
+		if *global {
+			fmt.Fprintln(os.Stderr, "configure: --config-dir and --global are mutually exclusive; --global writes a fixed user-level path.")
+			return 2
+		}
+		abs, cerr := filepath.Abs(*configDir)
+		if cerr != nil {
+			abs = *configDir
+		}
+		// Require it to exist: MkdirAll below would otherwise turn a typo into
+		// a new directory tree holding a config nothing reads.
+		if fi, serr := os.Stat(abs); serr != nil || !fi.IsDir() {
+			fmt.Fprintf(os.Stderr, "configure: --config-dir %s is not an existing directory\n", abs)
+			return 1
+		}
+		configRoot = abs
 	}
 
 	// The command the client will launch: this binary's absolute path.
@@ -92,7 +140,7 @@ func runConfigure(args []string) int {
 			fmt.Fprintln(os.Stderr, "Printing the snippet instead. Add it under the top-level \"mcpServers\" object, or drop --global to use the project-scoped .mcp.json.")
 			return configureJSON(path, "mcpServers", *name, exe, srvArgs, false, false, true, label)
 		}
-		path := filepath.Join(absProj, ".mcp.json")
+		path := filepath.Join(configRoot, ".mcp.json")
 		return configureJSON(path, "mcpServers", *name, exe, srvArgs, false, *force, *printSnippet, label)
 
 	case "cursor":
@@ -105,7 +153,7 @@ func runConfigure(args []string) int {
 			}
 			path = filepath.Join(home, ".cursor", "mcp.json")
 		} else {
-			path = filepath.Join(absProj, ".cursor", "mcp.json")
+			path = filepath.Join(configRoot, ".cursor", "mcp.json")
 		}
 		return configureJSON(path, "mcpServers", *name, exe, srvArgs, false, *force, *printSnippet, label)
 
@@ -117,11 +165,15 @@ func runConfigure(args []string) int {
 			fmt.Fprintln(os.Stderr, "Printing the snippet instead. Paste it there, or drop --global to use the project-scoped .vscode/mcp.json.")
 			return configureJSON("<VS Code user settings.json>", "servers", *name, exe, srvArgs, true, false, true, label)
 		}
-		path := filepath.Join(absProj, ".vscode", "mcp.json")
+		path := filepath.Join(configRoot, ".vscode", "mcp.json")
 		return configureJSON(path, "servers", *name, exe, srvArgs, true, *force, *printSnippet, label)
 
 	case "codex":
 		// Codex has no project-scoped MCP config; it is global-only (~/.codex/config.toml).
+		if *configDir != "" {
+			fmt.Fprintln(os.Stderr, "configure: Codex has no project-scoped config, so --config-dir has nothing to place.")
+			return 2
+		}
 		path := homePath(filepath.Join(".codex", "config.toml"))
 		if !*global {
 			fmt.Fprintf(os.Stderr, "configure: Codex has no project-scoped MCP config. It is configured globally in %s.\n", path)
@@ -131,6 +183,27 @@ func runConfigure(args []string) int {
 		return configureTOML(path, *name, exe, srvArgs, *force, *printSnippet, label)
 	}
 	return 2 // unreachable: clientLabels gate above
+}
+
+// nestedProjects lists immediate subdirectories of dir that hold a project.godot,
+// in name order (os.ReadDir sorts, and these all share one parent). Pointing
+// --project at a repo root whose Godot project is one level down is the natural
+// mistake here, so the failure names the fix rather than only refusing.
+func nestedProjects(dir string) []string {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil
+	}
+	var found []string
+	for _, e := range entries {
+		if !e.IsDir() || strings.HasPrefix(e.Name(), ".") {
+			continue
+		}
+		if pathExists(filepath.Join(dir, e.Name(), "project.godot")) {
+			found = append(found, filepath.Join(dir, e.Name()))
+		}
+	}
+	return found
 }
 
 // clientLabels maps each supported client id to a human-facing name (used in

@@ -462,6 +462,7 @@ func _get_node_properties(params: Dictionary) -> void:
 		return
 	var filter: Array = params.get("properties", [])
 	var props: Dictionary = {}
+	var missing: Array = []
 	if filter.is_empty():
 		for prop_info in node.get_property_list():
 			var pn: String = prop_info["name"]
@@ -471,9 +472,25 @@ func _get_node_properties(params: Dictionary) -> void:
 				continue
 			props[pn] = PropertyParser.serialize_value(node.get(pn))
 	else:
+		# Mirror the editor-side node.get contract: names that do not resolve
+		# come back under `missing` instead of being silently dropped, and a
+		# name that resolves only as a METHOD is missing too. get() on a method
+		# name returns a bound Callable that serializes as "Class::method" and
+		# reads like data (2026-08-19 eval finding, on a Timer's is_stopped).
 		for pn in filter:
-			props[String(pn)] = PropertyParser.serialize_value(node.get(String(pn)))
-	_respond({"node_path": _rel(node), "type": node.get_class(), "properties": props})
+			var key := String(pn)
+			if key in node:
+				var got: Variant = node.get(key)
+				if got is Callable and node.has_method(key) and not PropertyParser.declared_type(node, key)["found"]:
+					missing.append(key)
+				else:
+					props[key] = PropertyParser.serialize_value(got)
+			else:
+				missing.append(key)
+	var payload := {"node_path": _rel(node), "type": node.get_class(), "properties": props}
+	if not missing.is_empty():
+		payload["missing"] = missing
+	_respond(payload)
 
 
 func _set_node_property(params: Dictionary) -> void:
@@ -628,6 +645,14 @@ func _screenshot(params: Dictionary) -> void:
 		await RenderingServer.frame_post_draw
 		image = get_viewport().get_texture().get_image()
 		black = _is_black(image)
+	# Default false, unlike capture_frames: a saved PNG is evidence someone looks
+	# at, and silently halving every existing caller's file would be its own
+	# surprise. Opt in explicitly. The step schema and --help both say so.
+	if bool(params.get("half_resolution", false)):
+		var half := image.get_size() / 2
+		if half.x > 0 and half.y > 0:
+			image.resize(half.x, half.y, Image.INTERPOLATE_BILINEAR)
+
 	var save_path: String = params.get("save_path", "")
 	if not save_path.is_empty():
 		var abs_path := ProjectSettings.globalize_path(save_path) if save_path.begins_with("res://") or save_path.begins_with("user://") else save_path

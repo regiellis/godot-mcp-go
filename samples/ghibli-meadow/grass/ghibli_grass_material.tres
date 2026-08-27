@@ -1,0 +1,29 @@
+[gd_resource type="ShaderMaterial" format=3 uid="uid://sihrv67w30r"]
+
+[ext_resource type="Shader" uid="uid://cqoscyjd0kqu8" path="res://grass/ghibli_grass.gdshader" id="1_8n2g4"]
+[ext_resource type="Texture2D" uid="uid://sf8fpwgr7ckp" path="res://grass/ghibli_patch_noise.tres" id="2_ht3wu"]
+[ext_resource type="Texture2D" uid="uid://8ih53ib4pt3p" path="res://grass/ghibli_wind_noise.tres" id="3_x54cx"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_8n2g4")
+shader_parameter/tone_shadowed = Color(0.1, 0.34, 0.29, 1)
+shader_parameter/tone_lit = Color(0.58, 0.78, 0.26, 1)
+shader_parameter/patch_noise = ExtResource("2_ht3wu")
+shader_parameter/patch_scale = 0.025
+shader_parameter/patch_brightness = 0.0
+shader_parameter/patch_contrast = 1.3
+shader_parameter/toon_edge = 0.45
+shader_parameter/toon_softness = 0.06
+shader_parameter/shadow_tint = Color(0.38, 0.52, 0.62, 1)
+shader_parameter/terminator_band = 0.2
+shader_parameter/root_darken = 0.38
+shader_parameter/tip_lighten = 0.12
+shader_parameter/wind_direction_deg = 35.0
+shader_parameter/wind_strength = 0.45
+shader_parameter/wind_speed = 1.6
+shader_parameter/gust_scale = 0.015
+shader_parameter/flutter = 0.25
+shader_parameter/wind_sheen = 0.35
+shader_parameter/wind_noise = ExtResource("3_x54cx")
+shader_parameter/wave_time = 0.0

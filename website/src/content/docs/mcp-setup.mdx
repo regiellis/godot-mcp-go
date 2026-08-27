@@ -36,6 +36,14 @@ godot-mcp configure codex --global
 
 Add `--print` to emit the snippet without writing (the safe path for uncertain global targets).
 
+`--project` must name a real Godot project, meaning the directory holding `project.godot` or anywhere inside it. Configure refuses a directory that is in no project: the config it would write leaves the server unable to resolve a project root, so it falls back to port 9080 and skips the check that the answering editor is the right one.
+
+When the Godot project sits in a subdirectory of a larger repo, `--config-dir` puts the config where the client reads it while the server still drives the project:
+
+```bash
+godot-mcp configure claude --project ./game --config-dir .
+```
+
 ## Or configure by hand
 
 ```json

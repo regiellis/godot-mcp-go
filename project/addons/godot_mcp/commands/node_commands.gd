@@ -410,6 +410,13 @@ func _get_properties(params: Dictionary) -> Dictionary:
 	var node: Node = ctx[0]
 	var base := {"node_path": str(get_edited_root().get_path_to(node)), "type": node.get_class()}
 
+	# `property` (singular) is the spelling node.set requires, and agents carry it
+	# over: three of six eval workers across two waves reached for it here. Accept
+	# it as a one-name list rather than refusing a mistake most callers make.
+	if params.has("property") and not params.has("properties"):
+		params = params.duplicate()
+		params["properties"] = [str(params["property"])]
+
 	# Explicit `properties` list: fetch exactly those by name (any property, not
 	# just the editor-visible set), `script` as its resource path. Names that don't
 	# resolve are reported under `missing` instead of being silently dropped.
@@ -422,7 +429,17 @@ func _get_properties(params: Dictionary) -> Dictionary:
 				var scr: Script = node.get_script()
 				picked["script"] = scr.resource_path if scr != null else null
 			elif key in node:
-				picked[key] = PropertyParser.serialize_value(node.get(key))
+				# `in` is true for method names too, and get() on one returns a
+				# bound Callable that serializes as "Class::method" and reads
+				# like data (2026-08-19 eval finding, on a Timer's is_stopped).
+				# A name the property list does not declare, whose value is a
+				# Callable the object has as a method, is a method: report it
+				# missing rather than answering with a string nobody asked for.
+				var got: Variant = node.get(key)
+				if got is Callable and node.has_method(key) and not PropertyParser.declared_type(node, key)["found"]:
+					missing.append(key)
+				else:
+					picked[key] = PropertyParser.serialize_value(got)
 			else:
 				missing.append(key)
 		base["properties"] = picked
@@ -888,6 +905,7 @@ func get_command_docs() -> Dictionary:
 			"params": [
 				doc_param("node_path", "NodePath", true, "Target node."),
 				doc_param("properties", "Array", false, "Explicit list of property names to fetch; names that don't resolve come back under 'missing'."),
+				doc_param("property", "String", false, "One property name, the spelling node.set uses; shorthand for a single-entry --properties."),
 				doc_param("category", "String", false, "Prefix filter over the default property set (e.g. 'transform')."),
 			],
 		},

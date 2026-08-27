@@ -4,7 +4,176 @@ All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project aims to
 follow [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.9.1] - 2026-08-27
+
+### Added
+
+- **Two sample projects**, `samples/ghibli-meadow` and
+  `samples/lighthouse-demo`, each a standalone Godot 4.7 project an agent
+  built by driving the tool. The meadow scatters 250,000 grass blades as a
+  MultiMesh over a 70 m field, built at load from a seed rather than stored,
+  so the scene file stays small. Its panel retunes the grass and the wind and
+  rebuilds the field at a new density without a reload. The lighthouse demo is
+  a stylized water surface whose control panel is generated from the shader's
+  own uniform list, so it shows whatever the material exposes. Both run with
+  `godot --path .`.
+- **An agent eval harness** as the scripted release gate, under `evals/`: five
+  scenarios carrying 37 deterministic checks, a worker preamble, a review
+  rubric, and the run ledgers. A blind worker agent builds against a sandbox in
+  the maintainer's dogfood project, then `scripts/eval-check.ps1` grades the
+  result against the live editor, so what the worker says it did never counts
+  toward the score. The `/eval` skill orchestrates a run. Methodology is
+  published on the docs site under Agent evals. Maintainer-only: `evals/` does
+  not ship in the public mirror.
+- **`configure --config-dir`** writes the client config somewhere other than
+  the project it points at. The two are the same directory in an ordinary
+  project, and different in a repo whose Godot project sits in a
+  subdirectory, where the client reads `.mcp.json` at the repo root while the
+  server has to target the subdirectory. It is rejected alongside `--global`
+  and for codex, both of which write fixed paths, and the directory has to
+  exist already.
+- **A "What's not supported" page** on the docs site, under Reference. It
+  records features that were considered and deliberately not built, with the
+  reasoning and what to use instead: declarative VisualShader graph
+  authoring, per-domain tool subsets, and driving an editor on another
+  machine. Each entry argues from the engine rather than from preference. The
+  first notes that 4.7 ships 110 `VisualShaderNode` subclasses whose port
+  metadata is not bound to GDScript, so wiring ports by index means a
+  hand-written table nothing can validate, and that `connect_nodes` accepts a
+  type-mismatched edge and returns success, so a stale index yields a shader
+  that compiles, renders wrong, and reports no error.
+- **`scripts/mirror.sh` and `scripts/lib/snapshot_guard.py`**, a POSIX port of
+  the mirror snapshot ritual, so a release can be mirrored from macOS or Linux
+  and not from Windows alone. The guard is Python rather than shell because
+  the policy patterns use `\b` and character classes, which POSIX ERE lacks
+  and macOS `grep` cannot match with `-P`. A shell port would quietly
+  under-match and pass a leaking tree. Verified by rebuilding the published
+  0.9.0 snapshot and diffing trees: 421 files, byte-identical. `task mirror`
+  dispatches to whichever script fits the platform. Maintainer-only:
+  `scripts/` does not ship in the public mirror.
+
+### Changed
+
+- **`task build` writes `bin/godot-mcp` on every platform except Windows**,
+  which still gets `bin/godot-mcp.exe`. The `BIN` variable had the `.exe` name
+  hard-coded, so building from source on macOS or Linux produced a working
+  binary under a misleading name.
+
+### Fixed
+
+- **A screenshot step ignored `half_resolution` when it saved a file**. A
+  `test run-scenario` step carrying both `save_path` and `half_resolution`
+  wrote a full-resolution PNG and reported the full dimensions, so the flag
+  read as accepted and did nothing; the capture was byte-identical to one
+  taken without it. Only the discard branch, which returns the frame instead
+  of saving it, had ever honoured the flag. The step now forwards it and the
+  game downscales with the same call `capture_frames` uses, and the result
+  reports the dimensions actually written. Saving defaults to full resolution,
+  unlike `capture_frames`, because a saved PNG is evidence someone looks at;
+  both help strings now name the default. `runtime screenshot` accepts
+  `--half-resolution` for the same reason.
+- **`node get` accepts `--property`**, the singular spelling `node set`
+  requires, as shorthand for a single-name `--properties`. Agents that had
+  just used `node set` carried the spelling over and got a refusal for a
+  mistake most callers make.
+- **Two help strings described less than their commands return**.
+  `editor errors` reports a `suppressed_noise` count its help never named, so
+  a result reading `count: 0` beside a non-zero suppressed count invited the
+  reading that something was being hidden. `spatial bounds` said it reads
+  `VisualInstance3D` geometry and offered `Marker3D` as the example of a node
+  with none, which left lights looking like points. A light reports its
+  influence volume, so `spatial relate` says it overlaps whatever it lights,
+  and a light's placement has to be read from its pivot. Both now say so, and
+  the skill's `doc-search` example no longer claims a query that does not
+  return what it says it does.
+- **A param a command does not declare now refuses the call** instead of being
+  noted in the result. The router compared sent param names against the
+  command's docs and annotated the payload with `unknown_params` plus a
+  did-you-mean hint, which meant a flag borrowed from a sibling command, or one
+  spelled for a different command, returned a plausible answer to a question the
+  caller had not asked. Three independent agents hit it in one session:
+  `scene validate --path res://...` answered `valid: true` about whichever scene
+  was open, `node get --property x` returned every property where `node set`
+  requires that same singular spelling, and `--format json` placed after the
+  command reached the addon rather than the CLI's formatter. Each is now
+  `-32602` with the unknown names, the hint, and the command's declared params,
+  and **the check runs before the handler**, so a refused call cannot have
+  already changed the project. Commands that deliberately accept an
+  unadvertised param keep working: the router's alias table now carries all 26
+  of them, including `parent` as an alias for `parent_path` across the 19
+  add-style commands that take it, which the old annotation had been flagging as
+  unknown on calls that worked. `task check` gained `task audit:params`, which
+  walks every handler for the param keys it actually reads and fails on one the
+  docs do not declare, because refusing an undeclared param is only correct
+  while the docs are a complete map of what each handler accepts.
+- **A typed `Array[X]` property took an untyped array and dropped it on save**.
+  `Object.set()` with an untyped `Array` on an `Array[X]` export is either
+  refused by the engine or stores a value the serializer discards, and neither
+  outcome reached the caller: a gate build watched `resource.create` report
+  `planets` under `properties_set` while the saved file held `[]`. Writes now
+  build a properly typed copy first. Elements coerce toward the array's element
+  type, so an Object passes a class or script check, a `res://` or `uid://`
+  string is loaded, a Dictionary instantiates the element class and applies its
+  keys strictly, and a nested typed array recurses. An element that cannot be
+  carried refuses the whole array and names its index instead of quietly
+  shortening it. Both write paths read the size back afterwards, because a
+  container can refuse an assignment without raising anything the caller sees,
+  and a refusal must not hide inside a success.
+- **`release.ps1` would have shipped an addon zip with no `.gdignore`** if it
+  were ever run on macOS or Linux. `Compress-Archive` treats a leading dot as
+  hidden on PowerShell for Unix and skips those entries without a word, so
+  `assets/.gdignore` vanished and a consumer project would have imported the
+  whole bundled texture pack. It now refuses to run outside Windows and names
+  `release.sh`, the POSIX port, which `task release` already selects there.
+  Published archives were never affected: they were built on Windows, where a
+  leading dot carries no hidden attribute.
+- **Release archives carried files from the maintainer's working directory**.
+  The packaging step copied `project/addons` and `skills/godot-mcp` off disk
+  rather than out of the commit, so anything sitting in the checkout rode
+  along. The 0.9.0 archives ship 94 gitignored `.import` files because of it:
+  stale ones, since `assets/.gdignore` means Godot never imports that folder,
+  and each names a desktop S3TC path under `res://.godot/imported/` that no
+  consumer project has. Being untracked, they never passed the policy scan
+  that gates every public artifact, because that scan reads a commit. The same
+  copy baked in Windows line endings, giving 65 of 244 text files in the addon
+  zip CRLF where a POSIX checkout gives LF. Packaging now stages through
+  `git archive` from the commit being released, so the artifacts hold exactly
+  the  tracked files and the line endings those files carry as committed.
+  `core.autocrlf` is forced off for that step: `git archive` converts line
+  endings on the way out exactly as a checkout does, so on a Windows clone it
+  re-baked CRLF into every text file it staged, which left the artifact
+  depending on the building machine again. Verified by rebuilding 0.9.0 on
+  Windows from the released commit and diffing against the published assets:
+  94 `.import` files gone, nothing added anywhere, every file in the addon zip
+  byte-identical to its blob, and CRLF down to the one bundled license file
+  whose blob holds it. The GitHub mirror and the Asset Library branch were
+  never affected: both already built from the commit.
+- **`configure` accepted a directory that was not a Godot project**. The config
+  it wrote looked correct, but `serve` could not resolve a project root from
+  that directory, so it fell back to port 9080 and also skipped the check that
+  the answering editor belongs to this project. Pointed at a repo root whose
+  Godot project sits one level down, it silently drove whichever editor held
+  the default port. `--project` now resolves through the same upward walk
+  `install` uses, a directory in no project is refused outright, and the
+  refusal names any `project.godot` one level below it.
+- **The two mirror scripts built different snapshots from the same commit**.
+  `mirror.ps1` piped its filtered `.gitignore` into `git hash-object --stdin`,
+  and PowerShell terminates what it writes to a native command with the
+  platform newline, so that blob picked up a trailing CRLF `mirror.sh` never
+  produced. Alternating between the two machines flipped the line back and
+  forth in the published snapshot. It now writes the text to a file and hashes
+  it with `--no-filters`, and both scripts land on the same blob for the same
+  input. The two exclusion lists had also drifted apart in the POSIX port:
+  `mirror.sh` carried no `evals` entry, and `mirror.ps1` lacked the any-depth
+  globs that catch a context doc arriving in a folder the exact-path list does
+  not name. Maintainer-only.
+- **`mirror.sh` refuses to run on Windows**. Under Git Bash the guard writes its
+  filtered `.gitignore` in the locale codepage and in text mode, which drops the
+  bytes of every non-ASCII character and puts the carriage returns back, so the
+  snapshot would differ from the one `mirror.ps1` builds from the same commit.
+  It now exits and names `mirror.ps1`, while `--help` still works. `task mirror`
+  already routes by platform, so this catches a direct invocation. `release.ps1`
+  carries the same kind of refusal in the other direction. Maintainer-only.
 
 ## [0.9.0] - 2026-08-13
 

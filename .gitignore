@@ -32,8 +32,14 @@ reference/
 # video form the Asset Library takes and a clone should not carry 80 MB of it.
 media/previews/*.mp4
 
+# Per-run eval state (the target project's porcelain baseline, machine summaries).
+# Ledgers under evals/results/ are committed; this is scratch for one run.
+evals/.runstate/
+
 # Redirected editor stdout/stderr. An agent launches the editor with its stdio
 # sent here (a plain launch corrupts the terminal's rendering), so these pile up
 # per session and are diagnostic only.
 editor_session/
 
+# Machine-local MCP client config (absolute paths; differs per machine)
+.mcp.json

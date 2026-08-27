@@ -90,6 +90,8 @@ const AUTHORED: NavGroup[] = [
       { label: "Custom commands", slug: "extending" },
       { label: "How it works", slug: "how-it-works" },
       { label: "How it's tested", slug: "testing" },
+      { label: "Agent evals", slug: "evals" },
+      { label: "What's not supported", slug: "not-supported" },
       // Rendered from the repo-root CHANGELOG.md, not authored under content/docs.
       { label: "Changelog", slug: "changelog" },
     ],

@@ -219,6 +219,86 @@ static func coerce_call_args(info: Dictionary, raw: Array, method: String) -> Di
 	return {"ok": true, "args": out, "reason": ""}
 
 
+## True when `obj`'s script is `s` or extends it.
+static func _script_matches(s: Script, obj: Object) -> bool:
+	var cur: Script = obj.get_script()
+	while cur != null:
+		if cur == s:
+			return true
+		cur = cur.get_base_script()
+	return false
+
+
+## Build a PROPERLY TYPED copy of `current` (the typed Array read from the target
+## property) holding `raw`'s elements. Object.set() with an untyped Array on an
+## Array[X] property either gets refused by the engine or stores a value the
+## serializer drops, and neither is visible to the caller: the 2026-08-19 gate
+## build saw resource.create list `planets` under properties_set while the saved
+## file held []. Elements coerce toward the array's element type: an Object
+## passes a class or script check, a res:// or uid:// String is loaded, a
+## Dictionary instantiates the element class and applies its keys strictly
+## (nested typed arrays recurse), and scalars go through parse_checked. Any
+## element that cannot be carried refuses the WHOLE array, naming its index.
+static func build_typed_array(current: Array, raw: Variant) -> Dictionary:
+	var out := current.duplicate()
+	out.clear()
+	var items: Array = raw if raw is Array else [raw]
+	var elem_type := current.get_typed_builtin()
+	var elem_class := String(current.get_typed_class_name())
+	var elem_script: Variant = current.get_typed_script()
+	for i in items.size():
+		var item: Variant = items[i]
+		var value: Variant = null
+		if elem_type == TYPE_OBJECT:
+			if item is Object:
+				value = item
+			elif item is String and (String(item).begins_with("res://") or String(item).begins_with("uid://")):
+				value = load(item)
+				if value == null:
+					return {"ok": false, "value": null, "reason": "element %d: could not load '%s'" % [i, item]}
+			elif item is Dictionary:
+				var inst: Object = null
+				if elem_script is Script:
+					inst = (elem_script as Script).new()
+				elif not elem_class.is_empty() and ClassDB.can_instantiate(elem_class):
+					inst = ClassDB.instantiate(elem_class)
+				if inst == null:
+					var label := elem_class if not elem_class.is_empty() else "the element type"
+					return {"ok": false, "value": null, "reason": "element %d: cannot instantiate %s from a Dictionary" % [i, label]}
+				for k in item:
+					var pname := String(k)
+					if not pname in inst:
+						return {"ok": false, "value": null, "reason": "element %d: %s has no property '%s'" % [i, inst.get_class(), pname]}
+					var decl := declared_type(inst, pname)
+					var ptype: int = int(decl["type"]) if decl["found"] else typeof(inst.get(pname))
+					var pcurrent: Variant = inst.get(pname)
+					if ptype == TYPE_ARRAY and pcurrent is Array and (pcurrent as Array).is_typed():
+						var nested := build_typed_array(pcurrent, item[k])
+						if not bool(nested["ok"]):
+							return {"ok": false, "value": null, "reason": "element %d.%s: %s" % [i, pname, String(nested["reason"])]}
+						inst.set(pname, nested["value"])
+						continue
+					var pres := parse_checked(item[k], ptype, String(decl["class_name"]))
+					if not bool(pres["ok"]):
+						return {"ok": false, "value": null, "reason": "element %d.%s: %s" % [i, pname, String(pres["reason"])]}
+					inst.set(pname, pres["value"])
+				value = inst
+			else:
+				var want := elem_class if not elem_class.is_empty() else "Object"
+				return {"ok": false, "value": null, "reason": "element %d: cannot make %s from %s" % [i, want, type_string(typeof(item))]}
+			if elem_script is Script and not _script_matches(elem_script, value):
+				return {"ok": false, "value": null, "reason": "element %d: expected the array's element script class, got %s" % [i, (value as Object).get_class()]}
+			if elem_script == null and not elem_class.is_empty() and not (value as Object).is_class(elem_class):
+				return {"ok": false, "value": null, "reason": "element %d: expected %s, got %s" % [i, elem_class, (value as Object).get_class()]}
+		else:
+			var sres := parse_checked(item, elem_type, "")
+			if not bool(sres["ok"]):
+				return {"ok": false, "value": null, "reason": "element %d: %s" % [i, String(sres["reason"])]}
+			value = sres["value"]
+		out.append(value)
+	return {"ok": true, "value": out, "reason": ""}
+
+
 static func declared_type(obj: Object, property: String) -> Dictionary:
 	if obj == null:
 		return {"found": false, "type": TYPE_NIL, "class_name": ""}
