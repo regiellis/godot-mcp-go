@@ -656,8 +656,16 @@ func _screenshot(params: Dictionary) -> void:
 	var save_path: String = params.get("save_path", "")
 	if not save_path.is_empty():
 		var abs_path := ProjectSettings.globalize_path(save_path) if save_path.begins_with("res://") or save_path.begins_with("user://") else save_path
-		if image.save_png(abs_path) != OK:
-			_respond({"error": "Failed to save screenshot"})
+		# Image.save_png does not create directories. A save_path naming one that
+		# does not exist came back "Failed to save screenshot" with the reason
+		# only in the engine's own error line, which the caller has to poll
+		# runtime.errors to see. Found 2026-08-30 driving the upgrade baseline.
+		var dir_path := abs_path.get_base_dir()
+		if not dir_path.is_empty() and not DirAccess.dir_exists_absolute(dir_path):
+			DirAccess.make_dir_recursive_absolute(dir_path)
+		var save_err := image.save_png(abs_path)
+		if save_err != OK:
+			_respond({"error": "Failed to save screenshot to '%s': %s" % [save_path, error_string(save_err)]})
 			return
 		_respond({"saved_path": save_path, "width": image.get_width(), "height": image.get_height(),
 			"format": "png", "black_frame": black})
