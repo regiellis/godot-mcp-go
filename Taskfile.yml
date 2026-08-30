@@ -120,6 +120,11 @@ tasks:
     cmds:
       - pwsh -NoProfile -File scripts/mirror-audit.ps1 {{.CLI_ARGS}}
 
+  publish:reversi:
+    desc: "Build the godot-reversi snapshot from samples/reversi (e.g. task publish:reversi -- -Parent <sha> -Message \"...\"); prints the sha, pushes nothing"
+    cmds:
+      - pwsh -NoProfile -File scripts/publish-reversi.ps1 {{.CLI_ARGS}}
+
   asset:check:
     desc: Does the Asset Library entry need touching? Diffs the addon against the published tip
     cmds:

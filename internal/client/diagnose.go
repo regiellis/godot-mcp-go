@@ -130,7 +130,7 @@ func classify(disc *Discovery, port int, reachable, alive bool) Status {
 		return Status{
 			Verdict: VerdictClosed, Port: port,
 			Message: "No editor reachable and no discovery file. The editor was closed cleanly or was never started.",
-			Action:  "You may launch ONE editor (godot --path <project> --editor) if the task needs it. Never launch a second.",
+			Action:  "You may launch ONE editor (godot-mcp launch [--headless], or godot --path <project> --editor) if the task needs it. Never launch a second.",
 		}
 	}
 	if alive {
@@ -143,9 +143,15 @@ func classify(disc *Discovery, port int, reachable, alive bool) Status {
 	return Status{
 		Verdict: VerdictCrashed, Port: port, PID: disc.PID, StartedUnix: disc.StartedUnix,
 		Message: fmt.Sprintf("Editor appears to have crashed: a stale discovery file remains but its process (pid %d) is gone.", disc.PID),
-		Action:  "Tell the user it crashed. You may relaunch ONE editor. Never launch a second.",
+		Action:  "Tell the user it crashed. You may relaunch ONE editor (godot-mcp launch). Never launch a second.",
 	}
 }
+
+// PIDAlive reports whether a process id names a live process, using the same
+// per-platform check the crash verdict rests on. Exported for the CLI's own
+// no-stacking guards, which read a discovery file's pid without wanting a full
+// diagnosis: the game channel has no verdict of its own.
+func PIDAlive(pid int) bool { return pidAlive(pid) }
 
 // probe reports whether something is accepting TCP connections on the addon port.
 func probe(port int) bool {

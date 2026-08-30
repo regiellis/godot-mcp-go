@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://beb2rbf6nol7g"]
+
+[ext_resource type="Script" uid="uid://cvo8jj38spcmg" path="res://screens/splash/splash.gd" id="1_tlxvd"]
+
+[node name="Splash" type="Control" unique_id=2070611195]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_tlxvd")

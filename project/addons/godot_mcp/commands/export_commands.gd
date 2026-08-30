@@ -98,7 +98,13 @@ func _project(params: Dictionary) -> Dictionary:
 
 
 func _info(_params: Dictionary) -> Dictionary:
-	var templates_path := OS.get_data_dir().path_join("export_templates")
+	# EditorPaths, not OS. OS.get_data_dir() is the platform data root (%APPDATA%
+	# on Windows) while the editor keeps its templates one level down, under its
+	# own data dir (%APPDATA%/Godot). Reading the OS one reported a path that does
+	# not exist and templates_installed false on a machine that has them, which is
+	# the opposite of what this command is for. Verified live on 4.7.2 against the
+	# path the engine's own export error names. EditorPaths is 4.0+, so no gate.
+	var templates_path := EditorInterface.get_editor_paths().get_data_dir().path_join("export_templates")
 	return success({
 		"has_export_presets": FileAccess.file_exists(_PRESETS_PATH),
 		"godot_executable": OS.get_executable_path(),

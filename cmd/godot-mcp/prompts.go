@@ -136,7 +136,7 @@ const launchRecoveryPrompt = "Recover an unreachable Godot editor from its disco
 	"- starting: the process is alive but still booting. WAIT a few seconds and retry; do NOT launch.\n" +
 	"- crashed: a stale discovery file remains but the process is gone. Tell the user it crashed; you may relaunch exactly one editor.\n" +
 	"- closed: no discovery file (clean exit or never started). You may launch exactly one editor if the task needs it.\n\n" +
-	"Launch with `godot --path <project> --editor`. Relaunch AT MOST ONCE; if it is still unreachable after one attempt, stop and report. Do not loop launches. " +
+	"Launch with `godot-mcp launch [--headless]`, which applies these verdicts itself and logs the editor's output to <project>/.godot/godot-mcp-launch.log (fall back to `godot --path <project> --editor` when the CLI is not installed). Relaunch AT MOST ONCE; if it is still unreachable after one attempt, stop and report. Do not loop launches. " +
 	"After a launch, status reading running or starting is your guard against opening a second."
 
 const bugHuntPrompt = "Treat a live-editor session as a bug-hunt, not a demo. When a command returns something surprising (a wrong number, an unexpected error, a \"that's weird\"), " +

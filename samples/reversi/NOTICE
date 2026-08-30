@@ -1,0 +1,41 @@
+THIRD-PARTY NOTICES
+
+The MIT licence in LICENSE covers the code and the scenes. The bundled assets are
+covered by their own terms, which travel with them.
+
+None of the people credited below are associated with this project and none of
+them have endorsed it. Their work is used under licences that permit reuse. A
+CC0 release, an OFL font or an MIT kit grants permission to use the work; it
+says nothing about the author's view of AI tools, of AI in games, or of this
+demonstration.
+
+Sound effects
+    assets/audio/sfx/
+    By Kenney (https://kenney.nl), released under CC0 1.0 Universal, which
+    places them in the public domain and imposes no conditions on reuse.
+    See assets/audio/sfx/LICENSE.txt.
+
+Display typeface
+    assets/fonts/Bungee-Regular.ttf
+    Bungee by David Jonathan Ross (https://github.com/djrrb/Bungee), used under
+    the SIL Open Font License 1.1. That licence requires its text to travel
+    with the font: the full text is in assets/fonts/OFL.txt, and reuse of the
+    font is governed by it rather than by the MIT licence.
+
+Design influence
+    The widget kit adapts the mechanisms of the Liquid UI Kit for Godot by
+    Miisan (MIT), https://miisan.itch.io/godot-4-ui
+    No code from that project is included here: the mechanisms were
+    re-implemented against this project's own design tokens. The debt is one of
+    approach rather than source, and it is a real one.
+
+WHAT THIS PROJECT IS FOR
+
+This is a demonstration and a teaching artifact. It exists to show what an AI
+agent can and cannot do inside a real Godot workflow, and it is published so the
+code and the process can be read, studied and argued with.
+
+It is not a product. It is not maintained as a game, it takes no feature
+requests, and it is not intended to be shipped as one. The licence is MIT
+because the point is for people to learn from this and reuse the techniques
+freely. Treat it as a worked example rather than a dependency.

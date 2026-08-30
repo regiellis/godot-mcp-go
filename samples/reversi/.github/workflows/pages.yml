@@ -1,0 +1,171 @@
+name: Deploy web build to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time, and never cancel a production deploy mid-flight.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  # The only place the engine version is written. Bump both together: the
+  # export-template directory Godot searches is named "<version>.<release>",
+  # so 4.7.2 + stable means ~/.local/share/godot/export_templates/4.7.2.stable/.
+  GODOT_VERSION: "4.7.2"
+  GODOT_RELEASE: "stable"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Godot and its export templates
+        run: |
+          set -euo pipefail
+          BASE="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}"
+          EDITOR="Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64"
+
+          curl -fsSL -o godot.zip "${BASE}/${EDITOR}.zip"
+          unzip -q godot.zip
+          chmod +x "${EDITOR}"
+          sudo mv "${EDITOR}" /usr/local/bin/godot
+          rm -f godot.zip
+
+          curl -fsSL -o templates.tpz "${BASE}/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_export_templates.tpz"
+          unzip -q templates.tpz          # the .tpz is a zip that unpacks to ./templates/
+          TEMPLATE_DIR="${HOME}/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}"
+          mkdir -p "${TEMPLATE_DIR}"
+          mv templates/* "${TEMPLATE_DIR}/"
+          rm -rf templates.tpz templates
+
+          # Fail here, with the directory listing, rather than inside the export
+          # with a templates-not-found error that says nothing about why.
+          # web_nothreads_* is what a thread_support=false Web preset asks for.
+          if [ ! -f "${TEMPLATE_DIR}/web_nothreads_release.zip" ]; then
+            echo "::error::web_nothreads_release.zip is not in ${TEMPLATE_DIR}"
+            ls -1 "${TEMPLATE_DIR}" || true
+            exit 1
+          fi
+
+          godot --version
+
+      - name: Export the Web build
+        run: |
+          set -euo pipefail
+          # Godot does not create the output directory and fails if it is missing.
+          # The game exports UNDER the wrapper page, which becomes the site root.
+          mkdir -p build/web/game
+
+          # Import first so the export cannot race an unfinished import pass.
+          # Deliberately non-fatal: the export below is the gated step, and a
+          # warning here should not fail the deploy.
+          godot --headless --path . --import || true
+
+          godot --headless --path . --export-release "Web" build/web/game/index.html
+
+      - name: Verify the export actually produced a page
+        run: |
+          set -euo pipefail
+          # A non-zero exit already failed the step above. This is the second
+          # check: Godot's headless exporter has historically exited 0 on some
+          # failures, so trust the files on disk rather than the exit code.
+          for f in index.html index.js index.wasm index.pck; do
+            if [ ! -s "build/web/game/${f}" ]; then
+              echo "::error::build/web/game/${f} is missing or empty after export"
+              ls -la build/web/game || true
+              exit 1
+            fi
+          done
+          ls -la build/web/game
+
+      - name: Assemble the site root
+        run: |
+          set -euo pipefail
+          # The site root is the hand-written game page; the export sits under
+          # it at game/ and is embedded in an iframe. Both the page and the
+          # screenshots it shows have to be copied in, because Godot's export
+          # only ever writes build/web/game/.
+          cp -r web/. build/web/
+          cp -r media build/web/media
+
+          # Fail loudly rather than deploying a page with broken images: every
+          # local reference in the wrapper must exist in the assembled site.
+          missing=0
+          refs=$(grep -oE '(src|href)="[^"]+"' build/web/index.html | sed 's/.*="//; s/"$//' | sort -u)
+          for ref in $refs; do
+            # Skip anything that is not a path into this site. Matching on a
+            # leading character would also skip local files starting with it.
+            case "${ref}" in
+              http://*|https://*|//*|\#*|mailto:*|data:*) continue ;;
+            esac
+            if [ ! -e "build/web/${ref}" ]; then
+              echo "::error::the page references ${ref}, which is not in the built site"
+              missing=1
+            fi
+          done
+          [ "${missing}" -eq 0 ] || exit 1
+          ls -la build/web
+
+          # The Pages artifact is served verbatim without a Jekyll pass, but
+          # .nojekyll costs one line and removes the question entirely.
+          touch build/web/.nojekyll
+
+      # itch.io gets the bare game, not the wrapper page: on itch their own page
+      # carries the title, the description and the screenshots, so shipping ours
+      # would nest a game page inside a game page.
+      #
+      # Skipped when the secret is absent, so a fork still deploys Pages without
+      # needing it. butler is fetched from itch's own server rather than a
+      # third-party action, which keeps the Actions allowlist at GitHub-owned.
+      # Never blocks the site. itch is a second destination, and a problem there
+      # (a project not created yet, itch down, a rotated key) must not stop
+      # https://regiellis.github.io/godot-reversi/ from deploying. The step
+      # reports what happened and lets the run continue.
+      - name: Publish the game to itch.io
+        continue-on-error: true
+        if: github.ref == 'refs/heads/main' && env.BUTLER_API_KEY != ''
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+          # <itch username>/<project slug>:html. The username is paperenigma,
+          # not the GitHub handle; assuming they matched cost a failed run.
+          ITCH_TARGET: paperenigma/reversi:html
+        run: |
+          set -euo pipefail
+          curl -sSfL -o butler.zip             "https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default"
+          unzip -q butler.zip -d "${HOME}/butler"
+          chmod +x "${HOME}/butler/butler"
+
+          # The channel name "html" is what tells itch to play this in a browser
+          # rather than offer it as a download.
+          if ! "${HOME}/butler/butler" push build/web/game "${ITCH_TARGET}"               --userversion "${GITHUB_SHA::7}"; then
+            echo "::warning::butler could not push to ${ITCH_TARGET}."
+            echo "::warning::'invalid game' means the itch project does not exist yet:"
+            echo "::warning::create it at itch.io/game/new with Kind of project = HTML,"
+            echo "::warning::and make its URL slug match the one in ITCH_TARGET."
+            echo "::warning::'bad user' means the username in ITCH_TARGET is wrong."
+            exit 1
+          fi
+          "${HOME}/butler/butler" status "${ITCH_TARGET}"
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0

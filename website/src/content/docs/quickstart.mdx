@@ -10,8 +10,10 @@ This walks through opening the editor, confirming the addon is live, and driving
 Open your project (with the [addon installed](/docs/installation)) in Godot 4.7:
 
 ```bash
-godot --path /path/to/your/project --editor
+godot-mcp launch --project /path/to/your/project   # or: godot --path /path/to/your/project --editor
 ```
+
+`launch` reads the liveness verdict first, so it starts one editor and refuses to stack a second on a running one. It detaches the editor and writes its output to `<project>/.godot/godot-mcp-launch.log`, keeping it off the terminal. `--headless` opens a windowless session.
 
 Enable the **Godot MCP/CLI** plugin under *Project → Project Settings → Plugins*. On startup the addon prints:
 

@@ -87,13 +87,10 @@ only if a check fails.`)
 	return emitDoctor(checks, *asJSON)
 }
 
-// checkGodotBinary looks for the godot launcher on PATH ("godot", then the
-// Windows shim name "godot.cmd") and, when found, reports its --version string.
+// checkGodotBinary reports the launcher `godot-mcp launch` would run (see
+// resolveGodotBinary) and, when found, its --version string.
 func checkGodotBinary() doctorCheck {
-	path, err := exec.LookPath("godot")
-	if err != nil {
-		path, err = exec.LookPath("godot.cmd")
-	}
+	path, err := resolveGodotBinary("")
 	if err != nil {
 		return doctorCheck{"godot binary", statusWarn,
 			"godot not found on PATH. The CLI can still drive an already-running editor, but cannot launch one"}

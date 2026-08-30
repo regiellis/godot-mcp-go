@@ -305,9 +305,16 @@ func _compare_screenshots(params: Dictionary) -> Dictionary:
 func _emit_image(image: Image, save_path: String) -> Dictionary:
 	if not save_path.is_empty():
 		var abs_path := ProjectSettings.globalize_path(save_path) if save_path.begins_with("res://") or save_path.begins_with("user://") else save_path
+		# Image.save_png does not create directories, so a save_path naming one
+		# that does not exist failed with the engine's own "Can't save PNG at
+		# path" line and a result that never said why. Found 2026-08-30 saving a
+		# capture into user://<subdir>/.
+		var dir_path := abs_path.get_base_dir()
+		if not dir_path.is_empty() and not DirAccess.dir_exists_absolute(dir_path):
+			DirAccess.make_dir_recursive_absolute(dir_path)
 		var err := image.save_png(abs_path)
 		if err != OK:
-			return error_internal("Failed to save screenshot: %s" % error_string(err))
+			return error_internal("Failed to save screenshot to '%s': %s" % [save_path, error_string(err)])
 		return success({"saved_path": save_path, "width": image.get_width(), "height": image.get_height(), "format": "png"})
 	var base64 := Marshalls.raw_to_base64(image.save_png_to_buffer())
 	return success({"image_base64": base64, "width": image.get_width(), "height": image.get_height(), "format": "png"})

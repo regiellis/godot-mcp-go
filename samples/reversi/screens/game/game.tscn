@@ -1,0 +1,506 @@
+[gd_scene format=3 uid="uid://cqsfbu6hndvme"]
+
+[ext_resource type="Script" uid="uid://de23bycllcjcb" path="res://screens/game/game.gd" id="1_2v4l3"]
+[ext_resource type="Script" uid="uid://mijhmfr4mg62" path="res://ui/backdrop.gd" id="2_uain1"]
+[ext_resource type="Script" uid="uid://bop3mpodowl24" path="res://board/board_view.gd" id="3_cpxdg"]
+[ext_resource type="Script" uid="uid://bccadya0tgqsw" path="res://ui/juice_panel.gd" id="4_18b3j"]
+[ext_resource type="Script" uid="uid://dyrhumbmbnxby" path="res://ui/juice_counter.gd" id="5_kc255"]
+[ext_resource type="Script" uid="uid://cv3wxeo045ovy" path="res://ui/juice_button.gd" id="6_qpol7"]
+
+[node name="Game" type="Control" unique_id=327411757]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("1_2v4l3")
+
+[node name="Backdrop" type="Control" parent="." unique_id=698733297]
+show_behind_parent = true
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("2_uain1")
+accent = Color(0.105882354, 0.3254902, 0.21568628, 1)
+
+[node name="Board" type="Node2D" parent="." unique_id=850339423]
+unique_name_in_owner = true
+script = ExtResource("3_cpxdg")
+
+[node name="ScorePanel" type="Control" parent="." unique_id=473115377]
+anchors_preset = 0
+offset_left = 1368.0
+offset_top = 149.0
+offset_right = 2432.0
+offset_bottom = 459.0
+mouse_filter = 2
+script = ExtResource("4_18b3j")
+title = "SCORE"
+
+[node name="TurnPanel" type="Control" parent="." unique_id=1882696285]
+anchors_preset = 0
+offset_left = 1368.0
+offset_top = 491.0
+offset_right = 2432.0
+offset_bottom = 745.0
+mouse_filter = 2
+script = ExtResource("4_18b3j")
+accent = Color(0.30980393, 0.8392157, 1, 1)
+title = "TURN"
+
+[node name="LastMovePanel" type="Control" parent="." unique_id=851602902]
+anchors_preset = 0
+offset_left = 1368.0
+offset_top = 777.0
+offset_right = 2432.0
+offset_bottom = 1087.0
+mouse_filter = 2
+script = ExtResource("4_18b3j")
+accent = Color(1, 0.30980393, 0.54509807, 1)
+title = "LAST MOVE"
+
+[node name="BlackGlyphEdge" type="Polygon2D" parent="." unique_id=195013659]
+position = Vector2(1432, 289)
+color = Color(0.019607844, 0.03137255, 0.043137256, 1)
+polygon = PackedVector2Array(16, 0, 15.863118, 2.088419, 15.454813, 4.1411047, 14.782072, 6.122935, 13.856406, 8, 12.693653, 9.740183, 11.313708, 11.313708, 9.740183, 12.693653, 8, 13.856406, 6.122935, 14.782072, 4.1411047, 15.454813, 2.088419, 15.863118, 9.797175e-16, 16, -2.088419, 15.863118, -4.1411047, 15.454813, -6.122935, 14.782072, -8, 13.856406, -9.740183, 12.693653, -11.313708, 11.313708, -12.693653, 9.740183, -13.856406, 8, -14.782072, 6.122935, -15.454813, 4.1411047, -15.863118, 2.088419, -16, 1.959435e-15, -15.863118, -2.088419, -15.454813, -4.1411047, -14.782072, -6.122935, -13.856406, -8, -12.693653, -9.740183, -11.313708, -11.313708, -9.740183, -12.693653, -8, -13.856406, -6.122935, -14.782072, -4.1411047, -15.454813, -2.088419, -15.863118, -2.9391522e-15, -16, 2.088419, -15.863118, 4.1411047, -15.454813, 6.122935, -14.782072, 8, -13.856406, 9.740183, -12.693653, 11.313708, -11.313708, 12.693653, -9.740183, 13.856406, -8, 14.782072, -6.122935, 15.454813, -4.1411047, 15.863118, -2.088419)
+
+[node name="BlackGlyph" type="Polygon2D" parent="." unique_id=502940]
+position = Vector2(1432, 289)
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+polygon = PackedVector2Array(14, 0, 13.880228, 1.8273666, 13.522962, 3.6234665, 12.934313, 5.357568, 12.124355, 7, 11.106947, 8.52266, 9.899495, 9.899495, 8.52266, 11.106947, 7, 12.124355, 5.357568, 12.934313, 3.6234665, 13.522962, 1.8273666, 13.880228, 8.572528e-16, 14, -1.8273666, 13.880228, -3.6234665, 13.522962, -5.357568, 12.934313, -7, 12.124355, -8.52266, 11.106947, -9.899495, 9.899495, -11.106947, 8.52266, -12.124355, 7, -12.934313, 5.357568, -13.522962, 3.6234665, -13.880228, 1.8273666, -14, 1.7145056e-15, -13.880228, -1.8273666, -13.522962, -3.6234665, -12.934313, -5.357568, -12.124355, -7, -11.106947, -8.52266, -9.899495, -9.899495, -8.52266, -11.106947, -7, -12.124355, -5.357568, -12.934313, -3.6234665, -13.522962, -1.8273666, -13.880228, -2.5717583e-15, -14, 1.8273666, -13.880228, 3.6234665, -13.522962, 5.357568, -12.934313, 7, -12.124355, 8.52266, -11.106947, 9.899495, -9.899495, 11.106947, -8.52266, 12.124355, -7, 12.934313, -5.357568, 13.522962, -3.6234665, 13.880228, -1.8273666)
+
+[node name="WhiteGlyphEdge" type="Polygon2D" parent="." unique_id=481729724]
+position = Vector2(1932, 289)
+color = Color(0.019607844, 0.03137255, 0.043137256, 1)
+polygon = PackedVector2Array(16, 0, 15.863118, 2.088419, 15.454813, 4.1411047, 14.782072, 6.122935, 13.856406, 8, 12.693653, 9.740183, 11.313708, 11.313708, 9.740183, 12.693653, 8, 13.856406, 6.122935, 14.782072, 4.1411047, 15.454813, 2.088419, 15.863118, 9.797175e-16, 16, -2.088419, 15.863118, -4.1411047, 15.454813, -6.122935, 14.782072, -8, 13.856406, -9.740183, 12.693653, -11.313708, 11.313708, -12.693653, 9.740183, -13.856406, 8, -14.782072, 6.122935, -15.454813, 4.1411047, -15.863118, 2.088419, -16, 1.959435e-15, -15.863118, -2.088419, -15.454813, -4.1411047, -14.782072, -6.122935, -13.856406, -8, -12.693653, -9.740183, -11.313708, -11.313708, -9.740183, -12.693653, -8, -13.856406, -6.122935, -14.782072, -4.1411047, -15.454813, -2.088419, -15.863118, -2.9391522e-15, -16, 2.088419, -15.863118, 4.1411047, -15.454813, 6.122935, -14.782072, 8, -13.856406, 9.740183, -12.693653, 11.313708, -11.313708, 12.693653, -9.740183, 13.856406, -8, 14.782072, -6.122935, 15.454813, -4.1411047, 15.863118, -2.088419)
+
+[node name="WhiteGlyph" type="Polygon2D" parent="." unique_id=192133483]
+position = Vector2(1932, 289)
+color = Color(0.9490196, 0.9372549, 0.9019608, 1)
+polygon = PackedVector2Array(14, 0, 13.880228, 1.8273666, 13.522962, 3.6234665, 12.934313, 5.357568, 12.124355, 7, 11.106947, 8.52266, 9.899495, 9.899495, 8.52266, 11.106947, 7, 12.124355, 5.357568, 12.934313, 3.6234665, 13.522962, 1.8273666, 13.880228, 8.572528e-16, 14, -1.8273666, 13.880228, -3.6234665, 13.522962, -5.357568, 12.934313, -7, 12.124355, -8.52266, 11.106947, -9.899495, 9.899495, -11.106947, 8.52266, -12.124355, 7, -12.934313, 5.357568, -13.522962, 3.6234665, -13.880228, 1.8273666, -14, 1.7145056e-15, -13.880228, -1.8273666, -13.522962, -3.6234665, -12.934313, -5.357568, -12.124355, -7, -11.106947, -8.52266, -9.899495, -9.899495, -8.52266, -11.106947, -7, -12.124355, -5.357568, -12.934313, -3.6234665, -13.522962, -1.8273666, -13.880228, -2.5717583e-15, -14, 1.8273666, -13.880228, 3.6234665, -13.522962, 5.357568, -12.934313, 7, -12.124355, 8.52266, -11.106947, 9.899495, -9.899495, 11.106947, -8.52266, 12.124355, -7, 12.934313, -5.357568, 13.522962, -3.6234665, 13.880228, -1.8273666)
+
+[node name="TurnGlyphEdge" type="Polygon2D" parent="." unique_id=1808449003]
+position = Vector2(2356, 654)
+color = Color(0.019607844, 0.03137255, 0.043137256, 1)
+polygon = PackedVector2Array(28, 0, 27.760456, 3.6547332, 27.045923, 7.246933, 25.868626, 10.715136, 24.24871, 14, 22.213894, 17.04532, 19.79899, 19.79899, 17.04532, 22.213894, 14, 24.24871, 10.715136, 25.868626, 7.246933, 27.045923, 3.6547332, 27.760456, 1.7145056e-15, 28, -3.6547332, 27.760456, -7.246933, 27.045923, -10.715136, 25.868626, -14, 24.24871, -17.04532, 22.213894, -19.79899, 19.79899, -22.213894, 17.04532, -24.24871, 14, -25.868626, 10.715136, -27.045923, 7.246933, -27.760456, 3.6547332, -28, 3.4290113e-15, -27.760456, -3.6547332, -27.045923, -7.246933, -25.868626, -10.715136, -24.24871, -14, -22.213894, -17.04532, -19.79899, -19.79899, -17.04532, -22.213894, -14, -24.24871, -10.715136, -25.868626, -7.246933, -27.045923, -3.6547332, -27.760456, -5.1435165e-15, -28, 3.6547332, -27.760456, 7.246933, -27.045923, 10.715136, -25.868626, 14, -24.24871, 17.04532, -22.213894, 19.79899, -19.79899, 22.213894, -17.04532, 24.24871, -14, 25.868626, -10.715136, 27.045923, -7.246933, 27.760456, -3.6547332)
+
+[node name="TurnGlyph" type="Polygon2D" parent="." unique_id=342015298]
+unique_name_in_owner = true
+position = Vector2(2356, 654)
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+polygon = PackedVector2Array(26, 0, 25.777567, 3.3936808, 25.11407, 6.7292953, 24.020866, 9.949769, 22.51666, 13, 20.627186, 15.827797, 18.384775, 18.384775, 15.827797, 20.627186, 13, 22.51666, 9.949769, 24.020866, 6.7292953, 25.11407, 3.3936808, 25.777567, 1.5920409e-15, 26, -3.3936808, 25.777567, -6.7292953, 25.11407, -9.949769, 24.020866, -13, 22.51666, -15.827797, 20.627186, -18.384775, 18.384775, -20.627186, 15.827797, -22.51666, 13, -24.020866, 9.949769, -25.11407, 6.7292953, -25.777567, 3.3936808, -26, 3.1840818e-15, -25.777567, -3.3936808, -25.11407, -6.7292953, -24.020866, -9.949769, -22.51666, -13, -20.627186, -15.827797, -18.384775, -18.384775, -15.827797, -20.627186, -13, -22.51666, -9.949769, -24.020866, -6.7292953, -25.11407, -3.3936808, -25.777567, -4.7761223e-15, -26, 3.3936808, -25.777567, 6.7292953, -25.11407, 9.949769, -24.020866, 13, -22.51666, 15.827797, -20.627186, 18.384775, -18.384775, 20.627186, -15.827797, 22.51666, -13, 24.020866, -9.949769, 25.11407, -6.7292953, 25.777567, -3.3936808)
+
+[node name="BlackCounter" type="Control" parent="." unique_id=350020784]
+unique_name_in_owner = true
+anchors_preset = 0
+offset_left = 1464.0
+offset_top = 269.0
+offset_right = 1884.0
+offset_bottom = 411.0
+mouse_filter = 2
+script = ExtResource("5_kc255")
+label = "BLACK"
+value_font_size = 64
+
+[node name="WhiteCounter" type="Control" parent="." unique_id=1574939126]
+unique_name_in_owner = true
+anchors_preset = 0
+offset_left = 1964.0
+offset_top = 269.0
+offset_right = 2384.0
+offset_bottom = 411.0
+mouse_filter = 2
+script = ExtResource("5_kc255")
+label = "WHITE"
+value_font_size = 64
+
+[node name="TurnLabel" type="Label" parent="." unique_id=1411783633]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1416.0
+offset_top = 611.0
+offset_right = 2296.0
+offset_bottom = 697.0
+text = "BLACK TO MOVE"
+vertical_alignment = 1
+
+[node name="LastMoveLabel" type="Label" parent="." unique_id=1072004174]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1416.0
+offset_top = 897.0
+offset_right = 2384.0
+offset_bottom = 983.0
+text = "-"
+vertical_alignment = 1
+
+[node name="FlipLabel" type="Label" parent="." unique_id=1357515462]
+unique_name_in_owner = true
+layout_mode = 0
+offset_left = 1416.0
+offset_top = 999.0
+offset_right = 2384.0
+offset_bottom = 1039.0
+vertical_alignment = 1
+
+[node name="Strip" type="Control" parent="." unique_id=1959201868]
+unique_name_in_owner = true
+anchors_preset = 0
+offset_left = 1416.0
+offset_top = 1119.0
+offset_right = 2432.0
+offset_bottom = 1151.0
+mouse_filter = 2
+
+[node name="Slot0" type="ColorRect" parent="Strip" unique_id=1223313937]
+visible = false
+layout_mode = 0
+offset_right = 56.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot1" type="ColorRect" parent="Strip" unique_id=781859776]
+visible = false
+layout_mode = 0
+offset_left = 64.0
+offset_right = 120.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot2" type="ColorRect" parent="Strip" unique_id=1406274441]
+visible = false
+layout_mode = 0
+offset_left = 128.0
+offset_right = 184.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot3" type="ColorRect" parent="Strip" unique_id=1892578921]
+visible = false
+layout_mode = 0
+offset_left = 192.0
+offset_right = 248.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot4" type="ColorRect" parent="Strip" unique_id=954548542]
+visible = false
+layout_mode = 0
+offset_left = 256.0
+offset_right = 312.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot5" type="ColorRect" parent="Strip" unique_id=49742880]
+visible = false
+layout_mode = 0
+offset_left = 320.0
+offset_right = 376.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot6" type="ColorRect" parent="Strip" unique_id=1048727734]
+visible = false
+layout_mode = 0
+offset_left = 384.0
+offset_right = 440.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot7" type="ColorRect" parent="Strip" unique_id=985879540]
+visible = false
+layout_mode = 0
+offset_left = 448.0
+offset_right = 504.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot8" type="ColorRect" parent="Strip" unique_id=850478869]
+visible = false
+layout_mode = 0
+offset_left = 512.0
+offset_right = 568.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot9" type="ColorRect" parent="Strip" unique_id=1118723833]
+visible = false
+layout_mode = 0
+offset_left = 576.0
+offset_right = 632.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot10" type="ColorRect" parent="Strip" unique_id=660800748]
+visible = false
+layout_mode = 0
+offset_left = 640.0
+offset_right = 696.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot11" type="ColorRect" parent="Strip" unique_id=277838584]
+visible = false
+layout_mode = 0
+offset_left = 704.0
+offset_right = 760.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot12" type="ColorRect" parent="Strip" unique_id=619759748]
+visible = false
+layout_mode = 0
+offset_left = 768.0
+offset_right = 824.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot13" type="ColorRect" parent="Strip" unique_id=943619234]
+visible = false
+layout_mode = 0
+offset_left = 832.0
+offset_right = 888.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot14" type="ColorRect" parent="Strip" unique_id=991537870]
+visible = false
+layout_mode = 0
+offset_left = 896.0
+offset_right = 952.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="Slot15" type="ColorRect" parent="Strip" unique_id=2037700479]
+visible = false
+layout_mode = 0
+offset_left = 960.0
+offset_right = 1016.0
+offset_bottom = 32.0
+mouse_filter = 2
+color = Color(0.078431375, 0.09411765, 0.11372549, 1)
+
+[node name="HintButton" type="BaseButton" parent="." unique_id=1936482683]
+unique_name_in_owner = true
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+oversampling_with_scale = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+custom_minimum_size = Vector2(516, 108)
+custom_maximum_size = Vector2(-1, -1)
+propagate_maximum_size = false
+clip_contents = false
+layout_mode = 0
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 1368.0
+offset_top = 1183.0
+offset_right = 1884.0
+offset_bottom = 1291.0
+grow_horizontal = 1
+grow_vertical = 1
+rotation = 0.0
+scale = Vector2(1, 1)
+pivot_offset = Vector2(0, 0)
+pivot_offset_ratio = Vector2(0, 0)
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+offset_transform_enabled = false
+offset_transform_position = Vector2(0, 0)
+offset_transform_position_ratio = Vector2(0, 0)
+offset_transform_scale = Vector2(1, 1)
+offset_transform_rotation = 0.0
+offset_transform_pivot = Vector2(0, 0)
+offset_transform_pivot_ratio = Vector2(0.5, 0.5)
+offset_transform_visual_only = true
+localize_numeral_system = true
+layout_direction = 0
+translation_context = &""
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("6_qpol7")
+text = "HINT"
+intro_style = 1
+
+[node name="PauseButton" type="BaseButton" parent="." unique_id=253671387]
+unique_name_in_owner = true
+process_mode = 0
+process_priority = 0
+process_physics_priority = 0
+process_thread_group = 0
+physics_interpolation_mode = 2
+auto_translate_mode = 0
+editor_description = ""
+visible = true
+modulate = Color(1, 1, 1, 1)
+self_modulate = Color(1, 1, 1, 1)
+show_behind_parent = false
+top_level = false
+clip_children = 0
+oversampling_with_scale = 0
+light_mask = 1
+visibility_layer = 1
+z_index = 0
+z_as_relative = true
+y_sort_enabled = false
+texture_filter = 0
+texture_repeat = 0
+material = null
+use_parent_material = false
+custom_minimum_size = Vector2(516, 108)
+custom_maximum_size = Vector2(-1, -1)
+propagate_maximum_size = false
+clip_contents = false
+layout_mode = 0
+anchors_preset = 0
+anchor_left = 0.0
+anchor_top = 0.0
+anchor_right = 0.0
+anchor_bottom = 0.0
+offset_left = 1916.0
+offset_top = 1183.0
+offset_right = 2432.0
+offset_bottom = 1291.0
+grow_horizontal = 1
+grow_vertical = 1
+rotation = 0.0
+scale = Vector2(1, 1)
+pivot_offset = Vector2(0, 0)
+pivot_offset_ratio = Vector2(0, 0)
+size_flags_horizontal = 1
+size_flags_vertical = 1
+size_flags_stretch_ratio = 1.0
+offset_transform_enabled = false
+offset_transform_position = Vector2(0, 0)
+offset_transform_position_ratio = Vector2(0, 0)
+offset_transform_scale = Vector2(1, 1)
+offset_transform_rotation = 0.0
+offset_transform_pivot = Vector2(0, 0)
+offset_transform_pivot_ratio = Vector2(0.5, 0.5)
+offset_transform_visual_only = true
+localize_numeral_system = true
+layout_direction = 0
+translation_context = &""
+tooltip_text = ""
+tooltip_auto_translate_mode = 0
+focus_neighbor_left = NodePath("")
+focus_neighbor_top = NodePath("")
+focus_neighbor_right = NodePath("")
+focus_neighbor_bottom = NodePath("")
+focus_next = NodePath("")
+focus_previous = NodePath("")
+focus_mode = 2
+focus_behavior_recursive = 0
+mouse_filter = 0
+mouse_behavior_recursive = 0
+mouse_force_pass_scroll_events = true
+mouse_default_cursor_shape = 0
+accessibility_name = ""
+accessibility_description = ""
+accessibility_live = 0
+accessibility_controls_nodes = Array[NodePath]([])
+accessibility_described_by_nodes = Array[NodePath]([])
+accessibility_labeled_by_nodes = Array[NodePath]([])
+accessibility_flow_to_nodes = Array[NodePath]([])
+theme = null
+theme_type_variation = &""
+disabled = false
+toggle_mode = false
+button_pressed = false
+action_mode = 1
+button_mask = 1
+keep_pressed_outside = false
+button_group = null
+shortcut = null
+shortcut_feedback = true
+shortcut_in_tooltip = true
+script = ExtResource("6_qpol7")
+text = "PAUSE"
+accent = Color(0.30980393, 0.8392157, 1, 1)
+intro_style = 1
+
+[node name="CentreMessage" type="Label" parent="." unique_id=1601464614]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+offset_left = 320.0
+offset_top = 608.5
+offset_right = 1280.0
+offset_bottom = 831.5
+text = "PASS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Camera" type="Camera2D" parent="." unique_id=1127354082]
+unique_name_in_owner = true
+anchor_mode = 0

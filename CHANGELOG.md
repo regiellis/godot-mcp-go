@@ -6,6 +6,113 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-08-30
+
+### Added
+
+- **`godot-mcp upgrade`**, the 4.3-and-up port pipeline, run as five gated
+  phases: `preflight` audits the tree cold and commits every GDScript warning
+  on, `baseline` records how the game behaves under the old binary,
+  `open` tags and branches and harvests the to-do list under the new one,
+  `fix --category NAME` applies one mechanical category, and `verify` replays
+  the drive and diffs it. Each phase writes a report under
+  `<project>/.godot/upgrade/` and stops, because each ends with something a
+  person should read. Two rules run through all of it. A harvest reads **seven
+  sources** rather than the editor's error panel, and every finding names the
+  source that found it: the launch log, the forced-on warnings, the tree-wide
+  compile, every scene opened and validated, the resave diff parsed into
+  dropped `file, node, property` triples, the static rename sweep, and the
+  drive. And a fix **applies, proves itself, then keeps or restores**: the
+  category's count has to reach zero with neither the compile nor the error
+  panel getting worse, and a failure restores the scene checkpoint, checks the
+  files back out, and commits nothing. `--dry-run` prints a unified diff and
+  touches nothing. Both binaries are named explicitly with `--old-godot` and
+  `--godot`, and neither is guessed. A GDExtension addon with no build for the
+  target is a hard refusal in `preflight`, since only its author can rebuild
+  it.
+
+- **`godot-mcp launch`**, a local subcommand that opens one editor for the
+  project. The launch policy used to live only in prose in the agent skill, so
+  every agent shelled out to `godot` by hand and some of them stacked a second
+  editor onto a running one, which breaks port discovery for both. `launch`
+  reads the liveness verdict first: `running` refuses and starts nothing,
+  `starting` waits rather than launching, `crashed` and `closed` each start
+  one. An editor answering for another project counts as nothing serving this
+  one, the same reading `status` gives. The child is detached, so the CLI
+  exits and the editor lives on, and its stdout and stderr go to
+  `<project>/.godot/godot-mcp-launch.log` instead of the terminal, which a
+  Godot editor writing to it corrupts. `--wait` (on by default) polls until
+  the editor answers and exits non-zero if it never does; `--headless`,
+  `--timeout`, `--godot`, and `--json` are there for scripts.
+- **`godot-mcp import`, `check`, `export`, and `run`**, four subcommands that
+  spawn the engine themselves and never talk to the addon, so they work with
+  the editor closed. `import` builds the `.godot/` import cache a fresh clone
+  or a CI checkout needs before anything will open. `check <file|dir>...`
+  parses `.gd` files with `--check-only`, `--jobs` at a time, and exits 1 with
+  `file:line` per failure; directories are walked recursively, skipping
+  `.godot/` and `addons/` unless the path named is itself inside addons.
+  `export <preset>` runs the headless export the addon's `export project` only
+  ever printed, defaulting the output to the preset's own `export_path`, and
+  reports the file, its size, and the engine's error lines. `run [scene]`
+  starts the game standalone with the debug overlays, fixed timing, fps and
+  gpu profiling, and `--write-movie`, then waits for the game's own direct
+  channel and reports the port to drive with `--game`.
+
+  Two behaviours are worth knowing. **An export that exits 0 having written
+  nothing exits non-zero here**, which is what missing export templates look
+  like, and the parsed errors name each file the engine looked for. **`import`
+  refuses while an editor is running** on the same project, because both own
+  the same `.godot/` cache; `import reimport` is the live-editor form. Each
+  command writes the engine's output to `<project>/.godot/godot-mcp-<name>.log`
+  and returns the exact argv it ran. `export` and `import` are addon group
+  names too, and both still work: a command name after either one
+  (`export list-presets`, `import reimport`) routes to the running editor.
+
+### Fixed
+
+- `upgrade verify` reported 0.00 percent changed pixels on every frame pair regardless of the images: the percentage was decoded from `changed_percent` while the addon sends `diff_percentage`. Caught by the first real cross-version run (4.4 to 4.7), where six-figure `changed_pixels` counts sat beside the zeros; the real noise measured mean 7.76 percent per frame on a lit 3D scene.
+- The `upgrade open` harvest counted headless dummy-renderer noise from the launch log as findings; engine C++ lines naming no project file are now dropped, the same rule `editor errors` applies to the panel.
+
+- **`scene.open` reported success for a scene the editor could not load.**
+  `EditorInterface.open_scene_from_path` returns nothing and reports nothing,
+  so a scene whose `ext_resource` path no longer exists left the previous scene
+  current while the call answered `opened: true`, and every following `node.*`
+  command silently targeted the scene the caller had left. The open is now
+  verified before it is reported, and a refusal carries the dead paths, which
+  are the usual cause and cannot be read out of a tree that never loaded.
+- **`scene.validate` now reads four things, not two.** Alongside the
+  `AnimationPlayer` track paths and stored `NodePath`s it already checked, it
+  reports `MissingNode` and `MissingResource` placeholders left where the
+  running build no longer registers a class, and every `ext_resource` path that
+  is not on disk. The last check reads the scene's own text rather than the
+  loaded tree, because a scene with a dead reference never loads at all.
+- **A screenshot saved into a directory that does not exist now creates it.**
+  `Image.save_png` does not, so `editor.screenshot` and `runtime.screenshot`
+  failed with the engine's own `Can't save PNG at path` line and a result that
+  never said why. Both paths create the parent directory and name the path in
+  the failure.
+
+- **`export info` reported a templates directory that does not exist**. It read
+  `OS.get_data_dir()`, which is the platform data root (`%APPDATA%` on
+  Windows), while the editor keeps export templates one level down under
+  `%APPDATA%/Godot`. The command therefore answered `templates_installed:
+  false` on machines that had them installed. It now reads the editor's own
+  data directory. A present version directory still does not prove the
+  platform's binaries are in it, and the engine's export error names each
+  missing file.
+
+- **The Asset Library check compared against the wrong sha**. It diffed the
+  addon against the `asset-library` branch tip, which matches what the portal
+  serves only until a release refreshes that branch. Refresh the branch first,
+  as the release ritual does, and the check compares the working tree with
+  itself and reports that nothing needs submitting, while the portal goes on
+  serving the previous release. It now reads the sha the portal actually
+  stores from the library API and compares against that, so the answer no
+  longer depends on running the check before the refresh. It also says when
+  the branch is ahead of the portal, which is the state that produced the
+  wrong answer, and refuses to guess if the API cannot be reached.
+  Maintainer-only.
+
 ### Verified
 
 - **Godot 4.8-dev4** (`b56a91878`, released 26 August 2026),
@@ -20,20 +127,6 @@ follow [Semantic Versioning](https://semver.org/).
   was checked from a windowed editor with a planted parse error, not only
   headless, because a headless run falls through to the log file and proves
   nothing about the panel path.
-
-### Fixed
-
-- **The Asset Library check compared against the wrong sha**. It diffed the
-  addon against the `asset-library` branch tip, which matches what the portal
-  serves only until a release refreshes that branch. Refresh the branch first,
-  as the release ritual does, and the check compares the working tree with
-  itself and reports that nothing needs submitting, while the portal goes on
-  serving the previous release. It now reads the sha the portal actually
-  stores from the library API and compares against that, so the answer no
-  longer depends on running the check before the refresh. It also says when
-  the branch is ahead of the portal, which is the state that produced the
-  wrong answer, and refuses to guess if the API cannot be reached.
-  Maintainer-only.
 
 ## [0.9.1] - 2026-08-27
 

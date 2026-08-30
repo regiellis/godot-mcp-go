@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://24kei25l7mu2"]
+
+[ext_resource type="Script" uid="uid://d17cgy60p640l" path="res://screens/intro/intro.gd" id="1_yayyu"]
+
+[node name="Intro" type="Control" unique_id=546266551]
+layout_mode = 3
+anchors_preset = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_yayyu")

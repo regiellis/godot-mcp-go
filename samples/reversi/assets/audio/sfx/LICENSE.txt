@@ -1,0 +1,18 @@
+Sound effects in this directory.
+
+These files are UI and impact sound effects created by Kenney (https://kenney.nl).
+They are released under CC0 (public domain). CC0 imposes no conditions on reuse,
+so redistribution here is unconditionally permitted. Attribution is included
+anyway, as a matter of good practice, not because the license requires it.
+
+Folders and contents:
+
+- click/       click_001.ogg through click_004.ogg
+- confirm/     confirmation_001.ogg through confirmation_003.ogg
+- error/       error_001.ogg through error_003.ogg
+- pickup/      pluck_001.ogg, pluck_002.ogg
+- hit_light/   impactGeneric_light_000.ogg through impactGeneric_light_003.ogg
+- hit_heavy/   impactPunch_heavy_000.ogg through impactPunch_heavy_003.ogg
+
+Source: Kenney game asset packs, https://kenney.nl
+License: CC0 1.0 Universal (public domain dedication)

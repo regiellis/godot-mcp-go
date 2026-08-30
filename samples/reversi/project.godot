@@ -1,0 +1,40 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Reversi"
+config/description="A complete Reversi game built in Godot 4.7 by agents driving godot-mcp."
+run/main_scene="res://screens/boot/boot.tscn"
+config/features=PackedStringArray("4.7", "Forward Plus")
+config/icon="res://icon.svg"
+
+[audio]
+
+buses/default_bus_layout="uid://cj14puaurd88y"
+
+[autoload]
+
+Settings="*res://systems/settings.gd"
+Audio="*res://systems/audio_director.gd"
+Juice="*res://systems/juice.gd"
+Session="*res://systems/session.gd"
+Stage="*res://systems/stage.gd"
+
+[display]
+
+window/size/viewport_width=2560
+window/size/viewport_height=1440
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[rendering]
+
+textures/vram_compression/import_etc2_astc=true

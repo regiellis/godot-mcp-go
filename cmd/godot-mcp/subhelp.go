@@ -62,6 +62,32 @@ func parseSub(fs *flag.FlagSet, args []string) int {
 	return -1
 }
 
+// parseSubPositional parses a subcommand whose arguments mix positional values
+// with flags. Go's flag package stops at the first non-flag argument, so
+// `check player.gd --json` would leave --json sitting in the positionals and the
+// subcommand would take it for a file. This peels each positional off and keeps
+// parsing what follows, so the two orders behave the same. It returns the
+// positionals and -1 to continue, or nil and an exit code the way parseSub does.
+func parseSubPositional(fs *flag.FlagSet, args []string) ([]string, int) {
+	if rc := parseSub(fs, args); rc >= 0 {
+		return nil, rc
+	}
+	var positional []string
+	for {
+		rest := fs.Args()
+		if len(rest) == 0 {
+			return positional, -1
+		}
+		positional = append(positional, rest[0])
+		switch err := fs.Parse(rest[1:]); {
+		case errors.Is(err, flag.ErrHelp):
+			return nil, 0
+		case err != nil:
+			return nil, 2
+		}
+	}
+}
+
 // printFlagTable renders a flag set as an aligned, accent-keyed table using
 // the -- form the docs use. visit is flag.VisitAll (globals) or fs.VisitAll.
 // Zero-value defaults stay silent; real ones print dim.

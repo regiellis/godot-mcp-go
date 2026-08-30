@@ -1,0 +1,144 @@
+---
+title: Upgrading a project
+description: "godot-mcp upgrade runs a 4.3-and-up port as five gated phases: audit the tree cold, record a baseline drive, harvest seven sources after the first open, apply the mechanical fixes with a proof behind each, and replay the drive to compare."
+---
+
+Moving a project from an older 4.x release to a newer one is a reimport plus a short list of real breaks. What decides whether the port succeeded happens on either side of that: a recorded picture of how the game behaved before, and the same drive replayed after.
+
+`godot-mcp upgrade <phase>` runs that as five phases. Each does its work, writes a report under `<project>/.godot/upgrade/`, and stops. Nothing runs the next phase for you, because every phase ends with something a person should read.
+
+<Callout type="note">
+Scope is Godot **4.3 and up on both sides**. Two binaries have to be on disk, and the commands take both explicitly rather than guessing either. A Godot 3 project goes through the engine's own `--convert-3to4` first; this starts after that.
+</Callout>
+
+## The five phases
+
+| Phase | Command | Needs | Writes |
+| --- | --- | --- | --- |
+| Pre-flight | `upgrade preflight [--old-godot PATH] [--godot PATH]` | a clean tree, no editor | `preflight.json`, one commit forcing warnings on |
+| Baseline | `upgrade baseline --old-godot PATH [--scenario FILE]` | the old binary | `baseline/` frames, numbers, errors |
+| Open | `upgrade open --godot PATH` | the new binary | a tag, a branch, `open.json` with the bucketed to-do list |
+| Fix | `upgrade fix --category NAME [--dry-run]` | the new editor running | one proved edit per category, one commit each |
+| Verify | `upgrade verify --godot PATH` | the new binary | `verify.json`, the delta table |
+
+A whole port reads like this:
+
+```bash
+godot-mcp install --project . --enable
+git commit -am "chore: install godot-mcp addon"
+
+godot-mcp upgrade preflight --old-godot /path/to/godot-4.4 --godot /path/to/godot-4.7
+godot-mcp upgrade baseline  --old-godot /path/to/godot-4.4 --scenario drive.json
+godot-mcp upgrade open      --godot /path/to/godot-4.7
+
+godot-mcp upgrade fix --category tilemap --dry-run
+godot-mcp upgrade fix --category tilemap --godot /path/to/godot-4.7
+
+godot-mcp upgrade verify --godot /path/to/godot-4.7
+```
+
+## What a harvest reads
+
+An editor's error panel shows the last few dozen lines, the analyzer results of scripts that happen to be open, and nothing that printed before the panel existed. Two of the costliest breaks print nothing at all: a property the new version dropped on resave, and a deprecation whose warning is off by default.
+
+So the harvest reads seven sources, and every finding in a report names the source it came from.
+
+1. **The launch log.** The whole of the editor's stdout and stderr, unbounded, so boot-time failures and the full reimport flood are there when the panel has already scrolled past them.
+2. **Warnings forced on.** `preflight` sets every GDScript warning setting on in its own commit before the first open, and `verify` puts them back at the end. The parser reads those through a cached path, so a change made while the editor runs is invisible to it. It has to be in `project.godot` before launch.
+3. **The tree-wide compile**, which answers "does every script still compile" where the panel only shows what the editor happened to load.
+4. **Every scene, opened and validated.** Dead `AnimationPlayer` track paths, stored `NodePath`s pointing nowhere, `MissingNode` and `MissingResource` placeholders left by a class the new build no longer registers, and `ext_resource` paths that are not on disk.
+5. **The resave diff.** The first open rewrites scenes, resources and `project.godot`. `open` diffs every file the editor touched and reports each property that went missing, as `file, node, property`. This is the only place a silent drop shows up.
+6. **The static rename sweep.** A rename table matched against every `.gd` as text. A renamed method called on an untyped variable compiles clean and fails at runtime, so the compiler cannot find it and the text can.
+7. **The drive.** `baseline` and `verify` play the scenario and poll the game's runtime errors. Coverage is whatever the drive exercised, and the report says so.
+
+## Pre-flight, before an editor opens
+
+Launching the editor is the step that starts rewriting the project, so everything readable only beforehand is read first: the feature tag and config version, each `.gdextension` and whether it has a build for this machine, `TileMap` nodes still in scenes, the GDScript patterns the supported range broke, scripts and shaders with no `.uid` sidecar, and every `ext_resource` path that no longer resolves.
+
+```bash
+godot-mcp upgrade preflight --old-godot /path/to/godot-4.4 --godot /path/to/godot-4.7
+```
+
+<Callout type="warning">
+A **GDExtension addon with no build for this platform is a hard refusal**. Those binaries are compiled against a specific engine ABI and only the addon's author can rebuild them, so nothing further is worth running until that is answered.
+</Callout>
+
+With both binaries named it also runs the cold parse sweep under each, so a script that fails only under the new one is a real port finding rather than one that was already broken. It requires a clean tree, and ends with one commit that turns every GDScript warning on.
+
+## Recording the baseline
+
+A screenshot proves one frame. What catches a regression is a drive, written once as a JSON step list and replayed identically on both sides of the port.
+
+```json
+[
+  { "type": "wait", "seconds": 1.5 },
+  { "type": "input", "action": "move_right", "pressed": true, "auto_release": false },
+  { "type": "wait", "seconds": 1.0 },
+  { "type": "input", "action": "move_right", "pressed": false },
+  { "type": "assert", "node_path": "Player", "properties": ["global_position", "velocity"] },
+  { "type": "screenshot" }
+]
+```
+
+```bash
+godot-mcp upgrade baseline --old-godot /path/to/godot-4.4 --scenario drive.json
+```
+
+The drive runs the game standalone over its own direct channel, which needs the `godot_mcp/runtime/direct_server` project setting and a debug build. Every value an `assert` step reads is recorded rather than judged, because the recorded number is what the delta table diffs later. Without `--scenario` the phase records `--frames` frames with `--write-movie` at a fixed 60 fps and quits, which gives a frame sequence to compare plus the run log's own error lines.
+
+**Run the whole baseline twice and keep both sets.** The spread between two runs of the same build is the comparison threshold. Nothing in a real game replays bit-identically, and a threshold picked by intuition points the wrong way as often as the right one.
+
+## Opening in the new editor
+
+```bash
+godot-mcp upgrade open --godot /path/to/godot-4.7
+```
+
+`open` refuses on a dirty tree, tags the tree as it stands, branches, and launches exactly one headless editor. It then waits for the reimport to settle with successive reloads until the error count comes back the same twice, because a scan in progress reports failures that resolve themselves. After that it reads every source above, opens and validates and resaves each scene, diffs the result, and prints the to-do table bucketed by category with a file count behind each.
+
+The resave lands as its own commit, so a later fix has a well-defined state to restore to. The editor stays up afterwards, because `fix` and `verify` drive it; close it yourself once the port is done (`godot-mcp status` names its pid).
+
+## Fixing a category
+
+A migration error list is repetitive. One renamed method appears in thirty scripts, and thirty individual fixes is thirty chances to typo one. `fix` takes the whole set at once.
+
+```bash
+godot-mcp upgrade fix --category export_file --dry-run
+godot-mcp upgrade fix --category export_file --godot /path/to/godot-4.7
+```
+
+Report-only is what the editor already gives you, so each category runs as one loop: capture a scene checkpoint and a git tag, apply through the tool's own commands, then prove it with a reload, the tree-wide compile, the error panel, and the drive when `--godot` names a binary to run it under. The category's count has to reach zero and neither tree-wide number may get worse. If either fails, the checkpoint is restored, the files are checked back out, and the report says why with the debugger's stack attached. A category that passes lands as one commit.
+
+`--dry-run` prints a unified diff for the categories that rewrite text and the command list for the ones that do not, and touches nothing.
+
+The mechanical categories:
+
+| Category | What it applies |
+| --- | --- |
+| `export_file` | `@export_file` to `@export_file_path`, where the file also compares paths against `res://` |
+| `typed_dictionary` | an explicit cast on a `JSON.parse_string` result assigned into a `Dictionary` |
+| `tilemap` | extracts each `TileMap` layer into its own `TileMapLayer` node, then removes the old node |
+| `settings` | writes the feature tag: the target version plus the renderer the project already used |
+| `uid` | rescans so the editor writes any missing `.uid` sidecar |
+| `renames` | the rename table, for entries carrying a mechanical rewrite |
+
+Everything else a harvest found is a report a person acts on, and `fix` says so rather than guessing. The rename table currently ships report-only: every symbol the 4.3-to-4.7 range changed either drops an argument or has no replacement, and neither is a text substitution.
+
+## Verifying against the baseline
+
+```bash
+godot-mcp upgrade verify --godot /path/to/godot-4.7
+```
+
+`verify` replays the identical drive under the new binary, compares every recorded number and every captured frame against the baseline, and runs the harvest again so the result reads as a delta against what `open` found. Read the changed-pixel percentage against the spread between the two baseline runs, never against a number picked in advance.
+
+Its last step puts the warning settings back the way `preflight` found them, so the project leaves the port carrying what it arrived with.
+
+## Land it as one commit
+
+The newer editor resaves a `.tscn` or `.tres` whenever it touches one, so the diff grows on its own while the port runs. Two consequences worth planning for:
+
+- **The scene text format itself changed**. Godot 4.7 writes a `unique_id` attribute on every node and drops `load_steps` from the `[gd_scene]` header, so a scene the editor merely opened comes back changed. Read that as format, not as damage. The resave diff already separates the two: only a property that never comes back counts as a drop.
+- **Keep feature work out of the port branch**. A bisect over a mixed commit cannot separate "the port broke this" from "the feature broke this".
+
+The full breakdown, including the hand-run commands behind every phase and what actually breaks per minor release, is in the [Porting between Godot versions](/docs/guides/porting-godot-versions) guide.

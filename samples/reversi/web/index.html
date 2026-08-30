@@ -1,0 +1,722 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reversi, a godot-mcp demo</title>
+<meta name="description" content="A complete Reversi game for Godot 4.7, built end to end by AI agents driving godot-mcp. Playable in the browser.">
+<meta property="og:title" content="Reversi, a godot-mcp demo">
+<meta property="og:description" content="A complete Reversi game for Godot 4.7, built end to end by AI agents driving godot-mcp. Playable in the browser.">
+<meta property="og:image" content="media/title.png">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="game/index.icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
+<style>
+/* The page inherits the game's own design tokens rather than approximating them.
+   Every value here is lifted from core/design.gd, so retuning the game and
+   retuning the page start from the same numbers. */
+:root {
+  --ink: #0b0f14;
+  --night: #1b2430;
+  --night-hi: #243040;
+  --cream: #f2efe6;
+  --gold: #f5c242;
+  --cyan: #4fd6ff;
+  --mint: #6ee7a0;
+  --pink: #ff4f8b;
+  --felt: #1b5337;
+
+  --cream-muted: rgba(242, 239, 230, 0.72);
+  /* 0.62, not 0.5: the faint tone carries 11px captions and the metadata
+     labels, and at 0.5 it lands near 4.3:1 on the page background, under
+     the 4.5:1 small text needs. */
+  --cream-faint: rgba(242, 239, 230, 0.62);
+
+  /* The plate lean and the hard shadow are the game's shape signature. */
+  --skew: 14px;
+  --shadow: 6px 6px 0 var(--ink);
+  --shadow-lg: 10px 10px 0 var(--ink);
+
+  --display: "Bungee", ui-sans-serif, system-ui, sans-serif;
+  --body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  --col: 1120px;
+}
+
+* { box-sizing: border-box; }
+
+img { max-width: 100%; height: auto; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+
+body {
+  margin: 0;
+  /* A long unbreakable URL in the metadata table sets a min-content width for
+     the whole document, which pushed every paragraph past a phone's viewport
+     and clipped it instead of wrapping it. */
+  overflow-wrap: break-word;
+  background: var(--night);
+  color: var(--cream);
+  font-family: var(--body);
+  font-size: 17px;
+  line-height: 1.65;
+  /* The game's Backdrop: wide diagonal bands leaning right, one in felt green.
+     Same period and lean as ui/backdrop.gd, scaled for a page. */
+  background-image:
+    /* Every third band takes the felt accent, matching ACCENT_EVERY in
+       ui/backdrop.gd. 190px is one band plus one gap; 570px is three of them. */
+    repeating-linear-gradient(
+      100deg,
+      color-mix(in srgb, var(--felt) 38%, transparent) 0px,
+      color-mix(in srgb, var(--felt) 38%, transparent) 95px,
+      transparent 95px,
+      transparent 570px
+    ),
+    repeating-linear-gradient(
+      100deg,
+      transparent 0px,
+      transparent 95px,
+      color-mix(in srgb, var(--night-hi) 55%, transparent) 95px,
+      color-mix(in srgb, var(--night-hi) 55%, transparent) 190px
+    );
+  background-attachment: fixed;
+}
+
+/* Horizontal only, and longhand on purpose. As a class selector this rule
+   outranks any element-level `section {...}` rule, so a `padding` or `margin`
+   shorthand here silently wins the vertical axis too. That is exactly what
+   flattened the section spacing and pushed the game frame out of centre. */
+.wrap {
+  max-width: var(--col);
+  margin-inline: auto;
+  padding-inline: 20px;
+}
+
+/* --- Masthead -------------------------------------------------------------- */
+.masthead { padding-block: 64px 32px; }
+.mast-rule {
+  width: 240px;
+  height: 6px;
+  background: var(--gold);
+  margin-block-end: 30px;
+}
+
+h1 {
+  font-family: var(--display);
+  font-size: clamp(52px, 10vw, 104px);
+  line-height: 0.98;
+  margin: 0;
+  letter-spacing: 0.01em;
+  text-shadow: 8px 8px 0 var(--ink);
+}
+
+.byline {
+  font-family: var(--display);
+  font-size: 13px;
+  letter-spacing: 0.22em;
+  color: var(--gold);
+  margin-block: 20px 0;
+  line-height: 1.7;
+}
+.byline a { color: var(--gold); }
+
+.lede {
+  max-width: 62ch;
+  margin-block: 24px 0;
+  color: var(--cream-muted);
+  font-size: 19px;
+}
+
+/* --- The game frame -------------------------------------------------------- */
+.stage { margin-block-start: 48px; }
+
+.frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--ink);
+  border: 3px solid var(--night-hi);
+  filter: drop-shadow(var(--shadow-lg));
+}
+.frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; }
+
+/* The poster carries the first screen so the fold is the game, not a grey
+   rectangle waiting on a 40 MB download. The wasm is only fetched on click. */
+.poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: var(--ink);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.poster img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.58;
+  transition: opacity 200ms ease-out, transform 400ms ease-out;
+}
+.poster::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(11, 15, 20, 0.55) 0%, rgba(11, 15, 20, 0.82) 100%);
+}
+.poster-plate {
+  position: relative;
+  font-family: var(--display);
+  font-size: clamp(16px, 2.1vw, 26px);
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  background: var(--gold);
+  padding: 22px 44px;
+  clip-path: polygon(var(--skew) 0, 100% 0, calc(100% - var(--skew)) 100%, 0 100%);
+  filter: drop-shadow(var(--shadow-lg));
+  transition: transform 160ms ease-out;
+}
+.poster:hover img { opacity: 0.72; transform: scale(1.02); }
+.poster:hover .poster-plate { transform: translate(-3px, -3px); }
+.poster:active .poster-plate { transform: translate(3px, 3px); }
+.poster:focus-visible { outline: 4px solid var(--gold); outline-offset: 5px; }
+
+.stage-note {
+  margin-block: 16px 0;
+  font-size: 14px;
+  color: var(--cream-faint);
+}
+
+/* --- Buttons: the game's JuiceButton, at rest and on hover ----------------- */
+.row { display: flex; flex-wrap: wrap; gap: 14px; margin-block-start: 32px; }
+
+.btn {
+  --btn-face: #2b3a4d;
+  --btn-ink: var(--cream);
+  --btn-edge: rgba(242, 239, 230, 0.22);
+  display: inline-block;
+  font-family: var(--display);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  padding: 17px 30px;
+  background: var(--btn-face);
+  color: var(--btn-ink);
+  box-shadow: inset 0 0 0 2px var(--btn-edge, transparent);
+  clip-path: polygon(var(--skew) 0, 100% 0, calc(100% - var(--skew)) 100%, 0 100%);
+  filter: drop-shadow(var(--shadow));
+  /* Hover lifts and the shadow shortens, the way the drawn button's shadow
+     collapses under a press. */
+  transition: transform 140ms ease-out, filter 140ms ease-out, background-color 140ms ease-out;
+}
+.btn:hover { transform: translate(-2px, -2px); filter: drop-shadow(8px 8px 0 var(--ink)); }
+.btn:active { transform: translate(3px, 3px); filter: drop-shadow(2px 2px 0 var(--ink)); }
+.btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 5px; }
+
+.btn-primary { --btn-face: var(--gold); --btn-ink: var(--ink); }
+.btn-cyan { --btn-face: var(--cyan); --btn-ink: var(--ink); }
+
+/* --- Sections -------------------------------------------------------------- */
+section { margin-block-start: 80px; }
+
+/* Label, then a hairline rule running to the edge: the same treatment
+   JuicePanel gives a card title in the game itself. */
+h2 {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-family: var(--display);
+  font-size: 13px;
+  letter-spacing: 0.24em;
+  color: var(--gold);
+  margin-block: 0 30px;
+}
+h2::after {
+  content: "";
+  flex: 1;
+  height: 2px;
+  background: currentColor;
+  opacity: 0.34;
+}
+section:nth-of-type(even) h2 { color: var(--cyan); }
+
+p { margin: 0 0 16px; max-width: 68ch; }
+a { color: var(--cyan); }
+a:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+/* --- Gallery --------------------------------------------------------------- */
+.shots { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.shots figure, .shot-feature { margin: 0; }
+.shot-feature { margin-block-end: 22px; }
+.shot-feature figcaption {
+  font-family: var(--display);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: var(--cream-faint);
+  margin-top: 14px;
+}
+.shot-feature img, .shots img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 3px solid var(--night-hi);
+  filter: drop-shadow(var(--shadow));
+  background: var(--ink);
+}
+.shots figcaption {
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--cream-faint);
+  margin-top: 12px;
+}
+@media (max-width: 720px) {
+  .shots { grid-template-columns: minmax(0, 1fr); }
+  .wrap { padding-inline: 16px; }
+  .masthead { padding-block: 40px 24px; }
+  section { margin-block-start: 56px; }
+  .mast-rule { width: 160px; height: 5px; margin-block-end: 22px; }
+  .meta { padding: 24px 22px; }
+  .row .btn { flex: 1 1 100%; text-align: center; }
+}
+
+/* --- Lead and tail lines around a designed block ---------------------------- */
+.section-lead {
+  font-size: 20px;
+  color: var(--cream);
+  max-width: 70ch;
+  margin-block-end: 36px;
+}
+.section-tail {
+  margin-block-start: 28px;
+  color: var(--cream-muted);
+  font-size: 16px;
+}
+
+/* --- Facts: the counts that describe the build, one per plate --------------- */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+.fact {
+  background: rgba(36, 48, 64, 0.86);
+  border-top: 5px solid var(--gold);
+  padding: 26px 24px 28px;
+  filter: drop-shadow(var(--shadow));
+}
+.fact:nth-child(2) { border-top-color: var(--cyan); }
+.fact:nth-child(3) { border-top-color: var(--pink); }
+.fact:nth-child(4) { border-top-color: var(--mint); }
+.fact-num {
+  font-family: var(--display);
+  font-size: 52px;
+  line-height: 1;
+  color: var(--gold);
+  margin: 0 0 10px;
+  text-shadow: 4px 4px 0 var(--ink);
+}
+.fact:nth-child(2) .fact-num { color: var(--cyan); }
+.fact:nth-child(3) .fact-num { color: var(--pink); }
+.fact:nth-child(4) .fact-num { color: var(--mint); }
+.fact h3 {
+  font-family: var(--display);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  color: var(--cream);
+  margin: 0 0 12px;
+}
+.fact p { margin: 0; font-size: 15px; line-height: 1.6; color: var(--cream-muted); max-width: none; }
+@media (max-width: 900px) { .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .facts { grid-template-columns: minmax(0, 1fr); } }
+
+.no-endorse {
+  margin-block: 28px 0;
+  padding: 20px 26px;
+  border-left: 5px solid var(--red);
+  background: rgba(18, 26, 36, 0.55);
+  color: var(--cream-muted);
+  font-size: 16px;
+  max-width: 78ch;
+}
+.no-endorse strong { color: var(--cream); }
+
+/* --- Credits: what, who, licence, as a read-down list ----------------------- */
+.credits {
+  list-style: none;
+  margin: 24px 0 0;
+  padding: 4px 30px;
+  border-left: 5px solid var(--cyan);
+  background: rgba(18, 26, 36, 0.55);
+}
+.credits li {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: baseline;
+  padding-block: 18px;
+  border-top: 2px solid rgba(36, 48, 64, 0.9);
+}
+.credits li:first-child { border-top: 0; }
+.credit-what {
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--cream-faint);
+}
+.credit-lic {
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  background: var(--cream-faint);
+  padding: 5px 12px;
+  white-space: nowrap;
+}
+@media (max-width: 620px) {
+  .credits li { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 16px; }
+  .credit-what { grid-column: 1 / -1; }
+}
+
+/* --- Metadata table -------------------------------------------------------- */
+.meta {
+  background: rgba(36, 48, 64, 0.86);
+  border-left: 5px solid var(--pink);
+  padding: 30px 34px;
+  filter: drop-shadow(var(--shadow));
+}
+.meta dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: 190px minmax(0, 1fr);
+  gap: 16px 26px;
+}
+.meta dt {
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--cream-faint);
+  padding-top: 3px;
+}
+.meta dd { margin: 0; min-width: 0; }
+
+.stance {
+  border-left-color: var(--gold);
+  border-left-width: 8px;
+  background: rgba(18, 26, 36, 0.9);
+}
+.stance p { margin-block: 0 16px; max-width: 78ch; }
+.stance p:last-child { margin-block-end: 0; }
+.stance-lead {
+  font-family: var(--display);
+  font-size: clamp(19px, 1.9vw, 25px);
+  line-height: 1.45;
+  color: var(--gold);
+}
+
+.credit-lead { border-left-color: var(--mint); }
+.credit-lead p { margin: 0 0 14px; }
+.credit-lead p:last-child { margin-bottom: 0; }
+.credit-title {
+  font-family: var(--display);
+  font-size: 19px;
+  line-height: 1.35;
+}
+.credit-title a { color: var(--mint); }
+@media (max-width: 620px) {
+  .meta dl { grid-template-columns: minmax(0, 1fr); gap: 4px 0; }
+  .meta dd { margin-bottom: 14px; }
+}
+
+/* --- Footer ---------------------------------------------------------------- */
+footer {
+  margin-block-start: 72px;
+  padding-block: 40px 72px;
+  border-top: 3px solid var(--night-hi);
+  color: var(--cream-faint);
+  font-size: 15px;
+}
+footer p { max-width: 74ch; }
+
+.disc {
+  display: inline-block;
+  width: 13px; height: 13px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  vertical-align: -1px;
+  margin-right: 8px;
+}
+.disc-black { background: #14181d; }
+.disc-white { background: var(--cream); }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="mast-rule"></div>
+    <h1>Reversi</h1>
+    <p class="byline">
+      <span class="disc disc-black"></span><span class="disc disc-white"></span>
+      BUILT BY AGENTS DRIVING <a href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener">GODOT-MCP</a>
+    </p>
+    <p class="lede">
+      Eight by eight, black moves first, outflank a line to flip it. Play the computer at one of
+      three depths, or two people at one keyboard. Everything on screen is drawn in code: there is
+      not one sprite in the project.
+    </p>
+  </div>
+</header>
+
+<div class="wrap stage">
+  <div class="frame">
+    <button class="poster" id="play" type="button">
+      <img src="media/game.png" alt="" aria-hidden="true">
+      <span class="poster-plate">PLAY IN YOUR BROWSER</span>
+    </button>
+  </div>
+  <p class="stage-note">
+    Click a highlighted cell to place a disc. Escape opens the pause menu. The build is about
+    40 MB and is only fetched once you press play.
+  </p>
+  <div class="row">
+    <a class="btn btn-primary" href="game/index.html" target="_blank" rel="noopener">Open the game full screen</a>
+    <a class="btn btn-cyan" href="https://github.com/regiellis/godot-reversi">Source on GitHub</a>
+  </div>
+</div>
+
+<main>
+  <section class="wrap">
+    <h2>What this demo is not</h2>
+    <div class="meta stance">
+      <p class="stance-lead">
+        This is not an argument for generating games from a single prompt, and it is not a case
+        for making games at volume.
+      </p>
+      <p>
+        One prompt produced the brief. Everything after that took direction. The first build looked
+        finished and was not: it carried spacing and overlap faults on every screen, a drop shadow
+        that made small text read as doubled, and a title screen that clicked at the player once a
+        second for as long as it was open. A person found all of it, and the fixes were structural
+        rather than cosmetic.
+      </p>
+      <p>
+        It also worked because Reversi is a solved problem. The rules are fixed and published, the
+        board is eight by eight, and the interface conventions are decades old. Nothing here had to
+        be invented, prototyped, or found by playing the thing until it felt right. A brief for a
+        game that does not exist yet, where the mechanic has to be discovered by iterating on it, is
+        a different job, and one prompt does not touch it.
+      </p>
+      <p>
+        This is a teaching artifact rather than a product. It is not maintained as a game and takes
+        no feature requests. It is MIT licensed because the point is for people to read it, learn
+        from it and reuse the techniques freely, so treat it as a worked example rather than a
+        dependency.
+      </p>
+      <p>
+        godot-mcp is a tool. It belongs alongside the rest of a Godot workflow rather than in place
+        of it: source control, review, playtesting, and someone with the judgement to decide when a
+        thing is actually done. The claim this demo makes is narrower and more useful than autonomy.
+        An agent can hold a real development loop, and it can be directed, corrected and held to a
+        standard, the same as any other contributor.
+      </p>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>Downloads</h2>
+    <p>
+      Desktop builds are attached to each tagged release. They need nothing installed: no Godot, no
+      runtime.
+    </p>
+    <div class="row">
+      <a class="btn" href="https://github.com/regiellis/godot-reversi/releases/latest">Windows</a>
+      <a class="btn" href="https://github.com/regiellis/godot-reversi/releases/latest">Linux</a>
+      <a class="btn" href="https://github.com/regiellis/godot-reversi/releases/latest">macOS</a>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>Screens</h2>
+    <div class="shots">
+      <figure>
+        <img src="media/title.png" alt="The title screen: the word REVERSI in a heavy display face beside a board playing itself" loading="lazy" width="2560" height="1440">
+        <figcaption>TITLE, WITH THE BOARD PLAYING ITSELF</figcaption>
+      </figure>
+      <figure>
+        <img src="media/setup.png" alt="Choosing an opponent and a colour before a match" loading="lazy" width="2560" height="1440">
+        <figcaption>NEW GAME</figcaption>
+      </figure>
+      <figure>
+        <img src="media/pause.png" alt="The pause menu over a dimmed board" loading="lazy" width="2560" height="1440">
+        <figcaption>PAUSED</figcaption>
+      </figure>
+      <figure>
+        <img src="media/how-to-play.png" alt="The rules, five cards each with a small board diagram" loading="lazy" width="2560" height="1440">
+        <figcaption>HOW TO PLAY</figcaption>
+      </figure>
+      <figure>
+        <img src="media/settings.png" alt="Settings, with sliders and toggles drawn in code" loading="lazy" width="2560" height="1440">
+        <figcaption>SETTINGS</figcaption>
+      </figure>
+      <figure>
+        <img src="media/result.png" alt="The result screen showing the final score and the running record" loading="lazy" width="2560" height="1440">
+        <figcaption>RESULT</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>What this is</h2>
+    <p class="section-lead">
+      The brief came from a video demonstrating a different tool. This is the same brief answered
+      with godot-mcp, so both results sit in the open and can be judged on what they produced.
+    </p>
+
+    <div class="facts">
+      <div class="fact">
+        <p class="fact-num">1</p>
+        <h3>Agent</h3>
+        <p>Planned the work and verified it. Others built, all driving one live Godot editor.</p>
+      </div>
+      <div class="fact">
+        <p class="fact-num">1</p>
+        <h3>File of rules</h3>
+        <p>
+          Hints, the click test and the opponent's search all read from it. No engine dependency
+          past <code>Vector2i</code>.
+        </p>
+      </div>
+      <div class="fact">
+        <p class="fact-num">1</p>
+        <h3>Space ladder</h3>
+        <p>
+          Every gap on every screen comes off it. A build-time audit refuses to save a scene holding
+          an overlap or an element off the page.
+        </p>
+      </div>
+      <div class="fact">
+        <p class="fact-num">0</p>
+        <h3>Sprites</h3>
+        <p>
+          The board, the discs, every widget and the screen transition are polygons and text drawn
+          in <code>_draw()</code>.
+        </p>
+      </div>
+    </div>
+
+    <p class="section-tail">
+      The whole story, including the original brief and the review that reshaped it, is in the
+      <a href="https://github.com/regiellis/godot-reversi#readme" target="_blank" rel="noopener">README</a>.
+    </p>
+  </section>
+
+  <section class="wrap">
+    <h2>More information</h2>
+    <div class="meta">
+      <dl>
+        <dt>Author</dt>
+        <dd>Regi Ellis</dd>
+        <dt>Built with</dt>
+        <dd><a href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener">godot-mcp</a>, a Go CLI and MCP server that drives the Godot editor</dd>
+        <dt>Engine</dt>
+        <dd><a href="https://godotengine.org" target="_blank" rel="noopener">Godot</a> 4.7</dd>
+        <dt>Platforms</dt>
+        <dd>Browser, Windows, Linux, macOS</dd>
+        <dt>Design box</dt>
+        <dd>2560 by 1440, fitted to the window</dd>
+        <dt>Build time</dt>
+        <dd>
+          About two hours fifty, wall clock, from an empty directory to this page. Roughly seventy
+          minutes of that reached the first playable build; the rest was two rounds of review.
+        </dd>
+        <dt>Licence</dt>
+        <dd><a href="https://github.com/regiellis/godot-reversi/blob/main/LICENSE" target="_blank" rel="noopener">MIT</a> for the code. The bundled assets keep their own terms, in <a href="https://github.com/regiellis/godot-reversi/blob/main/NOTICE" target="_blank" rel="noopener">NOTICE</a>.</dd>
+        <dt>Source</dt>
+        <dd><a href="https://github.com/regiellis/godot-reversi" target="_blank" rel="noopener">github.com/regiellis/godot-reversi</a></dd>
+        <dt>Documentation</dt>
+        <dd><a href="https://regiellis.github.io/godot-mcp-go/docs" target="_blank" rel="noopener">regiellis.github.io/godot-mcp-go/docs</a></dd>
+      </dl>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>Standing on</h2>
+    <div class="meta credit-lead">
+      <p class="credit-title">
+        <a href="https://miisan.itch.io/godot-4-ui" target="_blank" rel="noopener">Liquid UI Kit for Godot</a>, by Miisan
+      </p>
+      <p>
+        The look and feel of this interface come from Miisan's kit. Every widget here draws itself
+        in <code>_draw()</code> so that each property stays a float a tween can move, which is their
+        idea, and it is the reason a button can squash on press and a score counter can roll, punch
+        and settle. The mechanisms were re-implemented against this game's own tokens rather than
+        vendored, but the thinking is theirs. It is MIT, it is free, and it is worth your time.
+      </p>
+    </div>
+    <p class="no-endorse">
+      <strong>The people credited here are not associated with this project and have not endorsed
+      it.</strong> Their work is used under licences that permit reuse. A CC0 release, an OFL font
+      or an MIT kit grants permission to use the work. It says nothing about the author's view of AI
+      tools, of AI in games, or of this demonstration.
+    </p>
+
+    <ul class="credits">
+      <li>
+        <span class="credit-what">Sound</span>
+        <span class="credit-who"><a href="https://kenney.nl" target="_blank" rel="noopener">Kenney</a></span>
+        <span class="credit-lic">CC0</span>
+      </li>
+      <li>
+        <span class="credit-what">Type</span>
+        <span class="credit-who">
+          <a href="https://github.com/djrrb/Bungee" target="_blank" rel="noopener">Bungee</a>, by David Jonathan Ross
+        </span>
+        <span class="credit-lic">OFL 1.1</span>
+      </li>
+      <li>
+        <span class="credit-what">Engine</span>
+        <span class="credit-who"><a href="https://godotengine.org" target="_blank" rel="noopener">Godot</a> 4.7</span>
+        <span class="credit-lic">MIT</span>
+      </li>
+    </ul>
+    <p class="section-tail">Every licence travels with the files in the repository.</p>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p>
+    Reversi is MIT licensed. Built with
+    <a href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener">godot-mcp</a> by Regi Ellis, on
+    <a href="https://godotengine.org" target="_blank" rel="noopener">Godot</a> 4.7.
+  </p>
+</footer>
+
+<script>
+  // Deliberately click to load: the wasm is 38 MB and nobody should pay for it
+  // just by scrolling past.
+  document.getElementById("play").addEventListener("click", function () {
+    var frame = document.createElement("iframe");
+    frame.src = "game/index.html";
+    frame.title = "Reversi, playable in the browser";
+    frame.allow = "autoplay; fullscreen";
+    this.replaceWith(frame);
+    frame.focus();
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,152 @@
+name: Release desktop builds
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  # The only place the engine version is written. Bump both together, and keep
+  # them in step with .github/workflows/pages.yml. The export-template directory
+  # Godot searches is named "<version>.<release>".
+  GODOT_VERSION: "4.7.2"
+  GODOT_RELEASE: "stable"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Godot and its export templates
+        run: |
+          set -euo pipefail
+          BASE="https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}-${GODOT_RELEASE}"
+          EDITOR="Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_linux.x86_64"
+
+          curl -fsSL -o godot.zip "${BASE}/${EDITOR}.zip"
+          unzip -q godot.zip
+          chmod +x "${EDITOR}"
+          sudo mv "${EDITOR}" /usr/local/bin/godot
+          rm -f godot.zip
+
+          curl -fsSL -o templates.tpz "${BASE}/Godot_v${GODOT_VERSION}-${GODOT_RELEASE}_export_templates.tpz"
+          unzip -q templates.tpz          # the .tpz is a zip that unpacks to ./templates/
+          TEMPLATE_DIR="${HOME}/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_RELEASE}"
+          mkdir -p "${TEMPLATE_DIR}"
+          mv templates/* "${TEMPLATE_DIR}/"
+          rm -rf templates.tpz templates
+
+          # Fail here, with the directory listing, rather than inside an export
+          # with a templates-not-found error that says nothing about why.
+          for t in windows_release_x86_64.exe linux_release.x86_64 macos.zip; do
+            if [ ! -f "${TEMPLATE_DIR}/${t}" ]; then
+              echo "::error::${t} is not in ${TEMPLATE_DIR}"
+              ls -1 "${TEMPLATE_DIR}" || true
+              exit 1
+            fi
+          done
+
+          godot --version
+
+      - name: Warm the import cache
+        run: |
+          set -euo pipefail
+          # Import once up front so no export races an unfinished import pass.
+          # Deliberately non-fatal: each export below is gated on its own exit
+          # code and on the file it was supposed to produce.
+          godot --headless --path . --import || true
+
+      - name: Export Windows
+        run: |
+          set -euo pipefail
+          mkdir -p build/windows          # Godot will not create this itself
+          godot --headless --path . --export-release "Windows Desktop" build/windows/Reversi.exe
+          # Second check: the exporter has historically exited 0 on some
+          # failures, so confirm the artifact rather than trusting the code.
+          for f in Reversi.exe Reversi.pck; do
+            if [ ! -s "build/windows/${f}" ]; then
+              echo "::error::build/windows/${f} is missing or empty after export"
+              ls -la build/windows || true
+              exit 1
+            fi
+          done
+          ls -la build/windows
+
+      - name: Export Linux
+        run: |
+          set -euo pipefail
+          mkdir -p build/linux
+          godot --headless --path . --export-release "Linux/X11" build/linux/Reversi.x86_64
+          for f in Reversi.x86_64 Reversi.pck; do
+            if [ ! -s "build/linux/${f}" ]; then
+              echo "::error::build/linux/${f} is missing or empty after export"
+              ls -la build/linux || true
+              exit 1
+            fi
+          done
+          chmod +x build/linux/Reversi.x86_64
+          ls -la build/linux
+
+      - name: Export macOS
+        run: |
+          set -euo pipefail
+
+          # The macOS preset must be "universal": the official macos.zip template
+          # contains only godot_macos_release.universal, and the exporter looks up
+          # the template binary by literal name with no thinning step. A universal
+          # export in turn refuses to run unless the project imports ETC2/ASTC
+          # textures, and when that setting is unset Godot falls back to the HOST's
+          # preferred format, which on a Linux runner is S3TC/BPTC.
+          #
+          # project.godot now carries textures/vram_compression/import_etc2_astc,
+          # so this needs no runner-local edit. That also means a Mac user who
+          # clones the repo can export from the editor without hitting it.
+          mkdir -p build/macos
+          # The path ends in .zip, so Godot writes the .app bundle into a zip
+          # itself. That is the only format a non-Mac host can produce.
+          godot --headless --path . --export-release "macOS" build/macos/Reversi.zip
+          if [ ! -s "build/macos/Reversi.zip" ]; then
+            echo "::error::build/macos/Reversi.zip is missing or empty after export"
+            ls -la build/macos || true
+            exit 1
+          fi
+          ls -la build/macos
+
+      - name: Package the three targets
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          (cd build/windows && zip -qr "${GITHUB_WORKSPACE}/dist/godot-reversi-${TAG}-windows-x86_64.zip" .)
+          (cd build/linux   && zip -qr "${GITHUB_WORKSPACE}/dist/godot-reversi-${TAG}-linux-x86_64.zip" .)
+          # macOS is already a zip holding the .app; zipping it again would only
+          # make it worse to open.
+          cp build/macos/Reversi.zip "dist/godot-reversi-${TAG}-macos-universal.zip"
+          ls -la dist
+
+      - name: Attach the builds to the release
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release upload "${TAG}" dist/* --clobber
+          else
+            gh release create "${TAG}" dist/* --title "${TAG}" --generate-notes
+          fi
+
+      - name: Keep the builds as workflow artifacts
+        # workflow_dispatch has no tag and so no release to attach to. The run is
+        # still worth doing as a dry run of all three exports, so keep the output.
+        if: github.ref_type != 'tag'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: desktop-builds
+          path: dist

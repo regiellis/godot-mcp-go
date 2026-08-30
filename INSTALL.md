@@ -115,7 +115,7 @@ The game hosts its own `127.0.0.1`-only server (ports 9200-9215; `GODOT_MCP_GAME
 
 ## Verify
 
-1. Open your project in Godot 4.7+ (`godot`) and enable the plugin.
+1. Open your project in Godot 4.7+ (`godot`, or `godot-mcp launch` from inside the project, which starts one editor and never a second) and enable the plugin.
 2. From a terminal **inside the project directory** (so the CLI auto-discovers the port):
    ```sh
    godot-mcp project info
@@ -123,6 +123,10 @@ The game hosts its own `127.0.0.1`-only server (ports 9200-9215; `GODOT_MCP_GAME
    ```
 
 If the CLI can't connect, run `godot-mcp doctor` (from inside the project, or with `--project DIR`), which checks the godot binary, the addon install/enable state, the effective port, and whether an editor is actually reachable. Or pass `--port 9080` explicitly.
+
+Four subcommands need no editor at all, because they run the engine themselves. On a fresh clone `godot-mcp import` builds the `.godot/` import cache (it refuses while an editor is open on the project, since both own that cache), `godot-mcp check <file|dir>...` parses `.gd` files and exits non-zero on the first that fails, `godot-mcp export "<preset>"` runs a headless export and reports what landed, and `godot-mcp run [scene]` starts the game standalone. Each logs the engine's output under `<project>/.godot/` and reports the errors it parsed out of it.
+
+Moving an existing 4.3 or newer project to a newer Godot has its own subcommand: `godot-mcp upgrade preflight|baseline|open|fix|verify`. Each phase writes a report under `<project>/.godot/upgrade/` and stops, both binaries are named explicitly (`--old-godot`, `--godot`), and the port runs on its own branch with a tag to fall back to. Read the [Porting between Godot versions](https://regiellis.github.io/godot-mcp-go/docs/guides/porting-godot-versions) guide first.
 
 ## Before you ship
 

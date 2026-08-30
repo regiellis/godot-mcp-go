@@ -129,10 +129,42 @@ func _open(params: Dictionary) -> Dictionary:
 		EditorInterface.reload_scene_from_path(normalized)
 		if not was_active:
 			EditorInterface.open_scene_from_path(normalized)
+		var reload_refusal := _open_failure(normalized)
+		if not reload_refusal.is_empty():
+			return reload_refusal
 		return success({"path": normalized, "opened": true, "reloaded": true, "already_active": was_active})
 
 	EditorInterface.open_scene_from_path(normalized)
+	var refusal := _open_failure(normalized)
+	if not refusal.is_empty():
+		return refusal
 	return success({"path": normalized, "opened": true, "was_already_open": was_open})
+
+
+## Refuse an open that did not land, or {} when it did.
+##
+## `EditorInterface.open_scene_from_path` returns nothing and reports nothing, so
+## a scene the editor could not load leaves the previous scene current while the
+## call looks like it worked. Verified live on 4.7.2: a scene whose `ext_resource`
+## path no longer exists fails to load WHOLE, the editor stays where it was, and
+## `scene.open` used to answer `opened: true` for it, after which every `node.*`
+## call silently targeted the scene the caller had left. (An unknown node *class*
+## is different: that scene loads, with a `MissingNode` placeholder, which is what
+## `scene.validate` reports.) The dead paths ride along in the error, since they
+## are the usual cause and the caller cannot read them out of a tree that does
+## not exist.
+func _open_failure(normalized: String) -> Dictionary:
+	if is_active_scene_path(normalized):
+		return {}
+	var now := get_edited_root()
+	var active := normalize_project_path(now.scene_file_path) if now != null else ""
+	var dead := _missing_ext_resources(normalized)
+	return error(-32603, "The editor could not load '%s'; it is still on '%s'" % [normalized, active], {
+		"path": normalized,
+		"active_scene": active,
+		"missing_ext_resources": dead,
+		"suggestion": "A scene whose ext_resource path no longer exists fails to load whole. Repair the paths (fs.move updates references), then open it again.",
+	})
 
 
 ## Close a scene tab: --path, or the active scene when no path is given.
@@ -405,6 +437,7 @@ func _validate(_params: Dictionary) -> Dictionary:
 		return error_no_scene()
 	var issues: Array = []
 	_validate_node(root, root, issues)
+	issues.append_array(_missing_ext_resources(root.scene_file_path))
 	return success({
 		"scene_path": root.scene_file_path,
 		"valid": issues.is_empty(),
@@ -416,10 +449,35 @@ func _validate(_params: Dictionary) -> Dictionary:
 func _validate_node(node: Node, root: Node, issues: Array) -> void:
 	if node is AnimationPlayer:
 		_validate_animations(node, root, issues)
+	# A node whose class the running build no longer registers loads as a
+	# MissingNode placeholder carrying the original name, and the scene opens
+	# normally around it (verified live on 4.7.2). Nothing else reports it, and
+	# saving the scene from that state is what makes the loss permanent. Matched
+	# by class NAME so the addon's 4.3 floor is unaffected.
+	if node.get_class() == "MissingNode":
+		issues.append({
+			"type": "missing_node",
+			"node": str(root.get_path_to(node)),
+			"original_class": String(node.get("original_class")),
+			"detail": "the running build does not register this class; the node is a placeholder and saving the scene keeps only the placeholder",
+		})
 	for prop in node.get_property_list():
-		if int(prop.get("type", TYPE_NIL)) != TYPE_NODE_PATH:
+		var usage := int(prop.get("usage", 0))
+		var ptype := int(prop.get("type", TYPE_NIL))
+		if not (usage & PROPERTY_USAGE_STORAGE):
 			continue
-		if not (int(prop.get("usage", 0)) & PROPERTY_USAGE_STORAGE):
+		if ptype == TYPE_OBJECT:
+			var res: Variant = node.get(prop["name"])
+			if res is Resource and (res as Resource).get_class() == "MissingResource":
+				issues.append({
+					"type": "missing_resource",
+					"node": str(root.get_path_to(node)),
+					"property": String(prop["name"]),
+					"original_class": String((res as Resource).get("original_class")),
+					"detail": "the running build does not register this resource class; the property holds a placeholder",
+				})
+			continue
+		if ptype != TYPE_NODE_PATH:
 			continue
 		var np: NodePath = node.get(prop["name"])
 		if np == null or np.is_empty():
@@ -433,6 +491,45 @@ func _validate_node(node: Node, root: Node, issues: Array) -> void:
 			})
 	for child in node.get_children():
 		_validate_node(child, root, issues)
+
+
+## Every ext_resource path in a scene or resource file that is not on disk.
+##
+## This reads the FILE rather than the loaded tree, and it has to: a scene whose
+## ext_resource path no longer exists does not load at all on 4.7 (verified
+## live), so by the time there is a tree to walk, the broken case is the one that
+## never got here. Reading the text also lets scene.open explain a refusal for a
+## scene it could not load. Quoted spans only, so a comment mentioning a path
+## cannot produce a finding.
+func _missing_ext_resources(scene_path: String) -> Array:
+	var out: Array = []
+	if scene_path.is_empty() or not FileAccess.file_exists(scene_path):
+		return out
+	var file := FileAccess.open(scene_path, FileAccess.READ)
+	if file == null:
+		return out
+	var re := RegEx.create_from_string('\\[ext_resource[^\\]]*?path="([^"]+)"')
+	var line_no := 0
+	while not file.eof_reached():
+		var line := file.get_line()
+		line_no += 1
+		var m := re.search(line)
+		if m == null:
+			continue
+		var target := m.get_string(1)
+		if not target.begins_with("res://"):
+			continue
+		if FileAccess.file_exists(target) or DirAccess.dir_exists_absolute(target):
+			continue
+		out.append({
+			"type": "missing_ext_resource",
+			"file": scene_path,
+			"line": line_no,
+			"path": target,
+			"detail": "the file this scene references no longer exists; a scene with a dead ext_resource fails to load whole",
+		})
+	file.close()
+	return out
 
 
 func _validate_animations(player: AnimationPlayer, root: Node, issues: Array) -> void:
@@ -532,6 +629,6 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"scene.validate": {
-			"description": "Scan the open scene for integrity problems that surface only at play: AnimationPlayer tracks whose node path doesn't resolve, and stored NodePath references pointing nowhere. Read-only.",
+			"description": "Scan the open scene for integrity problems that surface only at play: AnimationPlayer tracks whose node path doesn't resolve, stored NodePath references pointing nowhere, MissingNode and MissingResource placeholders left by a class the running build no longer registers, and ext_resource paths that are not on disk. Read-only.",
 		},
 	}

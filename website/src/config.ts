@@ -78,6 +78,7 @@ const AUTHORED: NavGroup[] = [
       { label: "Discover, then drive", slug: "discover-then-drive" },
       { label: "Spatial placement", slug: "spatial-placement", badge: "deep" },
       { label: "Playtest loop", slug: "playtest-loop" },
+      { label: "Upgrading a project", slug: "upgrading", badge: "beta" },
       { label: "C# projects", slug: "csharp" },
       { label: "Live-engine gotchas", slug: "gotchas" },
       { label: "Live dashboard", slug: "dashboard" },

@@ -1,0 +1,15 @@
+.godot/
+
+# Build-time tooling, not part of the sample.
+addons/godot_mcp/
+.claude/
+
+# Export output. Every preset in export_presets.cfg writes under here, and the
+# CI workflows stage their release archives in dist/.
+build/
+dist/
+
+# The editor splits signing keys and passwords out of export_presets.cfg into
+# this file. Godot 4.7 writes it inside .godot/, so it is already covered; the
+# line is here in case a later version moves it to the project root.
+export_credentials.cfg

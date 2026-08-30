@@ -23,7 +23,7 @@ import (
 // cliVersion is reported to MCP clients in the initialize handshake. Keep it in
 // step with the addon's plugin.cfg version and the CHANGELOG heading at release
 // time; the addon reads its own from plugin.cfg, so this is the only literal.
-const cliVersion = "0.9.1"
+const cliVersion = "0.10.0"
 
 func main() {
 	port := flag.Int("port", 0, "addon WebSocket port (0 = env GODOT_MCP_PORT, then discovery file, then default 9080)")
@@ -52,11 +52,17 @@ func main() {
 		"configure":      runConfigure,
 		"serve":          runServe,
 		"dashboard":      runDashboard,
+		"launch":         runLaunch,
+		"run":            runRun,
+		"import":         runImport,
+		"check":          runCheck,
+		"export":         runExport,
+		"upgrade":        runUpgrade,
 		"status":         runStatus,
 		"doctor":         runDoctor,
 		"version":        runVersion,
 	}
-	if fn, ok := localSubs[args[0]]; ok {
+	if fn, ok := localSubs[args[0]]; ok && !routesToAddon(args[0], args[1:]) {
 		os.Exit(fn(args[1:]))
 	}
 	// Nested help: `help [group [command]]`, `<group> --help`, `<group> help`,
@@ -68,7 +74,7 @@ func main() {
 			usage()
 			os.Exit(0)
 		}
-		if fn, ok := localSubs[args[1]]; ok {
+		if fn, ok := localSubs[args[1]]; ok && len(args) == 2 {
 			os.Exit(fn([]string{"help"}))
 		}
 		cmd := ""
@@ -215,6 +221,31 @@ func main() {
 		return
 	}
 	fmt.Println(string(out))
+}
+
+// shadowedAddonCommands lists the addon commands whose group shares a name with
+// a local subcommand. `godot-mcp export` runs the headless export while
+// `godot-mcp export info` still reaches the addon's export group, and the same
+// for import. Both groups are closed sets of three, which is why naming them
+// here beats a general rule: the local export's own argument is a preset name,
+// so nothing else in that position can be told apart offline.
+//
+// A preset genuinely named "info" or "project" is reachable as
+// `godot-mcp export --preset info`, which takes no positional at all.
+var shadowedAddonCommands = map[string][]string{
+	"export": {"list_presets", "project", "info"},
+	"import": {"info", "set", "reimport"},
+}
+
+// routesToAddon reports whether an invocation of a local subcommand's name is
+// really a <group> <command> call for the addon group of the same name.
+func routesToAddon(name string, rest []string) bool {
+	cmds, shadowed := shadowedAddonCommands[name]
+	if !shadowed || len(rest) == 0 {
+		return false
+	}
+	first := strings.ReplaceAll(rest[0], "-", "_")
+	return slices.Contains(cmds, first)
 }
 
 // runVersion prints the binary's version, the same string serve reports in the
@@ -608,6 +639,12 @@ func usage() {
 		{"configure", "write an MCP-server config for claude, cursor, vscode, or codex"},
 		{"serve", "MCP over stdio for AI clients"},
 		{"dashboard", "live stats web UI"},
+		{"launch", "launch one editor for this project, respecting the discovery verdict (never stacks)"},
+		{"run", "run the game standalone, no editor, and report its direct-server port"},
+		{"import", "import the project's assets headlessly (import info/set/reimport still reach the addon)"},
+		{"check", "parse .gd files cold with --check-only, in parallel"},
+		{"export", "export a preset headlessly (export list-presets/project/info still reach the addon)"},
+		{"upgrade", "port a 4.3+ project to a newer Godot: preflight, baseline, open, fix, verify"},
 		{"status", "editor liveness preflight: running, starting, crashed, or closed (--all lists every live instance)"},
 		{"doctor", "environment preflight: binary, project, addon, port, editor, dotnet"},
 		{"version", "print the CLI version (--version does the same)"},

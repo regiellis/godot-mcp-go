@@ -325,13 +325,20 @@ music bus muted, and the game's SFX left live on camera and muted only backstage
 ## Rendering
 
 ```
-godot --path . res://trailers/trailer.tscn --write-movie out/trailer.avi --fixed-fps 60
+godot-mcp run res://trailers/trailer.tscn --write-movie out/trailer.avi --fixed-fps 60
 ```
+
+A render ends when the scene quits, so `run` waits for the process instead of returning at spawn,
+and reports the exit code plus whether the film actually landed. The engine's output goes to
+`<project>/.godot/godot-mcp-run.log`. Raise `--timeout` past the length of the cut: the default is
+60 seconds and a long render is killed at it. The raw form, for a machine with no CLI installed, is
+`godot --path . res://trailers/trailer.tscn --write-movie out/trailer.avi --fixed-fps 60`.
 
 - `--write-movie <file>` forces `--fixed-fps`; passing `--fixed-fps` as well sets the film's frame
   rate (`editor/movie_writer/fps`, default 60, is the fallback).
 - `--quit-after <frames>` bounds the render for a test cut. Verified: `--quit-after 60` at
-  `--fixed-fps 60` produced exactly 1.000 s.
+  `--fixed-fps 60` produced exactly 1.000 s. `run` has no flag of its own for it, so pass it
+  through: `--extra "--quit-after 60"`.
 - `--disable-vsync` speeds up writing.
 
 The file extension picks the writer:

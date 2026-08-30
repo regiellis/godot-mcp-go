@@ -31,7 +31,8 @@ godot-mcp export project --preset-name "Windows Desktop" --debug=false
 ```
 
 `export project` returns the headless command line rather than running it, because a Godot 4 editor
-plugin cannot export. Run what it hands back.
+plugin cannot export. `godot-mcp export "<preset>"` is the local subcommand that runs that command
+line for you, and it needs no editor at all.
 
 ## The dev-tooling boundary: this addon must never ship
 
@@ -64,9 +65,22 @@ No editor needed once the preset exists (the exporting binary must still be the 
 build):
 
 ```
+godot-mcp export "Windows Desktop"
+```
+
+The output path defaults to the preset's own `export_path`, and `--out PATH` overrides it. The
+command runs the export in the foreground, exits with Godot's code, and reports the file it
+produced, its size, and the `ERROR`/`WARNING` lines it parsed out of
+`<project>/.godot/godot-mcp-export.log`. Where the CLI is not installed, the raw form is what it
+runs for you:
+
+```
 godot --headless --path . --export-release "Windows Desktop" "out/Game.exe"
 ```
 
+- **An export that exits 0 and wrote nothing is the failure to watch for**, and `godot-mcp export`
+  turns it into a non-zero exit with `exists: false` rather than a clean run. Missing export
+  templates are the usual cause, and the parsed errors name each file the engine looked for.
 - Exit 0 plus a final `[ DONE ] savepack` line is the transport signal; the receipts above and a
   boot test are the real verdict.
 - Templates resolve from `%APPDATA%/Godot/export_templates/<major.minor.patch.status>/` unless
@@ -74,11 +88,11 @@ godot --headless --path . --export-release "Windows Desktop" "out/Game.exe"
   templates below ship.
 - Boot the exe and let it hold past its first scene: a window with the right title that survives
   ~10s is the cheapest whole-pipeline receipt there is.
-- **When the pck is buried, export one on its own to scan**. `--export-pack "<preset>"
-  "out/receipt.pck"` writes the data half of the same preset as a standalone file, so the string
-  scan above works for an APK, a web build, or a desktop preset with
-  `binary_format/embed_pck=true`, none of which leave a loose `.pck` to read. `--export-patch` plus
-  `--patches` does the same for a changed-files-only pack.
+- **When the pck is buried, export one on its own to scan**. Adding `--pack` and an
+  `--out out/receipt.pck` writes the data half of the same preset as a standalone file, so the
+  string scan above works for an APK, a web build, or a desktop preset with
+  `binary_format/embed_pck=true`, none of which leave a loose `.pck` to read. `--patch` with
+  `--patches a.pck,b.pck` does the same for a changed-files-only pack.
 
 ## PCK encryption: keyed custom templates
 
@@ -185,7 +199,7 @@ field has an environment override that wins over it, so a headless release expor
 $env:GODOT_ANDROID_KEYSTORE_RELEASE_PATH     = "$HOME\.godot-keys\release.keystore"
 $env:GODOT_ANDROID_KEYSTORE_RELEASE_USER     = "upload"
 $env:GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD = (Get-Content ~\.godot-keys\release.pass -Raw).Trim()
-godot --headless --path . --export-release "Android Play" "out/game.aab"
+godot-mcp export "Android Play" --out out/game.aab
 ```
 
 The debug trio is `GODOT_ANDROID_KEYSTORE_DEBUG_PATH` / `_USER` / `_PASSWORD`. Same rule as the
@@ -209,7 +223,7 @@ at the preset's `export_path`, so pointing it at an AAB fails at `adb install`.
 plaintext scan runs against a standalone pack:
 
 ```powershell
-godot --headless --path . --export-pack "Android Dev" "out/receipt.pck"
+godot-mcp export "Android Dev" --pack --out out/receipt.pck
 $t = [Text.Encoding]::ASCII.GetString([IO.File]::ReadAllBytes("out/receipt.pck"))
 ([regex]::Matches($t, 'godot_mcp')).Count      # 0 or the addon shipped
 Expand-Archive out/game.apk out/apk_check -Force
