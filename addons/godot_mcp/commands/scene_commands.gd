@@ -72,14 +72,14 @@ func _create(params: Dictionary) -> Dictionary:
 	if err != OK:
 		return error_internal("Failed to pack scene: %s" % error_string(err))
 
-	var dir_path := path.get_base_dir()
-	if not DirAccess.dir_exists_absolute(dir_path):
-		DirAccess.make_dir_recursive_absolute(dir_path)
+	var made_dir := ensure_parent_dir(path)
 	err = ResourceSaver.save(scene, path)
 	if err != OK:
 		return error_internal("Failed to save scene: %s" % error_string(err))
 
-	EditorInterface.get_resource_filesystem().scan()
+	notify_fs_changed(path)
+	if made_dir:
+		await notify_fs_rescan()
 
 	# Open what we just made. Creating a scene and then working on it is the whole
 	# point of the command, and leaving the editor on the previous scene meant every
@@ -300,7 +300,9 @@ func _delete(params: Dictionary) -> Dictionary:
 	var err := DirAccess.remove_absolute(path)
 	if err != OK:
 		return error_internal("Failed to delete scene: %s" % error_string(err))
-	EditorInterface.get_resource_filesystem().scan()
+	# update_file on a path that no longer exists is how the editor is told to
+	# forget it, and unlike scan() it has landed by the time this returns.
+	notify_fs_changed(path)
 	return success({"path": path, "deleted": true})
 
 
@@ -407,9 +409,7 @@ func _save(params: Dictionary) -> Dictionary:
 			{"active_scene": normalize_project_path(root.scene_file_path),
 			"suggestion": "Open the target scene tab before saving it."})
 
-	var dir_path := normalized.get_base_dir()
-	if not DirAccess.dir_exists_absolute(dir_path):
-		DirAccess.make_dir_recursive_absolute(dir_path)
+	var made_dir := ensure_parent_dir(normalized)
 
 	var err := OK
 	var method := ""
@@ -421,6 +421,10 @@ func _save(params: Dictionary) -> Dictionary:
 		method = "save_scene"
 	if err != OK:
 		return error_internal("Failed to save scene via %s: %s" % [method, error_string(err)])
+	# The editor's own save already tells EditorFileSystem about the file, but not
+	# about a folder that did not exist a moment ago.
+	if made_dir:
+		await notify_fs_rescan()
 	return success({"path": normalized, "saved": true, "method": method})
 
 

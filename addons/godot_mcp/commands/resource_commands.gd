@@ -239,6 +239,7 @@ func _edit(params: Dictionary) -> Dictionary:
 	var err := ResourceSaver.save(resource, path)
 	if err != OK:
 		return error_internal("Failed to save resource: %s" % error_string(err))
+	notify_fs_changed(path)
 
 	return success({"path": path, "type": resource.get_class(), "changed": changed, "properties_ignored": ignored})
 
@@ -278,11 +279,14 @@ func _create(params: Dictionary) -> Dictionary:
 	if not props["failures"].is_empty():
 		return error_property_failures(props)
 
+	var made_dir := ensure_parent_dir(path)
 	var err := ResourceSaver.save(resource, path)
 	if err != OK:
 		return error_internal("Failed to save resource: %s" % error_string(err))
 
-	EditorInterface.get_resource_filesystem().scan()
+	notify_fs_changed(path)
+	if made_dir:
+		await notify_fs_rescan()
 
 	# properties_set lists what was ACTUALLY assigned, never just the keys asked for.
 	return success({"path": path, "type": resource_type, "properties_set": props["applied"], "properties_ignored": props["ignored"]})

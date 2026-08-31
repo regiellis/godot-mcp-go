@@ -6,11 +6,24 @@ extends "res://addons/godot_mcp/commands/base_command.gd"
 ## node.* layer can't reach (there is no property to "move res://a.tscn and fix its
 ## referencers"). Godot's EditorFileSystem exposes no move/rename, so we move on disk
 ## via DirAccess, update the ResourceUID cache, rewrite path-based references, and
-## rescan. UID-based references (uid://…) survive the move untouched; only literal
-## res:// path references need rewriting.
+## tell the editor what changed. UID-based references (uid://…) survive the move
+## untouched; only literal res:// path references need rewriting.
+##
+## Sidecars travel with their file. An imported asset carries `<file>.import`, and
+## since 4.4 a script carries `<file>.uid` holding the id every uid:// reference
+## resolves through. Leaving that behind on a move stranded the old copy in the
+## project and made the editor mint the destination a NEW id, quietly breaking the
+## very uid references the move exists to preserve.
+##
+## Every op ends by making the editor's filesystem view current: notify_fs_changed
+## for the files it touched, or an awaited notify_fs_rescan when a DIRECTORY came or
+## went, which update_file cannot express (base_command).
 
 # Text file types whose contents may carry res:// path references worth rewriting.
 const _TEXT_EXTS := ["tscn", "tres", "gd", "gdshader", "gdshaderinc", "import", "cfg", "json", "godot", "cs"]
+
+# Sidecars that must follow their file through a move, copy, or delete.
+const _SIDECARS := [".import", ".uid"]
 
 
 func get_commands() -> Dictionary:
@@ -36,7 +49,9 @@ func _mkdir(params: Dictionary) -> Dictionary:
 		return success({"path": path, "created": false, "already_exists": true})
 	if DirAccess.make_dir_recursive_absolute(_g(path)) != OK:
 		return error_internal("could not create directory '%s'" % path)
-	_rescan()
+	# A new directory is the one thing update_file cannot register.
+	if path.begins_with("res://"):
+		await notify_fs_rescan()
 	return success({"path": path, "created": true})
 
 
@@ -46,6 +61,7 @@ func _move(params: Dictionary) -> Dictionary:
 		return pr[2]
 	var src: String = pr[0]
 	var dest: String = pr[1]
+	var made_parent: bool = pr[3]
 	var is_dir := DirAccess.dir_exists_absolute(_g(src))
 
 	# Refuse to move a scene that's open in the editor (would desync editor state).
@@ -59,16 +75,21 @@ func _move(params: Dictionary) -> Dictionary:
 
 	if DirAccess.rename_absolute(_g(src), _g(dest)) != OK:
 		return error_internal("could not move '%s' to '%s'" % [src, dest])
-	# Move the .import sidecar alongside an imported asset.
-	if not is_dir and FileAccess.file_exists(src + ".import"):
-		DirAccess.rename_absolute(_g(src + ".import"), _g(dest + ".import"))
+	# Sidecars travel with the file (see the header note on .uid).
+	if not is_dir:
+		for suffix: String in _SIDECARS:
+			if FileAccess.file_exists(src + suffix):
+				DirAccess.rename_absolute(_g(src + suffix), _g(dest + suffix))
 
 	# Keep uid://→path resolution valid for the moved file without waiting on a rescan.
 	if old_uid != ResourceUID.INVALID_ID:
 		ResourceUID.set_id(old_uid, dest)
 
 	var rewritten := _rewrite_refs(src, dest, is_dir)
-	_rescan()
+	if (is_dir and dest.begins_with("res://")) or made_parent:
+		await notify_fs_rescan()
+	else:
+		notify_fs_changed([src, dest] + rewritten)
 	return success({
 		"moved": true, "from": src, "to": dest, "is_directory": is_dir,
 		"uid": ResourceUID.id_to_text(old_uid) if old_uid != ResourceUID.INVALID_ID else "",
@@ -82,6 +103,7 @@ func _copy(params: Dictionary) -> Dictionary:
 		return pr[2]
 	var src: String = pr[0]
 	var dest: String = pr[1]
+	var made_parent: bool = pr[3]
 
 	if DirAccess.dir_exists_absolute(_g(src)):
 		return error_invalid_params("fs.copy handles files, not directories: '%s'" % src)
@@ -89,10 +111,18 @@ func _copy(params: Dictionary) -> Dictionary:
 		return error_internal("could not copy '%s' to '%s'" % [src, dest])
 	if FileAccess.file_exists(src + ".import"):
 		DirAccess.copy_absolute(_g(src + ".import"), _g(dest + ".import"))
+	# The source's .uid is deliberately NOT copied: the id must be unique, and
+	# _regen_uid below mints the copy its own. Clear any leftover at the
+	# destination, which --force can have left behind.
+	if FileAccess.file_exists(dest + ".uid"):
+		DirAccess.remove_absolute(_g(dest + ".uid"))
 
 	# Give the copy a fresh uid so it doesn't collide with the source's.
 	var new_uid := _regen_uid(dest)
-	_rescan()
+	if made_parent:
+		await notify_fs_rescan()
+	else:
+		notify_fs_changed(dest)
 	return success({"copied": true, "from": src, "to": dest, "uid": new_uid})
 
 
@@ -136,7 +166,12 @@ func _delete(params: Dictionary) -> Dictionary:
 		return error_internal("could not delete '%s'" % path)
 	if old_uid != ResourceUID.INVALID_ID and ResourceUID.has_id(old_uid):
 		ResourceUID.remove_id(old_uid)
-	_rescan()
+	# update_file on a path that no longer exists is how a deletion is reported;
+	# a removed DIRECTORY needs the full scan.
+	if is_dir and path.begins_with("res://"):
+		await notify_fs_rescan()
+	else:
+		notify_fs_changed(path)
 	return success({"deleted": true, "path": path, "is_directory": is_dir, "was_referenced_by": refs})
 
 
@@ -146,14 +181,9 @@ func _g(path: String) -> String:
 	return ProjectSettings.globalize_path(path)
 
 
-func _rescan() -> void:
-	var efs := EditorInterface.get_resource_filesystem()
-	if efs != null:
-		efs.scan()
-
-
 ## Validate src (exists, in project) and dest (in project, free unless --force).
-## Makes dest's parent dir if needed. Returns [src, dest, error_or_null].
+## Makes dest's parent dir if needed. Returns [src, dest, error_or_null, made_parent],
+## where made_parent says a NEW directory now exists, which only a rescan registers.
 func _resolve_src_dest(params: Dictionary) -> Array:
 	var sr := require_string(params, "from")
 	if sr[1] != null:
@@ -164,19 +194,21 @@ func _resolve_src_dest(params: Dictionary) -> Array:
 	var src := normalize_project_path(sr[0])
 	var dest := normalize_project_path(dr[0])
 	if not (src.begins_with("res://") or src.begins_with("user://")):
-		return [null, null, error_invalid_params("--from must be under res:// or user://")]
+		return [null, null, error_invalid_params("--from must be under res:// or user://"), false]
 	var guard := guard_project_path(dest)
 	if not guard.is_empty():
-		return [null, null, guard]
+		return [null, null, guard, false]
 	if not (DirAccess.dir_exists_absolute(_g(src)) or FileAccess.file_exists(src)):
-		return [null, null, error_not_found("Source '%s'" % src)]
+		return [null, null, error_not_found("Source '%s'" % src), false]
 	var force := optional_bool(params, "force", false)
 	if (FileAccess.file_exists(dest) or DirAccess.dir_exists_absolute(_g(dest))) and not force:
-		return [null, null, error_conflict("Destination '%s' already exists; pass --force to overwrite" % dest)]
+		return [null, null, error_conflict("Destination '%s' already exists; pass --force to overwrite" % dest), false]
+	var made_parent := false
 	var parent := dest.get_base_dir()
 	if not parent.is_empty() and not DirAccess.dir_exists_absolute(_g(parent)):
 		DirAccess.make_dir_recursive_absolute(_g(parent))
-	return [src, dest, null]
+		made_parent = parent.begins_with("res://")
+	return [src, dest, null, made_parent]
 
 
 ## Rewrite literal res:// path references from `old` to `new` across every text file.
@@ -279,8 +311,9 @@ func _all_project_files() -> Array:
 
 
 func _remove_file(path: String) -> int:
-	if FileAccess.file_exists(path + ".import"):
-		DirAccess.remove_absolute(_g(path + ".import"))
+	for suffix: String in _SIDECARS:
+		if FileAccess.file_exists(path + suffix):
+			DirAccess.remove_absolute(_g(path + suffix))
 	return DirAccess.remove_absolute(_g(path))
 
 
@@ -304,13 +337,13 @@ func _remove_recursive(dir: String) -> int:
 func get_command_docs() -> Dictionary:
 	return {
 		"fs.mkdir": {
-			"description": "Create a folder under the project (recursive; no-op if it already exists), then rescan the filesystem.",
+			"description": "Create a folder under the project (recursive; no-op if it already exists). Waits for the editor to register it, so the next call can write into it.",
 			"params": [
 				doc_param("path", "String", true, "Folder path to create (res:// or user://)."),
 			],
 		},
 		"fs.move": {
-			"description": "Move/rename a file or directory WITH dependency fixup: updates the ResourceUID cache, rewrites literal res:// path references across text files, moves the .import sidecar, and rescans. Refuses to move a scene open in the editor.",
+			"description": "Move/rename a file or directory WITH dependency fixup: updates the ResourceUID cache, rewrites literal res:// path references across text files, moves the .import and .uid sidecars, and makes the editor current before returning. Refuses to move a scene open in the editor.",
 			"params": [
 				doc_param("from", "String", true, "Source file/dir path (res:// or user://)."),
 				doc_param("to", "String", true, "Destination path."),
@@ -318,7 +351,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"fs.copy": {
-			"description": "Copy a file (not a directory), giving the copy a fresh uid so it doesn't collide with the source. Copies the .import sidecar too, then rescans.",
+			"description": "Copy a file (not a directory), giving the copy a fresh uid so it doesn't collide with the source. Copies the .import sidecar too, and makes the editor current before returning.",
 			"params": [
 				doc_param("from", "String", true, "Source file path (files only)."),
 				doc_param("to", "String", true, "Destination path."),
@@ -326,7 +359,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"fs.delete": {
-			"description": "Delete a file or directory. Refuses (without --force) to delete a file that has referencers, or a directory containing an open scene; reports what would break.",
+			"description": "Delete a file or directory, sidecars included. Refuses (without --force) to delete a file that has referencers, or a directory containing an open scene; reports what would break. The editor stops listing it before the call returns.",
 			"params": [
 				doc_param("path", "String", true, "File/dir path to delete (res:// or user://)."),
 				doc_param("force", "bool", false, "Delete despite referencers / contained open scenes (default false)."),

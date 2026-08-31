@@ -134,13 +134,13 @@ func _create_visual(params: Dictionary) -> Dictionary:
 	var vs := VisualShader.new()
 	vs.mode = _SHADER_MODES[mode]
 
-	var dir := path.get_base_dir()
-	if not DirAccess.dir_exists_absolute(dir):
-		DirAccess.make_dir_recursive_absolute(dir)
+	var made_dir := ensure_parent_dir(path)
 	var err := ResourceSaver.save(vs, path)
 	if err != OK:
 		return error_internal("Failed to save VisualShader: %s" % error_string(err))
-	EditorInterface.get_resource_filesystem().update_file(path)
+	notify_fs_changed(path)
+	if made_dir:
+		await notify_fs_rescan()
 	return success({"path": path, "mode": mode, "created": true, "note": "Empty VisualShader graph. Assign it to a ShaderMaterial; author nodes in the editor's VisualShader graph, or write a text shader with shader.create for code-first work."})
 
 
@@ -173,15 +173,15 @@ func _create(params: Dictionary) -> Dictionary:
 	if content.is_empty():
 		content = _SHADER_TEMPLATES.get(shader_type, "")
 
-	var dir_path := path.get_base_dir()
-	if not DirAccess.dir_exists_absolute(dir_path):
-		DirAccess.make_dir_recursive_absolute(dir_path)
+	var made_dir := ensure_parent_dir(path)
 
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		return error_internal("Cannot create shader: %s" % error_string(FileAccess.get_open_error()))
 	file.store_string(content)
 	file.close()
+	if made_dir:
+		await notify_fs_rescan()
 
 	var out := {"path": path, "shader_type": shader_type, "created": true}
 	out["hot_reload"] = _refresh_loaded_shader(path, content)
@@ -403,7 +403,7 @@ func _refresh_loaded_shader(path: String, content: String) -> String:
 		if shader != null:
 			shader.code = content
 			status = "updated" if shader.code == content else "blocked"
-	EditorInterface.get_resource_filesystem().update_file(normalized)
+	notify_fs_changed(normalized)
 	return status
 
 

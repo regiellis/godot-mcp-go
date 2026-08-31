@@ -365,6 +365,76 @@ func guard_project_path(path: String) -> Dictionary:
 	return {}
 
 
+# --- EditorFileSystem currency ----------------------------------------------
+#
+# A command that writes through FileAccess / DirAccess / ResourceSaver bypasses
+# the editor's own save path, so the editor's filesystem view does not know what
+# just happened. Making it current is the command's job, not a ritual we teach
+# the caller: every write sink below calls one of these two before returning.
+
+## Tell the editor about files this command wrote, moved, or deleted. Pass a
+## String or an Array, and pass EVERY path the call touched (for a move, that is
+## the source as well as the destination). Measured live on 4.7.2:
+##  - update_file() is SYNCHRONOUS (~1 ms) and covers both halves: it registers a
+##    new or changed file, and DROPS one whose path no longer exists on disk.
+##  - a path the editor never knew, one under user://, and a bogus one are all
+##    ignored without complaint, so callers need no existence check.
+## Prefer this over notify_fs_rescan() wherever the paths are known. A full scan
+## of a real project is seconds of editor work, and it is asynchronous besides.
+func notify_fs_changed(paths: Variant) -> void:
+	var efs := EditorInterface.get_resource_filesystem()
+	if efs == null:
+		return
+	var list: Array = paths if paths is Array else [paths]
+	for raw: Variant in list:
+		var path := normalize_project_path(str(raw))
+		# user:// is outside the editor's filesystem; .godot/ is never scanned.
+		if not path.begins_with("res://") or path.begins_with("res://.godot/"):
+			continue
+		efs.update_file(path)
+		# An imported asset's .import sidecar is its own entry. Unconditional on
+		# purpose: for a deletion the sidecar is already gone, and telling the
+		# editor about a path that never existed costs nothing.
+		efs.update_file(path + ".import")
+
+
+## The one case update_file() cannot cover: a DIRECTORY appeared or disappeared.
+## It will not create or drop a directory node, so a file written into a folder
+## the editor has never seen stays invisible however many times it is updated
+## (verified live on 4.7.2). Only scan() registers a new directory, an empty one
+## included, and only scan() forgets a removed one.
+##
+## scan() is ASYNCHRONOUS: it returns with is_scanning() still true, so a command
+## that kicks one and returns has published a result the editor has not caught up
+## with. That was the whole bug. A created file was invisible to the very next
+## call on the same connection, and a deleted one was still listed. So this waits
+## for the scan to settle, and CALLERS MUST `await` it in turn.
+func notify_fs_rescan() -> void:
+	var efs := EditorInterface.get_resource_filesystem()
+	if efs == null:
+		return
+	efs.scan()
+	# Bounded: a scan that never settles must not hold the connection forever.
+	var deadline := Time.get_ticks_msec() + 30000
+	while efs.is_scanning() and Time.get_ticks_msec() < deadline:
+		await get_tree().process_frame
+
+
+## Create `path`'s parent directory if it is missing, the preamble every command
+## that writes a file to a caller-named path needs. Returns true when a new
+## res:// directory now exists, which is the caller's signal to await
+## notify_fs_rescan() rather than settle for notify_fs_changed(): a file written
+## into a folder the editor has never seen stays invisible until a full scan.
+func ensure_parent_dir(path: String) -> bool:
+	var dir_path := path.get_base_dir()
+	if dir_path.is_empty():
+		return false
+	if DirAccess.dir_exists_absolute(ProjectSettings.globalize_path(dir_path)):
+		return false
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(dir_path))
+	return dir_path.begins_with("res://")
+
+
 ## Audit trail for ad-hoc code execution (editor.run_script / runtime.eval): write the
 ## full body to stderr BEFORE running, so a destructive one-off is always traceable.
 func audit_exec(kind: String, code: String) -> void:

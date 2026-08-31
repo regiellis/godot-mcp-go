@@ -486,12 +486,15 @@ func _rules_from_example(params: Dictionary) -> Dictionary:
 			return guard
 		if not op.ends_with(".json"):
 			return error_invalid_params("output_path must end in .json")
+		var made_dir := ensure_parent_dir(op)
 		var f := FileAccess.open(op, FileAccess.WRITE)
 		if f == null:
 			return error_internal("Cannot write '%s': %s" % [op, error_string(FileAccess.get_open_error())])
 		f.store_string(JSON.stringify(rules, "  "))
 		f.close()
-		EditorInterface.get_resource_filesystem().update_file(op)
+		notify_fs_changed(op)
+		if made_dir:
+			await notify_fs_rescan()
 		out["output_path"] = op
 	return success(out)
 

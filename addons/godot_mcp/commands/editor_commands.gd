@@ -315,6 +315,7 @@ func _emit_image(image: Image, save_path: String) -> Dictionary:
 		var err := image.save_png(abs_path)
 		if err != OK:
 			return error_internal("Failed to save screenshot to '%s': %s" % [save_path, error_string(err)])
+		notify_fs_changed(save_path)
 		return success({"saved_path": save_path, "width": image.get_width(), "height": image.get_height(), "format": "png"})
 	var base64 := Marshalls.raw_to_base64(image.save_png_to_buffer())
 	return success({"image_base64": base64, "width": image.get_width(), "height": image.get_height(), "format": "png"})
@@ -483,7 +484,10 @@ func _space_unit(lines: PackedStringArray, common: String) -> int:
 # --- Reload, signals, camera ------------------------------------------------
 
 func _reload(_params: Dictionary) -> Dictionary:
-	EditorInterface.get_resource_filesystem().scan()
+	# Awaited, so the rescan has landed by the time the caller reads the result.
+	# The write commands make themselves current now, so this is for disk changes
+	# nothing in this tool made: an external editor, a git checkout, a build step.
+	await notify_fs_rescan()
 	return success({"reloaded": true, "message": "Filesystem rescanned."})
 
 

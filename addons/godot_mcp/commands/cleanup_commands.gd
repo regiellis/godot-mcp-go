@@ -403,6 +403,8 @@ func _fix_imports(params: Dictionary) -> Dictionary:
 		if _rewrite_source_file(m["import"], m["actual"]):
 			rewritten += 1
 			reimport_targets.append(m["actual"])
+			# The .import file was rewritten on disk behind the editor's back.
+			notify_fs_changed(m["actual"])
 
 	var reimported := 0
 	if do_reimport and not reimport_targets.is_empty():

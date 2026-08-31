@@ -70,13 +70,13 @@ func _create(params: Dictionary) -> Dictionary:
 
 	var warnings := _configure(mat, params)
 
-	var dir_path := path.get_base_dir()
-	if not DirAccess.dir_exists_absolute(dir_path):
-		DirAccess.make_dir_recursive_absolute(dir_path)
+	var made_dir := ensure_parent_dir(path)
 	var err := ResourceSaver.save(mat, path)
 	if err != OK:
 		return error_internal("Failed to save material: %s" % error_string(err))
-	EditorInterface.get_resource_filesystem().update_file(path)
+	notify_fs_changed(path)
+	if made_dir:
+		await notify_fs_rescan()
 
 	return success({"path": path, "type": mat.get_class(), "created": true, "warnings": warnings})
 
@@ -102,7 +102,7 @@ func _set_props(params: Dictionary) -> Dictionary:
 	var err := ResourceSaver.save(mat, path)
 	if err != OK:
 		return error_internal("Failed to save material: %s" % error_string(err))
-	EditorInterface.get_resource_filesystem().update_file(path)
+	notify_fs_changed(path)
 
 	return success({"path": path, "type": mat.get_class(), "updated": true, "warnings": warnings})
 

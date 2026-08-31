@@ -102,9 +102,7 @@ func _setup(params: Dictionary) -> Dictionary:
 	ProjectSettings.set_setting("dotnet/project/assembly_name", project_name)
 	ProjectSettings.save()
 
-	var efs := EditorInterface.get_resource_filesystem()
-	if efs != null:
-		efs.scan()
+	notify_fs_changed(created)
 
 	return success({
 		"csproj": csproj_path,
