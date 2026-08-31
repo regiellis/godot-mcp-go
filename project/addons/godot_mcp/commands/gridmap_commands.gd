@@ -138,13 +138,13 @@ func _meshlibrary_from_scene(params: Dictionary) -> Dictionary:
 	if items.is_empty():
 		return error(-32000, "No MeshInstance3D items found among the scene root's children")
 
-	var dir := output_path.get_base_dir()
-	if not DirAccess.dir_exists_absolute(dir):
-		DirAccess.make_dir_recursive_absolute(dir)
+	var made_dir := ensure_parent_dir(output_path)
 	var err := ResourceSaver.save(lib, output_path)
 	if err != OK:
 		return error_internal("Failed to save MeshLibrary: %s" % error_string(err))
-	EditorInterface.get_resource_filesystem().update_file(output_path)
+	notify_fs_changed(output_path)
+	if made_dir:
+		await notify_fs_rescan()
 
 	return success({"output_path": output_path, "item_count": items.size(), "items": items})
 

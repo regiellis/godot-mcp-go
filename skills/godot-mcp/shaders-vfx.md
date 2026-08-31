@@ -47,8 +47,8 @@ shader set-param --node-path Sprite --param flash_amount --value 0.5
   `ShaderMaterial`** (verified round-trip on an orphan material). So `node set --property
   shader_parameter/amt` does **nothing**, because the node has no such property. Drive the material
   in a script (below), or read back with `shader get-params`.
-- After `shader edit`, the addon hot-reloads the cached shader, so open materials update with no
-  `editor reload`.
+- After `shader edit`, the addon hot-reloads the cached shader and registers the file, so open
+  materials update with no `editor reload`.
 
 **The driver**. An animated uniform is what makes it VFX. Tween the material's property (the path is
 the material's, so tween the material object) from a small script on the node:

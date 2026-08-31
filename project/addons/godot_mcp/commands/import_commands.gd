@@ -96,9 +96,9 @@ func _set_params(params: Dictionary) -> Dictionary:
 	# Reimport unless explicitly deferred.
 	var reimported := false
 	if optional_bool(params, "reimport", true):
-		var efs := EditorInterface.get_resource_filesystem()
-		efs.update_file(path)
-		efs.reimport_files(PackedStringArray([path]))
+		# notify_fs_changed covers the .import sidecar this call just rewrote.
+		notify_fs_changed(path)
+		EditorInterface.get_resource_filesystem().reimport_files(PackedStringArray([path]))
 		reimported = true
 
 	return success({"path": path, "applied": applied, "reimported": reimported})

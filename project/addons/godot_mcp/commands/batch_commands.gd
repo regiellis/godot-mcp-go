@@ -318,7 +318,11 @@ func _cross_scene_set_property(params: Dictionary) -> Dictionary:
 		instance.free()
 
 	if not scenes_affected.is_empty():
-		EditorInterface.get_resource_filesystem().scan()
+		var written: Array = []
+		for entry: Dictionary in scenes_affected:
+			if entry["mode"] == "offline_saved":
+				written.append(entry["scene"])
+		notify_fs_changed(written)
 
 	return success({
 		"type": type_name,

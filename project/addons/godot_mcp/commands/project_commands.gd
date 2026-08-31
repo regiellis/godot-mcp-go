@@ -72,9 +72,26 @@ func _set_plugin(params: Dictionary, enabled: bool) -> Dictionary:
 
 func _tree(params: Dictionary) -> Dictionary:
 	var path := optional_string(params, "path", "res://")
+	var missing := _missing_dir_error(path)
+	if not missing.is_empty():
+		return missing
 	var filter := optional_string(params, "filter", "")  # e.g. "*.gd"
 	var max_depth := optional_int(params, "max_depth", 10)
 	return success({"tree": _scan_dir(path, filter, max_depth, 0)})
+
+
+## Refuse a --path that is not a directory on disk, and say which of the two
+## reasons it is. Without this every reader here answered about a path nobody
+## has: _scan_dir stamps "type": "directory" before it opens anything, so a
+## deleted folder (and one that never existed) came back as an empty directory
+## and read as an editor cache holding a ghost. Disk is the only ground truth
+## these three commands consult, and it always was.
+func _missing_dir_error(path: String) -> Dictionary:
+	if DirAccess.dir_exists_absolute(ProjectSettings.globalize_path(path)):
+		return {}
+	if FileAccess.file_exists(path):
+		return error_invalid_params("'%s' is a file, not a directory" % path)
+	return error_not_found("Directory '%s'" % path)
 
 
 func _scan_dir(path: String, filter: String, max_depth: int, depth: int) -> Dictionary:
@@ -86,6 +103,11 @@ func _scan_dir(path: String, filter: String, max_depth: int, depth: int) -> Dict
 		return result
 	var dir := DirAccess.open(path)
 	if dir == null:
+		# The caller's own --path is checked before the walk starts, so reaching
+		# here means a directory the listing just named will not open: an IO or
+		# permission failure, not an empty folder. Say so rather than showing one.
+		result["unreadable"] = true
+		result["error"] = error_string(DirAccess.get_open_error())
 		return result
 	var children: Array = []
 	dir.list_dir_begin()
@@ -115,6 +137,9 @@ func _search(params: Dictionary) -> Dictionary:
 		return r[1]
 	var query: String = r[0].to_lower()
 	var path := optional_string(params, "path", "res://")
+	var missing := _missing_dir_error(path)
+	if not missing.is_empty():
+		return missing
 	var file_type := optional_string(params, "file_type", "")
 	var max_results := optional_int(params, "max_results", 50)
 	var matches: Array = []
@@ -148,6 +173,9 @@ func _grep(params: Dictionary) -> Dictionary:
 		return r[1]
 	var query: String = r[0]
 	var path := optional_string(params, "path", "res://")
+	var missing := _missing_dir_error(path)
+	if not missing.is_empty():
+		return missing
 	var file_type := optional_string(params, "file_type", "")
 	var max_results := optional_int(params, "max_results", 50)
 	var regex: RegEx = null

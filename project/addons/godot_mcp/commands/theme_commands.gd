@@ -67,11 +67,14 @@ func _create(params: Dictionary) -> Dictionary:
 	if not scene_guard.is_empty():
 		return scene_guard
 
+	var made_dir := ensure_parent_dir(path)
 	var err := ResourceSaver.save(theme, path)
 	if err != OK:
 		return error_internal("Failed to save theme: %s" % error_string(err))
 
-	EditorInterface.get_resource_filesystem().scan()
+	notify_fs_changed(path)
+	if made_dir:
+		await notify_fs_rescan()
 	return success({"path": path, "created": true})
 
 

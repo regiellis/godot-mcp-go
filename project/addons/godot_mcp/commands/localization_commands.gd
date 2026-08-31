@@ -63,9 +63,7 @@ func _create_csv(params: Dictionary) -> Dictionary:
 		return rr[1]
 	var rows: Dictionary = rr[0]
 
-	var dir := path.get_base_dir()
-	if not DirAccess.dir_exists_absolute(dir):
-		DirAccess.make_dir_recursive_absolute(dir)
+	var made_dir := ensure_parent_dir(path)
 	var f := FileAccess.open(path, FileAccess.WRITE)
 	if f == null:
 		return error_internal("Cannot create CSV: %s" % error_string(FileAccess.get_open_error()))
@@ -83,8 +81,12 @@ func _create_csv(params: Dictionary) -> Dictionary:
 		f.store_csv_line(line)
 	f.close()
 
-	EditorInterface.get_resource_filesystem().update_file(path)
-	EditorInterface.get_resource_filesystem().scan()
+	notify_fs_changed(path)
+	if made_dir:
+		await notify_fs_rescan()
+	# The CSV importer is what produces the per-locale .translation files, and
+	# update_file alone only registers the source.
+	EditorInterface.get_resource_filesystem().reimport_files(PackedStringArray([path]))
 
 	return success({"path": path, "locales": locales, "keys": rows.keys(), "note": "Imported to per-locale .translation files; register them with localization.add_translation."})
 

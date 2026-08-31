@@ -223,7 +223,7 @@ godot-mcp scene2d add-body --type StaticBody2D --shape rectangle --size "Vector2
 ```
 
 ### Scripts
-`script create` (template or `--content`), `script edit` (modes: `--content` full; `--replacements '[{"search":"a","replace":"b"}]'`; `--start-line/--end-line --content`; `--insert-at-line N --text "..."`), then `script validate` (single `--path`, or batch: `--modified` compiles every git-modified/untracked `.gd`, `--all` sweeps the project, with results listing failures only). After creating/major edits, `editor reload` so Godot picks up changes.
+`script create` (template or `--content`), `script edit` (modes: `--content` full; `--replacements '[{"search":"a","replace":"b"}]'`; `--start-line/--end-line --content`; `--insert-at-line N --text "..."`), then `script validate` (single `--path`, or batch: `--modified` compiles every git-modified/untracked `.gd`, `--all` sweeps the project, with results listing failures only). No reload step follows: both commands make the editor current before they return, filesystem entry and compiled script object alike.
 
 Before reading a script you did not write, try `script symbols --path res://x.gd`. It returns the declared methods, properties, signals, and constants without pulling the whole file into context, and unlike `engine class-info` it works on scripts with no `class_name`. Add `--include-inherited` to walk the base-script chain.
 
@@ -271,7 +271,7 @@ An input step that reports `consumed: false` means the game never read the paylo
 
 - **Prefer inspector properties over code**. Set visual props (color, position, transform) via `node.set`, not GDScript, so they stay editable in the inspector.
 - **Never edit `project.godot` directly**. Use `project set-setting`.
-- **`editor reload` after `script create`/major `script edit`**.
+- **`editor reload` is for changes this tool did not make**: a git checkout, an external editor, a build step. Every command that writes a file already tells the editor, so the write is visible to the very next call.
 - **`runtime.eval`/`editor.run_script`:** no nested `func`s; `emit(v)` to return; use `.get("prop")` for dynamic access. Indent however you like, since the body is re-indented with tabs before it is wrapped.
 - **A game stopped at a debugger break serves nothing**: every `runtime.*` call spends its timeout and comes back with `debugger_breaked` and the break reason. Read the stop with `debug state`, then `debug resume`.
 - **Input timing:** prefer `input action` over raw `input key` when InputMap actions exist; UI buttons fire on release (`input click` auto press+releases).

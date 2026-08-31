@@ -217,13 +217,13 @@ func _bake(params: Dictionary) -> Dictionary:
 		var guard := guard_project_path(mesh_path)
 		if not guard.is_empty():
 			return guard
-		var dir := mesh_path.get_base_dir()
-		if not DirAccess.dir_exists_absolute(dir):
-			DirAccess.make_dir_recursive_absolute(dir)
+		var made_dir := ensure_parent_dir(mesh_path)
 		var err := ResourceSaver.save(mesh, mesh_path)
 		if err != OK:
 			return error_internal("Failed to save mesh: %s" % error_string(err))
-		EditorInterface.get_resource_filesystem().update_file(mesh_path)
+		notify_fs_changed(mesh_path)
+		if made_dir:
+			await notify_fs_rescan()
 		mesh.take_over_path(mesh_path)
 
 	var mi := MeshInstance3D.new()

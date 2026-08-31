@@ -116,8 +116,8 @@ const discoverThenDrivePrompt = "Drive a running Godot editor (4.7+) through the
 	"Act the Godot way. Prefer inspector properties over code: set visual state (color, transform, positions) with node.set so it stays editable in the inspector, " +
 	"not from GDScript. Compose from nodes and small per-thing scenes instead of one monolith script. Decouple with signals (node.connect), " +
 	"not polling or get_node(\"../../\") chains.\n\n" +
-	"Respect the durable rules. Never edit project.godot directly, and use project.set_setting instead. Run editor.reload after script.create or a major script.edit " +
-	"so Godot picks up the change. Prefer input.action over raw input.key when an InputMap action exists. Save with scene.save after significant edits. " +
+	"Respect the durable rules. Never edit project.godot directly, and use project.set_setting instead. A command that writes a file makes the editor current before it returns, so editor.reload is only for changes this tool did not make, such as a git checkout or an external editor. " +
+	"Prefer input.action over raw input.key when an InputMap action exists. Save with scene.save after significant edits. " +
 	"Editor mutations are undoable; reads are safe."
 
 const spatialPlacementPrompt = "Place 3D objects with the anchor / read-back / verify discipline. You cannot perceive 3D reliably from one screenshot, and absolute-coordinate math drifts. " +

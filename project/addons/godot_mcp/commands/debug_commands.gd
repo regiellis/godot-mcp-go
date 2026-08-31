@@ -521,9 +521,7 @@ func _reload_scripts(params: Dictionary) -> Dictionary:
 
 	# The editor's own filesystem must know a file changed before the game re-reads
 	# it, exactly as saving in the script editor would.
-	var filesystem := EditorInterface.get_resource_filesystem()
-	for path: String in paths:
-		filesystem.update_file(path)
+	notify_fs_changed(paths)
 	# A core-debugger message handled inside the game process: no agent, no reply.
 	session.send_message("scene:reload_cached_files", [PackedStringArray(paths)])
 

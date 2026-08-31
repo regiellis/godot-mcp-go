@@ -151,16 +151,16 @@ func _create(params: Dictionary) -> Dictionary:
 			lines.append("")
 			content = "\n".join(lines)
 
-	var dir_path := path.get_base_dir()
-	if not DirAccess.dir_exists_absolute(dir_path):
-		DirAccess.make_dir_recursive_absolute(dir_path)
+	var made_dir := ensure_parent_dir(path)
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file == null:
 		return error_internal("Cannot create script: %s" % error_string(FileAccess.get_open_error()))
 	file.store_string(content)
 	file.close()
 
-	_reload_script(path)
+	if made_dir:
+		await notify_fs_rescan()
+	_reload_script(path, content)
 	return success({"path": path, "created": true, "size": content.length()})
 
 
@@ -229,7 +229,7 @@ func _edit(params: Dictionary) -> Dictionary:
 	file.store_string(new_content)
 	file.close()
 
-	_reload_script(path)
+	_reload_script(path, new_content)
 	var out := {"path": path, "changes_made": changes}
 	out.merge(details)
 	return success(out)
@@ -302,13 +302,29 @@ func _apply_edit(content: String, params: Dictionary) -> Array:
 	return [content, error_invalid_params("No edit specified. Provide replacements, content, or insert_at_line+text."), 0, {}]
 
 
-## Reload a script so the editor reflects disk changes immediately.
-func _reload_script(path: String) -> void:
-	EditorInterface.get_resource_filesystem().scan()
-	if ResourceLoader.exists(path):
-		var script = load(path)
-		if script is Script:
-			script.reload(true)
+## Make BOTH halves of the editor's view current after writing `path`: the
+## filesystem entry, and the GDScript object anything already holding this script
+## is running against. Callers pass the text they just wrote.
+##
+## notify_fs_changed is synchronous, so the file is visible to the very next call
+## (a scan is not, which is what the old "run editor.reload after script.create"
+## advice was working around).
+##
+## The second half is the trap. reload(true) recompiles from the object's OWN
+## source_code, and nothing re-reads the file into it: not a rescan, not
+## CACHE_MODE_REPLACE, which hands back the same cached object with the same stale
+## source. Verified live on 4.7.2: a method added by script.edit was still missing
+## from get_script_method_list() after a full awaited rescan, and the cached
+## script's source_code did not contain it. So assign the source first.
+func _reload_script(path: String, content: String) -> void:
+	notify_fs_changed(path)
+	if not ResourceLoader.exists(path):
+		return
+	var script := load(path) as Script
+	if script == null:
+		return
+	script.source_code = content
+	script.reload(true)
 
 
 func _attach(params: Dictionary) -> Dictionary:

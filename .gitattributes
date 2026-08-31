@@ -1,0 +1,5 @@
+# Go files are LF everywhere: gofmt writes LF, and with core.autocrlf alone the
+# working tree flapped between the two on every task check (gofmt -l listed every
+# file forever). Release artifacts are unaffected: both release scripts already
+# force autocrlf off for git archive.
+*.go text eol=lf

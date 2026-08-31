@@ -6,6 +6,43 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.10.1] - 2026-08-31
+
+### Fixed
+
+- **A command that writes a file now makes the editor current before it
+  returns.** Writing through `FileAccess`/`DirAccess`/`ResourceSaver` bypasses
+  the editor's own save path, and the answer had been `EditorFileSystem.scan()`
+  plus a documented "run `editor reload` afterwards". `scan()` is asynchronous:
+  it returns while the scan is still running, so the result was published before
+  the editor had caught up. Over one connection, `script create` followed by
+  `resource find` answered zero results, `fs delete` followed by `resource find`
+  still listed the deleted file, and `fs move` reported the old path and not the
+  new one. The CLI hid it, because each call is its own process and the launch
+  latency happened to cover the scan. Every write sink now calls a synchronous
+  per-file notify, and the one case it cannot express, a directory arriving or
+  leaving, awaits its scan. The reload step is gone from the skill and the
+  server instructions; `editor reload` stays for disk changes this tool did not
+  make, such as a git checkout or an external editor, and now awaits its rescan
+  too.
+- **`script edit` left the loaded script object stale.** `Script.reload(true)`
+  recompiles from the object's own `source_code`, and nothing re-reads the file
+  into it, so a method the edit had just added was missing from the script's
+  API. Neither a rescan nor `CACHE_MODE_REPLACE` helped, which means the
+  `editor reload` ritual never fixed this half either. `script create` and
+  `script edit` now hand the text they wrote to the reload.
+- **`project tree` reported any missing path as an empty directory.** It stamped
+  the directory node before opening anything, so a folder that had been deleted,
+  and one that never existed at all, both came back as `{"type": "directory"}`.
+  That is what read as a stale editor cache holding a ghost; the editor's
+  filesystem view never held one. `tree`, `search`, and `grep` now refuse a
+  `--path` that is not a directory on disk, and a directory the walk cannot open
+  is marked `unreadable` with the reason.
+- **`fs move` stranded a script's `.uid` sidecar.** Only `.import` travelled with
+  the file, so the editor minted the destination a new id and broke the `uid://`
+  references the move exists to preserve. Both sidecars now move with the file,
+  and `fs delete` removes both.
+
 ## [0.10.0] - 2026-08-30
 
 ### Added

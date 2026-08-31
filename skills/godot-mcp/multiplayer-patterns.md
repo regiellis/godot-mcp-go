@@ -104,7 +104,7 @@ string is a parse error, so validate any hand-written annotation before trusting
 Invoke with `rpc("method", args...)` (all peers) or `rpc_id(1, "method", args...)` (one target,
 here the server). **Always validate an `any_peer` RPC's caller** with
 `multiplayer.get_remote_sender_id()` (verified), or a client calls your server functions
-directly. Author RPCs with `script edit` (annotated methods on the node's script) + `editor reload`.
+directly. Author RPCs with `script edit` (annotated methods on the node's script).
 
 ```gdscript
 @rpc("any_peer", "reliable")

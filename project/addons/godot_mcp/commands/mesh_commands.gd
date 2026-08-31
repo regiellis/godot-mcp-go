@@ -185,10 +185,13 @@ func _deform_lattice(params: Dictionary) -> Dictionary:
 			return guard
 		if not (mp.ends_with(".mesh") or mp.ends_with(".res") or mp.ends_with(".tres")):
 			return error_invalid_params("mesh_path must end in .mesh, .res or .tres")
+		var made_dir := ensure_parent_dir(mp)
 		var err := ResourceSaver.save(out_mesh, mp)
 		if err != OK:
 			return error_internal("Failed to save mesh: %s" % error_string(err))
-		EditorInterface.get_resource_filesystem().update_file(mp)
+		notify_fs_changed(mp)
+		if made_dir:
+			await notify_fs_rescan()
 		saved_path = mp
 
 	var undo_redo := get_undo_redo()
