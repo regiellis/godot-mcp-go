@@ -132,6 +132,147 @@ godot-mcp scene save
 
 Instance your real controller into that scene and run it. The numbers in the labels are claims until the controller clears the gap, which is the whole point of a gym over a table.
 
+## Debug overlays: documenting the running game
+
+A gym answers "how far can a player jump?" at edit time. The numbers that only exist while the
+game runs (an attack radius, the spawn region, what the camera can actually see) need the same
+treatment: draw them over the live frame, on demand. The pattern is one `CanvasItem` with a
+registry of named draw layers, each a `Callable`, toggled individually.
+
+Two rules make it safe to leave in the project. It is created **only** under
+`OS.is_debug_build()`, so a release export never instantiates it and no player frame pays for the
+draw. And it redraws only while a layer is on, so an overlay with everything off costs one
+`any_enabled()` check per frame.
+
+```gdscript
+class_name DebugOverlay extends Node2D
+
+## Toggleable draw layers over the running game. Debug builds only: attach()
+## returns null in a release export, so no player frame ever pays for it.
+var layers: Dictionary = {}
+var enabled: Dictionary = {}
+var draw_count := 0
+
+
+static func attach(to: Node) -> DebugOverlay:
+	if not OS.is_debug_build():
+		return null
+	var overlay := DebugOverlay.new()
+	overlay.name = "DebugOverlay"
+	overlay.z_index = 4096
+	overlay.top_level = true
+	to.add_child(overlay)
+	return overlay
+
+
+## A layer is a name and a Callable that draws into this node. Register at
+## boot; toggle whenever, including from runtime eval mid-session.
+func register(id: StringName, drawer: Callable) -> void:
+	layers[id] = drawer
+	enabled[id] = false
+
+
+func toggle(id: StringName, on: bool) -> void:
+	if not layers.has(id):
+		push_error("no debug layer named %s" % id)
+		return
+	enabled[id] = on
+
+
+func any_enabled() -> bool:
+	for id in enabled:
+		if enabled[id]:
+			return true
+	return false
+
+
+func _process(_delta: float) -> void:
+	if any_enabled():
+		queue_redraw()
+
+
+func _draw() -> void:
+	if not any_enabled():
+		return
+	draw_count += 1
+	for id in layers:
+		if enabled[id]:
+			(layers[id] as Callable).call(self)
+
+
+## Screen rectangle in this node's own coordinates, which is what a draw call
+## wants. Reading get_viewport_rect() straight is only right at the origin.
+func viewport_bounds() -> Rect2:
+	var inverse := get_global_transform_with_canvas().affine_inverse()
+	var rect := get_viewport_rect()
+	var top_left := inverse * rect.position
+	return Rect2(top_left, (inverse * rect.end) - top_left)
+```
+
+The level registers its own layers, so the overlay stays generic and every drawer sits next to the
+system it describes:
+
+```gdscript
+func _ready() -> void:
+	overlay = DebugOverlay.attach(self)
+	if overlay == null:
+		return
+	overlay.register(&"attack_range", _draw_attack_range)
+	overlay.register(&"spawn_bounds", _draw_spawn_bounds)
+	overlay.register(&"viewport_bounds", _draw_viewport_bounds)
+
+
+func _draw_attack_range(canvas: DebugOverlay) -> void:
+	var boss := $Boss as Node2D
+	canvas.draw_circle(canvas.to_local(boss.global_position), 180.0, Color(0.18, 0.32, 0.62, 0.28))
+
+
+func _draw_spawn_bounds(canvas: DebugOverlay) -> void:
+	canvas.draw_rect(SPAWN_BOUNDS, Color(0.25, 0.69, 0.35), false, 2.0)
+
+
+func _draw_viewport_bounds(canvas: DebugOverlay) -> void:
+	canvas.draw_rect(canvas.viewport_bounds(), Color(0.85, 0.42, 0.17), false, 2.0)
+```
+
+**Build (verified against a running game).** No in-game console is needed: `runtime call` reaches
+`toggle()` directly, which is the whole reason to keep the layer registry public.
+
+```sh
+godot-mcp script create --path res://debug/debug_overlay.gd --content "..."
+godot-mcp scene play --mode main
+
+# what is registered, and proof nothing draws while every layer is off
+godot-mcp runtime eval --code 'var o = get_tree().current_scene.overlay
+emit({"attached": o != null, "layers": o.layers.keys(), "draw_count": o.draw_count})'
+# { "attached": true, "layers": [&"attack_range", &"spawn_bounds", &"viewport_bounds"], "draw_count": 0 }
+
+godot-mcp runtime call --node-path DebugOverlay --method toggle --args '["attack_range", true]'
+godot-mcp runtime call --node-path DebugOverlay --method toggle --args '["spawn_bounds", true]'
+godot-mcp runtime call --node-path DebugOverlay --method toggle --args '["viewport_bounds", true]'
+
+godot-mcp test run-scenario --steps '[
+  {"type":"wait","seconds":0.5},
+  {"type":"assert","node_path":"DebugOverlay","property":"draw_count","operator":"gt","expected":0},
+  {"type":"screenshot","save_path":"user://overlay_on.png"}
+]'
+# draw_count 54 over half a second, screenshot saved
+```
+
+`draw_count` is the check that matters. A screenshot proves the overlay looks right; the counter
+proves `_draw` ran at all, which is what fails when a layer is registered under a name the toggle
+misspells. Read both.
+
+Three details cost a debugging session each if guessed:
+
+- `top_level = true` keeps the overlay in world space no matter where it is parented, so a drawer
+  can use `to_local(node.global_position)` without compensating for an ancestor's transform.
+- `get_viewport_rect()` returns the screen rectangle in viewport coordinates. Drawing it straight
+  is only correct for a node at the origin with no camera. Push it through
+  `get_global_transform_with_canvas().affine_inverse()` and the rectangle tracks the camera.
+- `queue_redraw()` in `_process` is the redraw pump. Without it `_draw` runs once and the overlay
+  freezes to the first frame, which reads as correct until something moves.
+
 ---
 
 ## The discipline

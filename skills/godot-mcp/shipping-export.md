@@ -9,9 +9,10 @@ the build is right.
 
 ## Pick your target
 
-The first four sections below are platform-independent: the export filters, the headless loop, pck
-encryption, and the size knobs read the same whether the artifact is an `.exe`, an `.apk`, or a
-folder of wasm. The per-platform sections after them cover what each target adds.
+The first five sections below are platform-independent: the export filters, the headless loop, pck
+encryption, the size knobs, and the platform-SDK gate read the same whether the artifact is an
+`.exe`, an `.apk`, or a folder of wasm. The per-platform sections after them cover what each
+target adds.
 
 | Target | Exports from a Windows dev machine | Host tooling it needs | Signing identity |
 | --- | --- | --- | --- |
@@ -137,6 +138,38 @@ Deterrence, not DRM.
    key-match proof**. `ERR_FILE_CORRUPT` at startup means the template's baked key and the
    export-time key disagree (or the template is an unkeyed one).
 
+### `export_presets.cfg` is secret-bearing: commit an `.example`
+
+Step 4 keeps the encryption key out of the file at export time, but the file itself is still not a
+safe thing to commit. Every preset carries a `script_encryption_key` field, and a real project adds
+`codesign/password`, keystore passwords, and store credentials beside it. One committed preset with
+a filled key hands the pck open to anyone who clones the repo, and rotating it means rebuilding
+templates.
+
+The convention that keeps CI working anyway:
+
+- Gitignore `export_presets.cfg`. Treat it as local machine state.
+- Commit `export_presets.cfg.example` with every secret field emptied (`script_encryption_key=""`,
+  passwords blank) and everything else intact: preset names, platforms, export paths,
+  include/exclude filters, `custom_features`. Those are the parts a build needs and none of them
+  is a secret.
+- Have CI copy it into place as the first build step, then supply the real values from the
+  runner's secret store as environment variables:
+
+  ```yaml
+  - run: cp export_presets.cfg.example export_presets.cfg
+  - run: godot-mcp export "Web" --out build/web/index.html
+    env:
+      GODOT_SCRIPT_ENCRYPTION_KEY: ${{ secrets.PCK_KEY }}
+  ```
+
+- Verify the copy landed before blaming the export. `godot-mcp export info` reports
+  `"has_export_presets": false` and `godot-mcp export list-presets` answers
+  `"No export_presets.cfg found"` when it did not, which is a clearer failure than the engine's.
+
+Keep the two files in step. A preset added locally and not mirrored into the `.example` breaks the
+build for everyone else, and the failure names a missing preset rather than a missing file.
+
 ## Size-optimized templates
 
 The same custom-template slot takes size work. The scons knobs, in descending order of value for
@@ -163,6 +196,56 @@ a typical 2D game (official numbers, condensed):
 project's own regression suite against a restored dev environment. A build that lost a module it
 actually needed usually still boots. It fails at the moment the feature is touched, which is
 exactly what a playtest suite catches and a boot test does not.
+
+## Platform SDKs behind a feature tag
+
+A Steam, console, or web-portal SDK is a native addon that only exists on one target. Calling into
+it from anywhere in the game means every other build carries the dependency and crashes on a null
+the moment a leaderboard call runs on a platform without it. Isolate it behind three gates:
+
+1. **A custom export feature.** The preset for that platform sets `custom_features="steam"`;
+   every other preset leaves it empty. `OS.has_feature("steam")` is then true in exactly those
+   builds and nowhere else.
+2. **One wrapper scene, the only file that touches the SDK.** `res://platforms/steam/sdk.gd` owns
+   every call into the addon and exposes the game's own vocabulary back:
+   `user_name_changed`, `init_finalized`, `submit_score()`. Nothing outside that file names the
+   addon, so removing the SDK is deleting one directory and one preset field.
+3. **Loaded only when the tag is on**, and reached only through a null-safe accessor:
+
+   ```gdscript
+   func platform_sdk() -> Node:                    # null on every build without the tag
+       return get_node_or_null("SteamSDK")
+
+   func init_platform() -> void:
+       if not OS.has_feature("steam"):
+           platform_ready.emit()                    # the no-SDK path still completes
+           return
+       var sdk := preload("res://platforms/steam/sdk.tscn").instantiate()
+       sdk.name = "SteamSDK"
+       add_child(sdk)
+       sdk.init_finalized.connect(platform_ready.emit, CONNECT_ONE_SHOT)
+       sdk.init()
+   ```
+
+   Every caller goes through `platform_sdk()` and checks for null. The wrapper's own `init()`
+   checks the addon singleton the same way, because a tagged build can still run with the SDK
+   unavailable (Steam not running, an overlay that failed to attach).
+
+The `platform_ready` signal firing on both paths is what keeps the boot sequence identical
+everywhere. A flow that waits for an SDK callback hangs forever on the web build otherwise.
+
+**Verify the tag rather than assuming it.** Feature tags come from the export preset, so the
+editor and any editor-launched game answer `false` for a custom one:
+
+```sh
+godot-mcp runtime eval --code 'emit({"steam": OS.has_feature("steam"), "editor": OS.has_feature("editor"),
+  "template": OS.has_feature("template"), "debug": OS.is_debug_build()})'
+# { "steam": false, "editor": true, "template": false, "debug": true }
+```
+
+That reading is the point: the SDK path is unreachable during development, so the null-safe branch
+is the one being exercised every day. Confirm the tagged branch on a real exported build, by
+running the exe and reading the same four values from its log.
 
 ## Android
 

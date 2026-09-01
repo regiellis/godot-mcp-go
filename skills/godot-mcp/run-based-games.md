@@ -60,6 +60,136 @@ threshold, spawn "punisher" pressure) and **pity randomness**, where `stabilized
 each random stream's cumulative deviation in a data property and steers the next roll back toward
 the mean once it crosses a threshold. Streaks stay possible; droughts don't.
 
+## The other flavor: a declarative wave timeline
+
+The budget assembler above generates encounters. The alternative authors them: **one schedule per
+map and level**, a list of typed events on a clock. Each event names its type, when it starts, how
+often it repeats, how long it lives, and how many times it may fire.
+
+```gdscript
+schedule.add({
+	"type": "spawn", "interval": 1.0,
+	"data": {"spawns": [{"id": "grunt", "size": 2, "max_alive": 12, "kill_rate_factor": 1.0}]},
+})
+schedule.add({
+	"type": "spawn_wave", "start": 4.0, "interval": 0.5,
+	"data": {"spawns": [{"id": "brute", "size": 8, "batch": 2}]},
+})
+schedule.add({
+	"type": "stat_increment", "start": 2.0, "interval": 2.0, "ticks": 3,
+	"data": {"id": "grunt", "field": "size", "amount": 1},
+})
+```
+
+Every clock field takes seconds or `"mm:ss"`, so a schedule reads in the units a designer talks in
+(`"start": "15:00"` for the boss). The three event types cover most of a survival map:
+
+- **`spawn`** emits `size` of each entry per tick, clamped by `max_alive` counted from the scene
+  group. This is the ambient population.
+- **`spawn_wave`** drains a fixed authored pool `batch` at a time, moving to the next pool when one
+  empties and ending the event when the last does. This is the scripted set piece.
+- **`stat_increment`** rewrites a field on other events' spawn entries, which is how the schedule
+  ramps itself without a second difficulty system. `ticks: 3` bounds it, so the ramp stops at an
+  authored ceiling instead of climbing for the whole run.
+
+**One systemic dial rides on top: a kill-rate factor.** Sample kills over a short window, keep a
+few samples, average them, and let a spawn entry opt in with `kill_rate_factor`. A player clearing
+fast gets `size + round(factor * kill_rate)` extra bodies; a struggling player gets the authored
+number. One reactive knob inside an authored curve covers most of what the budget assembler is
+for, at a fraction of its machinery.
+
+### Which one to reach for
+
+Prefer the schedule when the pacing is the design: minute three should feel a specific way, the
+boss arrives at 15:00, and a playtest note translates into editing one number. It is readable end
+to end, diffable, and trivially per-level, at the cost of being blind to what the player is doing.
+
+Prefer the blackboard and budget when the *system* is the design: the run is composed from a
+loadout, upgrades and modifiers are data writes, and the encounter should answer whatever the
+player built. It stays interesting for longer and it is far harder to say what minute three feels
+like.
+
+The two combine cleanly, because they meet at the spawn entry. Author the schedule for pacing and
+let a budget assembler fill one `spawn_wave` pool, or let the blackboard write the schedule's
+`size` fields at run start. Do not run both as independent spawners; they will fight over
+`max_alive` and neither reading will be true.
+
+### Build: the schedule runner, verified live
+
+`EventSchedule` is a `Node` under the level root that owns a `Timers` child, one `Timer` per event
+clock. `Timer` and not `SceneTree.create_timer()`, because a `timeout` event has to be able to
+cancel a repeating interval. Its shape:
+
+```gdscript
+static func to_seconds(value: Variant) -> float:   # "01:30" -> 90.0, 4.0 -> 4.0
+func add(event: Dictionary) -> void                # before start(); events is the table
+func start() -> void                               # arms start/interval/timeout per event
+func report_kill() -> void                         # the game reports; the schedule averages
+```
+
+`_fire()` bumps the event's tick count, dispatches on `type`, emits `event_fired`, and stops the
+event once `ticks` is reached. `_spawn()` reads live population with
+`get_tree().get_nodes_in_group(id).size()` so `max_alive` is a fact rather than a tally that can
+drift.
+
+```sh
+godot-mcp script create --path res://waves/event_schedule.gd --content "..."
+godot-mcp scene open --path res://arena.tscn
+godot-mcp node add --type Node --name Schedule --parent-path .
+godot-mcp script attach --node-path Schedule --script-path res://waves/event_schedule.gd
+godot-mcp script attach --node-path . --script-path res://waves/arena.gd   # builds the table
+godot-mcp scene save && godot-mcp editor reload
+godot-mcp script validate --all
+godot-mcp scene play --mode main
+```
+
+Read the counts back, never a screenshot. Two ticks of the `spawn` event by 1.5 s:
+
+```sh
+godot-mcp test run-scenario --steps '[
+  {"type":"wait","seconds":1.5},
+  {"type":"assert","node_path":"Schedule","property":"spawned","operator":"gte","expected":2}
+]'
+# "actual": 4.0, "passed": true
+```
+
+After seven seconds the whole table has run: the grunt cap holds and the authored wave has drained
+exactly its pool.
+
+```sh
+godot-mcp runtime eval --code 'emit({"grunts": get_tree().get_nodes_in_group("grunt").size(),
+  "brutes": get_tree().get_nodes_in_group("brute").size()})'
+# { "grunts": 12, "brutes": 8 }
+```
+
+`stat_increment` is visible in the table itself. After its three ticks the authored grunt size has
+stepped from 2 to 5, and one tick then emits exactly five:
+
+```sh
+godot-mcp runtime eval --code 'var s = get_tree().current_scene.get_node("Schedule")
+for n in get_tree().get_nodes_in_group("grunt"):
+	n.queue_free()
+emit({"authored_size": s.events[0]["data"]["spawns"][0]["size"]})'
+# { "authored_size": 5 }
+# one second later: grunts == 5
+```
+
+And the kill-rate dial, driven by reporting kills and waiting out a sample window:
+
+```sh
+godot-mcp runtime eval --code 'var s = get_tree().current_scene.get_node("Schedule")
+for i in 20:
+	s.report_kill()
+emit("reported")'
+godot-mcp test run-scenario --steps '[{"type":"wait","seconds":2.2}]'
+godot-mcp runtime get --node-path Schedule --properties '["kill_rate"]'
+# "kill_rate": 3.33
+```
+
+With `kill_rate_factor: 1.0` the next tick asks for `5 + round(3.33)` and the `max_alive` clamp
+takes it to the cap, which is the clamp doing its job. Assert on `spawned` and on group counts
+together: `spawned` alone cannot tell a clamped tick from a small one.
+
 ## Seeded world generation with a self-audit
 
 The mining map generates from a **`MapArchetype` resource** (width/depth/target tile count,

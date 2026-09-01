@@ -12,7 +12,8 @@ but signatures evolve.
   scripts. (See SKILL.md "Build with composition, not monoliths".)
 - **Components**. Recurring behavior → its own small scene + script (`HealthComponent`,
   `HurtboxComponent`), instanced wherever needed. Components expose signals; the owner wires them.
-- **Data-driven**. Stats/items/config as `Resource` types (`.tres`), not hard-coded.
+- **Data-driven**. Stats/items/config as `Resource` types (`.tres`), not hard-coded. See
+  *Content as data* below for when a JSON sidecar registry serves better.
 - **Decouple with signals**. Emitter announces; listeners react. No per-frame polling
   of other nodes, no reaching across the tree with `get_node` chains.
 - **Separate** data (Resources) / logic (scripts on the owning node) / presentation
@@ -330,6 +331,85 @@ inconsistent: some never register hits, some take double. Two rules prevent it:
   the same hit/hurt/damage component split as `topdown-2d.md`.
 Prototype fast and messy to find the fun, then run the consistency refactor once patterns
 emerge, and *do* run it.
+
+## Content as data: `.tres` resources or JSON sidecars
+
+The Principles bullet says stats and items live in data, and `Resource` types are the Godot-native
+way to do it: `class_name EnemyData extends Resource` with `@export` fields, one `.tres` per
+enemy, edited in the inspector, type-checked at load.
+
+A shipped alternative is worth knowing: **one JSON sidecar per content item, scanned at boot into
+an id-keyed dictionary, with a factory autoload instantiating from it.** The scan walks a content
+root, parses each `.json`, resolves any path-valued field to a loaded resource once, and keys the
+record by `"<type>_<id>"`. Callers ask the registry by id and never load by string.
+
+```gdscript
+extends Node
+
+## Boot-time scan of the JSON sidecars under content/, keyed by "<type>_<id>".
+## Path-valued fields are resolved to loaded resources once, here, so callers
+## never load by string.
+const ROOTS := {"enemy": "res://content/enemies"}
+const RESOURCE_FIELDS := ["scene", "icon"]
+
+var entries: Dictionary = {}
+
+
+func _ready() -> void:
+	for type in ROOTS:
+		for path in _json_files(ROOTS[type]):
+			var record: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(path))
+			if record == null or not record.has("id"):
+				push_error("content sidecar %s has no id" % path)
+				continue
+			for field in RESOURCE_FIELDS:
+				if record.has(field):
+					record[field] = load(record[field])
+			entries["%s_%s" % [type, record["id"]]] = record
+
+
+func get_record(uid: String) -> Dictionary:
+	return entries.get(uid, {}).duplicate(true)
+
+
+func _json_files(root: String) -> Array[String]:
+	var found: Array[String] = []
+	for name in DirAccess.get_files_at(root):
+		if name.ends_with(".json"):
+			found.append(root.path_join(name))
+	for name in DirAccess.get_directories_at(root):
+		found.append_array(_json_files(root.path_join(name)))
+	return found
+```
+
+`get_record` hands back a deep copy, because a caller that mutates a shared record poisons every
+later spawn of that type. A companion factory autoload turns a record into a typed data object
+(`EnemyData.new(record)`), letting a sidecar name its own class in a `"class"` field, which is how
+one registry serves content with different behaviour.
+
+**Build (verified live).** Two sidecars, one autoload, read back from the running game:
+
+```sh
+godot-mcp script create --path res://content/content_db.gd --content "..."
+godot-mcp project add-autoload --name ContentDB --path res://content/content_db.gd
+godot-mcp editor reload && godot-mcp scene play --mode main
+godot-mcp runtime eval --code 'var db = get_node("/root/ContentDB")
+var brute = db.get_record("enemy_brute")
+emit({"keys": db.entries.keys(), "brute_health": brute["stats"]["max_health"],
+  "scene_is_resource": brute["scene"] is PackedScene})'
+# { "keys": ["enemy_brute", "enemy_grunt"], "brute_health": 220, "scene_is_resource": true }
+```
+
+**The trade, in four axes.** JSON sidecars are git-diffable (a balance change is a readable diff,
+where a `.tres` diff is noisy), and moddable (a player drops a file in a folder and the scan finds
+it). The cost is that authoring happens in a text editor with no inspector, no dropdowns, and no
+autocompletion of field names, and that nothing is type-checked: a typo in a key is a runtime
+`push_error` at best and a silent default at worst. `.tres` inverts all four. Pick sidecars when
+content volume and moddability dominate, `.tres` when a designer is doing the authoring.
+
+Either way, validate on load. The scan above rejects a record with no `id`; a project with many
+fields should check the required ones by name at boot rather than discovering a missing key during
+a fight.
 
 ## Spawning & projectiles
 

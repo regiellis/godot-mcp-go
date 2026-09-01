@@ -172,6 +172,18 @@ func migrate(data: Dictionary) -> Dictionary:
 Stepwise (each `if v < N` upgrades one version) migrates a v1 save 1→2→3 in one pass, with no
 v1→v3 jump. `gdscript-architecture.md`'s Resource header does the same with `match save.version`.
 
+**Relocating the save file is a migration step like any other.** A portable or storefront build
+often wants its data beside the executable instead of under `user://`, so the whole install copies
+to a stick and keeps its progress. Run it on the same ladder: detect the old location, create the
+new directory, copy the file across if the new one is absent, then record the resolved path in the
+one place the rest of the code reads. `OS.get_executable_path().get_base_dir().path_join("data")`
+is the destination on desktop; every step needs its return value checked, because a failed
+`make_dir` or `copy` must leave the old path in force rather than pointing the game at a file that
+does not exist. Keep the old file until a launch from the new one has saved successfully. The
+editor runs from the engine binary's directory, so gate this on a build check or an exported
+setting rather than letting it fire during development.
+
+
 ## Slots and metadata
 
 Lay out `user://saves/slot_N/` with the payload plus a **sidecar meta** the load menu reads

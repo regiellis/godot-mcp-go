@@ -69,16 +69,17 @@ godot-mcp batch find-nodes-by-type --type Label \
 
 `godot-mcp doctor` checks the environment (godot binary, project, addon install state, port config, dotnet) and exits `1` only on a real failure. "No editor running yet" is a warning, so it is safe to run before you have launched anything. `godot-mcp status` gives the machine-readable liveness verdict (`running` / `starting` / `crashed` / `closed`), and the launch policy follows from it: never start a second editor when one is `running`. `godot-mcp status --all` scans the editor auto range (9080-9095, plus any pinned port) and the game range (9200-9215), then lists every live instance with its port, project, version, and pid. That is the multi-instance view for when two editors are open at once. `godot-mcp launch` applies that policy for you: it starts one editor for the project, waits until it answers, and returns non-zero if it never does.
 
-## The cold half: import, check, export, run
+## The cold half: import, check, test, export, run
 
-Four subcommands spawn the engine directly instead of talking to an editor, which is what a CI job needs before an editor exists. Each writes the engine's output to `<project>/.godot/godot-mcp-<name>.log` and returns the exact argv it ran, so a failing step is reproducible by hand.
+Five subcommands spawn the engine directly instead of talking to an editor, which is what a CI job needs before an editor exists. Each writes the engine's output to `<project>/.godot/godot-mcp-<name>.log` and returns the exact argv it ran, so a failing step is reproducible by hand.
 
 - `godot-mcp import` builds the `.godot/` import cache a fresh checkout has none of. Run it first. It refuses while an editor is running on the project, because both own that cache; the live-editor form is `import reimport --path res://...`.
 - `godot-mcp check . --jobs 4` parses every `.gd` under the paths you name with `--check-only` and exits `1` with `file:line` per failure. Directories are walked recursively, skipping `.godot/` and `addons/` unless the path you name is itself inside addons.
+- `godot-mcp test` runs the pure-logic tests in `res://test/` cold, with no editor and no scene tree. A test file is any script that extends `RefCounted`, every `test_*` method is a test, and the method takes one argument: a harness carrying `t.ok`, `t.eq`, `t.ne` and `t.fail`. It exits `1` on a failed assertion, on a script error raised inside a test, and on a file that does not parse.
 - `godot-mcp export "<preset>"` runs the headless export, writes to the preset's own `export_path` unless `--out` says otherwise, and reports the file produced, its size, and the engine's parsed errors. **An export that exits 0 having written nothing exits non-zero here**, which is what missing export templates look like.
 - `godot-mcp run [scene] --headless` starts the game standalone with no editor at all. With the `godot_mcp/runtime/direct_server` project setting on, it waits for the game's own channel and reports the port to drive with `godot-mcp --game`.
 
-`export` and `import` are addon group names as well. A command name after either one (`export list-presets`, `export info`, `import reimport`) still reaches the running editor.
+`export`, `import` and `test` are addon group names as well. A command name after any of them (`export list-presets`, `export info`, `import reimport`, `test report`) still reaches the running editor.
 
 ## A complete CI smoke test
 
@@ -93,6 +94,7 @@ set -euo pipefail
 godot-mcp doctor --project . --json > /dev/null      # environment sanity: exit 1 on real problems
 godot-mcp import                                     # build .godot/ on a fresh checkout
 godot-mcp check . --jobs 4                           # parse every .gd; exit 1 on any failure
+godot-mcp test                                       # run res://test/; exit 1 on any failure
 
 godot-mcp launch --headless                          # one editor, and never a second
 EDITOR_PID=$(godot-mcp status | jq -r .pid)
@@ -119,6 +121,8 @@ if ($LASTEXITCODE) { exit 1 }
 godot-mcp import | Out-Null                          # build .godot/ on a fresh checkout
 if ($LASTEXITCODE) { exit 1 }
 godot-mcp check . --jobs 4 | Out-Null                # parse every .gd
+if ($LASTEXITCODE) { exit 1 }
+godot-mcp test | Out-Null                            # run res://test/
 if ($LASTEXITCODE) { exit 1 }
 
 godot-mcp launch --headless | Out-Null               # one editor, and never a second

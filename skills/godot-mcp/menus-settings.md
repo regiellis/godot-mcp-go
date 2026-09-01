@@ -128,6 +128,48 @@ func put(section: String, key: String, value: Variant) -> void:
 ```
 `get_value(section, key, default)` returns the default when absent, so fresh installs and partial configs need no special-casing.
 
+## Edit then commit or discard: staged screens
+
+A settings screen or a loadout editor has a Cancel button, and Cancel has to mean something. Wiring
+each widget straight to the store makes every drag of a volume slider a write, so Cancel can only
+undo what it remembers to undo. Stage the edit instead:
+
+1. **On open**, copy the persisted values into a scratch dictionary. `Dictionary.duplicate(true)`
+   for nested data, so an edit cannot reach the original through a shared sub-dictionary.
+2. **While editing**, every widget signal writes the scratch. Live preview (applying a volume as
+   the slider moves) is fine and separate: preview the audio bus, store nothing.
+3. **On confirm**, validate, fold the scratch back into the store, then save once.
+4. **On cancel**, drop the scratch and re-apply the stored values to undo any preview. The store
+   was never touched, so there is nothing to roll back.
+
+The same three steps cover a deck or loadout editor, where the scratch is a deep copy of the deck
+record plus a mirror of any currency being spent. Cancel discards the copy and the spend together,
+which is why a partial purchase cannot leak out of a cancelled screen.
+
+**Build (verified in a running game).** The store is the `ConfigFile` from the previous section:
+
+```gdscript
+# open: scratch copy of just the section under edit
+var scratch := {}
+for key in cfg.get_section_keys("audio"):
+	scratch[key] = cfg.get_value("audio", key)
+
+scratch["music"] = 0.2                      # a widget edits the scratch, never the store
+
+# confirm: fold the scratch back and save once
+for key in scratch:
+	cfg.set_value("audio", key, scratch[key])
+cfg.save(PATH)
+```
+
+```sh
+godot-mcp runtime eval --code '...'   # the sequence above, reading the file back after each step
+# { "music_after_cancel": 0.8, "music_after_confirm": 0.2 }
+```
+
+Read the file back, not the widget. A screen whose Cancel path is checked by looking at the slider
+position passes even when the write already happened.
+
 ## Input remapping: rebind actions at runtime
 
 Remapping edits the live `InputMap`: `action_erase_events(action)` clears an action's bindings,
@@ -273,6 +315,7 @@ gameplay reads it as ordinary `Input.get_vector(...)`:
 - Pause = `get_tree().paused` + a `PROCESS_MODE_ALWAYS` `CanvasLayer` overlay; Quit behind a `ConfirmationDialog`.
 - Right widget per setting, read off its signal; volumes through `linear_to_db`.
 - Persist to `user://settings.cfg` via `ConfigFile`; one autoload applies on boot before first draw.
+- Staged screens edit a scratch copy: confirm folds it back and saves, cancel drops it untouched.
 - Remaps edit `InputMap` at runtime and persist `physical_keycode` ints; `input_map` ships defaults.
 - Display via `DisplayServer` (mode/vsync/size); content scale via `project set-setting display/window/stretch/*`.
 - Couch test: reachable + triggerable by `ui_*` actions alone (verify via `input action` + `runtime get`).

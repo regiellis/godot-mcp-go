@@ -6,6 +6,54 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-31
+
+### Added
+
+- **`godot-mcp test`, a cold pure-logic test runner.** It completes the set of
+  subcommands that run without an editor. With no path it takes `res://test/`,
+  swept recursively for `*_test.gd` and `test_*.gd`; a path you name may be a
+  directory or a single file. A test file is any script that extends
+  `RefCounted`, every `test_*` method is a test, and the method takes one
+  argument: a harness carrying `t.ok`, `t.eq`, `t.ne` and `t.fail`, which
+  records failures and keeps going so one method can report several. Nothing is
+  installed in the project and nothing is imported: the runner is generated into
+  `.godot/`, run by one headless engine, and deleted when the run ends. A test
+  also fails when the engine prints a script error while it runs, attributed to
+  the method that raised it, and a file that does not parse is reported as one
+  failed file with the parse message and its line. Results come back per file
+  and per method, with `--json` for CI; exit 0 when everything passed, 1 on any
+  failure, 2 when the run could not be set up. The runner extends `MainLoop`
+  rather than `SceneTree`, because the engine starts the project's autoloads
+  only for a `SceneTree` main loop and a test run must not have that side
+  effect. It does not refuse while an editor is open, and `test run-scenario`,
+  `test report` and the rest of the addon's `test` group still reach the editor.
+- **`boss-patterns.md`, a craft reference for multi-phase boss AI**. A
+  declarative phase table triggered by health fraction or timeout, a reusable
+  `PhaseController` that dispatches to named handlers on the host, and a
+  behaviour container holding a boss's moves as named objects in ordered
+  groups, registered by reference count and lockable a group at a time so a
+  dash or a channel stands the rest down. Built and driven live on 4.7.2-rc:
+  four phases entered, the group lock read back mid-dash, and the stale-timeout
+  guard proven with an assertion rather than a screenshot. Five gotchas the
+  build turned up are recorded with it, including two `class_name` scripts
+  being unable to reference each other's type.
+
+### Changed
+
+- **Six craft references extended, each recipe driven against a live editor**.
+  `run-based-games.md` gains the declarative wave timeline beside the reactive
+  blackboard (typed events on a clock, a kill-rate scale factor, and when to
+  prefer either). `in-game-docs.md` gains toggleable debug draw overlays for
+  the running game, gated on `OS.is_debug_build()` and driven from
+  `runtime call`. `game-patterns.md` gains the JSON-sidecar content registry as
+  an alternative to `.tres`, with the trade stated in four axes.
+  `menus-settings.md` gains the edit-then-commit-or-discard idiom for staged
+  screens. `save-systems.md` records relocating a save file for portable
+  installs as one more rung on the migration ladder. `shipping-export.md` gains
+  the `export_presets.cfg.example` convention for a secret-bearing preset file
+  and the feature-tag isolation gate for platform SDKs.
+
 ## [0.10.1] - 2026-08-31
 
 ### Fixed

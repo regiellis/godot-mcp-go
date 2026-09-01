@@ -87,7 +87,8 @@ func TestImportArgs(t *testing.T) {
 
 // The two local subcommands whose names are also addon groups hand a bare
 // command name back to the addon, so `godot-mcp export info` keeps working while
-// `godot-mcp export "Windows Desktop"` runs the headless export.
+// `godot-mcp export "Windows Desktop"` runs the headless export. test is the
+// third: its own arguments are paths, which no addon command name looks like.
 func TestRoutesToAddon(t *testing.T) {
 	cases := []struct {
 		name string
@@ -104,6 +105,11 @@ func TestRoutesToAddon(t *testing.T) {
 		{"import", []string{"reimport", "--path", "res://a.png"}, true},
 		{"import", []string{"--project", "."}, false},
 		{"import", nil, false},
+		{"test", []string{"run-scenario"}, true},
+		{"test", []string{"report"}, true},
+		{"test", []string{"res://test"}, false},
+		{"test", []string{"--json"}, false},
+		{"test", nil, false},
 		// Names with no addon group of their own are never diverted.
 		{"launch", []string{"info"}, false},
 		{"check", []string{"info"}, false},

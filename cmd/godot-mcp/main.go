@@ -23,7 +23,7 @@ import (
 // cliVersion is reported to MCP clients in the initialize handshake. Keep it in
 // step with the addon's plugin.cfg version and the CHANGELOG heading at release
 // time; the addon reads its own from plugin.cfg, so this is the only literal.
-const cliVersion = "0.10.1"
+const cliVersion = "0.11.0"
 
 func main() {
 	port := flag.Int("port", 0, "addon WebSocket port (0 = env GODOT_MCP_PORT, then discovery file, then default 9080)")
@@ -56,6 +56,7 @@ func main() {
 		"run":            runRun,
 		"import":         runImport,
 		"check":          runCheck,
+		"test":           runTest,
 		"export":         runExport,
 		"upgrade":        runUpgrade,
 		"status":         runStatus,
@@ -235,6 +236,7 @@ func main() {
 var shadowedAddonCommands = map[string][]string{
 	"export": {"list_presets", "project", "info"},
 	"import": {"info", "set", "reimport"},
+	"test":   {"run_scenario", "assert_node_state", "assert_screen_text", "run_stress_test", "report"},
 }
 
 // routesToAddon reports whether an invocation of a local subcommand's name is
@@ -643,6 +645,7 @@ func usage() {
 		{"run", "run the game standalone, no editor, and report its direct-server port"},
 		{"import", "import the project's assets headlessly (import info/set/reimport still reach the addon)"},
 		{"check", "parse .gd files cold with --check-only, in parallel"},
+		{"test", "run pure-logic GDScript tests cold (test.* scenario commands still reach the addon)"},
 		{"export", "export a preset headlessly (export list-presets/project/info still reach the addon)"},
 		{"upgrade", "port a 4.3+ project to a newer Godot: preflight, baseline, open, fix, verify"},
 		{"status", "editor liveness preflight: running, starting, crashed, or closed (--all lists every live instance)"},
