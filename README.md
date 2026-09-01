@@ -73,7 +73,7 @@ No. They do different jobs, and they compose. **Godot's own command line starts 
 | Introspection | `--doctool` dumps docs offline | `engine.*` reads the running build's ClassDB, live |
 | Built for | CI work like exports, imports, and batch scripts | Interactive building and playtesting, by humans at a terminal and by AI agents |
 
-The two compose, and godot-mcp fronts the cold side too. `godot-mcp import` runs the asset import a fresh clone needs, `check` parses `.gd` files with `--check-only` in parallel, `export` runs a preset export, and `run` starts the game standalone. Each spawns a fresh engine exactly as you would by hand, logs it to `.godot/`, and reports the parsed errors, the file produced, or the port the running game answers on, so a CI script and an interactive session use one CLI.
+The two compose, and godot-mcp fronts the cold side too. `godot-mcp import` runs the asset import a fresh clone needs, `check` parses `.gd` files with `--check-only` in parallel, `test` runs the pure-logic tests in `res://test/` against a generated headless runner, `export` runs a preset export, and `run` starts the game standalone. Each spawns a fresh engine exactly as you would by hand, logs it to `.godot/`, and reports the parsed errors, the file produced, or the port the running game answers on, so a CI script and an interactive session use one CLI.
 
 ## How is this different from other Godot MCPs?
 
@@ -91,7 +91,7 @@ Plenty of Godot MCP servers exist, and the good ones are editor-native, so "runs
 - **Live editor integration:** commands run against the real SceneTree with UndoRedo (Ctrl+Z safe for the human) and open-scene conflict protection, not offline `.tscn` rewriting that clobbers unsaved work.
 - **Crash-aware discovery:** per-project port discovery with `running`/`starting`/`crashed`/`closed` verdicts on every connection failure, so agents recover deliberately instead of relaunching blindly.
 - **Safety guards:** `127.0.0.1`-only, audited code execution, an unsafe-editor-IO guard, and project-path jailing on every write sink.
-- **A craft layer:** an agent skill plus 30 craft references (3D controllers, platformers, deckbuilders, interactive music, shaders, multiplayer, save systems…) that teach Godot's idioms, so an agent composes nodes and scenes the way a Godot developer would instead of reaching for whichever command fits.
+- **A craft layer:** an agent skill plus 31 craft references (3D controllers, platformers, deckbuilders, interactive music, shaders, multiplayer, save systems…) that teach Godot's idioms, so an agent composes nodes and scenes the way a Godot developer would instead of reaching for whichever command fits.
 - **Style is checkable:** `script.lint` measures GDScript against the official style guide with 17 rules, each finding carrying line, rule, and severity, so the craft layer's advice becomes something an agent can verify against rather than merely read. It runs inside the addon, with no tool to install.
 
 Concretely, here it is against the two most-used alternatives, [`godot-ai`](https://github.com/hi-godot/godot-ai) and [`Godot-MCP-Native`](https://github.com/yurineko73/Godot-MCP-Native). Both are good, both are actively maintained, and all three are MIT. Figures checked 2026-08-12; verify them yourself before relying on any of it.
@@ -113,7 +113,7 @@ Concretely, here it is against the two most-used alternatives, [`godot-ai`](http
 | Undo-safe mutations | no | no | `UndoRedo` across 29 command files, plus open-scene conflict refusal |
 | Extending it | in review ([#820](https://github.com/hi-godot/godot-ai/pull/820)) | no | `res://mcp_commands/*.gd`, no fork needed |
 | Godot versions | 4.5+ | 4.5+ | 4.7 target, 4.3 to 4.8 in beta |
-| Craft layer | tool reference | tool reference | 30 craft guides + agent skill |
+| Craft layer | tool reference | tool reference | 31 craft guides + agent skill |
 | GDScript style linting | no | no | 17 rules, native |
 | Install | Asset Library per its README; auto-configures 17+ clients | Asset Library (`Godot MCP Native`) | Asset Library (`Godot MCP/CLI`), or `godot-mcp install` / `create` / `configure` |
 | Community | 1.6k stars | 685 stars | 39 stars |
