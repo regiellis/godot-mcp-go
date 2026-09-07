@@ -1,143 +1,171 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/website/public/brand/mark.svg" width="104" alt="Godot MCP CLI: a terminal prompt in a rounded tile with a live-connection dot">
+  <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/website/public/brand/swallowtail-butler.png" width="160" alt="Swallowtail butler mascot">
 </p>
 
-# Godot MCP CLI
+# Swallowtail
 
-[![Godot 4.7, 4.3+ in beta](https://img.shields.io/badge/Godot-4.7%20%284.3%2B%20beta%29-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org)
-[![Go 1.26+](https://img.shields.io/badge/Go-1.26%2B-00ADD8?logo=go&logoColor=white)](https://go.dev)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-![Workflow](https://img.shields.io/badge/workflow-build%20%7C%20play%20%7C%20debug%20%7C%20verify-blue)
-![Platforms](https://img.shields.io/badge/platforms-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey)
+**Godot automation. Your game. Your workflow.**
 
-Give an AI agent the complete Godot development loop: discover the live engine, build in the open editor, run and play the game, observe state, debug failures, fix them in place, and verify the result. The same workflow is available from a terminal or an MCP client through a Go CLI and GDScript addon.
+Build, inspect, test, and debug Godot games from your terminal. Automate repetitive
+work with scripts, or let an agent use the same commands. No agent, model, or AI
+account is required. MCP is an optional interface.
 
-<p align="center">
-  <a href="https://youtu.be/XnoW6EHXaBw">
-    <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/media/previews/demo-poster.png" width="860" alt="The Godot editor with the MCP dock open, a water demo running in its own window, and an agent writing GDScript in a terminal beside it">
-  </a>
-</p>
+> [!NOTE]
+> This project shipped as `godot-mcp` through 0.11. That name described one
+> connector, and the toolkit automates Godot from a terminal, a shell script, or
+> a connected client, with MCP as one optional interface. The old name also
+> matched many other Godot MCP projects. Swallowtail names the toolkit itself.
+> The repository URL, the Go module path, and the `godot-mcp` executable are
+> unchanged, with no scheduled removal date.
 
-## The workflow is the product
+Use `swallowtail` for new commands and scripts. Release bundles also include the
+deprecated `godot-mcp` executable with identical functionality. Preview an existing
+project's addon migration with `swallowtail migrate --project DIR`.
+See [Migrating to Swallowtail](https://regiellis.github.io/godot-mcp-go/docs/migration).
+The project is MIT licensed.
 
-```text
-discover → build → run → play → observe → debug → fix → verify
+[Terminal quickstart](https://regiellis.github.io/godot-mcp-go/docs/quickstart) ·
+[Scripting and CI](https://regiellis.github.io/godot-mcp-go/docs/automation) ·
+[Command reference](https://regiellis.github.io/godot-mcp-go/docs/commands) ·
+[Releases](https://github.com/regiellis/godot-mcp-go/releases)
+
+## Your game. Your workflow.
+
+- **Run commands:** inspect a scene, change a property, validate it, and play the result.
+- **Automate your workflow:** turn repeatable work into shell scripts, checks, and playtests.
+  Use JSON output and exit codes to connect the steps.
+- **Add your own commands:** drop a GDScript file into `res://mcp_commands/` and it
+  shows up in the CLI, in help, and as an MCP tool.
+  See [Add your own commands](https://regiellis.github.io/godot-mcp-go/docs/extending).
+- **Connect your tools:** expose the same operations through the CLI or an MCP client.
+  Choose the task and review what changes.
+
+From a project with the addon enabled:
+
+```sh
+swallowtail scene tree
+swallowtail scene validate --path res://hello.tscn
+swallowtail scene play --mode res://hello.tscn
+swallowtail runtime tree
+swallowtail scene stop
 ```
 
-The agent stays in one loop from an empty project to a proven game. It asks the running Godot build what exists, edits the real SceneTree with UndoRedo, drives the separate game process, reads state and errors back, breaks into the debugger when behavior is wrong, hot-reloads a fix, and continues the same playtest. A debug build can expose the play and observation channel with no editor open.
+The [quickstart](https://regiellis.github.io/godot-mcp-go/docs/quickstart) builds
+that scene from an empty project. Godot 4.7.2 is the current development build.
 
-Registered commands provide structured shortcuts through that workflow. Generic ClassDB discovery, property access, method calls, and script execution keep engine APIs reachable when no dedicated command wraps them. The CLI, typed MCP tools, and single-tool MCP mode all enter the same loop.
+## Working with Godot's built-in CLI
 
-The same loop is the release gate. Every command is exercised against a live editor and read back, then an agent that did not build the tool must create and playtest a complete game slice through the public interface. That second check found twelve sequence, state, timing, and missing-step defects after six releases had passed the command sweep, and it now also runs as a scripted eval suite: fixed scenarios handed to a blind worker agent, graded by deterministic checks against the live editor rather than by the agent's own report. [How it's tested](https://regiellis.github.io/godot-mcp-go/docs/testing) and [Agent evals](https://regiellis.github.io/godot-mcp-go/docs/evals).
+Godot already includes a command-line interface for launching the engine, running
+scripts, importing assets, and exporting projects. Swallowtail uses your installed
+Godot engine for those operations and adds commands that work with the live
+editor session and running game.
 
-<p align="center">
-  <a href="https://youtu.be/XnoW6EHXaBw"><b>Watch the three-minute demo</b></a>. A seascape built inside a live editor: water tuned while the game runs, boids for the fish and gulls, audio buses wired from a panel, and the dock counting every call as it lands.
-</p>
+| Job | How Swallowtail handles it |
+| --- | --- |
+| Import, check, test, export, run | Invokes Godot and reports results for shell workflows |
+| Inspect and edit scenes | Connects to the editor addon and operates on the live session |
+| Playtest | Reads runtime state, sends input, captures frames, and checks behavior |
+| Discover APIs | Queries the running engine's ClassDB and command catalog |
 
-> [!WARNING]
-> **Built for big-context models.** The default MCP mode exposes every command as a typed tool, and that list measures **about 50,000 tokens** against a live editor. Frontier models with 200K to 1M windows and prompt caching carry it comfortably; a small local model will not, and this project does not aim to serve one. Context-tight? The escape hatch is one flag: `serve --typed=false` collapses the surface to a single generic tool (~470 tokens), and the CLI needs no schemas at all. Numbers, method, and reasoning: [What the tool surface costs](#what-the-tool-surface-costs).
+Godot is installed separately. See [Godot's command-line reference](https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html)
+and [How it works](https://regiellis.github.io/godot-mcp-go/docs/how-it-works).
 
-> [!NOTE]
-> **This repository is a one-way public mirror**, published as a squashed snapshot. It shares no commit history with the canonical development repo, so **pull requests can't be merged directly**. For bugs, feature requests, or changes, please open an [**Issue**](../../issues) or start a [**Discussion**](../../discussions). That's where development is tracked. The **`asset-library` branch** is a packaging artifact for the [Godot Asset Library](https://godotengine.org/asset-library) (an `addons/`-rooted snapshot of just the addon), and it is never merged into `main`.
->
-> The snapshot also omits maintainer tooling, so `scripts/` is absent here. `Taskfile.yml` ships whole and a few of its tasks call into that folder (`task test:http`, `task eval`, `task eval:sandbox`, `task release`, `task mirror`, `task mirror:audit`, `task asset:check`); those are maintainer-only and will not run from a clone of this mirror. The build, editor, and play tasks cover the user-facing workflow. Where the CHANGELOG names a path under `scripts/`, it refers to the development repo.
+## CLI first, MCP optional
 
-## What the tool surface costs
+Run commands from your terminal, reuse them in scripts, or add them to CI.
+Read the results directly, or pipe JSON into your next step.
 
-Tool schemas are context: an MCP client carries its tool list into every request, so the size of that list is a real cost that deserves a measured number. Measured 2026-08-07 by capturing the actual `tools/list` payload `serve` produces against a live Godot 4.7.2 editor, with tokens estimated at four characters per token:
+MCP connects clients that use that protocol to the same command handlers. It is
+available through `serve` over stdio or the editor's HTTP endpoint. Neither is
+required for ordinary CLI use.
 
-| Surface | Tools carried | Schema payload | Estimated tokens |
+For MCP clients, the default typed catalog can be large. `serve --typed=false`
+exposes one generic tool when that suits the client better. See
+[MCP setup](https://regiellis.github.io/godot-mcp-go/docs/mcp-setup) and
+[tool context costs](https://regiellis.github.io/godot-mcp-go/docs/context-cost).
+
+## How it compares
+
+What each tool documents: how you start, what you set up, and what you can run
+from a terminal, a script, or an MCP client. Sources and the comparison date
+follow the table.
+
+| What you need | Swallowtail | Godot AI | Godot MCP Native |
 | --- | --- | --- | --- |
-| The CLI (shell-driving agents) | none | none | **0** |
-| `serve` default (typed tools) | 332 | ~205 KB JSON | **~52,000** |
-| `serve --typed=false` | 1 (`godot_run`) | ~1.9 KB | **~470** |
+| Starting point | **Standalone automation CLI + editor addon** | MCP integration for the editor | MCP editor addon + companion CLI |
+| Run from your terminal | Use `swallowtail` directly, without MCP | Documented setup uses `godot-ai attach` to connect an MCP client | Use `gdmcp` through its separate local CLI API |
+| Use without an AI agent | **Yes.** The CLI and scripts need no agent, model, or account | Its requirements list an MCP client; every documented workflow runs through one | Yes, through its `gdmcp` CLI, which the docs present for agents with shell access |
+| Set up the connection | Go binary + Godot addon for live commands | Python server via uv + Godot plugin + MCP client | Godot addon; prebuilt CLI for terminal use |
+| Automate a workflow | Create projects, import, check, test, export, and operate the live editor | Edit scenes and scripts, run projects and test suites through MCP tools | Discover tools, run domain commands, and preview or apply command batches |
+| Inspect a playtest | Runtime state, input, captures, breakpoints, stepping, and hot reload | Game state, input sequences, screenshots, and error logs | Runtime probe, breakpoints, stack and variable inspection, and execution control |
+| Connect an MCP client | Optional stdio or editor-hosted HTTP interface | Documented primary workflow | MCP interface alongside the separate CLI API |
 
-The 332 is every registered command plus the generic `godot_run`. The measured list even picked up the test project's two project-local commands, because the schemas are built live from whatever the addon registers.
+Compared against the published documentation on September 7, 2026:
+[Godot AI](https://github.com/hi-godot/godot-ai),
+[its tool reference](https://github.com/hi-godot/godot-ai/blob/main/docs/TOOLS.md),
+[Godot MCP Native](https://github.com/yurineko73/Godot-MCP-Native), and
+[its CLI reference](https://github.com/yurineko73/Godot-MCP-Native/tree/main/cli/gdmcp).
+This summarizes documented workflows, not an exhaustive feature audit.
 
-What the numbers mean in practice:
+## Why I built Swallowtail
 
-- **The default is sized for big-context models**. Against a 200K window the full list is a quarter of the budget; against the 1M windows current frontier models ship, it is 5%. With prompt caching the list sits in the cached prefix after the first request, and on Claude cached input bills at roughly a tenth of the base rate, so the recurring cost is a fraction of the headline number. The list only changes mid-session in one rare case: the editor was down at connect and came back up.
-- **The escape hatches ship in the box**. `serve --typed=false` keeps the same 332 commands behind one ~470-token tool (the model discovers the API with `engine.search` instead of reading schemas); the `http_typed` project setting does the same for the editor's own HTTP endpoint; clients that load schemas on demand (Claude Code does) pay only for the tools they actually use; the read-only `godot://` resources pull project and scene state without any tool turn; and the CLI is a zero-schema surface any agent with a shell can drive.
-- **The trade is deliberate**. A curated "core toolset" default is not planned: a model too small to carry the list is also too small to run the discover-then-drive and spatial-verification loops this tool is built around, and the escape hatches above already serve constrained clients. The full breakdown is on [What the tool surface costs](https://regiellis.github.io/godot-mcp-go/docs/context-cost) in the docs: which command groups carry the weight, the caching math, and the design reasoning.
+*A note from the maintainer.*
 
-## Isn't this just Godot's built-in CLI?
+After twenty years as a programmer, I just wanted to build games. Games for my
+son. Games for myself.
 
-No. They do different jobs, and they compose. **Godot's own command line starts a Godot process; godot-mcp talks to the one that's already running.**
+I don't have the budget to hire a team for every idea. I also don't want to spend
+ten years on one uncertain project at the expense of my health or my family.
+Swallowtail grew out of finding a way to make progress with the time and resources
+I have.
 
-|  | Godot's CLI (`godot --headless`, `--export-release`, `--script`) | godot-mcp |
-| --- | --- | --- |
-| Process model | Launches a fresh engine process per invocation, cold start each time | Connects over WebSocket to the editor you already have open |
-| Session state | None: no open scene, no selection, no undo history | The live session: edited scene, selection, unsaved work, UndoRedo (every mutation Ctrl+Z-safe) |
-| Editing | Run a script once against project files | Structured operations against the open scene, with open-scene conflict protection |
-| The running game | The launched process *is* the game; nothing reaches inside it | A live channel into it: read state, `eval`, inject input, await signals, screenshot |
-| Introspection | `--doctool` dumps docs offline | `engine.*` reads the running build's ClassDB, live |
-| Built for | CI work like exports, imports, and batch scripts | Interactive building and playtesting, by humans at a terminal and by AI agents |
+What I wanted was a toolkit that lets me work the way I want on any given day, and
+that includes using AI as one of the tools. Some days that is a terminal and a
+script I can run again. Some days it is an agent driving the editor while I review
+what it changed. Swallowtail gives both the same commands, so the choice stays
+mine: what to try, what to keep, and when to stop and play it.
 
-The two compose, and godot-mcp fronts the cold side too. `godot-mcp import` runs the asset import a fresh clone needs, `check` parses `.gd` files with `--check-only` in parallel, `test` runs the pure-logic tests in `res://test/` against a generated headless runner, `export` runs a preset export, and `run` starts the game standalone. Each spawns a fresh engine exactly as you would by hand, logs it to `.godot/`, and reports the parsed errors, the file produced, or the port the running game answers on, so a CI script and an interactive session use one CLI.
+I understand the concerns about this technology. I'm not OpenAI, Anthropic, or
+NVIDIA. I'm an individual programmer making games. You don't have to agree with
+my choices, and I respect that. I'm here to build and share, not to fight.
+Questions and criticism are welcome. Bullying and personal attacks aren't.
 
-## How is this different from other Godot MCPs?
+[The full note](https://regiellis.github.io/godot-mcp-go/docs/on-ai) covers the
+project's purpose and what the toolkit requires.
 
-Plenty of Godot MCP servers exist, and the good ones are editor-native, so "runs in the editor" isn't the differentiator. The distinction begins after scene assembly, when the agent must play, observe, diagnose, fix, and verify:
+## Samples
 
-- **It closes the loop:** discover, author, run, play, observe, debug, fix, and verify all use the same interface. The agent can keep working from the first scene through a diagnosed and proven gameplay change.
-- **It's a CLI first, and an MCP server second:** every command runs from a shell (`godot-mcp node add --type Sprite2D …`), so a terminal-driven agent needs **zero** tool schemas and a human can drive the same surface by hand. The MCP modes are a second front door onto it, not the only one.
-- **It drives the running game:** the `runtime` and `input` groups inspect and control it over a two-hop IPC, reading the scene tree, setting node state, `eval`, capturing frames, `await_signal`, polling `runtime.errors`, and injecting input for deterministic playtesting. A debug-build game can also host its own channel and be driven with **no editor open at all** (`--game`).
-- **It debugs the running game:** the `debug` group arms real breakpoints (they show in the gutter and hit a game already running), reads the paused game's stack and per-frame variables, steps over/into/out, and hot-reloads edited scripts into the live process with state kept, so you fix a bug mid-playtest without restarting the run.
-- **Schemas that can't go stale:** by default `serve` exposes every command as a typed MCP tool whose schema is built **live** from the addon's own param docs, so the tool surface tracks whatever the editor registers. `serve --typed=false` collapses to the single generic `godot_run` for tool-limited clients (rivals ship ~40 to 160 fixed schemas either way), plus read-only `godot://` resources for pulling project, scene, and engine state without spending a tool turn.
-- **Two MCP transports, plus prompts:** stdio through the Go binary, or **editor-direct streamable HTTP**, where the addon itself hosts `POST /mcp` on `127.0.0.1` so an HTTP-capable MCP client drives the editor with **no external process at all**, same commands and same guards. The playbooks ship as first-class **MCP prompts** (`discover-then-drive`, `spatial-placement`, `launch-recovery`, `bug-hunt`), served even when the editor is down.
-- **C# projects too:** `script.create` authors C# templates, `csharp.setup` scaffolds the csproj/sln, and `csharp.build` / `script.validate` compile with structured per-file diagnostics (requires a Godot .NET editor build and the dotnet SDK).
-- **Introspection instead of wrappers:** the live `ClassDB` *is* the feature list: `engine.search` to find a name, `engine.docs`/`engine.doc_search` for what it means (the running build's own documentation prose, straight from the editor's doc cache), then generic `node.set`/`node.get` for properties and `node.call`/`runtime.call` for methods. New engine features are reachable the day you upgrade, with no new release of this tool. That is not a claim on paper: the addon runs unmodified on **4.8-dev**, whose 6 new classes and 4 removals needed no code change, and `engine.search` picks up 4.8's `FuzzySearch` automatically to resolve abbreviations like `linvel` → `linear_velocity`.
-- **It reaches back as well as forward (beta):** the addon loads and serves on Godot **4.3 through 4.8**, verified against the official 4.3, 4.4, 4.5, and 4.6 stable builds plus 4.7.2, with all 332 commands registering on each. Failure is per group: an engine that can't compile a group skips it and reports it under `unavailable_groups`, and the six APIs newer than 4.3 refuse with the version they need. 4.7 stays the development target. Moving a project up a version has a command behind it as well as a guide: `godot-mcp upgrade preflight|baseline|open|fix|verify` runs the port as five gated phases, each writing a report and stopping. It audits the tree before an editor ever opens it, records a replayable drive under the old binary, harvests seven sources after the first open rather than reading the error panel, applies the mechanical fixes one category at a time and restores any that fails its own proof, then replays the drive and diffs it. [Porting between Godot versions](https://regiellis.github.io/godot-mcp-go/docs/guides/porting-godot-versions) (beta) is the spec it follows and carries the hand-run commands for every phase.
-- **Live editor integration:** commands run against the real SceneTree with UndoRedo (Ctrl+Z safe for the human) and open-scene conflict protection, not offline `.tscn` rewriting that clobbers unsaved work.
-- **Crash-aware discovery:** per-project port discovery with `running`/`starting`/`crashed`/`closed` verdicts on every connection failure, so agents recover deliberately instead of relaunching blindly.
-- **Safety guards:** `127.0.0.1`-only, audited code execution, an unsafe-editor-IO guard, and project-path jailing on every write sink.
-- **A craft layer:** an agent skill plus 31 craft references (3D controllers, platformers, deckbuilders, interactive music, shaders, multiplayer, save systems…) that teach Godot's idioms, so an agent composes nodes and scenes the way a Godot developer would instead of reaching for whichever command fits.
-- **Style is checkable:** `script.lint` measures GDScript against the official style guide with 17 rules, each finding carrying line, rule, and severity, so the craft layer's advice becomes something an agent can verify against rather than merely read. It runs inside the addon, with no tool to install.
+[Reversi](https://github.com/regiellis/godot-reversi) is a complete game built by
+agents driving swallowtail: eleven screens, thirty GDScript files, every widget
+drawn in code. [Play it in the browser](https://regiellis.github.io/godot-reversi/)
+or clone the repository. Smaller demos live under [`samples/`](samples/), and the
+[Samples page](https://regiellis.github.io/godot-mcp-go/docs/samples) lists them all.
 
-Concretely, here it is against the two most-used alternatives, [`godot-ai`](https://github.com/hi-godot/godot-ai) and [`Godot-MCP-Native`](https://github.com/yurineko73/Godot-MCP-Native). Both are good, both are actively maintained, and all three are MIT. Figures checked 2026-08-12; verify them yourself before relying on any of it.
+## Contributing
 
-| | godot-ai | Godot-MCP-Native | godot-mcp |
-| --- | --- | --- | --- |
-| Implementation | Python (FastMCP) + GDScript plugin | GDScript only | Go CLI + GDScript addon |
-| Runtime deps | Python + `uv` | none | one Go binary, or none via the editor's own HTTP endpoint |
-| Drives it from | an MCP client | an MCP client | **any agent that can run a shell command**, plus any MCP client |
-| Shell-drivable CLI | no | no | yes, the primary surface |
-| Surface | ~43 tools / ~120 ops | 155 tools | 332 commands / 50 groups |
-| MCP tool schemas carried | ~43 fixed | 155 fixed | live-built per command, or as few as **1** (`godot_run`) |
-| MCP transports | HTTP + WebSocket | HTTP, plus a headless editor mode | stdio, editor-direct HTTP, and the CLI |
-| MCP prompts / resources | none | none | 4 prompts, 5 `godot://` resources |
-| Running-game control | live tree and synthetic input through a game-helper autoload | in-game probe autoload | live tree, state, input, capture, and signals, plus a direct channel to an editor-less debug build |
-| Runtime debugging | not documented | not documented | breakpoints, paused stacks, frame variables, stepping, and hot reload |
-| C# projects | not documented | symbol indexing, project inspection | `csharp` group: scaffold the csproj/sln, build, per-file diagnostics |
-| Start a project from nothing | no | no | `godot-mcp create` writes `project.godot`, icon, `.gitignore` |
-| Undo-safe mutations | no | no | `UndoRedo` across 29 command files, plus open-scene conflict refusal |
-| Extending it | in review ([#820](https://github.com/hi-godot/godot-ai/pull/820)) | no | `res://mcp_commands/*.gd`, no fork needed |
-| Godot versions | 4.5+ | 4.5+ | 4.7 target, 4.3 to 4.8 in beta |
-| Craft layer | tool reference | tool reference | 31 craft guides + agent skill |
-| GDScript style linting | no | no | 17 rules, native |
-| Install | Asset Library per its README; auto-configures 17+ clients | Asset Library (`Godot MCP Native`) | Asset Library (`Godot MCP/CLI`), or `godot-mcp install` / `create` / `configure` |
-| Community | 1.6k stars | 685 stars | 39 stars |
+This repository is a one-way public mirror with squashed history. Open an
+[issue](https://github.com/regiellis/godot-mcp-go/issues) or
+[discussion](https://github.com/regiellis/godot-mcp-go/discussions) for bugs,
+questions, or proposed changes. Pull requests cannot be merged directly into the
+canonical development history.
 
-**Where each one wins.** godot-ai has the reach: the biggest community by some margin, and the broadest client support, auto-configuring 17+ of them. Godot-MCP-Native has the leanest install of the three (GDScript only, nothing to download, nothing on PATH), and it reaches the running game through an in-game probe much as this project does, so that is no longer a dividing line. **Engine range is close now: both start at 4.5, and this project's 4.3 floor is beta while 4.7 is what it is developed and released against.**
-
-What this side adds is continuity. A **shell-drivable CLI** starts the same workflow from any agent that can run a command, with no MCP support or tool schemas required. Live-built schemas, MCP prompts and `godot://` resources, C# project support, `create`, project-local commands, spatial and procedural authoring, runtime control, the debugger, and the craft layer keep the agent inside that workflow as the job changes from building to playing to diagnosis. Much of the other two projects' surface maps onto generic commands here (`node.set`/`node.get`/`node.call` against the live ClassDB), so raw command counts are not a like-for-like measure of what an agent can finish.
-
-> [!NOTE]
-> Running godot-mcp and Godot-MCP-Native side by side: both default to port **9080**. Pin one of them (`GODOT_MCP_PORT`, or the `godot_mcp/network/port` project setting here) or the second to start will pick a different port and your client will connect to whichever answers.
+The `asset-library` branch is an addon packaging snapshot. Maintainer-only
+`scripts/`, internal docs, and eval harnesses are omitted from the public mirror;
+Taskfile tasks that depend on those files are maintainer-only.
 
 ## How it works
 
 ```
-godot-mcp (Go CLI / client)  ──WebSocket(JSON-RPC 2.0):9080──▶  Godot editor addon (server)
+swallowtail (Go CLI / client)  ──WebSocket(JSON-RPC 2.0):9080──▶  Godot editor addon (server)
 MCP client (streamable HTTP) ──POST /mcp:9100────────────────▶        │
                                             file IPC (user://) ◀──────┘──▶  running game
                                                               (MCPGameInspector / MCPGameInput autoloads)
 ```
 
 - The **addon runs a WebSocket server inside the editor** (the long-lived process). The CLI is a short-lived client that dials in, runs one command, and exits.
-- The CLI **auto-discovers the port** from `<project>/.godot/godot-mcp.json` (written by the addon) when run inside the project; otherwise pass `--port` (default `9080`).
-- **`runtime`/`input` commands reach the *running* game** via file IPC brokered by two game-side autoloads, or, for a standalone **debug build** with no editor open, over the game's own direct server (`godot-mcp --game …`, opt-in project setting). Either way you can inspect the live scene tree, read/set node state, capture frames, and simulate input.
-- Every editor mutation goes through Godot's **UndoRedo** (Ctrl+Z safe).
+- The CLI **auto-discovers the port** from `<project>/.godot/swallowtail.json` (written by the addon) when run inside the project; otherwise pass `--port` (default `9080`).
+- **`runtime`/`input` commands reach the *running* game** via file IPC brokered by two game-side autoloads, or, for a standalone **debug build** with no editor open, over the game's own direct server (`swallowtail --game …`, opt-in project setting). Either way you can inspect the live scene tree, read/set node state, capture frames, and simulate input.
+- Supported scene edits use Godot's **UndoRedo**. Review script and file changes in version control.
 
 ## Requirements
 
@@ -153,16 +181,16 @@ MCP client (streamable HTTP) ──POST /mcp:9100──────────�
 > Moving a project between versions: [Porting between Godot versions](https://regiellis.github.io/godot-mcp-go/docs/guides/porting-godot-versions) (beta).
 
 > [!NOTE]
-> **C# / .NET?** Supported. The `csharp` group scaffolds and builds .NET projects (`csharp.info` / `csharp.setup` / `csharp.build`), and `script.*` is C#-aware: `script.create` writes a C# class template for `.cs` paths, `script.validate --path X.cs` compiles with per-file structured diagnostics, and `script.list` recognizes C# classes. *Running* C# scripts in-editor requires a Godot **.NET editor build** plus the dotnet SDK (`godot-mcp doctor` checks for it); `editor.run_script` / `runtime.eval` execute GDScript either way, and the introspection layer is language-agnostic.
+> **C# / .NET?** Supported. The `csharp` group scaffolds and builds .NET projects (`csharp.info` / `csharp.setup` / `csharp.build`), and `script.*` is C#-aware: `script.create` writes a C# class template for `.cs` paths, `script.validate --path X.cs` compiles with per-file structured diagnostics, and `script.list` recognizes C# classes. *Running* C# scripts in-editor requires a Godot **.NET editor build** plus the dotnet SDK (`swallowtail doctor` checks for it); `editor.run_script` / `runtime.eval` execute GDScript either way, and the introspection layer is language-agnostic.
 
 > **Windows note:** if the editor ever crashes with `ERROR: WASAPI: GetBufferSize`, another app has taken *exclusive* control of your audio device (Chrome on resume is a common culprit). Turn off exclusive mode in Windows Sound settings (Device properties → Advanced → uncheck "Allow applications to take exclusive control"). It's an OS/audio issue, not this addon. (`--audio-driver Dummy` also sidesteps it if needed.)
 
 ## Build
 
 ```sh
-task build          # -> bin/godot-mcp(.exe)
+task build          # -> bin/swallowtail(.exe)
 # or:
-go build -o bin/godot-mcp ./cmd/godot-mcp
+go build -o bin/swallowtail ./cmd/swallowtail
 ```
 
 ## Install into a project
@@ -170,21 +198,22 @@ go build -o bin/godot-mcp ./cmd/godot-mcp
 From an unpacked release bundle, install the addon (and the agent skill) into any Godot project in one step:
 
 ```sh
-godot-mcp install --project /path/to/your/project --enable
+swallowtail install --project /path/to/your/project --enable
 ```
 
 Starting from nothing? Bootstrap a fresh Godot 4.7 project and wire the addon in one command:
 
 ```sh
-godot-mcp create --path ./mygame --install --enable
+swallowtail create --path ./mygame --install --enable
 ```
 
-Copies `addons/godot_mcp/` and `.claude/skills/godot-mcp/` in and enables the plugin in `project.godot`. See [INSTALL.md](INSTALL.md) for flags and the manual alternative.
+Copies `addons/swallowtail/` and `.claude/skills/swallowtail/` in and enables the plugin in `project.godot`. See [INSTALL.md](INSTALL.md) for flags and the manual alternative.
 
 > [!WARNING]
-> **`install --enable` was broken in 0.6.0 through 0.8.2.** On those versions the installer enabled the plugin without writing the two game-side autoloads, so every `runtime.*` and `input.*` command failed on a fresh install while the editor-side commands worked. If a project was installed by an affected version, toggle the plugin off and back on in **Project Settings > Plugins**, which injects the pair; `godot-mcp doctor` reports the missing entries and the repair command. Current builds write them at install time.
+> **`install --enable` was broken in 0.6.0 through 0.8.2.** On those versions the installer enabled the plugin without writing the two game-side autoloads, so every `runtime.*` and `input.*` command failed on a fresh install while the editor-side commands worked. If a project was installed by an affected version, toggle the plugin off and back on in **Project Settings > Plugins**, which injects the pair; `swallowtail doctor` reports the missing entries and the repair command. Current builds write them at install time.
 
-> **Before you ship:** the addon is development tooling. Disable the plugin and add `addons/godot_mcp/*` to every export preset's exclude filter so it never rides into an exported game. [INSTALL.md](INSTALL.md#before-you-ship) has the two steps; the [Shipping and export guide](https://regiellis.github.io/godot-mcp-go/docs/guides/shipping-export) covers verifying a build.
+> [!CAUTION]
+> **Before you ship:** the addon is development tooling. Disable the plugin and add `addons/swallowtail/*` to every export preset's exclude filter so it never rides into an exported game. [Before you ship](https://regiellis.github.io/godot-mcp-go/docs/before-you-ship) has the two steps and the scan that proves they worked; [INSTALL.md](INSTALL.md#before-you-ship) carries the same steps offline.
 
 ## Quick start
 
@@ -192,14 +221,14 @@ Copies `addons/godot_mcp/` and `.claude/skills/godot-mcp/` in and enables the pl
    ```sh
    task editor          # godot --path project --editor
    ```
-   From an installed CLI, `godot-mcp launch` opens one editor for the project it is run in, refuses to stack a second on a running one, and logs the editor's output to `.godot/godot-mcp-launch.log` rather than the terminal. Add `--headless` for a windowless session.
-   Ensure the **Godot MCP/CLI** plugin is enabled (Project → Project Settings → Plugins). The addon prints `[MCP] Server listening on ws://127.0.0.1:9080`.
+   From an installed CLI, `swallowtail launch` opens one editor for the project it is run in, refuses to stack a second on a running one, and logs the editor's output to `.godot/swallowtail-launch.log` rather than the terminal. Add `--headless` for a windowless session.
+   Ensure the **Swallowtail** plugin is enabled (Project → Project Settings → Plugins). The addon prints `[MCP] Server listening on ws://127.0.0.1:9080`.
 2. From inside the project directory, drive it:
    ```sh
-   godot-mcp project info
-   godot-mcp scene tree
-   godot-mcp node add --type Sprite2D --name Player --parent-path .
-   godot-mcp node set --node-path Player --property position --value "Vector2(100, 200)"
+   swallowtail project info
+   swallowtail scene tree
+   swallowtail node add --type Sprite2D --name Player --parent-path .
+   swallowtail node set --node-path Player --property position --value "Vector2(100, 200)"
    ```
 
 ### Discover, then drive
@@ -207,10 +236,10 @@ Copies `addons/godot_mcp/` and `.claude/skills/godot-mcp/` in and enables the pl
 Because the CLI talks to the *live* engine, you can ask it what your engine build actually supports instead of guessing:
 
 ```sh
-godot-mcp engine search --query offset_transform          # find members across all classes
-godot-mcp engine class-info --class Control --filter transform
-godot-mcp engine doc-search --query "wrap text"           # search the docs prose by concept
-godot-mcp engine docs --class Label --member autowrap_mode  # read what it means
+swallowtail engine search --query offset_transform          # find members across all classes
+swallowtail engine class-info --class Control --filter transform
+swallowtail engine doc-search --query "wrap text"           # search the docs prose by concept
+swallowtail engine docs --class Label --member autowrap_mode  # read what it means
 ```
 
 Even with no typed wrapper, `node.set`/`node.get` work on any property the live node exposes, and `editor.run_script` / `runtime.eval` run arbitrary GDScript, so any property or callable the running build exposes is reachable, whatever its version.
@@ -218,71 +247,71 @@ Even with no typed wrapper, `node.set`/`node.get` work on any property the live 
 ### Playtest loop
 
 ```sh
-godot-mcp scene play --mode main
-godot-mcp runtime tree
-godot-mcp input action --action ui_accept --pressed true
-godot-mcp runtime get --node-path Player --properties '["position"]'
-godot-mcp runtime screenshot --save-path user://shot.png
-godot-mcp scene stop
+swallowtail scene play --mode main
+swallowtail runtime tree
+swallowtail input action --action ui_accept --pressed true
+swallowtail runtime get --node-path Player --properties '["position"]'
+swallowtail runtime screenshot --save-path user://shot.png
+swallowtail scene stop
 ```
 
 ## Use as an MCP server
 
-`godot-mcp serve` runs as a [Model Context Protocol](https://modelcontextprotocol.io) server over stdio, so MCP clients (Claude Desktop, Claude Code, …) can drive Godot directly. By default every command is a **typed MCP tool** with a real schema built live from the addon's param docs; `godot_run` remains the generic escape hatch (`{ "method": "<group>.<command>", "params": {...} }`, the same surface as the CLI), and `serve --typed=false` keeps tool-limited clients on that single tool. `godot_run` and the typed `runtime_*`/`input_*` tools accept `game: true` to drive a standalone debug-build game with **no editor open**. The model discovers the running engine's API with `engine.search`/`engine.class_info` and then acts.
+`swallowtail serve` runs as a [Model Context Protocol](https://modelcontextprotocol.io) server over stdio, so MCP clients (Claude Desktop, Claude Code, …) can drive Godot directly. By default every command is a **typed MCP tool** with a real schema built live from the addon's param docs; `godot_run` remains the generic escape hatch (`{ "method": "<group>.<command>", "params": {...} }`, the same surface as the CLI), and `serve --typed=false` keeps tool-limited clients on that single tool. `godot_run` and the typed `runtime_*`/`input_*` tools accept `game: true` to drive a standalone debug-build game with **no editor open**. The model discovers the running engine's API with `engine.search`/`engine.class_info` and then acts.
 
 Example client config:
 
 ```json
 {
   "mcpServers": {
-    "godot-mcp": {
-      "command": "godot-mcp",
+    "swallowtail": {
+      "command": "swallowtail",
       "args": ["serve", "--project", "/path/to/your/project"]
     }
   }
 }
 ```
 
-The Godot editor must be open with the plugin enabled (as for the CLI). `--project` sets where the server discovers the addon port.
+`--project` sets where the server discovers the addon port. If the editor is down when the client connects, `serve` starts with the generic `godot_run` tool alone and adds the typed tools once the editor answers. To drive an editor on another machine, forward its loopback port over SSH; [Reach an editor on another machine](https://regiellis.github.io/godot-mcp-go/docs/mcp-setup#reach-an-editor-on-another-machine) has the commands for Windows, Linux and macOS.
 
 `serve` also ships **MCP prompts**: the durable playbooks (`discover-then-drive`, `spatial-placement`, `launch-recovery`, `bug-hunt`) as first-class prompts your client can pull with `prompts/get`, served even when the editor is down. Those sit alongside the read-only `godot://` resources and the `instructions` string every connect carries.
 
 ### Or connect straight to the editor (no binary)
 
-The addon itself hosts a **streamable-HTTP MCP endpoint** inside the editor at `POST /mcp` on `127.0.0.1`, auto-port **9100-9115** (the actual port is in `<project>/.godot/godot-mcp.json` as `http_port`; pin one with the `godot_mcp/network/http_port` project setting or `GODOT_MCP_HTTP_PORT`). Any MCP client that speaks streamable HTTP connects with no external process:
+The addon itself hosts a **streamable-HTTP MCP endpoint** inside the editor at `POST /mcp` on `127.0.0.1`, auto-port **9100-9115** (the actual port is in `<project>/.godot/swallowtail.json` as `http_port`; pin one with the `swallowtail/network/http_port` project setting or `SWALLOWTAIL_HTTP_PORT`). Any MCP client that speaks streamable HTTP connects with no external process:
 
 ```json
 {
   "mcpServers": {
-    "godot-mcp": {
+    "swallowtail": {
       "url": "http://127.0.0.1:9100/mcp"
     }
   }
 }
 ```
 
-Same tool surface as `serve` (the generic `godot_run` plus typed per-command tools), same guards. Set `godot_mcp/network/http_typed` to `false` in Project Settings to list only `godot_run` for tool-limited clients, or `godot_mcp/network/mcp_http` to `false` to turn the endpoint off.
+Same tool surface as `serve` (the generic `godot_run` plus typed per-command tools), same guards. Set `swallowtail/network/http_typed` to `false` in Project Settings to list only `godot_run` for tool-limited clients, or `swallowtail/network/mcp_http` to `false` to turn the endpoint off.
 
 ## Live dashboard (opt-in)
 
-`godot-mcp dashboard` starts a small web UI that shows live activity across every client on the wire: the CLI, `serve`/MCP, the editor's HTTP endpoint, and anything else you have connected. It reports tool calls, error rate, per-group breakdown, active connections, uptime, and a recent-activity feed. The page (htmx + anime.js) and its assets are embedded in the binary; no Node/build step.
+`swallowtail dashboard` starts a small web UI that shows live activity across every client on the wire: the CLI, `serve`/MCP, the editor's HTTP endpoint, and anything else you have connected. It reports tool calls, error rate, per-group breakdown, active connections, uptime, and a recent-activity feed. The page (htmx + anime.js) and its assets are embedded in the binary; no Node/build step.
 
 ```sh
-godot-mcp dashboard --port 8090     # then open http://127.0.0.1:8090
+swallowtail dashboard --port 8090     # then open http://127.0.0.1:8090
 ```
 
 Run it from inside your project dir (it discovers the addon port like the CLI), or pass `--project DIR` / `--addon-port N`. It holds a single persistent connection and polls the addon's `stats.snapshot`.
 
-The same dashboard also lives **inside the editor**: the addon docks an **MCP panel** (right side, movable like any dock) with the same numbers: stat tiles, error banner, top groups, recent errors, and the live timeline with filters. It reads them in-process from the addon, so it needs no extra process and no port. The web UI stays for watching from outside the editor; the dock is there while you work.
+The same dashboard also lives **inside the editor**: the addon docks a **Swallowtail panel** (right side, movable like any dock) with the same numbers: stat tiles, error banner, top groups, recent errors, and the live timeline with filters. It reads them in-process from the addon, so it needs no extra process and no port. The web UI stays for watching from outside the editor; the dock is there while you work.
 
 ## Build on it
 
-The CLI is built to be scripted. The contract: piped results on stdout as JSON (`--format tsv|ndjson` for shell tools, `GODOT_MCP_FORMAT` to pin one per shell; a terminal gets color-coded tables instead, never a pipe), errors on stderr with JSON-RPC codes, exit codes `0`/`1`/`2`, port discovery from the project directory, and `doctor`/`status` as scriptable preflights. The editor-less subcommands are built for the same contract: `import`, `check`, `export`, and `run` exit with a code CI can branch on and return structured errors rather than a log to grep. The catalog itself is queryable JSON, and `engine commands --docs` returns every command with typed params, so generators and UIs read the command list instead of hardcoding one. Underneath it all is a stable JSON-RPC-over-WebSocket wire that any language can speak: a Python script, a browser panel, a QA rig driving a standalone game via `--game`.
+The CLI is built to be scripted. The contract: piped results on stdout as JSON (`--format tsv|ndjson` for shell tools, `SWALLOWTAIL_FORMAT` to pin one per shell; a terminal gets color-coded tables instead, never a pipe), errors on stderr with JSON-RPC codes, exit codes `0`/`1`/`2`, port discovery from the project directory, and `doctor`/`status` as scriptable preflights. The editor-less subcommands are built for the same contract: `import`, `check`, `export`, and `run` exit with a code CI can branch on and return structured errors rather than a log to grep. The catalog itself is queryable JSON, and `engine commands --docs` returns every command with typed params, so generators and UIs read the command list instead of hardcoding one. Underneath it all is a stable JSON-RPC-over-WebSocket wire that any language can speak: a Python script, a browser panel, a QA rig driving a standalone game via `--game`.
 
 ```bash
 # hide every Label in the edited scene
-godot-mcp batch find-nodes-by-type --type Label | jq -r '.matches[].path' \
-  | while read -r p; do godot-mcp node set --node-path "$p" --property visible --value false; done
+swallowtail batch find-nodes-by-type --type Label | jq -r '.matches[].path' \
+  | while read -r p; do swallowtail node set --node-path "$p" --property visible --value false; done
 ```
 
 Worked examples (a CI smoke test, a Python client, a working browser panel): [Scripting and CI](https://regiellis.github.io/godot-mcp-go/docs/automation/) · [Your own tools and UIs](https://regiellis.github.io/godot-mcp-go/docs/building-on-top/).
@@ -291,24 +320,24 @@ Worked examples (a CI smoke test, a Python client, a working browser panel): [Sc
 
 `analysis` `android` `anim_tree` `animation` `audio` `authoring` `batch` `camera` `cleanup` `csg` `csharp` `doc` `editor` `engine` `export` `fs` `gridmap` `import` `input` `input_map` `lighting` `localization` `material` `mesh` `multiplayer` `navigation` `node` `particles` `path` `pcg` `physics` `profiling` `project` `resource` `runtime` `scatter` `scene` `scene2d` `scene3d` `script` `shader` `skeleton` `spatial` `test` `theme` `tilemap` `ui` `wfc`
 
-Invocation is `godot-mcp <group> <command> [--flag value ...]`. Names accept kebab- or snake-case; values that start with `[`/`{` are parsed as JSON. On error the CLI prints the JSON-RPC code, message, and any suggestions to stderr. Explore the catalog from the CLI itself: `godot-mcp help all` lists every group's commands, `godot-mcp <group> --help` narrows to one group, and `godot-mcp <group> <command> --help` prints that command's param table.
+Invocation is `swallowtail <group> <command> [--flag value ...]`. Names accept kebab- or snake-case; values that start with `[`/`{` are parsed as JSON. On error the CLI prints the JSON-RPC code, message, and any suggestions to stderr. Explore the catalog from the CLI itself: `swallowtail help all` lists every group's commands, `swallowtail <group> --help` narrows to one group, and `swallowtail <group> <command> --help` prints that command's param table.
 
 ## Agent skill
 
-`skills/godot-mcp/SKILL.md` is a Claude Code skill that teaches an agent to use the CLI well: the discover-then-drive loop, Godot's node/scene composition style, the command groups, core workflows, and pitfalls. Drop it into a project's `.claude/skills/` so an agent starts with the loop, the groups, and the pitfalls already loaded.
+`skills/swallowtail/SKILL.md` is a Claude Code skill that teaches an agent to use the CLI well: the discover-then-drive loop, Godot's node/scene composition style, the command groups, core workflows, and pitfalls. Drop it into a project's `.claude/skills/` so an agent starts with the loop, the groups, and the pitfalls already loaded.
 
 ## Layout
 
 ```
-cmd/godot-mcp/                 Go CLI entry
+cmd/swallowtail/                 Go CLI entry
 internal/{protocol,client}/    JSON-RPC envelope + WebSocket client/discovery
 project/                       Godot 4.7 test project (run with godot)
-project/addons/godot_mcp/      the GDScript addon (commands/, services/, utils/)
-skills/godot-mcp/SKILL.md      the agent skill
+project/addons/swallowtail/      the GDScript addon (commands/, services/, utils/)
+skills/swallowtail/SKILL.md      the agent skill
 Taskfile.yml                   dev tasks (run `task` to list)
 ```
 
-Command implementations live in `project/addons/godot_mcp/commands/` (each group a `*_commands.gd`), registered in `command_router.gd`; add a command by registering a handler there. The `services/` autoloads broker the running-game IPC.
+Command implementations live in `project/addons/swallowtail/commands/` (each group a `*_commands.gd`), registered in `command_router.gd`; add a command by registering a handler there. The `services/` autoloads broker the running-game IPC.
 
 ## License
 
