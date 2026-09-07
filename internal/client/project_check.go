@@ -15,7 +15,7 @@ import (
 //
 // This is the failure the check exists for: port discovery falls back to the
 // default port when the caller's project has no discovery file, so whichever
-// godot-mcp editor happens to be running answers. Every write then lands in that
+// swallowtail editor happens to be running answers. Every write then lands in that
 // project, silently and successfully, which once cost a whole debugging session
 // chasing settings that "wouldn't persist". They persisted, in another project.
 type ProjectMismatch struct {

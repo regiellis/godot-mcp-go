@@ -3,6 +3,10 @@ title: Installation
 description: Add the addon to an existing project, bootstrap a new one, or build from source.
 ---
 
+<Callout type="caution" title="Development tooling only">
+  Nothing here belongs in a shipped game. Read [Before you ship](/docs/before-you-ship) before your first export: disable the plugin, exclude `addons/swallowtail/*` in every preset, and scan the pck.
+</Callout>
+
 ## Requirements
 
 - **Godot 4.7**, the version this is developed and released against. **4.3 through 4.8** work in beta.
@@ -11,7 +15,7 @@ description: Add the addon to an existing project, bootstrap a new one, or build
 <Callout type="important" title="4.7 is the target, 4.3 is the floor and it is beta">
   The addon loads and serves on Godot 4.3 through 4.8. Registration is per group, so an engine that cannot compile a group skips it and lists the file under `unavailable_groups` in `engine.commands` rather than the plugin failing whole. Six APIs newer than 4.3 refuse with the version they need: `scene close` needs 4.5, and below 4.7 every close needs `--discard` because the editor cannot report which tabs hold unsaved work; `csg bake` and the AGX tonemap need 4.4; runtime error capture needs 4.5, below which `runtime errors` answers `capture: "unavailable"` rather than an empty list. The 3.x line is out of scope: run Godot's own `--convert-3to4` first.
 
-  **Builds this release was run against:** the official **4.3.0**, **4.4**, **4.5**, and **4.6** stables, one headless editor per version, each registering all 330 commands with `unavailable_groups` absent and the game IPC answering; `4.7.1-rc` (`d6096250e`) and `4.7.2-rc` (`36a04fe52`); and a `4.8-dev` build from `master` (`eda2a482e`, after dev 2). On 4.8 the addon runs unmodified, with every command of that build registering and no parse or compile errors, and `engine.search` picks up 4.8's `FuzzySearch` automatically. Note that 4.8 writes a `unique_id` attribute into saved scenes which 4.7 does not, so a project saved by 4.8 is not round-trip clean back to 4.7. That is an engine format change, not an addon one.
+  **Builds this release was run against:** the official **4.3.0**, **4.4**, **4.5**, and **4.6** stables, one headless editor per version, each registering all 330 commands with `unavailable_groups` absent and the game IPC answering; `4.7.1-rc` (`d6096250e`) and `4.7.2-rc` (`36a04fe52`); and a `4.8-dev` build from `master` (`eda2a482e`, after dev 2). On 4.8 the addon runs unmodified, with every command of that build registering and no parse or compile errors, and `engine.search` picks up 4.8's `FuzzySearch` automatically. Scene serialization can differ between engine builds. Keep a version-control checkpoint before moving a project to another engine version.
 
   Moving a project between versions has its own guide: [Porting between Godot versions](/docs/guides/porting-godot-versions).
 </Callout>
@@ -20,26 +24,30 @@ description: Add the addon to an existing project, bootstrap a new one, or build
   C# projects are supported: `csharp.setup` scaffolds the solution, `script.create` authors C# templates, and `csharp.build` / `script.validate` compile with structured diagnostics. It needs a **Godot .NET editor build** and the **.NET SDK**. See [C# projects](/docs/csharp).
 </Callout>
 
+Download and unpack the bundle for your OS and CPU from the [releases page](https://github.com/regiellis/godot-mcp-go/releases). Add the directory containing the CLI to PATH, keeping its `addons/` directory beside it. On Windows the binary is `swallowtail.exe`. Go is only needed to build from source. No agent or MCP configuration is required.
+
 ## Into an existing project
 
-From an unpacked release bundle, install the addon (and the agent skill) into any Godot project in one step:
+From an unpacked release bundle, install the addon into any Godot project:
 
 ```bash
-godot-mcp install --project /path/to/your/project --enable
+swallowtail install --project /path/to/your/project --enable --skill=false
 ```
 
-This copies `addons/godot_mcp/` and `.claude/skills/godot-mcp/` in and enables the plugin in `project.godot`, including the two game-side autoloads the `runtime` and `input` groups need. Enabling from the editor's plugin checkbox injects the same pair, so nothing needs pre-committing either way.
+This copies `addons/swallowtail/` and enables the plugin in `project.godot`, including the two game-side autoloads the `runtime` and `input` groups need. Enabling from the editor's plugin checkbox injects the same pair, so nothing needs pre-committing either way.
 
 <Callout type="warning" title="A broken install path in 0.6.0 through 0.8.2">
-  On those versions, `install --enable` turned the plugin on without writing the game-side autoloads (`MCPGameInspector`, `MCPGameInput`), so every `runtime.*` and `input.*` command failed on a fresh install while the editor-side commands worked. If a project was installed by an affected version, toggle the plugin off and back on in **Project Settings > Plugins**, which injects the pair. `godot-mcp doctor` reports the missing entries and the repair command.
+  On those versions, `install --enable` turned the plugin on without writing the game-side autoloads (`MCPGameInspector`, `MCPGameInput`), so every `runtime.*` and `input.*` command failed on a fresh install while the editor-side commands worked. If a project was installed by an affected version, toggle the plugin off and back on in **Project Settings > Plugins**, which injects the pair. `swallowtail doctor` reports the missing entries and the repair command.
 </Callout>
+
+Omit `--skill=false` to also install the optional agent skill. The [terminal quickstart](/docs/quickstart) builds and plays a scene from an empty project.
 
 ## Bootstrap a new project
 
 Starting from nothing? Create a fresh Godot 4.7 project and wire the addon in one command:
 
 ```bash
-godot-mcp create --path ./mygame --install --enable
+swallowtail create --path ./mygame --install --enable
 ```
 
 Writes a `project.godot` (config version 5, 4.7 feature tag), an original placeholder `icon.svg`, and a `.gitignore`. It never overwrites an existing `project.godot`.
@@ -47,49 +55,36 @@ Writes a `project.godot` (config version 5, 4.7 feature tag), an original placeh
 ## Build the CLI from source
 
 ```bash
-go build -o bin/godot-mcp ./cmd/godot-mcp
+go build -o bin/swallowtail ./cmd/swallowtail
 # or, with Task installed:
-task build          # -> bin/godot-mcp(.exe)
+task build          # -> bin/swallowtail(.exe)
 ```
 
 ## Pin the MCP port (per project)
 
-The addon binds the first free port in **9080-9095** and writes it to `.godot/godot-mcp.json`, so the CLI auto-discovers it and you rarely think about ports. Running **two projects at once**, pin each to a distinct port so they never contend: **Project → Project Settings → Godot Mcp → Network → Port** (turn on *Advanced Settings* to see it). Set an explicit port; `0`, the default, means auto-pick.
+The addon binds the first free port in **9080-9095** and writes it to `.godot/swallowtail.json`, so the CLI auto-discovers it and you rarely think about ports. Running **two projects at once**, pin each to a distinct port so they never contend: **Project → Project Settings → Swallowtail → Network → Port** (turn on *Advanced Settings* to see it). Set an explicit port; `0`, the default, means auto-pick.
 
-The value is saved in that project's `project.godot`, so two concurrent projects listen deterministically on their own ports. `GODOT_MCP_PORT` in the environment still overrides everything, and the default `0` is never written to `project.godot`, so leaving the setting alone keeps the file clean.
+The value is saved in that project's `project.godot`, so two concurrent projects listen deterministically on their own ports. `SWALLOWTAIL_PORT` in the environment still overrides everything, and the default `0` is never written to `project.godot`, so leaving the setting alone keeps the file clean.
 
 ## Bundled greybox assets (optional)
 
 Copy the bundled CC0 asset packs into a project for prototyping:
 
 ```bash
-godot-mcp install-assets --list
-godot-mcp install-assets --pack kenney_prototype_textures
+swallowtail install-assets --list
+swallowtail install-assets --pack kenney_prototype_textures
 ```
 
 ## Before you ship
 
-The addon is development tooling and must not ride into an exported game: it is a command server with an arbitrary-eval surface, and its two game-side autoloads poll IPC files every frame, release builds included. Two steps keep it out:
-
-1. **Disable the plugin before exporting** (Project → Project Settings → Plugins). Disabling removes the two injected autoloads (`MCPGameInspector`, `MCPGameInput`) from `project.godot`; re-enabling puts them back, so the toggle costs nothing per release.
-2. **Exclude the addon files in every export preset.** In the Export window, Resources tab, add to *Filters to exclude files/folders*:
-
-   ```
-   addons/godot_mcp/*
-   ```
-
-   Add `mcp_commands/*` too if the project defines [project-local commands](/docs/extending). The default "Export all resources" mode ships unreferenced scripts, so the filter matters even with the plugin disabled.
-
-<Callout type="warning" title="Verify the build">
-  String-scan the exported `.pck`: it should contain no `godot_mcp` or `MCPGame` matches. The [Shipping and export guide](/docs/guides/shipping-export) covers the receipt scan and the rest of the release pipeline.
-</Callout>
+The addon must not ride into an exported game. [Before you ship](/docs/before-you-ship) has the two steps and the pck scan that proves they worked.
 
 ## Troubleshooting
 
 If the CLI can't connect, run the environment preflight:
 
 ```bash
-godot-mcp doctor
+swallowtail doctor
 ```
 
 It checks the godot binary and version, that the project resolves, whether the addon is installed and enabled, the effective port source (env, per-project pin, or auto), whether an editor is actually reachable, and the .NET SDK on C# projects. Pass `--project DIR` to target a specific project, or `--json` for machine-readable output. It exits non-zero only when a check fails; a warning (no editor running yet, say) doesn't fail the run, so `doctor` is safe to run before you've launched anything.

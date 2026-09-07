@@ -5,20 +5,20 @@ description: "The CLI's automation contract in bash and PowerShell: exit codes, 
 
 The CLI is built to live inside scripts: results go to stdout, errors go to stderr as the JSON-RPC code and message, and exit codes follow one contract: `0` success, `1` command or connection error, `2` usage error. Everything on this page is composition on top of that.
 
-Single commands are identical in every shell. `godot-mcp project info` pastes into bash, PowerShell, or cmd unchanged. The tabs below appear where pipelines diverge; PowerShell examples use its native object pipeline (`ConvertFrom-Json`) rather than transliterated bash.
+Single commands are identical in every shell. `swallowtail project info` pastes into bash, PowerShell, or cmd unchanged. The tabs below appear where pipelines diverge; PowerShell examples use its native object pipeline (`ConvertFrom-Json`) rather than transliterated bash.
 
 ## Machine output
 
-Piped output is pretty-printed JSON. The CLI detects the pipe and never emits color or table layout there, so a script has nothing to strip. (On a terminal, results render as tables and key/value boxes instead; `--format json` pins exact JSON anywhere.) `--format tsv` (global flags precede the group) re-renders a result for text tools: an object becomes `key<TAB>value` rows, an array of objects becomes a header row plus one row per element, and nested values stay as compact JSON. `--format ndjson` emits one compact JSON value per line when the result is a top-level array, and the whole result on a single line otherwise (most commands wrap arrays in an object, so expect one line there). Unlike TSV, nesting survives intact. The `GODOT_MCP_FORMAT` environment variable pins a format for a whole shell or CI job; the flag always wins, and an unrecognized value warns and falls back to the default.
+Piped output is pretty-printed JSON. The CLI detects the pipe and never emits color or table layout there, so a script has nothing to strip. (On a terminal, results render as tables and key/value boxes instead; `--format json` pins exact JSON anywhere.) `--format tsv` (global flags precede the group) re-renders a result for text tools: an object becomes `key<TAB>value` rows, an array of objects becomes a header row plus one row per element, and nested values stay as compact JSON. `--format ndjson` emits one compact JSON value per line when the result is a top-level array, and the whole result on a single line otherwise (most commands wrap arrays in an object, so expect one line there). Unlike TSV, nesting survives intact. The `SWALLOWTAIL_FORMAT` environment variable pins a format for a whole shell or CI job; the flag always wins, and an unrecognized value warns and falls back to the default.
 
 <ShellTabs>
 
 <Fragment slot="bash">
 
 ```bash
-godot-mcp engine commands --group node | jq -r '.methods[]'
+swallowtail engine commands --group node | jq -r '.methods[]'
 
-godot-mcp --format tsv project info | awk -F'\t' '$1 == "main_scene" { print $2 }'
+swallowtail --format tsv project info | awk -F'\t' '$1 == "main_scene" { print $2 }'
 ```
 
 </Fragment>
@@ -26,10 +26,10 @@ godot-mcp --format tsv project info | awk -F'\t' '$1 == "main_scene" { print $2 
 <Fragment slot="ps">
 
 ```powershell
-(godot-mcp engine commands --group node | ConvertFrom-Json).methods
+(swallowtail engine commands --group node | ConvertFrom-Json).methods
 
 # PowerShell parses JSON natively, so TSV is rarely needed:
-(godot-mcp project info | ConvertFrom-Json).main_scene
+(swallowtail project info | ConvertFrom-Json).main_scene
 ```
 
 </Fragment>
@@ -45,10 +45,10 @@ Queries compose with actions. `batch find-nodes-by-type` returns paths that feed
 <Fragment slot="bash">
 
 ```bash
-godot-mcp batch find-nodes-by-type --type Label \
+swallowtail batch find-nodes-by-type --type Label \
   | jq -r '.matches[].path' \
   | while read -r p; do
-      godot-mcp node set --node-path "$p" --property visible --value false
+      swallowtail node set --node-path "$p" --property visible --value false
     done
 ```
 
@@ -57,8 +57,8 @@ godot-mcp batch find-nodes-by-type --type Label \
 <Fragment slot="ps">
 
 ```powershell
-(godot-mcp batch find-nodes-by-type --type Label | ConvertFrom-Json).matches.path |
-  ForEach-Object { godot-mcp node set --node-path $_ --property visible --value false }
+(swallowtail batch find-nodes-by-type --type Label | ConvertFrom-Json).matches.path |
+  ForEach-Object { swallowtail node set --node-path $_ --property visible --value false }
 ```
 
 </Fragment>
@@ -67,17 +67,17 @@ godot-mcp batch find-nodes-by-type --type Label \
 
 ## Preflight, then launch
 
-`godot-mcp doctor` checks the environment (godot binary, project, addon install state, port config, dotnet) and exits `1` only on a real failure. "No editor running yet" is a warning, so it is safe to run before you have launched anything. `godot-mcp status` gives the machine-readable liveness verdict (`running` / `starting` / `crashed` / `closed`), and the launch policy follows from it: never start a second editor when one is `running`. `godot-mcp status --all` scans the editor auto range (9080-9095, plus any pinned port) and the game range (9200-9215), then lists every live instance with its port, project, version, and pid. That is the multi-instance view for when two editors are open at once. `godot-mcp launch` applies that policy for you: it starts one editor for the project, waits until it answers, and returns non-zero if it never does.
+`swallowtail doctor` checks the environment (godot binary, project, addon install state, port config, dotnet) and exits `1` only on a real failure. "No editor running yet" is a warning, so it is safe to run before you have launched anything. `swallowtail status` gives the machine-readable liveness verdict (`running` / `starting` / `crashed` / `closed`), and the launch policy follows from it: never start a second editor when one is `running`. `swallowtail status --all` scans the editor auto range (9080-9095, plus any pinned port) and the game range (9200-9215), then lists every live instance with its port, project, version, and pid. That is the multi-instance view for when two editors are open at once. `swallowtail launch` applies that policy for you: it starts one editor for the project, waits until it answers, and returns non-zero if it never does.
 
 ## The cold half: import, check, test, export, run
 
-Five subcommands spawn the engine directly instead of talking to an editor, which is what a CI job needs before an editor exists. Each writes the engine's output to `<project>/.godot/godot-mcp-<name>.log` and returns the exact argv it ran, so a failing step is reproducible by hand.
+Five subcommands spawn the engine directly instead of talking to an editor, which is what a CI job needs before an editor exists. Each writes the engine's output to `<project>/.godot/swallowtail-<name>.log` and returns the exact argv it ran, so a failing step is reproducible by hand.
 
-- `godot-mcp import` builds the `.godot/` import cache a fresh checkout has none of. Run it first. It refuses while an editor is running on the project, because both own that cache; the live-editor form is `import reimport --path res://...`.
-- `godot-mcp check . --jobs 4` parses every `.gd` under the paths you name with `--check-only` and exits `1` with `file:line` per failure. Directories are walked recursively, skipping `.godot/` and `addons/` unless the path you name is itself inside addons.
-- `godot-mcp test` runs the pure-logic tests in `res://test/` cold, with no editor and no scene tree. A test file is any script that extends `RefCounted`, every `test_*` method is a test, and the method takes one argument: a harness carrying `t.ok`, `t.eq`, `t.ne` and `t.fail`. It exits `1` on a failed assertion, on a script error raised inside a test, and on a file that does not parse.
-- `godot-mcp export "<preset>"` runs the headless export, writes to the preset's own `export_path` unless `--out` says otherwise, and reports the file produced, its size, and the engine's parsed errors. **An export that exits 0 having written nothing exits non-zero here**, which is what missing export templates look like.
-- `godot-mcp run [scene] --headless` starts the game standalone with no editor at all. With the `godot_mcp/runtime/direct_server` project setting on, it waits for the game's own channel and reports the port to drive with `godot-mcp --game`.
+- `swallowtail import` builds the `.godot/` import cache a fresh checkout has none of. Run it first. It refuses while an editor is running on the project, because both own that cache; the live-editor form is `import reimport --path res://...`.
+- `swallowtail check . --jobs 4` parses every `.gd` under the paths you name with `--check-only` and exits `1` with `file:line` per failure. Directories are walked recursively, skipping `.godot/` and `addons/` unless the path you name is itself inside addons.
+- `swallowtail test` runs the pure-logic tests in `res://test/` cold, with no editor and no scene tree. A test file is any script that extends `RefCounted`, every `test_*` method is a test, and the method takes one argument: a harness carrying `t.ok`, `t.eq`, `t.ne` and `t.fail`. It exits `1` on a failed assertion, on a script error raised inside a test, and on a file that does not parse.
+- `swallowtail export "<preset>"` runs the headless export, writes to the preset's own `export_path` unless `--out` says otherwise, and reports the file produced, its size, and the engine's parsed errors. **An export that exits 0 having written nothing exits non-zero here**, which is what missing export templates look like.
+- `swallowtail run [scene] --headless` starts the game standalone with no editor at all. With the `swallowtail/runtime/direct_server` project setting on, it waits for the game's own channel and reports the port to drive with `swallowtail --game`.
 
 `export`, `import` and `test` are addon group names as well. A command name after any of them (`export list-presets`, `export info`, `import reimport`, `test report`) still reaches the running editor.
 
@@ -91,22 +91,22 @@ Five subcommands spawn the engine directly instead of talking to an editor, whic
 #!/usr/bin/env bash
 set -euo pipefail
 
-godot-mcp doctor --project . --json > /dev/null      # environment sanity: exit 1 on real problems
-godot-mcp import                                     # build .godot/ on a fresh checkout
-godot-mcp check . --jobs 4                           # parse every .gd; exit 1 on any failure
-godot-mcp test                                       # run res://test/; exit 1 on any failure
+swallowtail doctor --project . --json > /dev/null      # environment sanity: exit 1 on real problems
+swallowtail import                                     # build .godot/ on a fresh checkout
+swallowtail check . --jobs 4                           # parse every .gd; exit 1 on any failure
+swallowtail test                                       # run res://test/; exit 1 on any failure
 
-godot-mcp launch --headless                          # one editor, and never a second
-EDITOR_PID=$(godot-mcp status | jq -r .pid)
+swallowtail launch --headless                          # one editor, and never a second
+EDITOR_PID=$(swallowtail status | jq -r .pid)
 
-godot-mcp project info > /dev/null                   # the editor answers
-godot-mcp scene play --mode main
-godot-mcp runtime eval --code 'emit(get_tree().current_scene.name)' \
+swallowtail project info > /dev/null                   # the editor answers
+swallowtail scene play --mode main
+swallowtail runtime eval --code 'emit(get_tree().current_scene.name)' \
   | jq -e '.output[0] == "Main"'                     # assert against the running game
-godot-mcp scene stop
+swallowtail scene stop
 
 kill $EDITOR_PID                                     # export reads the files on disk, so close first
-godot-mcp export "Windows Desktop"                   # exit 1 if nothing landed
+swallowtail export "Windows Desktop"                   # exit 1 if nothing landed
 ```
 
 </Fragment>
@@ -116,29 +116,29 @@ godot-mcp export "Windows Desktop"                   # exit 1 if nothing landed
 ```powershell
 $ErrorActionPreference = "Stop"
 
-godot-mcp doctor --project . --json | Out-Null       # environment sanity: exit 1 on real problems
+swallowtail doctor --project . --json | Out-Null       # environment sanity: exit 1 on real problems
 if ($LASTEXITCODE) { exit 1 }
-godot-mcp import | Out-Null                          # build .godot/ on a fresh checkout
+swallowtail import | Out-Null                          # build .godot/ on a fresh checkout
 if ($LASTEXITCODE) { exit 1 }
-godot-mcp check . --jobs 4 | Out-Null                # parse every .gd
+swallowtail check . --jobs 4 | Out-Null                # parse every .gd
 if ($LASTEXITCODE) { exit 1 }
-godot-mcp test | Out-Null                            # run res://test/
+swallowtail test | Out-Null                            # run res://test/
 if ($LASTEXITCODE) { exit 1 }
 
-godot-mcp launch --headless | Out-Null               # one editor, and never a second
+swallowtail launch --headless | Out-Null               # one editor, and never a second
 if ($LASTEXITCODE) { exit 1 }
-$editorPid = (godot-mcp status | ConvertFrom-Json).pid
+$editorPid = (swallowtail status | ConvertFrom-Json).pid
 
-godot-mcp project info | Out-Null                    # the editor answers
+swallowtail project info | Out-Null                    # the editor answers
 if ($LASTEXITCODE) { exit 1 }
-godot-mcp scene play --mode main | Out-Null
-$name = (godot-mcp runtime eval --code "emit(get_tree().current_scene.name)" |
+swallowtail scene play --mode main | Out-Null
+$name = (swallowtail runtime eval --code "emit(get_tree().current_scene.name)" |
   ConvertFrom-Json).output[0]
 if ($name -ne "Main") { exit 1 }                     # assert against the running game
-godot-mcp scene stop | Out-Null
+swallowtail scene stop | Out-Null
 
 Stop-Process $editorPid                              # export reads the files on disk, so close first
-godot-mcp export "Windows Desktop" | Out-Null        # exit 1 if nothing landed
+swallowtail export "Windows Desktop" | Out-Null        # exit 1 if nothing landed
 if ($LASTEXITCODE) { exit 1 }
 ```
 
@@ -158,7 +158,7 @@ Every step exits non-zero on failure, so `set -e` (bash) or the explicit `$LASTE
 
 ```bash
 # every node command with its required flags
-godot-mcp engine commands --group node \
+swallowtail engine commands --group node \
   | jq -r '.docs | to_entries[] | .key + "  " + ([.value.params[]? | select(.required) | "--" + .name] | join(" "))'
 ```
 
@@ -168,7 +168,7 @@ godot-mcp engine commands --group node \
 
 ```powershell
 # every node command with its required flags
-$cat = godot-mcp engine commands --group node | ConvertFrom-Json
+$cat = swallowtail engine commands --group node | ConvertFrom-Json
 $cat.docs.PSObject.Properties | ForEach-Object {
   $_.Name + "  " + ((@($_.Value.params) | Where-Object required | ForEach-Object { "--" + $_.name }) -join " ")
 }
@@ -180,8 +180,162 @@ $cat.docs.PSObject.Properties | ForEach-Object {
 
 ## Standalone game rigs
 
-With the direct-to-player channel enabled, a QA rig needs no editor at all: run a debug build, then `godot-mcp --game runtime tree`, `--game runtime eval …`, and `--game input …` drive it directly. See [Playtest loop](/docs/playtest-loop#direct-to-player-channel).
+With the direct-to-player channel enabled, a QA rig needs no editor at all: run a debug build, then `swallowtail --game runtime tree`, `--game runtime eval …`, and `--game input …` drive it directly. See [Playtest loop](/docs/playtest-loop#direct-to-player-channel).
 
 <Callout type="tip">
   Running several projects at once? Pin each project's port in its Project Settings (see [Installation](/docs/installation)). Every CLI call then routes itself by the project directory it runs in.
 </Callout>
+
+## Structured command errors
+
+For editor commands, `--errors json` emits one JSON error object on stderr while
+leaving stdout empty on failure. The envelope is `{ "error": { "kind": "command",
+"message": "...", "data": { "code": -32601 } } }`; RPC data remains available.
+Usage and connection failures use `kind: "usage"` and `kind: "connection"`.
+This option applies to editor-command execution, not local subcommands or help.
+
+```bash
+swallowtail --errors json scene validate --path res://hello.tscn
+```
+
+Default typo errors suggest nearby commands instead of printing the entire catalog.
+Global flags precede the group. If an addon rejects a misplaced `--format`,
+`--port`, or `--timeout`, the error explains the correct location. Addon parameters
+with those names retain their meaning after the command.
+
+### Inspection in a terminal
+
+Pretty scene and runtime trees use branches. Scene and single-script validation
+show a verdict and diagnostic locations. `COLUMNS=40` controls plain-output
+wrapping; long identifiers stay intact so file locations can be copied.
+Use `--format json` for complete structured data in scripts.
+
+## Shell completion and offline help
+
+Generate a completion script once, then source it from your shell profile.
+
+```bash
+swallowtail completion bash > swallowtail-completion.bash
+source ./swallowtail-completion.bash
+```
+
+```powershell
+swallowtail completion powershell | Set-Content -Encoding utf8 swallowtail-completion.ps1
+. ./swallowtail-completion.ps1
+```
+
+Completion suggests local commands, live addon groups and commands, and parameter
+names. It does not complete resource paths or parameter values. Bash completion
+requires Bash 4 or newer; PowerShell completion uses its native argument completer.
+
+Run help from inside a project while its editor is available to save its catalog:
+
+```bash
+swallowtail scene --help
+```
+
+When that editor is unavailable, help can use the saved catalog in the project's
+`.godot/` directory. A timestamped notice identifies cached help. Completion can
+also use this cache. An uncached project still needs a live editor for addon help;
+local command help works without one. Live lookups refresh custom commands after
+an editor restart. Cached documentation never makes an unavailable command executable.
+
+## Select a project from another directory
+
+Use the global `--project` before the group to target a project without changing
+your shell directory:
+
+```bash
+swallowtail --project "/games/My Game" scene tree
+swallowtail --project "/games/My Game" scene --help
+swallowtail --project "/games/My Game" doctor
+```
+
+This uses that project's discovery file. An explicit port that answers for a
+different project is refused before an editor command runs. Local subcommands
+continue to accept their existing `--project` flag after the subcommand; if both
+forms are present, the local flag wins. `create` uses its own `--path` instead.
+Relative input file paths remain relative to your shell directory.
+
+## Read parameters from JSON
+
+For larger property maps or scenarios, save the parameter object in a UTF-8 file.
+For example, `inspect.json` can contain:
+
+```json
+{"node_path":"Greeting","properties":["text","position"]}
+```
+
+```bash
+swallowtail --project "/games/My Game" --params-file inspect.json node get
+cat inspect.json | swallowtail --project "/games/My Game" --params-file - node get
+```
+
+```powershell
+Get-Content -Raw -Encoding utf8 inspect.json | swallowtail --project "C:/games/My Game" --params-file - node get
+```
+
+Inline parameters override matching file keys. Kebab-case keys normalize to
+snake-case; conflicting spellings in the same file are rejected. Input must be
+one JSON object, at most 16 MiB. UTF-8 BOMs are accepted. Arrays, null, malformed
+JSON, and unreadable files fail before contacting the editor. A literal `@` in an
+inline value stays literal. File input is available for editor/game commands,
+not local subcommands or MCP envelopes.
+
+Validation results can report `valid: false` in a successful response: check that
+field when using live validation as an automation gate. The local `check` and
+`test` subcommands already return nonzero when their checks fail.
+
+## Run a command plan
+
+Use `swallowtail automate` to run editor commands in sequence and check their results.
+Save a plan as `plan.json`:
+
+```json
+{
+  "steps": [
+    {"method": "engine.version", "expect": {"/version/major": 4}},
+    {"method": "scene.validate", "expect": {"/valid": true}},
+    {"method": "scene.save"}
+  ]
+}
+```
+
+```bash
+swallowtail automate --project "/games/My Game" --file plan.json --dry-run
+swallowtail automate --project "/games/My Game" --file plan.json --timeout 60s
+```
+
+The runner checks the entire plan's structure and method availability before
+executing its steps. It also confirms that the answering editor serves your
+target project, including when you supply `--port`. Dry run checks structure and
+method availability; it does not validate parameters, scene state, or assertions.
+The editor still validates each command's parameters when that step runs.
+
+Each step accepts `method`, an optional `params` object, and optional `expect`
+assertions. Expectation keys are JSON pointers into the result, such as `/valid`
+or `/nodes/0/name`. Values must match exactly. A missing field fails even when
+the expected value is `null`. An empty pointer checks the whole result.
+
+Output is one JSON report with each step's index, method, duration, result or
+error, and status: `passed`, `failed`, `skipped`, or `validated` for a dry run.
+Exit code 0 means all checks passed, 1 means execution or preflight failed, and
+2 means the input or configuration was invalid. Setup failures go to stderr;
+use the global `--errors json` for structured errors there.
+
+The runner stops on the first failure. `--continue-on-error` allows later steps
+after command or assertion failures; connection loss, timeouts, and cancellation
+always stop execution. Completed changes remain in place. There is no automatic
+retry or rollback. `--timeout` applies to each call, and Ctrl+C cancels the current
+request and stops later steps. Plans accept UTF-8 JSON with an optional BOM,
+up to 4 MiB and 1,000 steps. Use `--file -` to read stdin. Retained results are
+limited to 64 MiB; save large captures to files through their command options.
+
+## Handle an uncertain result
+
+With `--errors json`, transport failures distinguish a connection that could not
+send the request (`outcome: "not_sent"`) from a lost response after delivery was
+attempted (`outcome: "unknown"`). Timeouts and cancellation have their own error
+kinds. A timeout can happen after a mutation has completed, so inspect the scene,
+script, or exported file before repeating that operation. Cooperative commands
+stop at their next cancellation boundary; completed effects remain.

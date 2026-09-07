@@ -8,22 +8,46 @@ The `runtime` and `input` groups reach the **running game**, a separate process 
 ## Play, drive, inspect, stop
 
 ```bash
-godot-mcp scene play --mode main
-godot-mcp runtime tree
-godot-mcp input action --action ui_accept --pressed true
-godot-mcp runtime get --node-path Player --properties '["position", "velocity"]'
-godot-mcp runtime screenshot --save-path user://shot.png
-godot-mcp scene stop
+swallowtail scene play --mode main
+swallowtail runtime tree
+swallowtail input action --action ui_accept --pressed true
+swallowtail runtime get --node-path Player --properties '["position", "velocity"]'
+swallowtail runtime screenshot --save-path user://shot.png
+swallowtail scene stop
 ```
 
 `runtime.screenshot` works even under a headless editor, because the game is a separate windowed process.
+
+## Run a scenario
+
+`test run-scenario` accepts input, wait, assert, and screenshot steps. For an
+already-playing scene with a `Score` label:
+
+```bash
+swallowtail test run-scenario --steps '[{"type":"wait","node_path":"Score","timeout":5},{"type":"assert","node_path":"Score","property":"text","expected":"0"}]'
+```
+
+Use `--scene-path res://levels/arena.tscn` to start a saved scene first. The whole
+plan is checked before playback or input begins. An unknown field, missing
+required value, wrong type, unsupported operator, or invalid numeric bound returns
+`-32602` with the zero-based step index. For example, `partail` in a text assertion
+is rejected even if earlier steps are valid.
+
+`test run-scenario --help` describes the fields. `engine commands --group test`
+returns the seven step alternatives as nested JSON Schema, also exposed through
+both MCP tool lists. Input steps choose either `action` or `keycode`; an action
+press auto-releases unless `auto_release` is `false`. A hold needs a later release.
+
+Inspect `all_passed`, `assertions_failed`, and `errors` in the result. A failed
+assertion is a test result inside a successful transport response. Stdio clients
+can request [progress or cancellation](/docs/mcp-setup#progress-and-cancellation).
 
 ## Wait for a signal
 
 `runtime.await_signal` blocks until a signal fires on a node in the running game and returns its serialized arguments:
 
 ```bash
-godot-mcp runtime await-signal --node-path Player --signal died --timeout 10
+swallowtail runtime await-signal --node-path Player --signal died --timeout 10
 ```
 
 A timeout returns `fired: false` as a **success** payload, so an agent can branch on it rather than treating it as an error.
@@ -33,7 +57,7 @@ A timeout returns `fired: false` as a **success** payload, so an agent can branc
 `runtime.errors` returns structured errors and warnings the running game captured through an `OS.add_logger` hook:
 
 ```bash
-godot-mcp runtime errors --clear
+swallowtail runtime errors --clear
 ```
 
 Each entry is `{ kind, message, code, backtrace[] }` with the real game-script frame in `backtrace[0]`. It is **pull-based**: the agent polls on demand, and runtime errors are unambiguously real.
@@ -47,13 +71,13 @@ Each entry is `{ kind, message, code, backtrace[] }` with the real game-script f
 The `debug` group turns a playtest into a debugging session. Breakpoints are armed through the editor's own script gutter, so they show in the gutter and the Breakpoints list, persist for later runs, and hit a game that is **already running**, with no restart:
 
 ```bash
-godot-mcp debug set-breakpoint --path res://player.gd --line 42
-godot-mcp debug state                          # paused? reason, stack, variables
-godot-mcp debug frame --index 1                # another stack frame's variables
-godot-mcp debug step --mode over               # also: into, out
-godot-mcp debug resume
-godot-mcp debug pause                          # break into a game that is running
-godot-mcp debug clear-breakpoints
+swallowtail debug set-breakpoint --path res://player.gd --line 42
+swallowtail debug state                          # paused? reason, stack, variables
+swallowtail debug frame --index 1                # another stack frame's variables
+swallowtail debug step --mode over               # also: into, out
+swallowtail debug resume
+swallowtail debug pause                          # break into a game that is running
+swallowtail debug clear-breakpoints
 ```
 
 The guardrails do the thinking with you: a line that can never be hit (a blank, a comment, a declaration) is refused with the first executable line suggested instead, and arming a per-frame callback like `_process` comes with a warning, because every resume would re-break immediately.
@@ -61,8 +85,8 @@ The guardrails do the thinking with you: a line that can never be hit (a blank, 
 Edited a script while the game is paused on a bug? Push the fix into the live process:
 
 ```bash
-godot-mcp debug resume
-godot-mcp debug reload-scripts        # every .gd changed since the run started
+swallowtail debug resume
+swallowtail debug reload-scripts        # every .gd changed since the run started
 ```
 
 Every live instance starts running the new code and keeps the state it had. Any run started by `scene play` accepts reloads (it launches with the editor's script-sync options armed); a run launched by hand needs both Synchronize options ticked in the editor's Debug menu.
@@ -73,15 +97,15 @@ Every live instance starts running the new code and keeps the state it had. Any 
 
 ## Direct-to-player channel
 
-Everything above brokers through the open editor. You can also drive a **standalone running game with no editor at all**, which suits QA rigs and packaged dev builds. Enable **Project → Project Settings → Godot Mcp → Runtime → Direct Server**, run a **debug build** of the game, then add the `--game` flag:
+Everything above brokers through the open editor. You can also drive a **standalone running game with no editor at all**, which suits QA rigs and packaged dev builds. Enable **Project → Project Settings → Swallowtail → Runtime → Direct Server**, run a **debug build** of the game, then add the `--game` flag:
 
 ```bash
-godot-mcp --game runtime tree
-godot-mcp --game runtime eval --code "emit(1 + 1)"
-godot-mcp --game input action --action ui_accept --pressed true
+swallowtail --game runtime tree
+swallowtail --game runtime eval --code "emit(1 + 1)"
+swallowtail --game input action --action ui_accept --pressed true
 ```
 
-The game hosts its own `127.0.0.1`-only WebSocket server (ports **9200-9215**, `GODOT_MCP_GAME_PORT` pins one) and writes a discovery file in its `user://` dir, so `--game` finds it automatically from inside the project. The `runtime.*` and `input.*` commands behave identically to the editor-brokered path.
+The game hosts its own `127.0.0.1`-only WebSocket server (ports **9200-9215**, `SWALLOWTAIL_GAME_PORT` pins one) and writes a discovery file in its `user://` dir, so `--game` finds it automatically from inside the project. The `runtime.*` and `input.*` commands behave identically to the editor-brokered path.
 
 <Callout type="important" title="Debug builds only">
   The direct server is hard-gated on `OS.is_debug_build()`, so a release export can never host it even if the setting ships enabled. Over MCP the same channel is reachable: `godot_run` accepts `game: true`, and the typed `runtime_*` / `input_*` tools carry an optional `game` parameter.

@@ -14,14 +14,15 @@ import (
 type Verdict string
 
 const (
-	VerdictRunning  Verdict = "running"  // server accepts connections
-	VerdictStarting Verdict = "starting" // process alive, server not bound yet
-	VerdictCrashed  Verdict = "crashed"  // stale discovery file, process gone
-	VerdictClosed   Verdict = "closed"   // no discovery file: closed cleanly or never started
+	VerdictConfigError Verdict = "configuration_error" // fix settings before probing or launching
+	VerdictRunning     Verdict = "running"             // server accepts connections
+	VerdictStarting    Verdict = "starting"            // process alive, server not bound yet
+	VerdictCrashed     Verdict = "crashed"             // stale discovery file, process gone
+	VerdictClosed      Verdict = "closed"              // no discovery file: closed cleanly or never started
 )
 
 // Status is the result of Diagnose: a machine- and agent-readable verdict plus
-// guidance. It is emitted by `godot-mcp status` and attached to dial failures so
+// guidance. It is emitted by `swallowtail status` and attached to dial failures so
 // the agent can tell a crash from a deliberate close and avoid stacking editors.
 type Status struct {
 	Verdict     Verdict `json:"verdict"`
@@ -48,6 +49,10 @@ func Diagnose(cwd string, flagPort int) Status {
 	// Resolve the port ONCE (flag > env > discovery > default) so the probed port
 	// and the port reported in the verdict never diverge.
 	res := ResolvePortSource(flagPort, cwd)
+	if res.Err != nil {
+		return Status{Verdict: VerdictConfigError, Port: res.Port, PortSource: res.Source,
+			Message: res.Err.Error(), Action: "Correct the port configuration before connecting or launching an editor."}
+	}
 	disc := res.Disc
 
 	reachable := probe(res.Port)
@@ -130,7 +135,7 @@ func classify(disc *Discovery, port int, reachable, alive bool) Status {
 		return Status{
 			Verdict: VerdictClosed, Port: port,
 			Message: "No editor reachable and no discovery file. The editor was closed cleanly or was never started.",
-			Action:  "You may launch ONE editor (godot-mcp launch [--headless], or godot --path <project> --editor) if the task needs it. Never launch a second.",
+			Action:  "You may launch ONE editor (swallowtail launch [--headless], or godot --path <project> --editor) if the task needs it. Never launch a second.",
 		}
 	}
 	if alive {
@@ -143,7 +148,7 @@ func classify(disc *Discovery, port int, reachable, alive bool) Status {
 	return Status{
 		Verdict: VerdictCrashed, Port: port, PID: disc.PID, StartedUnix: disc.StartedUnix,
 		Message: fmt.Sprintf("Editor appears to have crashed: a stale discovery file remains but its process (pid %d) is gone.", disc.PID),
-		Action:  "Tell the user it crashed. You may relaunch ONE editor (godot-mcp launch). Never launch a second.",
+		Action:  "Tell the user it crashed. You may relaunch ONE editor (swallowtail launch). Never launch a second.",
 	}
 }
 

@@ -43,3 +43,6 @@ editor_session/
 
 # Machine-local MCP client config (absolute paths; differs per machine)
 .mcp.json
+
+# Python eval helper bytecode.
+__pycache__/

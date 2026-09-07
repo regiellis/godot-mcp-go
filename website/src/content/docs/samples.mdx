@@ -1,30 +1,40 @@
 ---
 title: Samples
-description: Demos built by an agent driving godot-mcp.
+description: Games and demos built by an agent driving swallowtail, with source you can clone and run.
 ---
 
-These are built by an agent driving godot-mcp end to end: not offline `.tscn` templating, but scenes assembled, scripts written, and gameplay proven by playing it.
+Each sample here was built by an agent driving swallowtail against a live editor: scenes assembled, scripts written, and the result proven by playing it. The source is public, so a claim on this page can be checked against the code.
 
-<Callout type="note">
-  More samples are on the way, from full games down to small single-mechanic demos. Check back, or watch the repository.
-</Callout>
+## Reversi
+
+![The Reversi title screen: the word REVERSI in a heavy display face beside a board playing itself](https://raw.githubusercontent.com/regiellis/godot-reversi/main/media/title.png)
+
+A complete Reversi game for Godot 4.7: boot, splash, intro, title, setup, match, pause, settings, how to play, credits and result, wired through one `Stage` autoload. Thirty GDScript files and eleven scenes. There are no sprites; the board, discs, buttons, sliders and transitions are drawn in `_draw()` from polygons and text against a 2560 by 1440 design box, so nothing goes soft at another resolution. The rules live in one `RefCounted` with no engine dependency past `Vector2i`, and the opponent plays at three depths, the deepest an alpha-beta search under a 60 ms budget.
+
+The README records the brief it was built from, the tool's own limits met along the way, and the asset licences.
+
+<CardGrid>
+  <Card title="Play it in the browser" icon="gamepad" href="https://regiellis.github.io/godot-reversi/">
+    The web export, deployed from the sample's own repository.
+  </Card>
+  <Card title="Read the source" icon="github" href="https://github.com/regiellis/godot-reversi">
+    Clone it, open it in Godot 4.7, and run it. MIT licensed.
+  </Card>
+</CardGrid>
 
 ## Demos
 
-Focused, single-idea builds that double as living proof and as tutorials:
+Smaller builds that each prove one idea. They live in the main repository under `samples/`, ready to open with `godot --path .`:
 
 <CardGrid>
-  <Card title="2D platformer" icon="gamepad">
-    Component actor, coyote time and jump buffering, a tilemap level.
+  <Card title="Lighthouse demo" icon="box" href="https://github.com/regiellis/godot-mcp-go/tree/main/samples/lighthouse-demo">
+    A stylized water surface with a lighthouse and a free-flying camera.
   </Card>
-  <Card title="3D character controller" icon="box">
-    Gravity, basis-relative heading, and jump, driven and verified live.
-  </Card>
-  <Card title="Shader / VFX kit" icon="zap">
-    A 2D visual-effects kit with a programmatic shader compile-verify loop.
+  <Card title="Ghibli meadow" icon="layers" href="https://github.com/regiellis/godot-mcp-go/tree/main/samples/ghibli-meadow">
+    A stylized grass field with controllable wind and a free-flying camera.
   </Card>
 </CardGrid>
 
 ## Build your own
 
-Every sample here follows the same loop the docs teach: [discover the API](/docs/discover-then-drive), drive the editor, and [prove it by playing](/docs/playtest-loop). Start from the [Quickstart](/docs/quickstart).
+Every sample follows the loop the docs teach: [discover the API](/docs/discover-then-drive), drive the editor, and [prove it by playing](/docs/playtest-loop). Start from the [Quickstart](/docs/quickstart).

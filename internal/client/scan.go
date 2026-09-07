@@ -3,14 +3,13 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"os"
 	"slices"
 	"strconv"
 	"sync"
 	"time"
 )
 
-// EditorInstance is one live godot-mcp editor server found by ScanInstances,
+// EditorInstance is one live swallowtail editor server found by ScanInstances,
 // identified by asking it project.info. PID comes from that project's own
 // discovery file, so it is present only when the file agrees on the port.
 type EditorInstance struct {
@@ -39,7 +38,7 @@ func ScanInstances(ctx context.Context, cwd string) ([]EditorInstance, []GameIns
 	for p := 9080; p <= 9095; p++ {
 		ports[p] = struct{}{}
 	}
-	if env := os.Getenv("GODOT_MCP_PORT"); env != "" {
+	if env := Env("GODOT_MCP_PORT"); env != "" {
 		if p, err := strconv.Atoi(env); err == nil && p > 0 {
 			ports[p] = struct{}{}
 		}

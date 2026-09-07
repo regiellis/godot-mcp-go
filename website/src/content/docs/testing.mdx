@@ -3,9 +3,9 @@ title: How it's tested
 description: Every command is driven against a live editor, and a full game build precedes each release. The build gate exists because the per-command checks missed twelve real bugs.
 ---
 
-The release gate asks a broader question than whether each command works: can an agent that did not build the tool complete real work through it? That makes testing part of the product contract. The interface must carry a project across discovery, authoring, play, diagnosis, repair, and verification without a human filling in missing steps.
+The release gate asks a broader question than whether each command works: can an agent that did not build the tool complete real work through it? That makes testing part of the product contract. The interface must carry a project across discovery, authoring, play, diagnosis, repair, and verification without requiring you to fill gaps in the command interface.
 
-Every one of the 330 commands is exercised against a running editor when it is added or changed, and the result is read back rather than trusted: `node get` after `node set`, `scene tree` after a structural change, a screenshot when the question is visual. The whole sweep re-runs whenever command registration or the shared helpers change, because tool bugs cluster there.
+Every one of the 332 commands is exercised against a running editor when it is added or changed, and the result is read back rather than trusted: `node get` after `node set`, `scene tree` after a structural change, a screenshot when the question is visual. The whole sweep re-runs whenever command registration or the shared helpers change, because tool bugs cluster there.
 
 That check ran clean for six releases. Then one night of real use found twelve bugs it had never seen. So there are now two checks.
 
@@ -24,7 +24,7 @@ The rule comes from a specific night. Six releases had shipped with every comman
 - `runtime screenshot` taken right after `scene play` read a frame nothing had drawn into yet, and returned an all-black image with no error.
 - A game paused at a debugger breakpoint made every runtime command time out, and the timeout message blamed a missing autoload that the same call had already verified was present.
 - The editor and the game raced over the IPC response file. The failure was intermittent and an immediate retry always cured it, which is exactly why nobody had chased it.
-- `scene create` wrote a scene without opening it, so the next `node add` built into whatever scene happened to be open. And nothing could close a tab: `scene delete` refused an open scene with "close the scene tab first," advice only a person with a mouse could follow.
+- `scene create` wrote a scene without opening it, so the next `node add` built into whatever scene happened to be open. And nothing could close a tab: `scene delete` refused an open scene with "close the scene tab first," advice that required you to switch to the editor UI.
 - `--filter` on `project settings`, line ranges on `script read`, and a `--path` alias on `scene instance` were accepted and silently ignored. Testing that those commands answered proved nothing about the flags.
 
 All twelve are fixed in [0.8.2](/docs/changelog). None of them was a broken command. They were broken sequences, broken states, bad timing, and missing steps, and testing one command at a time cannot produce any of those. Building a game produces all of them.

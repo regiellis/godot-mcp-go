@@ -1,11 +1,12 @@
 version: "3"
 
-# Godot MCP (Go) task runner. Run `task` to list available tasks.
+# Swallowtail task runner. Run `task` to list available tasks.
 # GODOT selects the Godot binary; override with `task editor GODOT=/path/to/godot`.
 
 vars:
   # Windows needs the .exe suffix; every other platform must not have it.
-  BIN: '{{if eq OS "windows"}}bin/godot-mcp.exe{{else}}bin/godot-mcp{{end}}'
+  BIN: '{{if eq OS "windows"}}bin/swallowtail.exe{{else}}bin/swallowtail{{end}}'
+  LEGACY_BIN: '{{if eq OS "windows"}}bin/godot-mcp.exe{{else}}bin/godot-mcp{{end}}'
   GODOT: godot
   PROJECT: project
 
@@ -17,9 +18,10 @@ tasks:
     silent: true
 
   build:
-    desc: Build the godot-mcp CLI into bin/
+    desc: Build the Swallowtail CLI and deprecated compatibility executable into bin/
     cmds:
-      - go build -o {{.BIN}} ./cmd/godot-mcp
+      - go build -o {{.BIN}} ./cmd/swallowtail
+      - go run ./tools/copy-binary {{.BIN}} {{.LEGACY_BIN}}
 
   run:
     desc: "Build and run the CLI, e.g. `task run -- project info`"
@@ -86,6 +88,11 @@ tasks:
     cmds:
       - pwsh -NoProfile -File scripts/test-http-mcp.ps1 {{.CLI_ARGS}}
 
+  test:http:failures:
+    desc: Isolated HTTP framing and busy-buffer failure tests (no editor required)
+    cmds:
+      - "{{.GODOT}} --headless --script scripts/test-http-failures.gd"
+
   eval:
     desc: "Run eval scenario checks against a live project (e.g. task eval -- -Project <dir> -Scenario 00-smoke)"
     cmds:
@@ -107,6 +114,11 @@ tasks:
     cmds:
       # Same platform dispatch as `task mirror`: both scripts accept -Version.
       - '{{if eq OS "windows"}}pwsh -NoProfile -File scripts/release.ps1{{else}}scripts/release.sh{{end}} {{.CLI_ARGS}}'
+
+  release:check:
+    desc: "Verify release payloads and executable permissions (pass --version X.Y.Z)"
+    cmds:
+      - python3 scripts/check-release.py {{.CLI_ARGS}}
 
   mirror:
     desc: "Build a filtered mirror snapshot commit (e.g. task mirror -- -Parent <sha> -Message \"...\"); prints the sha, pushes nothing"

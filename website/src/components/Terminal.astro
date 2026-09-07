@@ -2,7 +2,9 @@
 // A real terminal session: prompt, command, and output lines styled distinctly.
 // Not a fake screenshot; the command shapes and response envelopes are the
 // tool's actual surface.
-interface Line { type?: "cmd" | "out" | "comment"; text: string }
+// "cont" is the second line of a wrapped command: the shell's `> ` continuation
+// prompt, typed like a command rather than printed like output.
+interface Line { type?: "cmd" | "out" | "comment" | "cont"; text: string }
 interface Props { title?: string; lines: Line[] }
 const { title = "bash", lines } = Astro.props;
 ---
@@ -13,7 +15,7 @@ const { title = "bash", lines } = Astro.props;
     <span class="term-title">{title}</span>
   </div>
   <pre class="term-body"><code>{lines.map((l) => (
-    <span class:list={["tl", l.type ?? "out"]}>{(l.type ?? "out") === "cmd" && <span class="prompt">$ </span>}{l.text}
+    <span class:list={["tl", l.type ?? "out"]}>{(l.type ?? "out") === "cmd" && <span class="prompt">$ </span>}{l.type === "cont" && <span class="prompt">&gt; </span>}{l.text}
 </span>
   ))}</code></pre>
 </div>
@@ -48,7 +50,8 @@ const { title = "bash", lines } = Astro.props;
   .term-body code { font-family: inherit; background: none; border: 0; padding: 0; }
   .tl { display: block; white-space: pre; }
   .tl.comment { color: var(--text-faint); }
-  .tl.cmd { color: var(--text); }
+  .tl.cmd, .tl.cont { color: var(--text); }
   .tl.cmd .prompt { color: var(--accent); user-select: none; }
+  .tl.cont .prompt { color: var(--text-faint); user-select: none; }
   .tl.out { color: var(--text-muted); }
 </style>

@@ -3,7 +3,7 @@ title: Command groups
 description: The 50 command groups, how invocation works, and how the wire coerces values.
 ---
 
-Invocation is `godot-mcp <group> <command> [--flag value …]`. Command and flag names accept kebab- or snake-case (`node set-anchor` becomes `node.set_anchor`). Values that start with `[` or `{` are parsed as JSON. On error the CLI prints the JSON-RPC code, message, and any suggestions to stderr.
+Invocation is `swallowtail <group> <command> [--flag value …]`. Command and flag names accept kebab- or snake-case (`node set-anchor` becomes `node.set_anchor`). Values that start with `[` or `{` are parsed as JSON. On error the CLI prints the JSON-RPC code, message, and any suggestions to stderr.
 
 <Callout type="tip">
   You rarely need to memorize the catalog. Lead with `engine search` and `engine class-info` to find the right member on the live 4.7 build, then act with the typed or generic command.
@@ -23,24 +23,28 @@ Invocation is `godot-mcp <group> <command> [--flag value …]`. Command and flag
 
 ## Discover the catalog
 
-You don't have to know a command's name or flags in advance. The CLI serves the whole catalog live from the running editor, so it never goes stale:
+You don't have to know a command's name or flags in advance. The CLI reads the running editor's catalog and saves project-scoped help for offline use:
 
 ```bash
-godot-mcp node --help                            # list a group, one line per command
-godot-mcp node add --help                        # a param table: flag, type, required, description
-godot-mcp help all                               # the entire catalog, grouped by category
-godot-mcp engine commands --group node --docs    # the same, as JSON
+swallowtail node --help                            # list a group, one line per command
+swallowtail node add --help                        # a param table: flag, type, required, description
+swallowtail help all                               # the entire catalog, grouped by category
+swallowtail engine commands --group node --docs    # the same, as JSON
 ```
 
-Every one of the 330 commands carries param docs, so `<group> <command> --help` prints a real table rather than a generic hint. `engine commands` is the JSON form: a flat `methods` list plus a `groups` map of group → command names, with `--group` to narrow and `--docs` to attach the param docs. Because help reads the live addon, it needs an editor running.
+Every one of the 332 commands carries param docs, so `<group> <command> --help` prints a real table rather than a generic hint. `engine commands` is the JSON form: a flat `methods` list plus a `groups` map of group → command names, with `--group` to narrow and `--docs` to attach the param docs. Without an editor, help can use this project's saved catalog and reports its timestamp. An uncached project needs a live editor for addon help. See [shell completion and offline help](/docs/automation#shell-completion-and-offline-help).
+
+Use global `--project DIR` to select a project from another directory. Use
+`--params-file FILE` (or `-` for stdin) before the group to read a JSON parameter
+object. Inline parameters override its keys. See [Scripting and CI](/docs/automation).
 
 ## How values are coerced
 
 Godot literals stay strings and are coerced engine-side toward the target type:
 
 ```bash
-godot-mcp node set --node-path Player --property position --value "Vector2(100, 200)"
-godot-mcp node set --node-path Light --property color --value "#ff0000"
+swallowtail node set --node-path Player --property position --value "Vector2(100, 200)"
+swallowtail node set --node-path Light --property color --value "#ff0000"
 ```
 
 - `--key value` or `--key=value` for strings, `--key=true|false` or a bare `--flag` for booleans.
@@ -54,10 +58,10 @@ godot-mcp node set --node-path Light --property color --value "#ff0000"
 
 ## Output formats
 
-On a terminal, a result renders for reading: an object becomes a titled key/value box, an array of objects becomes a table, and values are color-coded by type. Piped or redirected output is exact pretty-printed JSON, so scripts and agents parse the same shape as always without stripping anything. The global `--format` flag (before the group) pins one of `pretty`, `json`, `tsv`, or `ndjson` (newline-delimited compact JSON), and the `GODOT_MCP_FORMAT` environment variable does the same for a whole shell when the flag is absent:
+On a terminal, a result renders for reading: an object becomes a titled key/value box, an array of objects becomes a table, and values are color-coded by type. Piped or redirected output is exact pretty-printed JSON, so scripts and agents parse the same shape as always without stripping anything. The global `--format` flag (before the group) pins one of `pretty`, `json`, `tsv`, or `ndjson` (newline-delimited compact JSON), and the `SWALLOWTAIL_FORMAT` environment variable does the same for a whole shell when the flag is absent:
 
 ```bash
-godot-mcp --format tsv scene tree
+swallowtail --format tsv scene tree
 ```
 
 TSV renders a success result as tab-separated text for shell pipelines: an array of objects becomes a header row plus one row per element; a single object becomes key/value rows; nested values are emitted as compact JSON, with tabs and newlines escaped. `NO_COLOR` drops the color from the terminal render without changing its layout.

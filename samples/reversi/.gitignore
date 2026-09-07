@@ -1,6 +1,7 @@
 .godot/
 
 # Build-time tooling, not part of the sample.
+addons/swallowtail/
 addons/godot_mcp/
 .claude/
 

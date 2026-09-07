@@ -1,0 +1,23 @@
+---
+import { withBase } from '../lib/paths';
+import { mascotStories, type StoryTopic } from '../data/mascot-stories';
+interface Props { topic: StoryTopic; pose: 'hero' | 'sitting' | 'peeking'; src: string; width: number; height: number; }
+const { topic, pose, src, width, height } = Astro.props;
+const positions = { hero: 'st-hero-mascot', sitting: 'st-mascot-sitting', peeking: 'st-mascot-peeking' };
+---
+<button type="button" class:list={['mascot-trigger', positions[pose]]} data-mascot-topic={topic} data-pose={pose}
+  aria-label={`Let Swallowtail tell you about ${mascotStories[topic].label.toLowerCase()}`}
+  aria-controls="mascot-bubble" aria-expanded="false" aria-haspopup="dialog">
+  <img src={withBase(src)} width={width} height={height} alt="" loading={pose === 'hero' ? 'eager' : 'lazy'} fetchpriority={pose === 'hero' ? 'high' : 'auto'} decoding="async" />
+  <span class="mascot-invitation" aria-hidden="true"><span>•••</span><span class="mascot-invitation-copy">A little story?</span></span>
+</button>
+
+<style>
+  .mascot-trigger { padding: 0; border: 0; background: transparent; color: var(--accent); cursor: pointer; pointer-events: auto; touch-action: manipulation; border-radius: var(--radius); z-index: 3; }
+  .mascot-trigger img { display: block; width: 100%; height: auto; pointer-events: none; }
+  .mascot-trigger:focus-visible { outline: 3px solid var(--accent); outline-offset: 5px; }
+  .mascot-invitation { position: absolute; top: 20%; right: 0; display: flex; align-items: center; gap: .4rem; padding: .25rem .6rem; min-height: 28px; background: var(--surface); border: 1px solid var(--accent); border-radius: 999px; font: 650 .72rem/1.4 var(--font-sans); box-shadow: var(--shadow-sm); white-space: nowrap; pointer-events: none; }
+  .mascot-invitation-copy { display: none; }
+  .mascot-trigger:is(:hover, :focus-visible) .mascot-invitation-copy { display: inline; }
+  .mascot-trigger[aria-expanded="true"] .mascot-invitation { background: var(--accent); color: var(--on-accent); }
+</style>

@@ -34,13 +34,13 @@ const SECTIONS: Array[Dictionary] = [
 	{
 		"label": "THE GAME",
 		"body": "Reversi, built end to end by an agent driving the Godot editor"
-			+ " through godot-mcp. The board, every widget, and every transition"
+			+ " through swallowtail. The board, every widget, and every transition"
 			+ " are drawn in code. There are no sprites.",
 		"links": [],
 	},
 	{
 		"label": "THE TOOL",
-		"body": "godot-mcp is a Go CLI and MCP server that drives the Godot"
+		"body": "swallowtail is a Go CLI and MCP server that drives the Godot"
 			+ " editor over a local WebSocket, plus the editor addon it talks to."
 			+ " Released under the MIT licence.",
 		"links": [
@@ -50,7 +50,7 @@ const SECTIONS: Array[Dictionary] = [
 	},
 	{
 		"label": "AUTHOR",
-		"body": "godot-mcp is built and maintained by Regi Ellis.",
+		"body": "swallowtail is built and maintained by Regi Ellis.",
 		"links": [{"label": "", "url": "github.com/regiellis"}],
 	},
 	{

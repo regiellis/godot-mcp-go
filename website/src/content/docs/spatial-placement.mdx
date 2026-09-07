@@ -14,7 +14,7 @@ Placing objects in 3D by feeding parallel position constants is how an agent flo
 Place the anchor piece, then ask the engine where it actually is in world space. `spatial bounds` returns the true world-space AABB (a union of the node's descendant geometry, not just the root's local box), so you build the next piece off measured reality.
 
 ```bash
-godot-mcp spatial bounds --node-path Table
+swallowtail spatial bounds --node-path Table
 # -> { "center": "Vector3(4, 0.75, -6)", "size": "Vector3(2, 0.9, 1.2)",
 #      "min": "Vector3(3, 0.3, -6.6)", "max": "Vector3(5, 1.2, -5.4)" }
 ```
@@ -35,19 +35,19 @@ There are three seating tiers. Pick the one the surface demands, cheapest first.
 
 ```bash
 # flat: sit the lamp on the table's top surface
-godot-mcp spatial place_on --node-path Lamp --surface-from Table
+swallowtail spatial place_on --node-path Lamp --surface-from Table
 
 # uneven: conform a crate to sloped terrain under its footprint
-godot-mcp spatial place_on --node-path Crate --samples 3 --conform
+swallowtail spatial place_on --node-path Crate --samples 3 --conform
 
 # exact: snap a bolt to the nearest real vertex of a beam
-godot-mcp spatial snap --node-path Bolt --to Beam --mode vertex
+swallowtail spatial snap --node-path Bolt --to Beam --mode vertex
 ```
 
 For a free raycast (no target node), cast a ray and place at the hit:
 
 ```bash
-godot-mcp spatial raycast --from "Vector3(4,30,-6)" --to "Vector3(4,-30,-6)"
+swallowtail spatial raycast --from "Vector3(4,30,-6)" --to "Vector3(4,-30,-6)"
 # -> { "hit": true, "position": "Vector3(4, 1.2, -6)", "normal": "Vector3(0, 1, 0)" }
 ```
 
@@ -60,9 +60,9 @@ godot-mcp spatial raycast --from "Vector3(4,30,-6)" --to "Vector3(4,-30,-6)"
 For a cluster (a desk with a lamp, papers, and a mug), place the anchor, `spatial bounds` it, then derive each child position from the measured box, not from a guessed constant. Every piece hangs off what actually landed.
 
 ```bash
-godot-mcp spatial align --node-path Lamp --to Desk --edge top --inset "Vector3(0.3, 0, 0.2)"
-godot-mcp spatial distribute --node-paths '["Book1","Book2","Book3"]' --along x --spacing 0.25
-godot-mcp spatial look_at --node-path Camera --target Desk
+swallowtail spatial align --node-path Lamp --to Desk --edge top --inset "Vector3(0.3, 0, 0.2)"
+swallowtail spatial distribute --node-paths '["Book1","Book2","Book3"]' --along x --spacing 0.25
+swallowtail spatial look_at --node-path Camera --target Desk
 ```
 
 `spatial relate` reports the spatial relationship between two nodes (above, inside, touching, the gap between them), so an agent can assert an arrangement instead of trusting it. `spatial find_in_region` lists what occupies a world box, and `spatial lint` flags geometry that floats or intersects.
@@ -73,12 +73,12 @@ A screenshot confirms nothing about a 0.05 m float. Read the result back and ass
 
 ```bash
 # did the lamp actually land on the table top?
-godot-mcp spatial bounds --node-path Lamp
-godot-mcp spatial relate --node-path Lamp --to Table
+swallowtail spatial bounds --node-path Lamp
+swallowtail spatial relate --node-path Lamp --to Table
 # -> { "relation": "resting_on", "gap": 0.0, "overlap": false }
 
 # sweep the scene for floaters and interpenetration
-godot-mcp spatial lint --check-floating
+swallowtail spatial lint --check-floating
 ```
 
 <Callout type="tip">
@@ -87,4 +87,4 @@ godot-mcp spatial lint --check-floating
 
 ## Why `world_aabb` is the correct bound
 
-`spatial bounds` uses a union of every descendant's world geometry, not `global_transform * get_aabb()` on the root alone. In Godot 4 a `Transform3D * AABB` already transforms all eight corners, so it is rotation-correct; the union is what makes a composite node report the box a human would draw around the whole thing, not just its first mesh. Anchor to that, and rotation and nested children stay honest.
+`spatial bounds` uses a union of every descendant's world geometry, not `global_transform * get_aabb()` on the root alone. In Godot 4 a `Transform3D * AABB` already transforms all eight corners, so it is rotation-correct; the union is what makes a composite node report the bounds you need around the whole object. Anchor to that, and rotation and nested children stay honest.

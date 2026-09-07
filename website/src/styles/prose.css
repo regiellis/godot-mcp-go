@@ -65,7 +65,8 @@
   border-radius: var(--radius-sm);
   padding: 0.12em 0.4em;
   color: var(--accent-strong);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* Blockquote (non-callout): a quiet full-border surface, no accent bar */
@@ -92,27 +93,76 @@
 .prose img { max-width: 100%; border-radius: var(--radius); }
 
 /* --- Callouts (rendered by the Callout component) ---
-   The type color carries on the icon and a tinted full hairline; no accent
-   bar. The wash stays as the surface. */
+   Butler expressions distinguish the types alongside explicit text labels.
+   The butler sits outside a tinted speech bubble, with a tail toward his face. */
 .callout {
   display: flex;
-  gap: 0.75rem;
+  gap: 1rem;
   margin: 1.3rem 0;
-  padding: 0.9rem 1rem;
-  border: 1px solid color-mix(in srgb, var(--cl, var(--note)) 30%, var(--border));
-  border-radius: var(--radius);
-  background: var(--cl-bg, var(--note-bg));
+  --bubble-border: color-mix(in srgb, var(--cl, var(--note)) 30%, var(--border));
   font-size: 0.95rem;
 }
-.callout-icon { flex: none; color: var(--cl, var(--note)); margin-top: 1px; }
-.callout-body { min-width: 0; }
-.callout-title { font-weight: 640; color: var(--text); margin-bottom: 0.15rem; text-transform: capitalize; }
+.callout-mascot { flex: 0 0 76px; align-self: flex-start; }
+.callout[data-type="note"] .callout-mascot { order: 1; margin-left: auto; }
+.prose .callout-mascot img { display: block; width: 76px; height: 76px; object-fit: contain; margin: 0; border-radius: 0; }
+.callout-kind {
+  position: absolute;
+  top: 0;
+  left: 1.15rem;
+  transform: translateY(-50%);
+  padding: 0 .45rem;
+  background: linear-gradient(var(--bg) 50%, var(--cl-bg, var(--note-bg)) 50%);
+  color: var(--text);
+  font-size: .68rem;
+  line-height: 1.5;
+  font-weight: 750;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.callout-body {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--bubble-border);
+  border-radius: 1.25rem;
+  background: var(--cl-bg, var(--note-bg));
+}
+.callout-body::before {
+  content: "";
+  position: absolute;
+  top: 28px;
+  left: -8px;
+  width: 14px;
+  height: 14px;
+  background: var(--cl-bg, var(--note-bg));
+  border-left: 1px solid var(--bubble-border);
+  border-bottom: 1px solid var(--bubble-border);
+  transform: rotate(45deg);
+}
+.callout[data-type="note"] .callout-body::before {
+  left: auto;
+  right: -8px;
+  transform: rotate(225deg);
+}
+.callout-title { font-weight: 640; color: var(--text); margin-bottom: 0.15rem; }
 .callout-body :last-child { margin-bottom: 0; }
 .callout[data-type="note"]      { --cl: var(--note);      --cl-bg: var(--note-bg); }
 .callout[data-type="tip"]       { --cl: var(--tip);       --cl-bg: var(--tip-bg); }
 .callout[data-type="important"] { --cl: var(--important); --cl-bg: var(--important-bg); }
 .callout[data-type="warning"]   { --cl: var(--warning);   --cl-bg: var(--warning-bg); }
 .callout[data-type="caution"]   { --cl: var(--caution);   --cl-bg: var(--caution-bg); }
+@media (max-width: 600px) {
+  .callout { flex-direction: column; gap: .75rem; }
+  .callout-mascot { flex-basis: auto; margin-left: .75rem; }
+  .prose .callout-mascot img { width: 48px; height: 48px; }
+  .callout-body { flex: auto; padding: .9rem 1rem; }
+  .callout-kind { left: auto; right: 1.15rem; }
+  .callout[data-type="note"] .callout-kind { left: 1.15rem; right: auto; }
+  .callout-body::before { top: -8px; left: 28px; transform: rotate(135deg); }
+  .callout[data-type="note"] .callout-mascot { order: 0; align-self: flex-end; margin-right: .75rem; }
+  .callout[data-type="note"] .callout-body::before { top: -8px; right: 28px; transform: rotate(135deg); }
+}
 
 /* --- Card grid --- */
 .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 0.9rem; margin: 1.4rem 0; }
@@ -138,7 +188,7 @@ a.card:hover { border-color: var(--accent); transform: translateY(-2px); box-sha
   padding: 0.05rem 0.35rem;
   border-radius: 999px;
   background: var(--accent);
-  color: #fff;
+  color: var(--on-accent);
   vertical-align: 0.12em;
 }
 .card-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.55; }

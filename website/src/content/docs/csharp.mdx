@@ -12,17 +12,17 @@ The `csharp` group plus C#-aware `script` commands drive a C# Godot project end 
 ## 1. Check the toolchain, then scaffold
 
 ```bash
-godot-mcp csharp info
+swallowtail csharp info
 # -> { "dotnet_found": true, "dotnet_editor": true, "csproj": null, ... }
 
-godot-mcp csharp setup
+swallowtail csharp setup
 # -> writes <Name>.csproj + <Name>.sln, sets the assembly name
 ```
 
 `csharp.setup` derives `<Name>` from the project name, targets `Godot.NET.Sdk` on `net8.0`, and refuses to overwrite existing files without `--force`. The SDK version defaults to the running engine's version; on a custom or prerelease engine whose exact SDK isn't published, pass the one that matches your build:
 
 ```bash
-godot-mcp csharp setup --force --sdk-version 4.7.2-rc
+swallowtail csharp setup --force --sdk-version 4.7.2-rc
 ```
 
 ## 2. Author C# scripts
@@ -30,7 +30,7 @@ godot-mcp csharp setup --force --sdk-version 4.7.2-rc
 `script create` on a `.cs` path writes a proper Godot C# template, a `public partial class` named after the file:
 
 ```bash
-godot-mcp script create --path res://Player.cs --extends CharacterBody2D
+swallowtail script create --path res://Player.cs --extends CharacterBody2D
 ```
 
 ```csharp
@@ -47,7 +47,7 @@ public partial class Player : CharacterBody2D
 Attach it like any script; on a .NET editor the class resolves after the first successful build:
 
 ```bash
-godot-mcp script attach --node-path Player --script-path res://Player.cs
+swallowtail script attach --node-path Player --script-path res://Player.cs
 ```
 
 ## 3. Build and validate
@@ -55,7 +55,7 @@ godot-mcp script attach --node-path Player --script-path res://Player.cs
 `csharp.build` runs `dotnet build` without blocking the editor and returns deduped, structured diagnostics:
 
 ```bash
-godot-mcp csharp build
+swallowtail csharp build
 # -> { "success": false, "errors": [ { "file": "...", "line": 7, "col": 16,
 #      "code": "CS1002", "message": "; expected", "severity": "error" } ], ... }
 ```
@@ -63,7 +63,7 @@ godot-mcp csharp build
 A failed build is a **success payload with `success: false`**. The point is the diagnostics, so an agent branches on them instead of catching a transport error. `script validate` on a `.cs` path builds the project and filters the diagnostics to that one file:
 
 ```bash
-godot-mcp script validate --path res://Player.cs
+swallowtail script validate --path res://Player.cs
 # -> { "valid": true, "diagnostics": [], "project_error_count": 0, ... }
 ```
 

@@ -1,0 +1,98 @@
+---
+title: Migrating to Swallowtail
+description: Switch commands and migrate your existing addon with a preview and recovery journal.
+---
+
+Use `swallowtail` for new commands and scripts. Each CLI bundle also ships
+`godot-mcp`, a deprecated executable with the same implementation and exit codes.
+There is no scheduled removal date. Interactive legacy use prints a notice;
+piped output, completion, and MCP streams retain their output contract.
+
+## Why the name changed
+
+The project shipped as `godot-mcp` through 0.12. That name described one connector.
+The toolkit automates Godot from a terminal, a shell script, or a connected client,
+needs no agent, model, or AI account, and offers MCP as one optional interface. The
+old name also matched many other Godot MCP projects, so it did not identify this
+one. Swallowtail names the toolkit itself.
+
+What stays the same: the repository URL and Go module path, the `godot-mcp`
+executable in every bundle with no scheduled removal date, the wire methods, and
+the `MCPGameInspector` and `MCPGameInput` autoload names in existing game scripts.
+
+## Move an existing project
+
+Save your scenes, commit a working checkpoint, and close the project's editor
+and standalone game. Keep the new executable beside its bundled `addons/` and
+`skills/` directories, then preview:
+
+```sh
+swallowtail migrate --project /path/to/game
+```
+
+The preview describes the addon path change and backup location without writing
+files. Apply it when the project is ready:
+
+```sh
+swallowtail migrate --project /path/to/game --apply
+swallowtail doctor --project /path/to/game
+swallowtail launch --project /path/to/game
+```
+
+Migration installs `addons/swallowtail/`, updates owned addon paths and the
+`[swallowtail]` settings section in `project.godot`, and preserves the original
+addon and project settings under `.swallowtail-migration/`. Runtime autoload
+names `MCPGameInspector` and `MCPGameInput` remain compatibility identifiers so
+existing script references keep working.
+
+Migration refuses open editors, mixed addon installations, linked addon trees,
+conflicting setting sections, and autoloads belonging to another script.
+`install --force` does not bypass migration.
+
+## Recover a migration
+
+If an apply step fails after staging starts, the command attempts to restore the
+original installation and reports any recovery failure. An interrupted process
+leaves its journal for rollback. With the editor and game closed:
+
+```sh
+swallowtail migrate --project /path/to/game --rollback
+```
+
+Rollback restores the original addon and project settings, retaining migration
+files for inspection. It refuses to overwrite `project.godot` if you edited it
+after migration. In that case, review the retained journal and addon backup to
+recover your changes manually. Keep the backup until you have tested your scenes
+and playtests. Archive it outside the project before retrying a completed or
+rolled-back migration.
+
+## Update scripts and settings
+
+Replace the executable name with `swallowtail`; command groups and arguments
+stay the same. New environment variables use `SWALLOWTAIL_`, such as
+`SWALLOWTAIL_PORT` and `SWALLOWTAIL_FORMAT`. Nonempty new values take precedence
+over their `GODOT_MCP_` aliases. Explicit CLI flags take precedence over both.
+
+The renamed addon writes new and legacy discovery files for compatible clients.
+The new CLI can also connect to an old addon before migration. Use the new
+settings and environment names after migrating the addon.
+
+Refresh shell completion with `swallowtail completion bash` or
+`swallowtail completion powershell`. Both executable names are registered.
+New skills install under `.claude/skills/swallowtail/`; remove an older skill
+registration after reviewing its customizations.
+
+## Keep optional MCP connections working
+
+Existing client configurations can continue to invoke the bundled `godot-mcp`.
+New configurations use the `swallowtail` server key. To update an existing entry
+without adding a duplicate server, keep its old key while changing its executable:
+
+```sh
+swallowtail configure claude --project /path/to/game --name godot-mcp --force
+```
+
+Use the appropriate supported client name in place of `claude`. To rename the
+server key too, remove its old entry before running `swallowtail configure` with
+the default name. Other configured servers are preserved. MCP method names and
+resource URIs remain compatible.

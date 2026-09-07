@@ -15,7 +15,7 @@ const docs = defineCollection({
 // source of truth. They carry no frontmatter; title and description come from
 // src/config.ts (GUIDES). SKILL.md is the hub and is excluded.
 const guides = defineCollection({
-  loader: glob({ pattern: ["*.md", "!SKILL.md"], base: "../skills/godot-mcp" }),
+  loader: glob({ pattern: ["*.md", "!SKILL.md"], base: "../skills/swallowtail" }),
   schema: z.object({}).passthrough(),
 });
 

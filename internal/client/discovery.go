@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -43,8 +44,7 @@ func FindProjectRoot(start string) (string, error) {
 // ReadDiscovery reads the discovery file under a project root. A missing file
 // is reported as os.ErrNotExist so callers can fall back to the default port.
 func ReadDiscovery(projectRoot string) (*Discovery, error) {
-	path := filepath.Join(projectRoot, ".godot", "godot-mcp.json")
-	data, err := os.ReadFile(path)
+	data, err := ReadCompatibleDiscovery(filepath.Join(projectRoot, ".godot"), "swallowtail.json", "godot-mcp.json")
 	if err != nil {
 		return nil, err
 	}
@@ -72,6 +72,7 @@ const (
 // port came from, which project the caller is standing in, and that project's
 // discovery file if it has one.
 type Resolution struct {
+	Err     error // invalid configuration; callers must not dial when set
 	Port    int
 	Source  PortSource
 	Project string     // caller's project root; "" when cwd is not inside a project
@@ -87,22 +88,43 @@ func ResolvePortSource(flagPort int, cwd string) Resolution {
 		r.Project = root
 		if d, err := ReadDiscovery(root); err == nil {
 			r.Disc = d
+		} else if errors.Is(err, ErrDiscoveryConflict) {
+			r.Err = err
+			return r
 		}
 	}
 	switch {
-	case flagPort > 0:
+	case flagPort != 0:
 		r.Port, r.Source = flagPort, SourceFlag
-	case os.Getenv("GODOT_MCP_PORT") != "":
-		if p, err := strconv.Atoi(os.Getenv("GODOT_MCP_PORT")); err == nil {
-			r.Port, r.Source = p, SourceEnv
-		}
-	case r.Disc != nil && r.Disc.Port > 0:
+		r.Err = ValidatePort(flagPort, "--port")
+	case Env("GODOT_MCP_PORT") != "":
+		r.Source = SourceEnv
+		r.Port, r.Err = environmentPort("GODOT_MCP_PORT")
+	case r.Disc != nil:
 		r.Port, r.Source = r.Disc.Port, SourceDiscovery
+		r.Err = ValidatePort(r.Port, "discovery file port")
 	}
 	return r
 }
 
 // ResolvePort picks the port to connect to. See ResolvePortSource for precedence.
-func ResolvePort(flagPort int, cwd string) int {
-	return ResolvePortSource(flagPort, cwd).Port
+func ResolvePort(flagPort int, cwd string) (int, error) {
+	r := ResolvePortSource(flagPort, cwd)
+	return r.Port, r.Err
+}
+
+// ValidatePort checks a concrete TCP port; zero is only a discovery flag default.
+func ValidatePort(port int, source string) error {
+	if port < 1 || port > 65535 {
+		return fmt.Errorf("%s must be an integer from 1 to 65535", source)
+	}
+	return nil
+}
+
+func environmentPort(name string) (int, error) {
+	p, err := strconv.Atoi(Env(name))
+	if err != nil {
+		return 0, fmt.Errorf("%s must be an integer from 1 to 65535", name)
+	}
+	return p, ValidatePort(p, name)
 }

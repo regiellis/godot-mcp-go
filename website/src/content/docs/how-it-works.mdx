@@ -4,7 +4,7 @@ description: The addon-as-server architecture, the two-hop runtime IPC, and cras
 ---
 
 ```text
-godot-mcp (Go CLI / client) --WebSocket (JSON-RPC 2.0) :9080--> Godot editor addon (server)
+swallowtail (Go CLI / client) --WebSocket (JSON-RPC 2.0) :9080--> Godot editor addon (server)
 MCP client (streamable HTTP) --POST /mcp :9100----------------->       |
                                              file IPC (user://) <------+--> running game
                                                           (MCPGameInspector / MCPGameInput autoloads)
@@ -12,14 +12,14 @@ MCP client (streamable HTTP) --POST /mcp :9100----------------->       |
 
 ## Not Godot's built-in CLI
 
-Godot's own command line (`godot --headless`, `--export-release`, `--script`) **starts a fresh engine process** each time, which is the right tool for CI exports and batch scripts and has no notion of a session. godot-mcp is the other half: it **connects to the editor already running**, reaching the open scene, the current selection, the undo history, and the game that editor is playing. Different jobs; use both. godot-mcp itself launches the editor through Godot's CLI when needed.
+Godot's own command line (`godot --headless`, `--export-release`, `--script`) **starts a fresh engine process** each time, which is the right tool for CI exports and batch scripts and has no notion of a session. swallowtail is the other half: it **connects to the editor already running**, reaching the open scene, the current selection, the undo history, and the game that editor is playing. Different jobs; use both. swallowtail itself launches the editor through Godot's CLI when needed.
 
 ## The addon is the server
 
 The **addon runs a WebSocket server inside the editor**, the long-lived process with a stable port. The CLI is a short-lived client that dials in, runs one command, and exits. The `serve` (MCP) mode is also just a long-lived client of the same server, so one connection model covers both.
 
 - The server binds `127.0.0.1` only. It is a local dev bridge.
-- The CLI resolves the port from `<project>/.godot/godot-mcp.json` (written by the addon on bind), so the common case needs no flags.
+- The CLI resolves the port from `<project>/.godot/swallowtail.json` (written by the addon on bind), so the common case needs no flags.
 - The message envelope is JSON-RPC 2.0 with dotted methods (`node.add`, `scene.play`, `runtime.capture_frames`).
 - The addon hosts a second transport: a [streamable-HTTP MCP endpoint](/docs/mcp-setup#or-connect-straight-to-the-editor-streamable-http) (`POST /mcp`, ports 9100-9115, recorded as `http_port` in the same discovery file), so an HTTP-capable MCP client drives the editor with no external process. Both transports dispatch through the same command router, so the safety guards below apply to each identically.
 
@@ -51,12 +51,13 @@ The discovery file doubles as a liveness signal. A clean shutdown deletes it; a 
 
 ## Threat model
 
-godot-mcp is a **local dev bridge on a workstation you trust**, and that assumption is load-bearing. While the editor is open with the plugin enabled:
+swallowtail is a **local dev bridge on a workstation you trust**, and that assumption is load-bearing. While the editor is open with the plugin enabled:
 
-- **The ports are unauthenticated by design**. Any process on the machine can drive the editor, which is what lets `godot-mcp project info` work with no keys, config, or pairing step. Commands reach `editor.run_script`, so "can connect" means "can run code in the editor".
+- **The ports are unauthenticated by design**. Any process on the machine can drive the editor, which is what lets `swallowtail project info` work with no keys, config, or pairing step. Commands reach `editor.run_script`, so "can connect" means "can run code in the editor".
 - **The HTTP endpoint refuses browser traffic** from anywhere but loopback (the `Origin` check above), so a page you have open cannot reach it.
+- **Remote access is a tunnel you own**. The servers never listen on a network address; an editor on another machine is reached by [forwarding its loopback port over SSH](/docs/mcp-setup#reach-an-editor-on-another-machine), which extends "any process on the machine" to anyone who can reach the tunnel's near end.
 - **The WebSocket transport has no equivalent gate**. Browser WebSockets are exempt from CORS, and Godot gives a GDScript server no access to the handshake headers, so a page could open `ws://127.0.0.1:9080` while the editor is running.
 
 That last point is a **known and accepted limitation**. Closing it means putting a shared secret in the connect URL, and every client (the CLI, `serve`, and anything you script yourself) would have to carry it and keep it in sync. On a private-network workstation that is a lot of moving parts protecting a small surface.
 
-Some situations are different: a shared or untrusted network, or a browser session you do not control. There, quit the editor when you are not driving it, since the servers exist only while it runs. `godot_mcp/network/mcp_http` turns the HTTP endpoint off independently, and disabling the plugin stops both.
+Some situations are different: a shared or untrusted network, or a browser session you do not control. There, quit the editor when you are not driving it, since the servers exist only while it runs. `swallowtail/network/mcp_http` turns the HTTP endpoint off independently, and disabling the plugin stops both.

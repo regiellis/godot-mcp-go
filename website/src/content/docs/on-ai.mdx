@@ -1,18 +1,57 @@
 ---
-title: Addressing AI use in game development
-description: A straight answer for people who are tired of AI slop, wary of AI in game development, or both.
+title: Why Swallowtail exists
+description: A note from the maintainer about making games, using AI as a tool, and respecting different choices.
 ---
 
-Plenty of people are tired of AI right now: the slop flooding storefronts and feeds, the scraped training data, the low-effort games shipped by prompt. If that is you, this page is not going to argue with you, and it is not going to try to convert you. A lot of that anger is earned.
+## A note from the maintainer
 
-What it will do is state plainly what this tool is and is not, so the decision is yours with clear eyes.
+After twenty years as a programmer, I just wanted to build games. Games for my son.
+Games for myself. Swallowtail grew out of trying to make that part of my life possible.
 
-- **It is a tool, not a position**. godot-mcp drives the Godot editor over a local socket, the way a build script drives a compiler or an LSP drives your editor. What comes out is ordinary project files: scenes, scripts, resources, sitting in your repository, reviewable like any other diff.
-- **Nothing is forced on anyone**. It is an opt-in addon you install into your own project. No engine fork, no editor takeover, nothing injected into the projects or pipelines of people who did not ask for it.
-- **It is local and quiet**. The bridge binds `127.0.0.1` only. There is no telemetry, no analytics, no account, no cloud service. Your project never leaves your machine, and this site collects nothing either.
-- **A human stays in charge**. Every editor mutation goes through Godot's UndoRedo, so a person at the editor can Ctrl+Z anything an agent did. Ad-hoc code execution is [audited and guarded](/docs/how-it-works), and file writes are jailed to the project.
-- **It does not generate art**. There is no image, audio, or asset generation in here. The bundled prototype textures are Kenney's hand-made CC0 packs, shipped with their license and attribution intact.
+I don't have the budget to hire a team to fill out every part of my vision. I also
+don't want to spend ten years committed to one uncertain project at the expense of
+my health or my family. I needed a way to spend more of my time building, trying
+things, and seeing whether they were worth taking further.
 
-Whether AI belongs in game development at all is an argument this page will not settle, and it will not pretend the concerns are silly. If your position is that tools like this have no place in games, that position is held in good faith, and the honest response is to agree to disagree rather than to sell you something.
+What I wanted was a toolkit that lets me work the way I want on any given day, and
+that includes using AI as one of the tools. Some days that is a terminal and a
+script I can run again.
+Some days it is an agent driving the editor while I review what it changed.
+Swallowtail gives both the same commands, so the choice stays mine. Making a game
+still means making choices, revising them, playing what you've built, and taking
+responsibility for the result, whichever way the work got done.
 
-If you never touch this tool, nothing about your engine, your projects, or your community changes. If you are curious anyway, the whole thing is MIT-licensed and inspectable, and everything an agent does with it lands in version control where you can read it.
+I understand the concerns about AI, and I don't expect my reasons to
+settle those concerns. I'm not OpenAI, Anthropic, or NVIDIA. I'm an individual
+programmer trying to make games with the time and resources I have.
+
+You don't have to agree with my choices, and I respect that. I'm here to build
+games and share a tool, not to fight. Questions and criticism are welcome.
+Bullying and personal attacks aren't.
+
+## What the toolkit requires
+
+Swallowtail is an automation toolkit for Godot. It runs from a terminal, a shell
+script, or an agent. It has no model dependency and needs no AI account or API key.
+MCP is an optional way to connect a compatible client.
+
+The editor addon and CLI communicate locally. If you choose to use an external
+agent or service, what that client sends elsewhere depends on its configuration
+and provider. Swallowtail does not make that choice for you.
+
+The results are ordinary Godot scenes, scripts, and resources. Inspect them in
+the editor, review file changes, and keep version-control checkpoints. Supported
+scene edits participate in Godot's UndoRedo; script execution and file operations
+need their own review and recovery plan.
+
+The toolkit does not include image or audio generation. Its job is to operate,
+inspect, and test the project. How you make the rest of your game is up to you.
+
+## Your game. Your workflow.
+
+Use the parts that help. Work by hand when you want to, write a script when a job
+repeats, and involve an agent if it fits how you work. An agent is never required
+to use Swallowtail.
+
+Start with the [terminal quickstart](/docs/quickstart), or read about
+[scripting and CI](/docs/automation).

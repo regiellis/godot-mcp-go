@@ -2,359 +2,143 @@
 import BaseHead from "../components/BaseHead.astro";
 import TopBar from "../components/TopBar.astro";
 import Terminal from "../components/Terminal.astro";
+import WorkflowShowcase from "../components/WorkflowShowcase.astro";
+import Mascot from "../components/Mascot.astro";
+import MascotStories from "../components/MascotStories.astro";
 import Icon from "../components/Icon.astro";
-import { SITE, GUIDES } from "../config";
+import { Code } from "astro-expressive-code/components";
+import { SITE } from "../config";
 import { docsHref } from "../lib/paths";
-
+import "../styles/home.css";
+const prebuild = `swallowtail check .
+swallowtail scene validate --path res://hello.tscn
+swallowtail scene play --mode res://hello.tscn
+swallowtail runtime errors
+swallowtail scene stop`;
 const heroSession = [
-  { type: "comment", text: "# discover against the live build" },
-  { type: "cmd", text: "godot-mcp engine search --query velocity" },
-  { type: "out", text: "CharacterBody2D.velocity : Vector2" },
-  { type: "out", text: "RigidBody3D.linear_velocity : Vector3" },
-  { type: "comment", text: "# build in the real SceneTree" },
-  { type: "cmd", text: "godot-mcp node add --type CharacterBody2D --name Player --parent-path ." },
-  { type: "out", text: '{ "added": "Player", "path": "Player" }' },
-  { type: "comment", text: "# play, observe, and verify" },
-  { type: "cmd", text: "godot-mcp scene play --mode main" },
-  { type: "cmd", text: "godot-mcp input action --action jump --pressed true" },
-  { type: "cmd", text: "godot-mcp runtime get --node-path Player --properties '[\"position\"]'" },
-  { type: "out", text: '{ "position": "Vector2(320, 180)" }' },
-];
-
-const installSession = [
-  { type: "comment", text: "# add the addon and skill to any Godot project" },
-  { type: "cmd", text: "godot-mcp install --project ./mygame --enable" },
-  { type: "comment", text: "# or start a new project from nothing" },
-  { type: "cmd", text: "godot-mcp create --path ./mygame --install --enable" },
-];
-
-// Real head-to-head, sourced from the README comparison. Figures checked 2026-08-12
-// against each project's repository; refresh both places together.
-const compare = [
-  { axis: "Runtime dependencies", ai: "Python + uv", native: "none", us: "one Go binary, or none" },
-  { axis: "Drives it from", ai: "an MCP client", native: "an MCP client", us: "any agent with a shell, or any MCP client" },
-  { axis: "Primary workflow", ai: "edit + game tools", native: "edit + in-game probe", us: "build → play → debug → verify" },
-  { axis: "MCP schemas carried", ai: "~43 fixed", native: "155 fixed", us: "live-built, or 1" },
-  { axis: "Running-game control", ai: "live tree + synthetic input", native: "in-game probe", us: "state + input + capture + signals" },
-  { axis: "Runtime debugging", ai: "not documented", native: "not documented", us: "break, inspect, step, hot reload" },
-  { axis: "C# projects", ai: "not documented", native: "symbol indexing", us: "scaffold, build, diagnostics" },
-  { axis: "New project from nothing", ai: "no", native: "no", us: "godot-mcp create" },
-  // win: "them" flips the check to the columns that earn it. Our floor reaches lower
-  // than 4.5 now, but it is beta, so the check stays with the settled claim.
-  { axis: "Godot versions", ai: "4.5+", native: "4.5+", us: "4.7 target, 4.3 to 4.8 in beta", win: "them" },
-  // Count derived from GUIDES so it cannot drift from the craft docs actually published.
-  { axis: "Craft layer", ai: "tool reference", native: "tool reference", us: `${GUIDES.length} guides + skill` },
-];
-
-const caps = [
-  {
-    title: "One loop from build to proof.",
-    body: "The same interface discovers the live API, authors the project, runs and plays the game, observes state, diagnoses failures, applies a fix, and verifies the result. The agent keeps the context of the work as the task crosses from editor to game to debugger.",
-    cmd: "discover → build → run → play → observe → debug → fix → verify",
-  },
-  {
-    title: "Tested by finishing real work.",
-    body: "Every command is exercised against a live editor and read back. Before a release, an agent that did not build the tool must also create and playtest a complete game slice through the public interface. That catches broken sequences, states, timing, and missing steps that isolated command checks cannot produce.",
-    cmd: null,
-  },
-  {
-    title: "A CLI first, an MCP server second.",
-    body: "Every command runs from a shell, so a terminal-driven agent carries zero tool schemas and a human can drive the same surface by hand. The stdio and editor-direct HTTP MCP modes are a second front door onto that surface, not the only way in.",
-    cmd: "godot-mcp node add --type Sprite2D --name Player --parent-path .",
-  },
-  {
-    title: "It drives the running game.",
-    body: "The runtime and input groups inspect and control the live game over a two-hop IPC: read the running scene tree, set and read node state, eval, capture frames, await signals, and inject input for deterministic playtesting. A debug build can host the channel itself, so the game is drivable with no editor open at all.",
-    cmd: "godot-mcp runtime await-signal --node-path Boss --signal died --timeout 10",
-  },
-  {
-    title: "It debugs without abandoning the playtest.",
-    body: "Breakpoints, paused stacks, frame variables, stepping, and script hot reload keep diagnosis and repair inside the same session. A fix can enter the live process while its runtime state stays in place.",
-    cmd: "godot-mcp debug state",
-  },
-  {
-    title: "Introspection instead of wrappers.",
-    body: "The live ClassDB is the feature list. engine.search finds the name; node.set and node.get reach any property, node.call and runtime.call any method, and runtime.eval anything needing several statements. Verified against 4.8-dev, whose new classes needed no code change here.",
-    cmd: "godot-mcp engine class-info --class CharacterBody3D --filter velocity",
-  },
-  {
-    title: "Typed tools, or one generic tool.",
-    body: "serve exposes every command as a first-class MCP tool with a real schema, built live from the addon so the tool surface never drifts from what is registered. godot_run stays as the generic escape hatch for any method. Tool-limited clients run serve --typed=false for the single-tool mode, keeping the model's context lean. Read-only godot:// resources pull context without spending a tool turn.",
-    cmd: null,
-  },
-  {
-    title: "Crash-aware discovery.",
-    body: "Per-project port discovery returns a verdict on every connection failure, so an agent recovers deliberately instead of relaunching blindly and breaking the editor.",
-    cmd: "running · starting · crashed · closed",
-  },
+  { type: "cmd", text: "swallowtail scene tree" },
+  { type: "out", text: "Hello (Node2D) ." },
+  { type: "out", text: "└─ Greeting (Label) Greeting" },
+  { type: "out", text: "" },
+  { type: "cmd", text: "swallowtail check ." },
 ];
 ---
-
 <!doctype html>
 <html lang="en">
-  <head>
-    <BaseHead />
-  </head>
+  <head><BaseHead /></head>
   <body>
-    <TopBar />
-
-    <main>
-      <!-- Hero: full-bleed band, asymmetric split inside the shared rail -->
-      <section class="hero">
-        <div class="wrap hero-grid">
-          <div class="hero-copy">
-            <h1>Give an agent the whole <span class="mono">Godot</span> development loop.</h1>
-            <p class="lede">
-              Discover the live engine, build in the open editor, run and play the game, observe
-              state, debug failures, fix them in place, and verify the result. The same workflow
-              runs from a terminal or an MCP client against Godot 4.7.
-            </p>
-            <div class="hero-actions">
-              <a class="btn btn-primary" href={docsHref("quickstart")}>Get started <Icon name="arrow" size={16} /></a>
-              <a class="btn btn-ghost" href={SITE.repo} target="_blank" rel="noopener"><Icon name="github" size={16} /> Source</a>
-            </div>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <TopBar showSidebar={false} />
+    <main id="main">
+      <section class="st-hero st-wrap">
+        <div class="st-hero-copy">
+          <p class="st-eyebrow">AUTOMATION FOR GODOT</p>
+          <h1>Swallowtail<span>At your service.</span></h1>
+          <p class="st-lede">Build, inspect, and playtest your game. Put the repetitive work in a script. Keep the creative decisions yours.</p>
+          <p class="st-audience">Your game. Your workflow.</p>
+          <div class="st-actions">
+            <a class="st-button" href={docsHref("quickstart")}>Start building <Icon name="arrow" size={16} /></a>
+            <a class="st-link" href={SITE.repo}>Explore the source <Icon name="github" size={16} /></a>
           </div>
-          <div class="hero-term">
-            <Terminal title="discover, drive, prove" lines={heroSession} />
+          <p class="st-command-note">Run <code>swallowtail</code> from your terminal. <a href={docsHref("migration")}>Upgrading from godot-mcp?</a></p>
+          <p class="st-requirements">Windows, macOS, Linux · Godot 4.7 target<br />Godot 4.3 through 4.8 compatibility in beta · <a href={docsHref("installation")}>Installation &amp; requirements</a></p>
+        </div>
+        <div class="st-hero-stage">
+          <div class="st-hero-terminal"><Terminal title="your project · your terminal" lines={heroSession} /></div>
+          <Mascot topic="anime" pose="hero" src="/brand/swallowtail-presenting.png" width={1024} height={1536} />
+        </div>
+      </section>
+
+      <section class="st-band">
+        <WorkflowShowcase />
+      </section>
+
+      <section class="st-wrap st-prebuild" aria-labelledby="prebuild-heading">
+        <div>
+          <p class="st-eyebrow">PUT IT TO WORK</p>
+          <h2 id="prebuild-heading">Before your next build.</h2>
+          <p>Check your scripts, validate a saved scene, and inspect errors from a short playtest. Keep the commands with your project so you can repeat the checks after a change.</p>
+          <p class="st-footnote">Try this from the <a href={docsHref("quickstart")}>quickstart project</a>, with its editor open and the addon enabled. Use your own saved scene path when you adapt it.</p>
+          <a class="st-text-link" href={docsHref("automation")}>Turn it into a CI check <Icon name="arrow" size={16} /></a>
+        </div>
+        <div class="st-prebuild-code">
+          <Code code={prebuild} lang="sh" title="Run from your project directory" />
+          <p class="st-footnote">Read the validation results and returned error list before exporting. This sequence inspects a playtest; a CI gate also needs assertions and failure handling.</p>
+        </div>
+      </section>
+
+      <section class="st-band st-mascot-divider">
+        <div class="st-wrap st-mascot-rail">
+          <Mascot topic="nature" pose="sitting" src="/brand/swallowtail-sitting.png?v=matte" width={1024} height={1536} />
+        </div>
+        <div class="st-wrap st-interfaces">
+          <div><h2>CLI first.<br />MCP when you want it.</h2><p>MCP is a connection option. The automation toolkit works without it.</p></div>
+          <div class="st-interface-list">
+            <article><h3>Use the CLI</h3><p>Run commands from your terminal, reuse them in scripts, or add them to CI. Read the results directly, or pipe JSON into your next step.</p><a href={docsHref("commands")}>Command reference <Icon name="arrow" size={16} /></a></article>
+            <article><h3>Connect through MCP</h3><p>For clients that use MCP, expose the same command handlers through stdio or the editor's HTTP endpoint. Configure this only if your workflow needs it.</p><a href={docsHref("mcp-setup")}>Optional MCP setup <Icon name="arrow" size={16} /></a></article>
           </div>
         </div>
       </section>
 
-      <!-- Comparison: full-bleed band, copy + styled rows on the rail -->
-      <section class="compare">
-        <div class="wrap compare-grid">
-          <div class="compare-copy">
-            <h2>How it compares.</h2>
-            <p>
-              <a href="https://github.com/hi-godot/godot-ai" target="_blank" rel="noopener">godot-ai</a> and
-              <a href="https://github.com/yurineko73/Godot-MCP-Native" target="_blank" rel="noopener">Godot-MCP-Native</a> are
-              both good, both actively maintained, and all three projects are MIT. godot-ai has the
-              largest community; Godot-MCP-Native has the leanest install; both settle on a 4.5
-              floor, where this one is developed on 4.7 and its 4.3 floor is still beta.
-              Editor-native is table stakes now, so the axes worth
-              measuring are how you drive it, how much context the tool surface costs, and what
-              happens across the full build, play, diagnose, and verify workflow.
-              Figures checked 2026-08-12.
-            </p>
-          </div>
-          <div class="compare-table" role="table" aria-label="Comparison with godot-ai and Godot-MCP-Native">
-            <div class="ct-head" role="row">
-              <span role="columnheader"></span>
-              <span role="columnheader" class="them">godot-ai</span>
-              <span role="columnheader" class="them">Godot-MCP-Native</span>
-              <span role="columnheader" class="us">godot-mcp</span>
-            </div>
-            {compare.map((r) => (
-              <div class="ct-row" role="row">
-                <span role="cell" class="ct-axis">{r.axis}</span>
-                <span role="cell" class={r.win === "them" ? "won" : "them"}>{r.win === "them" && <Icon name="check" size={14} />}{r.ai}</span>
-                <span role="cell" class={r.win === "them" ? "won" : "them"}>{r.win === "them" && <Icon name="check" size={14} />}{r.native}</span>
-                <span role="cell" class="us">{r.win !== "them" && <Icon name="check" size={14} />}{r.us}</span>
-              </div>
-            ))}
+      <section class="st-band">
+        <div class="st-wrap st-ownership" aria-labelledby="ownership-heading">
+          <div><p class="st-eyebrow">KEEP CONTROL OF YOUR WORK</p><h2 id="ownership-heading">Your project stays yours.</h2><p>Work with ordinary Godot scenes, scripts, and resources. Open them in the editor, review the changes in Git, and keep building with the tools you choose.</p></div>
+          <div class="st-ownership-details">
+            <article><h3>Inspect what changes</h3><p>Your scenes, scripts, and resources remain project files you can read, edit, and version.</p></article>
+            <article><h3>Undo supported scene edits</h3><p>Supported scene operations use Godot's editor undo history. Script execution and file changes need their own review and recovery.</p></article>
+            <article><h3>Keep a checkpoint</h3><p>Save your work and commit a known working state before broad changes. Review the diff and test the result before keeping it.</p></article>
           </div>
         </div>
       </section>
 
-      <!-- Capabilities: full-bleed band, two-column editorial grid -->
-      <section class="caps">
-        <div class="wrap caps-inner">
-          <h2 class="caps-title">What it does differently</h2>
-          <div class="caps-list">
-            {caps.map((c) => (
-              <div class="cap">
-                <h3>{c.title}</h3>
-                <p>{c.body}</p>
-                {c.cmd && <code class="cap-cmd">{c.cmd}</code>}
-              </div>
-            ))}
-          </div>
+      <section class="st-wrap st-engine" aria-labelledby="engine-heading">
+        <div class="st-section-intro"><h2 id="engine-heading">Godot already has a CLI.<br />Swallowtail works with it.</h2><p>Godot's built-in command line launches the engine and handles tasks such as imports, scripts, and exports. Swallowtail uses your Godot installation for those jobs and adds an interface to the editor session you already have open.</p></div>
+        <div class="st-engine-rows">
+          <article><h3>Start with the engine</h3><p>Import assets, check scripts, run tests, and export builds through commands that invoke Godot and report the result.</p><code>swallowtail check .</code></article>
+          <article><h3>Work in the live editor</h3><p>Inspect the scene tree, change node properties, and validate saved scenes. Read state back as you work.</p><code>swallowtail scene tree</code></article>
+          <article><h3>See what the game does</h3><p>Play a scene, inspect runtime properties, send input, and check errors. Verify behavior in the running game.</p><code>swallowtail runtime tree</code></article>
+        </div>
+        <p class="st-footnote">Swallowtail uses an installed Godot engine; it does not bundle one. <a href="https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html">Godot's command-line reference</a> · <a href={docsHref("how-it-works")}>How Swallowtail works</a></p>
+      </section>
+
+      <section class="st-wrap st-comparison" aria-labelledby="comparison-heading">
+        <p class="st-eyebrow">HOW IT COMPARES</p>
+        <h2 id="comparison-heading">Swallowtail next to<br />Godot AI and Godot MCP Native.</h2>
+        <p class="st-comparison-intro">What each tool documents: how you start, what you set up, and what you can run from a terminal, a script, or an MCP client. Sources and the comparison date sit under the table.</p>
+        <div class="st-table-scroll" role="region" aria-label="Tool comparison" tabindex="0">
+          <table>
+            <caption>Choose the workflow that fits your project.</caption>
+            <thead><tr><th scope="col">What you need</th><th scope="col">Swallowtail</th><th scope="col">Godot AI</th><th scope="col">Godot MCP Native</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Starting point</th><td><strong>Standalone automation CLI + editor addon</strong></td><td>MCP integration for the editor</td><td>MCP editor addon + companion CLI</td></tr>
+              <tr><th scope="row">Run from your terminal</th><td>Use <code>swallowtail</code> directly, without MCP</td><td>Documented setup uses <code>godot-ai attach</code> to connect an MCP client</td><td>Use <code>gdmcp</code> through its separate local CLI API</td></tr>
+              <tr><th scope="row">Use without an AI agent</th><td><strong>Yes.</strong> The CLI and scripts need no agent, model, or account</td><td>Its requirements list an MCP client; every documented workflow runs through one</td><td>Yes, through its <code>gdmcp</code> CLI, which the docs present for agents with shell access</td></tr>
+              <tr><th scope="row">Set up the connection</th><td>Go binary + Godot addon for live commands</td><td>Python server via uv + Godot plugin + MCP client</td><td>Godot addon; prebuilt CLI for terminal use</td></tr>
+              <tr><th scope="row">Automate a workflow</th><td>Create projects, import, check, test, export, and operate the live editor</td><td>Edit scenes and scripts, run projects and test suites through MCP tools</td><td>Discover tools, run domain commands, and preview or apply command batches</td></tr>
+              <tr><th scope="row">Inspect a playtest</th><td>Runtime state, input, captures, breakpoints, stepping, and hot reload</td><td>Game state, input sequences, screenshots, and error logs</td><td>Runtime probe, breakpoints, stack and variable inspection, and execution control</td></tr>
+              <tr><th scope="row">Connect an MCP client</th><td>Optional stdio or editor-hosted HTTP interface</td><td>Documented primary workflow</td><td>MCP interface alongside the separate CLI API</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="st-footnote">Compared against the published documentation on September 7, 2026: <a href="https://github.com/hi-godot/godot-ai">Godot AI</a>, <a href="https://github.com/hi-godot/godot-ai/blob/main/docs/TOOLS.md">its tool reference</a>, <a href="https://github.com/yurineko73/Godot-MCP-Native">Godot MCP Native</a>, and <a href="https://github.com/yurineko73/Godot-MCP-Native/tree/main/cli/gdmcp">its CLI reference</a>. This summarizes documented workflows, not an exhaustive feature audit.</p>
+      </section>
+
+      <section class="st-wrap st-story" aria-labelledby="story-heading">
+        <div><p class="st-eyebrow">WHY THIS PROJECT EXISTS</p><h2 id="story-heading">I just wanted<br />to build games.</h2><p class="st-story-aside">For my son.<br />For myself.</p></div>
+        <div class="st-story-copy">
+          <p>After twenty years as a programmer, I wanted to spend more time making games. I don't have the budget to hire a team for every idea, and I don't want to spend ten years on a project at the expense of my health or my family.</p>
+          <p>What I wanted was a toolkit that lets me work the way I want on any given day, and that includes using AI as one of the tools. Some days that is a terminal and a script I can run again. Some days it is an agent driving the editor while I review what it changed. Swallowtail gives both the same commands, so the choice stays mine at every step between an idea and something you can actually play.</p>
+          <p>I understand the concerns about this technology. You don't have to agree with my choices, and I respect that. I'm here to make games and share a tool, not to fight. Questions and criticism are welcome. Bullying and personal attacks aren't.</p>
+          <a class="st-text-link" href={docsHref("on-ai")}>The full note on AI and this project <Icon name="arrow" size={16} /></a>
         </div>
       </section>
 
-      <!-- Architecture: full-bleed subtle band, real ASCII diagram -->
-      <section class="arch">
-        <div class="wrap arch-grid">
-          <div class="arch-copy">
-            <h2>One connection model.</h2>
-            <p>
-              The addon runs a WebSocket server inside the editor, the long-lived process. The CLI
-              and the MCP <code>serve</code> mode are both short-lived clients that dial in. Runtime
-              commands reach the separate running game over file IPC.
-            </p>
-          </div>
-          <pre class="arch-diagram"><code>{`  godot-mcp (CLI / MCP client)
-        |
-        |  WebSocket · JSON-RPC 2.0 · 127.0.0.1:9080
-        v
-  Godot editor addon  (the server)
-        |
-        |  file IPC (user://)
-        v
-  running game  (MCPGameInspector / MCPGameInput)`}</code></pre>
-        </div>
-      </section>
-
-      <!-- Install: full-bleed band, split, terminal-led -->
-      <section class="install">
-        <div class="wrap install-grid">
-          <div class="install-copy">
-            <h2>Install in one command.</h2>
-            <p>
-              Drop the addon and the agent skill into any Godot 4.7 project, or bootstrap a fresh one.
-              No runtime dependencies beyond a single Go binary.
-            </p>
-            <a class="btn btn-primary" href={docsHref("installation")}>Installation guide <Icon name="arrow" size={16} /></a>
-          </div>
-          <div class="install-term">
-            <Terminal title="terminal" lines={installSession} />
-          </div>
-        </div>
-      </section>
-
-      <!-- Closer -->
-      <section class="closer">
-        <div class="wrap closer-inner">
-          <p class="closer-line">Build the game, and prove it works by playing it.</p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href={docsHref("")}>Read the docs <Icon name="arrow" size={16} /></a>
-            <a class="btn btn-ghost" href={docsHref("samples")}>See samples</a>
-          </div>
-        </div>
+      <section class="st-band st-start st-mascot-finale">
+        <Mascot topic="culture" pose="peeking" src="/brand/swallowtail-peeking.png" width={1536} height={1024} />
+        <div class="st-wrap"><h2>There's a game you want to make.</h2><p>Start with a scene. Build from there.</p><a class="st-button" href={docsHref("quickstart")}>Meet the toolkit <Icon name="arrow" size={16} /></a></div>
       </section>
     </main>
-
-    <footer class="landing-foot">
-      <span>MIT licensed</span>
-      <span class="dot">·</span>
-      <a href={SITE.repo} target="_blank" rel="noopener">github.com/regiellis/godot-mcp-go</a>
-    </footer>
-
-    <style>
-      main { display: block; }
-
-      /* One shared rail for every band, matching the TopBar (1400px, 1.25rem gutters). */
-      .wrap { max-width: 1400px; margin-inline: auto; padding-inline: 1.25rem; }
-
-      /* Grid items must be allowed to shrink below their content's intrinsic width,
-         or a wide terminal line forces the page past the viewport on mobile. */
-      .hero-grid > *, .compare-grid > *, .arch-grid > *, .install-grid > * { min-width: 0; }
-
-      .btn {
-        display: inline-flex; align-items: center; gap: 0.4rem;
-        font-weight: 600; font-size: 0.95rem; padding: 0.62rem 1.1rem; border-radius: var(--radius);
-        border: 1px solid transparent; transition: background 0.15s ease, border-color 0.15s ease;
-      }
-      .btn:hover { text-decoration: none; }
-      .btn-primary { background: var(--accent); color: #fff; }
-      .btn-primary:hover { background: var(--accent-strong); }
-      .btn-ghost { background: var(--surface); color: var(--text); border-color: var(--border-strong); }
-      .btn-ghost:hover { border-color: var(--accent); }
-
-      /* Hero: 5/7 asymmetric split on the rail, full-bleed accent wash */
-      .hero {
-        border-bottom: 1px solid var(--border);
-        background: radial-gradient(1100px 520px at 78% -12%,
-          color-mix(in srgb, var(--accent) 9%, transparent), transparent 70%);
-      }
-      .hero-grid {
-        display: grid; grid-template-columns: 5fr 7fr; gap: 3.5rem; align-items: center;
-        padding-block: 4.5rem;
-      }
-      .hero-copy h1, .compare-copy h2, .arch-copy h2, .install-copy h2, .caps-title {
-        font-family: var(--font-display);
-      }
-      .hero-copy h1 {
-        font-size: clamp(2rem, 3.6vw, 2.9rem); line-height: 1.12; letter-spacing: -0.025em;
-        font-weight: 700; margin: 0 0 1.2rem;
-      }
-      .hero-copy h1 .mono { font-family: var(--font-mono); font-weight: 640; font-size: 0.92em; color: var(--accent-strong); white-space: nowrap; }
-      .lede { font-size: 1.08rem; line-height: 1.6; color: var(--text-muted); margin: 0 0 1.8rem; max-width: 38ch; }
-      .lede strong { color: var(--text); }
-      .hero-actions { display: flex; gap: 0.7rem; flex-wrap: wrap; }
-
-      /* Comparison */
-      .compare-grid {
-        display: grid; grid-template-columns: 1fr 1.4fr; gap: 4rem; align-items: center;
-        padding-block: 4.5rem;
-      }
-      .compare-copy h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); letter-spacing: -0.02em; font-weight: 680; margin: 0 0 0.8rem; }
-      .compare-copy p { color: var(--text-muted); margin: 0; line-height: 1.65; max-width: 48ch; }
-      .compare-table { font-size: 0.92rem; overflow-x: auto; }
-      /* Four columns need a floor, or the cells crush before the container scrolls. */
-      .ct-head, .ct-row { display: grid; grid-template-columns: 1.15fr 0.95fr 1fr 1.35fr; gap: 1rem; padding: 0.7rem 0.4rem; align-items: center; min-width: 34rem; }
-      .ct-head { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-faint); font-weight: 650; border-bottom: 1px solid var(--border); }
-      .ct-row { border-bottom: 1px solid var(--border); }
-      .ct-row:last-child { border-bottom: 0; }
-      .ct-axis { color: var(--text); font-weight: 560; }
-      .compare-table .them { color: var(--text-faint); }
-      .compare-table .us,
-      .compare-table .won { color: var(--text); font-weight: 560; display: inline-flex; align-items: center; gap: 0.35rem; }
-      .compare-table .us :global(svg),
-      .compare-table .won :global(svg) { color: var(--accent); flex: none; }
-
-      /* Capabilities: two-column editorial grid with hairlines */
-      .caps { border-top: 1px solid var(--border); }
-      .caps-inner { padding-block: 4.5rem; }
-      .caps-title { font-size: clamp(1.5rem, 2.8vw, 1.9rem); letter-spacing: -0.02em; font-weight: 680; margin: 0 0 2.2rem; }
-      .caps-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 4.5rem; }
-      .cap { padding: 1.7rem 0; border-top: 1px solid var(--border); }
-      .cap:nth-child(-n + 2) { border-top: 0; padding-top: 0; }
-      .cap h3 { font-size: 1.12rem; font-weight: 640; margin: 0 0 0.4rem; }
-      .cap p { color: var(--text-muted); margin: 0; line-height: 1.65; max-width: 58ch; }
-      .cap-cmd {
-        display: inline-block; margin-top: 0.85rem; font-family: var(--font-mono); font-size: 0.8rem;
-        color: var(--accent-strong); background: var(--bg-code); border: 1px solid var(--border);
-        border-radius: var(--radius-sm); padding: 0.4rem 0.7rem; overflow-x: auto; max-width: 100%;
-      }
-
-      /* Architecture band */
-      .arch { background: var(--bg-subtle); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-      .arch-grid {
-        display: grid; grid-template-columns: 1fr 1.35fr; gap: 4rem; align-items: center;
-        padding-block: 4rem;
-      }
-      .arch-copy h2 { font-size: clamp(1.5rem, 2.8vw, 1.9rem); letter-spacing: -0.02em; font-weight: 680; margin: 0 0 0.8rem; }
-      .arch-copy p { color: var(--text-muted); margin: 0; line-height: 1.65; max-width: 48ch; }
-      .arch-copy code { font-family: var(--font-mono); font-size: 0.85em; color: var(--accent-strong); }
-      .arch-diagram {
-        margin: 0; padding: 1.3rem; overflow-x: auto;
-        font-family: var(--font-mono); font-size: 0.8rem; line-height: 1.7; color: var(--text-muted);
-        background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
-      }
-      .arch-diagram code { font-family: inherit; background: none; border: 0; padding: 0; }
-
-      /* Install */
-      .install-grid {
-        display: grid; grid-template-columns: 1fr 1.25fr; gap: 4rem; align-items: center;
-        padding-block: 4.5rem;
-      }
-      .install-copy h2 { font-size: clamp(1.5rem, 2.8vw, 1.9rem); letter-spacing: -0.02em; font-weight: 680; margin: 0 0 0.8rem; }
-      .install-copy p { color: var(--text-muted); margin: 0 0 1.3rem; line-height: 1.65; max-width: 48ch; }
-
-      /* Closer */
-      .closer { border-top: 1px solid var(--border); text-align: center; }
-      .closer-inner { padding-block: 4.5rem; }
-      .closer-line {
-        font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 680; letter-spacing: -0.02em;
-        margin: 0 auto 1.6rem; max-width: 30ch;
-      }
-      .closer .hero-actions { justify-content: center; }
-
-      .landing-foot {
-        display: flex; gap: 0.5rem; justify-content: center; align-items: center;
-        padding: 2.2rem 1.25rem 3rem; color: var(--text-faint); font-size: 0.88rem;
-        border-top: 1px solid var(--border);
-      }
-      .landing-foot .dot { opacity: 0.5; }
-
-      @media (max-width: 900px) {
-        .hero-grid, .compare-grid, .arch-grid, .install-grid { grid-template-columns: 1fr; gap: 2rem; }
-        .hero-grid { padding-block: 3rem; }
-        .lede { max-width: none; }
-        .caps-list { grid-template-columns: 1fr; column-gap: 0; }
-        .cap:nth-child(2) { border-top: 1px solid var(--border); padding-top: 1.7rem; }
-      }
-    </style>
+    <MascotStories />
+    <footer class="st-wrap st-footer"><span>Swallowtail · MIT licensed</span><a href={SITE.repo}>Source</a><a href={docsHref("on-ai")}>About the project</a><a href={docsHref("changelog")}>Changelog</a></footer>
   </body>
 </html>

@@ -3,7 +3,7 @@ title: Add your own commands
 description: Extend the MCP with project-local commands, no fork of the addon required.
 ---
 
-You can add project-specific commands without forking the addon: drop a `.gd` file into a **`res://mcp_commands/`** folder in your project. On plugin enable the addon scans that folder and registers your commands next to the built-ins, so they appear everywhere the built-ins do: the CLI, nested help (`godot-mcp <group> --help`), `godot-mcp engine commands`, and, over MCP, as a [typed tool](/docs/mcp-setup) with its own schema. No Go or addon changes.
+You can add project-specific commands without forking the addon: drop a `.gd` file into a **`res://mcp_commands/`** folder in your project. On plugin enable the addon scans that folder and registers your commands next to the built-ins, so they appear everywhere the built-ins do: the CLI, nested help (`swallowtail <group> --help`), `swallowtail engine commands`, and, over MCP, as a [typed tool](/docs/mcp-setup) with its own schema. No Go or addon changes.
 
 ## The shape of a command file
 
@@ -11,7 +11,7 @@ A command file instantiates to a Node and exposes `get_commands() -> {"group.com
 
 ```gdscript
 @tool
-extends "res://addons/godot_mcp/commands/base_command.gd"
+extends "res://addons/swallowtail/commands/base_command.gd"
 
 func get_commands() -> Dictionary:
     return {
@@ -32,8 +32,8 @@ func _echo(params: Dictionary) -> Dictionary:
 Save this as `res://mcp_commands/example_commands.gd`, restart the editor, and the commands are live:
 
 ```bash
-godot-mcp custom ping
-godot-mcp custom echo --message hi
+swallowtail custom ping
+swallowtail custom echo --message hi
 ```
 
 ## Something worth writing
@@ -44,7 +44,7 @@ dangling texture path in a scene or a script that moved, and gives the file and 
 
 ```gdscript
 @tool
-extends "res://addons/godot_mcp/commands/base_command.gd"
+extends "res://addons/swallowtail/commands/base_command.gd"
 
 const SCANNED_EXTS := ["tscn", "tres", "gd", "gdshader", "import", "cfg", "json", "godot"]
 
@@ -92,8 +92,8 @@ func _scan(dir: String) -> Array:
 ```
 
 ```bash
-godot-mcp custom broken-refs
-godot-mcp custom broken-refs --help    # the param table comes from get_command_docs()
+swallowtail custom broken-refs
+swallowtail custom broken-refs --help    # the param table comes from get_command_docs()
 ```
 
 Two details carry most of the value. **References are read out of quoted spans only, then

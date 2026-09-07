@@ -3,16 +3,20 @@ import Logo from "./Logo.astro";
 import Search from "./Search.astro";
 import ThemeToggle from "./ThemeToggle.astro";
 import Icon from "./Icon.astro";
+import Announcement from "./Announcement.astro";
 import { SITE } from "../config";
 import { withBase } from "../lib/paths";
+interface Props { showSidebar?: boolean }
+const { showSidebar = true } = Astro.props;
 ---
 
+<Announcement />
 <header class="topbar">
   <div class="topbar-inner">
     <div class="topbar-left">
-      <button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation">
+      {showSidebar && <button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation">
         <Icon name="menu" size={20} />
-      </button>
+      </button>}
       <Logo />
     </div>
 
@@ -47,8 +51,8 @@ import { withBase } from "../lib/paths";
     display: flex;
     align-items: center;
     gap: 1.25rem;
-    padding: 0 1.25rem;
-    max-width: 1400px;
+    padding: 0 var(--site-gutter);
+    max-width: var(--site-max-width);
     margin: 0 auto;
   }
   .topbar-left { display: flex; align-items: center; gap: 0.6rem; }
@@ -75,5 +79,11 @@ import { withBase } from "../lib/paths";
   @media (max-width: 960px) {
     .topbar-nav { display: none; }
     .sidebar-toggle { display: grid; }
+  }
+  @media (max-width: 400px) {
+    .topbar-inner { gap: .4rem; }
+    .topbar-left { gap: .3rem; }
+    .topbar-right { gap: .25rem; }
+    .topbar-right > a { display: none; }
   }
 </style>

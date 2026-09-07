@@ -1,0 +1,111 @@
+<aside id="mascot-bubble" class="mascot-bubble" role="dialog" aria-modal="false" aria-labelledby="mascot-story-title" hidden>
+  <div class="mascot-bubble-inner">
+    <button type="button" class="mascot-close" aria-label="Close Swallowtail’s story">×</button>
+    <div aria-live="polite" aria-atomic="true">
+      <p class="mascot-topic"></p>
+      <h2 id="mascot-story-title" tabindex="-1"></h2>
+      <p class="mascot-story-text"></p>
+    </div>
+    <a class="mascot-story-source" target="_blank" rel="noopener noreferrer"></a>
+    <div class="mascot-story-footer"><span class="mascot-story-count"></span><button class="mascot-next" type="button">Another story <span aria-hidden="true">→</span></button></div>
+    <p class="mascot-story-hint">Click me again for another, or meet the other mascots.</p>
+  </div>
+</aside>
+
+<script>
+  import { mascotStories, type StoryTopic } from '../data/mascot-stories';
+  const bubble = document.querySelector<HTMLElement>('#mascot-bubble')!;
+  const title = bubble.querySelector<HTMLElement>('#mascot-story-title')!;
+  const text = bubble.querySelector<HTMLElement>('.mascot-story-text')!;
+  const source = bubble.querySelector<HTMLAnchorElement>('.mascot-story-source')!;
+  const topicLabel = bubble.querySelector<HTMLElement>('.mascot-topic')!;
+  const count = bubble.querySelector<HTMLElement>('.mascot-story-count')!;
+  const triggers = [...document.querySelectorAll<HTMLButtonElement>('[data-mascot-topic]')];
+  const cursors = new Map<StoryTopic, number>();
+  let active: HTMLButtonElement | null = null;
+
+  function position() {
+    if (!active || bubble.hidden) return;
+    const rect = active.getBoundingClientRect();
+    const width = bubble.offsetWidth;
+    const height = bubble.offsetHeight;
+    const margin = 16;
+    const leftSpace = rect.left - width - 24;
+    const beside = leftSpace >= margin;
+    const left = beside ? leftSpace : Math.max(margin, Math.min(innerWidth - width - margin, rect.left + rect.width / 2 - width / 2));
+    const desiredTop = beside ? rect.top + rect.height * .12 : rect.top - height - 20;
+    const top = Math.max(76, Math.min(innerHeight - height - margin, desiredTop));
+    bubble.style.left = `${left}px`;
+    bubble.style.top = `${top}px`;
+    bubble.dataset.tail = beside ? 'right' : 'bottom';
+    const tail = beside ? Math.max(28, Math.min(height - 28, rect.top + rect.height * .3 - top)) : Math.max(28, Math.min(width - 28, rect.left + rect.width / 2 - left));
+    bubble.style.setProperty('--tail-offset', `${tail}px`);
+  }
+
+  function show(trigger: HTMLButtonElement, focusTitle = false) {
+    const topic = trigger.dataset.mascotTopic as StoryTopic;
+    const deck = mascotStories[topic];
+    let index = cursors.get(topic);
+    if (index === undefined) {
+      try { index = Number(sessionStorage.getItem(`swallowtail-story-${topic}`) ?? 0); } catch { index = 0; }
+    }
+    if (!Number.isSafeInteger(index) || index! < 0) index = 0;
+    index = index! % deck.stories.length;
+    const story = deck.stories[index];
+    cursors.set(topic, index + 1);
+    try { sessionStorage.setItem(`swallowtail-story-${topic}`, String(index + 1)); } catch { /* Works without storage. */ }
+    active?.setAttribute('aria-expanded', 'false');
+    active = trigger;
+    trigger.setAttribute('aria-expanded', 'true');
+    topicLabel.textContent = deck.label;
+    title.textContent = story.title;
+    text.textContent = story.text;
+    source.textContent = `Read more: ${story.source} ↗`;
+    source.href = story.url;
+    count.textContent = `${index + 1} of ${deck.stories.length} stories`;
+    bubble.hidden = false;
+    position();
+    if (focusTitle) title.focus({ preventScroll: true });
+  }
+  function close(restoreFocus = false) {
+    const previous = active;
+    previous?.setAttribute('aria-expanded', 'false');
+    bubble.hidden = true;
+    active = null;
+    if (restoreFocus) previous?.focus({ preventScroll: true });
+  }
+  triggers.forEach(trigger => trigger.addEventListener('click', () => show(trigger, true)));
+  bubble.querySelector('.mascot-next')!.addEventListener('click', () => { if (active) show(active); });
+  bubble.querySelector('.mascot-close')!.addEventListener('click', () => close(true));
+  document.addEventListener('keydown', event => { if (event.key === 'Escape' && active) { event.preventDefault(); close(true); } });
+  document.addEventListener('pointerdown', event => {
+    const target = event.target as Element;
+    if (active && !bubble.contains(target) && !target.closest('[data-mascot-topic]')) close();
+  });
+  window.addEventListener('resize', position);
+  window.addEventListener('scroll', () => {
+    if (!active) return;
+    const rect = active.getBoundingClientRect();
+    if (rect.bottom < 60 || rect.top > innerHeight) close(); else position();
+  }, { passive: true });
+</script>
+
+<style>
+  .mascot-bubble { position: fixed; z-index: 90; width: min(480px, calc(100vw - 32px)); margin: 0; border: 2px solid var(--accent); border-radius: 22px; background: var(--surface); color: var(--text); box-shadow: var(--shadow-pop); text-align: left; }
+  .mascot-bubble[hidden] { display: none; }
+  .mascot-bubble::after { content: ''; position: absolute; width: 18px; height: 18px; background: var(--surface); transform: rotate(45deg); }
+  .mascot-bubble[data-tail="right"]::after { right: -11px; top: var(--tail-offset); border-top: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+  .mascot-bubble[data-tail="bottom"]::after { bottom: -11px; left: var(--tail-offset); border-bottom: 2px solid var(--accent); border-right: 2px solid var(--accent); }
+  .mascot-bubble-inner { padding: 1.8rem; max-height: calc(100dvh - 120px); overflow-y: auto; border-radius: 20px; }
+  .mascot-close { position: absolute; right: .65rem; top: .65rem; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--bg-subtle); color: var(--text); font: 1.5rem/1 var(--font-sans); cursor: pointer; }
+  .mascot-topic { padding-right: 2rem; margin: 0 0 .8rem; color: var(--accent); font: 700 .7rem/1.5 var(--font-sans); letter-spacing: .08em; text-transform: uppercase; }
+  .mascot-bubble h2 { font: 700 clamp(1.3rem, 3vw, 1.7rem)/1.2 var(--font-display); letter-spacing: -.025em; margin: 0 0 1rem; }
+  .mascot-story-text { font-size: 1rem; line-height: 1.75; margin: 0 0 1rem; }
+  .mascot-story-source { display: block; font-size: .75rem; line-height: 1.5; overflow-wrap: anywhere; }
+  .mascot-story-footer { border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1.2rem; display: flex; gap: 1rem; align-items: center; justify-content: space-between; }
+  .mascot-story-count { font-size: .75rem; color: var(--text-muted); }
+  .mascot-next { background: var(--accent); color: var(--on-accent); padding: .65rem .8rem; border: 0; border-radius: var(--radius-sm); font: 650 .8rem/1.4 var(--font-sans); cursor: pointer; }
+  .mascot-story-hint { color: var(--text-muted); font-size: .7rem; margin: .9rem 0 0; }
+  .mascot-bubble :is(button,a):focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  @media (max-width: 400px) { .mascot-bubble-inner { padding: 1.4rem 1.1rem; } .mascot-story-text { font-size: .9rem; } }
+</style>

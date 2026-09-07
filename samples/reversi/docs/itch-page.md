@@ -60,11 +60,11 @@ bitmap to go soft.
 WHAT THIS ACTUALLY IS
 
 A demonstration. The whole game was built by AI agents driving a live Godot editor
-through godot-mcp, a tool that gives an agent the real development loop: build, run,
+through swallowtail, a tool that gives an agent the real development loop: build, run,
 play, observe, debug, fix, verify.
 
 The brief came from a video demonstrating a different tool. This is the same brief
-answered with godot-mcp, so both results sit in the open and can be judged on what
+answered with swallowtail, so both results sit in the open and can be judged on what
 they produced rather than on anybody's claims.
 
 This is NOT an argument for generating games from a single prompt, and it is not a
@@ -82,7 +82,7 @@ it felt right. A brief for a game that does not exist yet, where the mechanic ha
 be discovered by iterating on it, is a different job, and one prompt does not touch
 it.
 
-godot-mcp is a tool. It belongs alongside the rest of a Godot workflow rather than in
+swallowtail is a tool. It belongs alongside the rest of a Godot workflow rather than in
 place of it: source control, review, playtesting, and someone with the judgement to
 decide when a thing is actually done.
 

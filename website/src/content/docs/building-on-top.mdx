@@ -5,7 +5,7 @@ description: Speak the wire protocol directly with a Python client and a working
 
 The CLI is one client of a boring, stable wire: **JSON-RPC 2.0 over a local WebSocket** hosted by the editor addon. Anything that can open a WebSocket can be a Godot tool, whether that is a script, a test rig, or a web UI. Three facts cover the whole protocol:
 
-- **Find the port** in `<project>/.godot/godot-mcp.json`, which the addon writes on bind (auto range 9080-9095).
+- **Find the port** in `<project>/.godot/swallowtail.json`, which the addon writes on bind (auto range 9080-9095).
 - **Send** `{"jsonrpc": "2.0", "id": 1, "method": "<group>.<command>", "params": {…}}` as a text frame, and **match the response by `id`**. Frames without your `id` are heartbeats, so ignore them.
 - **Errors** come back as `{"error": {"code", "message", "data"}}` with JSON-RPC-style codes (see [How it works](/docs/how-it-works)).
 
@@ -17,7 +17,7 @@ import asyncio, json, pathlib, sys
 import websockets
 
 def port(project="."):
-    f = pathlib.Path(project) / ".godot" / "godot-mcp.json"
+    f = pathlib.Path(project) / ".godot" / "swallowtail.json"
     return json.loads(f.read_text())["port"] if f.exists() else 9080
 
 async def call(method, params=None, project="."):
@@ -48,7 +48,7 @@ A WebSocket from a page needs no server and no CORS exception, so this single fi
 ```html
 <!doctype html>
 <meta charset="utf-8">
-<title>godot-mcp panel</title>
+<title>swallowtail panel</title>
 <style>
   body { font: 14px ui-monospace, monospace; background: #12151a; color: #e8eaed; padding: 2rem; }
   input { width: 26rem; } input, button { font: inherit; padding: .35rem .6rem; }
@@ -59,7 +59,7 @@ A WebSocket from a page needs no server and no CORS exception, so this single fi
 <button id="go">run</button>
 <pre id="out"></pre>
 <script>
-  const ws = new WebSocket("ws://127.0.0.1:9080"); // or read the port from godot-mcp.json
+  const ws = new WebSocket("ws://127.0.0.1:9080"); // or read the port from swallowtail.json
   let id = 0;
   const pending = new Map();
   ws.onmessage = (e) => {
@@ -81,5 +81,5 @@ The exchange above is verified against a live editor. Grow it in any direction. 
 ## Or skip the socket
 
 - **Shell out to the CLI** and parse JSON or TSV. [Scripting and CI](/docs/automation) covers it.
-- **Speak MCP**: `godot-mcp serve` exposes every command as a typed tool for AI clients. See [Use with an AI client](/docs/mcp-setup).
+- **Speak MCP**: `swallowtail serve` exposes every command as a typed tool for AI clients. See [Use with an AI client](/docs/mcp-setup).
 - **Generate from the catalog**: `engine commands --docs` returns every command with typed params, enough to build forms, bindings, or a command-palette UI without hardcoding a single command name.

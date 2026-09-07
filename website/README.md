@@ -1,4 +1,4 @@
-# godot-mcp docs site
+# swallowtail docs site
 
 The public documentation site, deployed to GitHub Pages by `.github/workflows/docs.yml`
 on every push to `main`. Plain **Astro** with MDX, Expressive Code, and Pagefind search.
@@ -23,7 +23,7 @@ Search is generated post-build from `dist/`, so it only works in dev after one `
 | `src/styles/theme.css` | Design tokens; light and dark switch on `:root[data-theme]` |
 | `public/brand/` | The master mark; raster copies come from `tools/render-mark.mjs` |
 
-The craft guides are not authored here. They are glob-imported from `skills/godot-mcp/*.md`
+The craft guides are not authored here. They are glob-imported from `skills/swallowtail/*.md`
 at the repo root and keyed by the `GUIDES` list in `src/config.ts`, so the published pages
 and the shipped agent skill can never drift apart. To add one, write the Markdown there and
 add its entry here.

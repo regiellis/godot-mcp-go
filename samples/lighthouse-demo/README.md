@@ -1,7 +1,7 @@
 # Lighthouse Demo
 
 A stylized water surface with a lighthouse, built in Godot 4.7 by an agent
-driving [godot-mcp](https://github.com/regiellis/godot-mcp-go).
+driving [swallowtail](https://github.com/regiellis/godot-mcp-go).
 
 Run it:
 

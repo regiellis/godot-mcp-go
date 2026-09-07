@@ -176,11 +176,11 @@ func TestSafeDirName(t *testing.T) {
 
 func TestResolveGamePortEnv(t *testing.T) {
 	t.Setenv("GODOT_MCP_GAME_PORT", "9207")
-	if got := ResolveGamePort(0, t.TempDir()); got != 9207 {
+	if got, err := ResolveGamePort(0, t.TempDir()); err != nil || got != 9207 {
 		t.Errorf("ResolveGamePort with env = %d, want 9207", got)
 	}
 	// Explicit flag wins over env.
-	if got := ResolveGamePort(9300, t.TempDir()); got != 9300 {
+	if got, err := ResolveGamePort(9300, t.TempDir()); err != nil || got != 9300 {
 		t.Errorf("ResolveGamePort with flag = %d, want 9300", got)
 	}
 }
@@ -188,7 +188,7 @@ func TestResolveGamePortEnv(t *testing.T) {
 func TestResolveGamePortDefault(t *testing.T) {
 	t.Setenv("GODOT_MCP_GAME_PORT", "")
 	// A dir with no project.godot and no discovery file falls back to the default.
-	if got := ResolveGamePort(0, t.TempDir()); got != DefaultGamePort {
+	if got, err := ResolveGamePort(0, t.TempDir()); err != nil || got != DefaultGamePort {
 		t.Errorf("ResolveGamePort default = %d, want %d", got, DefaultGamePort)
 	}
 }

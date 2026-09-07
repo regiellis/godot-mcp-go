@@ -1,7 +1,7 @@
 # Ghibli Meadow
 
 A stylized grass field with controllable wind, built in Godot 4.7 by an agent
-driving [godot-mcp](https://github.com/regiellis/godot-mcp-go).
+driving [swallowtail](https://github.com/regiellis/godot-mcp-go).
 
 Run it:
 

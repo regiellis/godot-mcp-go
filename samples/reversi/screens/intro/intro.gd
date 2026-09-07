@@ -8,7 +8,7 @@ extends Control
 
 const NEXT_PATH := "res://screens/title/title.tscn"
 
-const CARD_ONE := "This is a demo for godot-mcp."
+const CARD_ONE := "This is a demo for swallowtail."
 
 const CARD_TWO := """An agent built it by driving the Godot editor over a local WebSocket:
 the scenes, the scripts, the interface, and the rules underneath."""

@@ -17,11 +17,11 @@ const SETTINGS_PATH := "res://screens/settings/settings.tscn"
 const CREDITS_PATH := "res://screens/credits/credits.tscn"
 
 const WORDMARK := "REVERSI"
-const SUBTITLE := "A GODOT-MCP DEMO"
+const SUBTITLE := "A SWALLOWTAIL DEMO"
 
 ## The corner mark: the author on the first line, the repository on the second.
 const FOOTER_LINES: PackedStringArray = [
-	"Built with godot-mcp by Regi Ellis",
+	"Built with swallowtail by Regi Ellis",
 	"github.com/regiellis/godot-mcp-go",
 ]
 

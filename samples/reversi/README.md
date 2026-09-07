@@ -1,13 +1,13 @@
 # Reversi
 
 [![Godot 4.7](https://img.shields.io/badge/Godot-4.7-478CBF?logo=godotengine&logoColor=white)](https://godotengine.org)
-[![godot-mcp 0.9.1](https://img.shields.io/badge/godot--mcp-0.9.1-1b5337)](https://github.com/regiellis/godot-mcp-go)
+[![swallowtail 0.9.1](https://img.shields.io/badge/swallowtail-0.9.1-1b5337)](https://github.com/regiellis/godot-mcp-go)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 ![Design box 2560x1440](https://img.shields.io/badge/design%20box-2560%C3%971440-f5c242)
 ![Drawn in code](https://img.shields.io/badge/art-drawn%20in%20code-ff4f8b)
 
 A complete Reversi game for Godot 4.7, built end to end by AI agents driving
-[godot-mcp](https://github.com/regiellis/godot-mcp-go) against a live editor.
+[swallowtail](https://github.com/regiellis/godot-mcp-go) against a live editor.
 
 ![The title screen: the word REVERSI in a heavy display face beside a board playing itself](media/title.png)
 
@@ -34,7 +34,7 @@ its first intro card.
 > feature requests. It is MIT licensed because the point is for people to read it, learn from it and
 > reuse the techniques freely, so treat it as a worked example rather than a dependency.
 >
-> godot-mcp is a tool. It belongs alongside the rest of a Godot workflow rather than in place of it:
+> swallowtail is a tool. It belongs alongside the rest of a Godot workflow rather than in place of it:
 > source control, review, playtesting, and someone with the judgement to decide when a thing is
 > actually done. The claim this demo makes is narrower and more useful than autonomy. An agent can
 > hold a real development loop, and it can be directed, corrected and held to a standard, the same
@@ -103,7 +103,7 @@ The whole project started from one prompt, and the prompt is not ours. It is the
 by youichi-uda showing [godot-mcp-pro](https://github.com/youichi-uda/godot-mcp-pro). Credit for the
 brief goes there.
 
-This repository answers the same brief with [godot-mcp](https://github.com/regiellis/godot-mcp-go),
+This repository answers the same brief with [swallowtail](https://github.com/regiellis/godot-mcp-go),
 so the two results can be put side by side and judged on what they produced. That is the most useful
 thing a demo can offer: the same starting point, two tools, and the output in the open.
 
@@ -189,7 +189,7 @@ a licence file and version badges, and launch it as its own repository.
 ## How it was built
 
 One controlling agent planned the work and verified it. Subagents did the building, all of them
-driving the same live Godot editor through godot-mcp: research agents read the reference material
+driving the same live Godot editor through swallowtail: research agents read the reference material
 first, then implementation agents wrote the code and built the scenes.
 
 Scenes are built by a script that constructs the tree, packs it and saves it, rather than by opening
@@ -238,7 +238,7 @@ note are in `assets/audio/sfx/`.
 The display face is [Bungee](https://github.com/djrrb/Bungee) by David Jonathan Ross, used under the
 SIL Open Font License 1.1. The full licence text ships alongside it in `assets/fonts/OFL.txt`.
 
-godot-mcp is built and maintained by Regi Ellis.
+swallowtail is built and maintained by Regi Ellis.
 [Repository](https://github.com/regiellis/godot-mcp-go) and
 [documentation](https://regiellis.github.io/godot-mcp-go/docs).
 

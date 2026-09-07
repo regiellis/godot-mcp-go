@@ -31,10 +31,11 @@ const next = idx >= 0 && idx < NAV_FLAT.length - 1 ? NAV_FLAT[idx + 1] : null;
     <BaseHead title={title} description={description} />
   </head>
   <body>
+    <a class="skip-link" href="#main">Skip to content</a>
     <TopBar />
     <div class="shell">
       <Sidebar current={current} />
-      <main class="main">
+      <main class="main" id="main">
         <article class="prose" data-pagefind-body>
           {mdHuman && (
             <div class="doc-toolbar">
@@ -64,7 +65,7 @@ const next = idx >= 0 && idx < NAV_FLAT.length - 1 ? NAV_FLAT[idx + 1] : null;
         </nav>
 
         <footer class="site-foot">
-          Built with the help of <code>godot-mcp</code>. MIT licensed.
+          Built with the help of <code>swallowtail</code>. MIT licensed.
         </footer>
       </main>
       {tableOfContents ? <TableOfContents headings={headings} /> : <div class="toc-spacer" />}
@@ -127,6 +128,10 @@ const next = idx >= 0 && idx < NAV_FLAT.length - 1 ? NAV_FLAT[idx + 1] : null;
 
       @media (max-width: 1200px) { .toc-spacer { display: none; } }
       @media (max-width: 960px) { .main { padding-top: 1.8rem; } }
+      @media (max-width: 400px) {
+        .pager { flex-direction: column; }
+        .pager-link, .pager-link.next { min-width: 0; width: 100%; }
+      }
     </style>
   </body>
 </html>

@@ -1,0 +1,481 @@
+---
+// Four real sessions, typed into one terminal frame. Left column is a vertical
+// tablist; the right column stacks every panel in one grid cell so the frame
+// keeps the height of the longest session and nothing shifts on a swap.
+// The session text is captured CLI output: re-capture it when a command's
+// output changes rather than editing the strings by hand.
+import Terminal from "./Terminal.astro";
+import Icon from "./Icon.astro";
+import { docsHref } from "../lib/paths";
+
+const examples = [
+  {
+    title: "Run commands",
+    description: "Inspect the open scene, change a property, check the result. The editor answers from your terminal.",
+    href: docsHref("quickstart"),
+    label: "Start with the quickstart",
+    lines: [
+      { type: "cmd", text: "swallowtail scene tree" },
+      { type: "out", text: "Player (CharacterBody2D) ." },
+      { type: "out", text: "├─ Col (CollisionShape2D) Col" },
+      { type: "out", text: "└─ Body (ColorRect) Body" },
+      { type: "cmd", text: "swallowtail node add --type Camera2D --name Cam --parent Player" },
+      { type: "out", text: "╭─ node.add ───────────╮" },
+      { type: "out", text: "  index      2" },
+      { type: "out", text: "  name       Cam" },
+      { type: "out", text: "  node_path  Cam" },
+      { type: "out", text: "  type       Camera2D" },
+      { type: "out", text: "╰──────────────────────╯" },
+      { type: "cmd", text: 'swallowtail node set --node-path Player/Cam --property zoom --value "Vector2(2, 2)"' },
+      { type: "out", text: "╭─ node.set ──────────────────────────────╮" },
+      { type: "out", text: '  new_value   {"x":2.0,"y":2.0}' },
+      { type: "out", text: "  node        Cam" },
+      { type: "out", text: '  old_value   {"x":1.0,"y":1.0}' },
+      { type: "out", text: "  property    zoom" },
+      { type: "out", text: "╰─────────────────────────────────────────╯" },
+      { type: "cmd", text: "swallowtail scene save" },
+      { type: "out", text: "╭─ scene.save ────────────────────────╮" },
+      { type: "out", text: "  path    res://player.tscn" },
+      { type: "out", text: "  saved   true" },
+      { type: "out", text: "╰─────────────────────────────────────╯" },
+      { type: "cmd", text: "swallowtail scene tree" },
+      { type: "out", text: "Player (CharacterBody2D) ." },
+      { type: "out", text: "├─ Col (CollisionShape2D) Col" },
+      { type: "out", text: "├─ Body (ColorRect) Body" },
+      { type: "out", text: "└─ Cam (Camera2D) Cam" },
+    ],
+  },
+  {
+    title: "Automate",
+    description: "Save a plan, run it, check every result. JSON in, JSON out, exit codes you can build on.",
+    href: `${docsHref("automation")}#run-a-command-plan`,
+    label: "Scripting and CI",
+    lines: [
+      { type: "cmd", text: "cat plan.json" },
+      { type: "out", text: '{"steps": [' },
+      { type: "out", text: '  {"method": "engine.version", "expect": {"/version/major": 4}},' },
+      { type: "out", text: '  {"method": "scene.validate", "params": {"path": "res://player.tscn"},' },
+      { type: "out", text: '   "expect": {"/valid": true}},' },
+      { type: "out", text: '  {"method": "script.validate", "params": {"path": "res://player.gd"},' },
+      { type: "out", text: '   "expect": {"/valid": true}},' },
+      { type: "out", text: '  {"method": "project.info", "expect": {"/godot_version/minor": 7}}' },
+      { type: "out", text: "]}" },
+      { type: "cmd", text: "swallowtail automate --file plan.json | jq -r '.steps[] | [.status, .method] | @tsv'" },
+      { type: "out", text: "passed\tengine.version" },
+      { type: "out", text: "passed\tscene.validate" },
+      { type: "out", text: "passed\tscript.validate" },
+      { type: "out", text: "passed\tproject.info" },
+      { type: "comment", text: "# a wrong expectation stops the plan, and the exit code says so" },
+      { type: "cmd", text: "swallowtail automate --file strict.json > report.json; echo $?" },
+      { type: "out", text: "1" },
+      { type: "cmd", text: "jq -c '.steps[] | {method, status, error: .error.kind}' report.json" },
+      { type: "out", text: '{"method":"scene.validate","status":"failed","error":"assertion"}' },
+      { type: "out", text: '{"method":"scene.save","status":"skipped","error":null}' },
+    ],
+  },
+  {
+    title: "Custom commands",
+    description: "Add project commands in GDScript. They show up in the CLI, in help, and as MCP tools.",
+    href: docsHref("extending"),
+    label: "Add your own commands",
+    lines: [
+      { type: "comment", text: "# two files in res://mcp_commands/ add four project commands" },
+      { type: "cmd", text: "swallowtail custom --help" },
+      { type: "out", text: "swallowtail custom: 4 commands (addon catalog):" },
+      { type: "out", text: "" },
+      { type: "out", text: "  broken_refs  Report res:// paths and uid:// ids that no longer resolve." },
+      { type: "out", text: "  echo         Echo --message back to the caller." },
+      { type: "out", text: "  ping         Health check: returns {pong: true}." },
+      { type: "out", text: "  replace_ref  Repoint every reference from one resource to another, uid included." },
+      { type: "cmd", text: "swallowtail custom broken-refs --help" },
+      { type: "out", text: "Params:" },
+      { type: "out", text: "  --path            String  optional  Directory to scan (default res://)." },
+      { type: "out", text: "  --include-addons  bool    optional  Scan addons/ too (default false)." },
+      { type: "out", text: "  --limit           int     optional  Max findings per list (default 200)." },
+      { type: "cmd", text: "swallowtail custom broken-refs" },
+      { type: "out", text: "╭─ custom.broken_refs ──────────────────────────────────╮" },
+      { type: "out", text: "  broken         []" },
+      { type: "out", text: "  broken_count   0" },
+      { type: "out", text: "  checked_refs   27" },
+      { type: "out", text: "  dynamic_count  1" },
+      { type: "out", text: "  scanned_files  10" },
+      { type: "out", text: "  truncated      false" },
+      { type: "out", text: "╰───────────────────────────────────────────────────────╯" },
+      { type: "comment", text: "# the same command is an MCP tool, schema included" },
+      { type: "cmd", text: "swallowtail engine commands --group custom | jq '.count'" },
+      { type: "out", text: "4" },
+    ],
+  },
+  {
+    title: "Connect tools",
+    description: "Point an agent or an MCP client at the same commands. You choose the client, the task, and what to keep.",
+    href: docsHref("mcp-setup"),
+    label: "Use with an AI client",
+    lines: [
+      { type: "cmd", text: "swallowtail status | jq -c '{verdict, port, project_match}'" },
+      { type: "out", text: '{"verdict":"running","port":9080,"project_match":true}' },
+      { type: "cmd", text: "swallowtail configure claude --project . --print" },
+      { type: "out", text: "Would write to: /games/my-game/.mcp.json" },
+      { type: "out", text: "" },
+      { type: "out", text: "{" },
+      { type: "out", text: '  "mcpServers": {' },
+      { type: "out", text: '    "swallowtail": {' },
+      { type: "out", text: '      "command": "swallowtail",' },
+      { type: "out", text: '      "args": ["serve", "--project", "/games/my-game"]' },
+      { type: "out", text: "    }" },
+      { type: "out", text: "  }" },
+      { type: "out", text: "}" },
+      { type: "comment", text: "# or skip the process: the editor hosts an MCP endpoint itself" },
+      { type: "cmd", text: "curl -s -X POST http://127.0.0.1:9100/mcp -H 'Content-Type: application/json' \\" },
+      { type: "cont", text: `  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | jq '.result.tools | length'` },
+      { type: "out", text: "337" },
+    ],
+  },
+] as const;
+---
+
+<div class="st-wrap st-showcase" data-workflow-showcase>
+  <div class="sc-intro">
+    <h2>Same toolkit.<br />Your way of working.</h2>
+    <div class="sc-tabs" role="tablist" aria-label="Ways to work with Swallowtail" aria-orientation="vertical">
+      {examples.map((example, i) => (
+        <div class="sc-tab-item" role="presentation" data-selected={i === 0 ? "" : undefined}>
+          <span class="sc-progress" aria-hidden="true"><span class="sc-progress-fill"></span></span>
+          <button
+            type="button"
+            class="sc-tab"
+            role="tab"
+            id={`sc-tab-${i}`}
+            aria-controls={`sc-panel-${i}`}
+            aria-selected={i === 0 ? "true" : "false"}
+            tabindex={i === 0 ? 0 : -1}
+          >
+            <span class="sc-tab-title">{example.title}</span>
+            <span class="sc-tab-desc">{example.description}</span>
+          </button>
+          <a class="sc-tab-link" href={example.href}>{example.label} <Icon name="arrow" size={14} /></a>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <div class="sc-stage">
+    {examples.map((example, i) => (
+      <div
+        class="sc-panel"
+        role="tabpanel"
+        id={`sc-panel-${i}`}
+        aria-labelledby={`sc-tab-${i}`}
+        tabindex="0"
+        data-active={i === 0 ? "" : undefined}
+      >
+        <Terminal title="your project · your terminal" lines={example.lines as any} />
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  /* One source for the three timings: CSS drives the progress fill, the script
+     reads the same properties with getComputedStyle. --sc-body-min holds the
+     frame at the height of the longest session, 28 lines of the body type, so
+     the three shorter sessions read as the same terminal window. */
+  .st-showcase {
+    --sc-type: 28ms;
+    --sc-line: 140ms;
+    --sc-dwell: 6000ms;
+    --sc-body-min: 39.25rem;
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: 4rem;
+    align-items: center;
+    padding-block: 4.5rem;
+  }
+  .st-showcase > * { min-width: 0; }
+
+  .sc-tabs { margin-top: 1.8rem; }
+  .sc-tab-item { position: relative; border-top: 1px solid var(--border); }
+  .sc-tab {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 1rem 0 .35rem;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .sc-tab-title {
+    display: block;
+    font: 700 1.05rem/1.35 var(--font-display);
+    letter-spacing: -.015em;
+    color: var(--text-muted);
+    transition: color .15s ease;
+  }
+  .sc-tab-desc {
+    display: block;
+    margin-top: .3rem;
+    font-size: .9rem;
+    line-height: 1.6;
+    color: var(--text-faint);
+    transition: color .15s ease;
+  }
+  .sc-tab:hover .sc-tab-title { color: var(--text); }
+  .sc-tab[aria-selected="true"] .sc-tab-title { color: var(--accent); }
+  .sc-tab[aria-selected="true"] .sc-tab-desc { color: var(--text-muted); }
+  .sc-tab-link {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    margin-bottom: 1.1rem;
+    font-size: .82rem;
+    font-weight: 600;
+  }
+
+  /* The dwell made visible: a 2px fill riding the item's own top border. */
+  .sc-progress {
+    position: absolute;
+    top: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--border);
+    opacity: 0;
+    transition: opacity .15s ease;
+  }
+  .sc-tab-item[data-selected] .sc-progress { opacity: 1; }
+  .sc-progress-fill {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left center;
+  }
+  .sc-progress-fill[data-running] { animation: sc-fill var(--sc-dwell) linear forwards; }
+  /* Once the visitor takes over there is no dwell to show, so the bar becomes a
+     plain accent marker for the selected item. */
+  .st-showcase:not([data-auto]) .sc-tab-item[data-selected] .sc-progress-fill { transform: scaleX(1); }
+  .st-showcase[data-paused] .sc-progress-fill { animation-play-state: paused; }
+  @keyframes sc-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+  .sc-stage { display: grid; min-width: 0; }
+  .sc-panel {
+    grid-area: 1 / 1;
+    display: grid;
+    min-width: 0;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 200ms ease-out;
+  }
+  .sc-panel[data-active] { visibility: visible; opacity: 1; }
+  .sc-panel:focus-visible { border-radius: var(--radius); }
+  .sc-panel > :global(.term) { height: 100%; display: grid; grid-template-rows: auto 1fr; }
+  .sc-stage :global(.term-body) { font-size: .76rem; min-height: var(--sc-body-min); }
+
+  .sc-stage :global(.sc-caret) {
+    display: inline-block;
+    width: .55em;
+    height: 1.05em;
+    vertical-align: -.2em;
+    background: var(--accent);
+    animation: sc-blink 1s steps(1, end) infinite;
+  }
+  @keyframes sc-blink { 50% { opacity: 0; } }
+
+  @media (max-width: 850px) {
+    .st-showcase { gap: 2.5rem; }
+  }
+  @media (max-width: 600px) {
+    .st-showcase { --sc-body-min: 18rem; grid-template-columns: 1fr; gap: 2rem; padding-block: 3rem; }
+    .sc-stage :global(.term-body) { font-size: .72rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sc-progress { display: none; }
+    .sc-panel { transition: none; }
+    .sc-tab-title, .sc-tab-desc { transition: none; }
+    .sc-stage :global(.sc-caret) { animation: none; }
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>("[data-workflow-showcase]");
+  if (root) {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('[role="tab"]')];
+    const panels = [...root.querySelectorAll<HTMLElement>('[role="tabpanel"]')];
+    const items = tabs.map((tab) => tab.closest<HTMLElement>(".sc-tab-item")!);
+    const fills = items.map((item) => item.querySelector<HTMLElement>(".sc-progress-fill")!);
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)");
+
+    const styles = getComputedStyle(root);
+    const ms = (name: string, fallback: number) => {
+      const raw = styles.getPropertyValue(name).trim();
+      const value = parseFloat(raw);
+      if (!Number.isFinite(value)) return fallback;
+      return raw.endsWith("ms") ? value : value * 1000;
+    };
+    const TYPE = ms("--sc-type", 28);
+    const LINE = ms("--sc-line", 140);
+    const DWELL = ms("--sc-dwell", 6000);
+    const AFTER_COMMAND = 350;
+
+    const caret = document.createElement("span");
+    caret.className = "sc-caret";
+    caret.setAttribute("aria-hidden", "true");
+
+    // Split each rendered line into a body text node and its own newline so the
+    // caret can sit at the end of the text instead of after the line break.
+    const sessions = panels.map((panel) =>
+      [...panel.querySelectorAll<HTMLElement>(".tl")].map((el) => {
+        const body = el.lastChild as Text;
+        const full = (body.nodeValue ?? "").replace(/\n$/, "");
+        body.nodeValue = full;
+        el.appendChild(document.createTextNode("\n"));
+        // A continuation line is part of the command the visitor is watching
+        // being entered, so it types instead of appearing whole.
+        return { el, body, full, cmd: el.classList.contains("cmd") || el.classList.contains("cont") };
+      })
+    );
+
+    let current = 0;
+    let auto = true;
+    let paused = false;
+    let typingTimer = 0;
+    let dwellTimer = 0;
+    let dwellLeft = 0;
+    let dwellStart = 0;
+
+    function stopDwell() {
+      clearTimeout(dwellTimer);
+      dwellTimer = 0;
+      dwellLeft = 0;
+      for (const fill of fills) fill.removeAttribute("data-running");
+    }
+
+    function runDwell() {
+      if (!auto || paused || dwellLeft <= 0 || dwellTimer) return;
+      dwellStart = performance.now();
+      dwellTimer = window.setTimeout(() => {
+        dwellTimer = 0;
+        if (auto) select((current + 1) % tabs.length, false);
+      }, dwellLeft);
+    }
+
+    function startDwell() {
+      if (!auto) return;
+      const fill = fills[current];
+      fill.removeAttribute("data-running");
+      void fill.offsetWidth;
+      fill.setAttribute("data-running", "");
+      dwellLeft = DWELL;
+      runDwell();
+    }
+
+    function holdDwell() {
+      if (!dwellTimer) return;
+      clearTimeout(dwellTimer);
+      dwellTimer = 0;
+      dwellLeft -= performance.now() - dwellStart;
+    }
+
+    function type(index: number, line: number, count: number) {
+      const entry = sessions[index][line];
+      if (count >= entry.full.length) {
+        typingTimer = window.setTimeout(() => step(index, line + 1), AFTER_COMMAND);
+        return;
+      }
+      entry.body.nodeValue = entry.full.slice(0, count + 1);
+      typingTimer = window.setTimeout(() => type(index, line, count + 1), TYPE);
+    }
+
+    function step(index: number, line: number) {
+      const session = sessions[index];
+      if (line >= session.length) {
+        caret.remove();
+        startDwell();
+        return;
+      }
+      const entry = session[line];
+      entry.el.style.visibility = "visible";
+      if (!entry.cmd) {
+        typingTimer = window.setTimeout(() => step(index, line + 1), LINE);
+        return;
+      }
+      entry.body.nodeValue = "";
+      entry.el.insertBefore(caret, entry.el.lastChild);
+      type(index, line, 0);
+    }
+
+    function play(index: number) {
+      caret.remove();
+      const session = sessions[index];
+      for (const entry of session) {
+        entry.body.nodeValue = entry.full;
+        entry.el.style.visibility = reduce.matches ? "visible" : "hidden";
+      }
+      if (reduce.matches) return;
+      step(index, 0);
+    }
+
+    function select(index: number, manual: boolean) {
+      if (manual) {
+        auto = false;
+        root!.removeAttribute("data-auto");
+      }
+      clearTimeout(typingTimer);
+      stopDwell();
+      tabs.forEach((tab, i) => {
+        tab.setAttribute("aria-selected", String(i === index));
+        tab.tabIndex = i === index ? 0 : -1;
+      });
+      items.forEach((item, i) => item.toggleAttribute("data-selected", i === index));
+      panels.forEach((panel, i) => panel.toggleAttribute("data-active", i === index));
+      current = index;
+      play(index);
+    }
+
+    function setPaused(value: boolean) {
+      if (paused === value) return;
+      paused = value;
+      root!.toggleAttribute("data-paused", value);
+      if (value) holdDwell();
+      else runDwell();
+    }
+
+    tabs.forEach((tab, i) => {
+      tab.addEventListener("click", () => select(i, true));
+      tab.addEventListener("keydown", (event) => {
+        const last = tabs.length - 1;
+        let next = -1;
+        if (event.key === "ArrowDown" || event.key === "ArrowRight") next = i === last ? 0 : i + 1;
+        else if (event.key === "ArrowUp" || event.key === "ArrowLeft") next = i === 0 ? last : i - 1;
+        else if (event.key === "Home") next = 0;
+        else if (event.key === "End") next = last;
+        if (next < 0) return;
+        event.preventDefault();
+        select(next, true);
+        tabs[next].focus();
+      });
+    });
+
+    root.addEventListener("mouseenter", () => setPaused(true));
+    root.addEventListener("mouseleave", () => setPaused(false));
+    root.addEventListener("focusin", () => setPaused(true));
+    root.addEventListener("focusout", (event) => {
+      if (!root!.contains(event.relatedTarget as Node)) setPaused(false);
+    });
+
+    reduce.addEventListener("change", () => {
+      if (reduce.matches) {
+        auto = false;
+        root!.removeAttribute("data-auto");
+      }
+      select(current, false);
+    });
+
+    if (!reduce.matches) root.setAttribute("data-auto", "");
+    else auto = false;
+    select(0, false);
+  }
+</script>

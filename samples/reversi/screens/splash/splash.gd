@@ -29,7 +29,7 @@ const WORDMARK_SIZE := 144
 
 const SUBTITLE_ALPHA := 0.75
 
-const WORDMARK := "godot-mcp"
+const WORDMARK := "swallowtail"
 const SUBTITLE := "A GODOT EDITOR, DRIVEN BY AN AGENT"
 
 var _alpha := 0.0:

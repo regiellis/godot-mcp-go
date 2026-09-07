@@ -3,28 +3,13 @@ import { withBase } from "../lib/paths";
 interface Props { compact?: boolean }
 const { compact = false } = Astro.props;
 ---
-
-<a class="logo" href={withBase("/")} aria-label="Godot MCP CLI home">
-  <span class="logo-mark" aria-hidden="true">
-    <svg width="26" height="26" viewBox="0 0 128 128" fill="none">
-      <rect x="4" y="4" width="120" height="120" rx="28" fill="#12151a" />
-      <rect x="4" y="4" width="120" height="120" rx="28" stroke="url(#lg)" stroke-width="8" />
-      <path d="M36 46 L60 64 L36 82" stroke="url(#lg)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" />
-      <rect x="68" y="76" width="26" height="10" rx="4" fill="#e8eaed" />
-      <circle cx="97" cy="33" r="9" fill="#4ade80" />
-      <defs>
-        <linearGradient id="lg" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
-          <stop stop-color="#2b7fff" /><stop offset="1" stop-color="#3fc7ff" />
-        </linearGradient>
-      </defs>
-    </svg>
-  </span>
-  {!compact && <span class="logo-text">Godot MCP CLI</span>}
+<a class="logo" href={withBase("/")} aria-label="Swallowtail home">
+  <img src={withBase("/brand/swallowtail-butler.png")} width="40" height="40" alt="" />
+  {!compact && <span>Swallowtail</span>}
 </a>
-
 <style>
   .logo { display: inline-flex; align-items: center; gap: 0.55rem; color: var(--text); }
   .logo:hover { text-decoration: none; }
-  .logo-mark { display: grid; place-items: center; line-height: 0; }
-  .logo-text { font-weight: 680; font-size: 1.02rem; letter-spacing: -0.02em; font-family: var(--font-mono); }
+  .logo img { object-fit: contain; }
+  .logo span { font: 750 1.1rem var(--font-display); letter-spacing: -0.035em; }
 </style>

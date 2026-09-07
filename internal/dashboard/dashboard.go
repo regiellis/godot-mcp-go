@@ -51,7 +51,7 @@ type Snapshot struct {
 }
 
 type server struct {
-	resolveAddonPort func() int
+	resolveAddonPort func() (int, error)
 	tmpl             *template.Template
 	mu               sync.RWMutex
 	snap             Snapshot
@@ -61,7 +61,7 @@ type server struct {
 
 // Run starts the dashboard HTTP server (blocking) on httpPort, polling the addon
 // whose port is resolved fresh on each (re)connect via resolveAddonPort.
-func Run(httpPort int, resolveAddonPort func() int) error {
+func Run(httpPort int, resolveAddonPort func() (int, error)) error {
 	tmpl, err := template.New("frag").Funcs(funcs).ParseFS(assetsFS, "assets/fragments.tmpl")
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func Run(httpPort int, resolveAddonPort func() int) error {
 	mux.HandleFunc("/fragment/feed", s.handleFeed)
 
 	addr := fmt.Sprintf("127.0.0.1:%d", httpPort)
-	fmt.Fprintf(os.Stderr, "godot-mcp dashboard → http://%s\n", addr)
+	fmt.Fprintf(os.Stderr, "swallowtail dashboard → http://%s\n", addr)
 	return http.ListenAndServe(addr, mux)
 }
 
@@ -96,7 +96,12 @@ func (s *server) poll(ctx context.Context) {
 }
 
 func (s *server) pollSession(ctx context.Context) {
-	url := fmt.Sprintf("ws://127.0.0.1:%d", s.resolveAddonPort())
+	port, err := s.resolveAddonPort()
+	if err != nil {
+		s.setErr(err.Error())
+		return
+	}
+	url := fmt.Sprintf("ws://127.0.0.1:%d", port)
 	dctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	conn, _, err := websocket.Dial(dctx, url, nil)
 	cancel()

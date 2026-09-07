@@ -3,10 +3,10 @@ package client
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"runtime"
-	"strconv"
 	"strings"
 )
 
@@ -51,7 +51,7 @@ func ReadGameDiscovery(projectRoot string) (*GameDiscovery, error) {
 	if err != nil {
 		return nil, err
 	}
-	data, err := os.ReadFile(filepath.Join(dir, "godot-mcp-game.json"))
+	data, err := ReadCompatibleDiscovery(dir, "swallowtail-game.json", "godot-mcp-game.json")
 	if err != nil {
 		return nil, err
 	}
@@ -65,21 +65,21 @@ func ReadGameDiscovery(projectRoot string) (*GameDiscovery, error) {
 // ResolveGamePort picks the port for the --game channel, in precedence order:
 // explicit flag (>0) > GODOT_MCP_GAME_PORT env > the game discovery file under
 // cwd's project root > DefaultGamePort.
-func ResolveGamePort(flagPort int, cwd string) int {
-	if flagPort > 0 {
-		return flagPort
+func ResolveGamePort(flagPort int, cwd string) (int, error) {
+	if flagPort != 0 {
+		return flagPort, ValidatePort(flagPort, "--port")
 	}
-	if env := os.Getenv("GODOT_MCP_GAME_PORT"); env != "" {
-		if p, err := strconv.Atoi(env); err == nil {
-			return p
-		}
+	if env := Env("GODOT_MCP_GAME_PORT"); env != "" {
+		return environmentPort("GODOT_MCP_GAME_PORT")
 	}
 	if root, err := FindProjectRoot(cwd); err == nil {
-		if d, err := ReadGameDiscovery(root); err == nil && d.Port > 0 {
-			return d.Port
+		if d, err := ReadGameDiscovery(root); err == nil {
+			return d.Port, ValidatePort(d.Port, "game discovery file port")
+		} else if errors.Is(err, ErrDiscoveryConflict) {
+			return 0, err
 		}
 	}
-	return DefaultGamePort
+	return DefaultGamePort, nil
 }
 
 // userDataDir reconstructs Godot's OS.get_user_data_dir() from the parsed config,

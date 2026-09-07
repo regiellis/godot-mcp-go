@@ -1,34 +1,39 @@
 /* ---------------------------------------------------------------------------
-   godot-mcp-go docs design system
+   Swallowtail docs design system
    Ollama/Mintlify-inspired: clean, rounded, soft borders, one accent, light+dark.
    Plain CSS custom properties. No framework. Edit the tokens, the site follows.
 --------------------------------------------------------------------------- */
 
 :root {
+  --site-max-width: 1400px;
+  --site-gutter: 1.25rem;
   /* Type */
   --font-sans: "InterVariable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-display: "Manrope Variable", var(--font-sans);
   --font-mono: "Source Code Pro Variable", ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
 
-  /* Accent (Godot-adjacent blue, with a cyan-leaning gradient) */
-  --accent: #2b7fff;
-  --accent-strong: #1e63e6;
-  --accent-soft: #e8f0ff;
-  --accent-grad: linear-gradient(135deg, #2b7fff 0%, #3fc7ff 100%);
+  /* Swallowtail: mulberry links, warm paper, and ink. */
+  --accent: #81485f;
+  --accent-strong: #653449;
+  --accent-soft: #f3e7eb;
+  --on-accent: #ffffff;
+  --brand-brass: #916627;
+  --overlay-ink: #17141a;
+  --accent-grad: linear-gradient(135deg, #81485f 0%, #ad7658 100%);
 
   /* Light theme surfaces */
-  --bg: #ffffff;
-  --bg-subtle: #f7f8fa;
-  --bg-code: #f6f8fa;
-  --surface: #ffffff;
-  --border: #e7e9ee;
-  --border-strong: #d5d8e0;
-  --text: #1a1d24;
-  --text-muted: #5c6472;
-  --text-faint: #8b93a3;
+  --bg: #faf6ef;
+  --bg-subtle: #f2ece3;
+  --bg-code: #f1eae3;
+  --surface: #faf6ef;
+  --border: #e1d7ce;
+  --border-strong: #cbbfb5;
+  --text: #211c25;
+  --text-muted: #665b63;
+  --text-faint: #796b73;
 
   /* Callout tints (left-border + wash) */
-  --note: #2b7fff;      --note-bg: #eef4ff;
+  --note: #81485f;      --note-bg: #f3e7eb;
   --tip: #16a34a;       --tip-bg: #ecfdf3;
   --important: #7c3aed; --important-bg: #f5f0ff;
   --warning: #d97706;   --warning-bg: #fff7ed;
@@ -50,23 +55,30 @@
   --gutter: 2rem;
 }
 
+@media (max-width: 400px) {
+  :root { --site-gutter: .65rem; }
+}
+
 :root[data-theme="dark"] {
-  --accent: #4d94ff;
-  --accent-strong: #6aa8ff;
-  --accent-soft: #12233f;
-  --accent-grad: linear-gradient(135deg, #4d94ff 0%, #46d1ff 100%);
+  --accent: #dda6bb;
+  --accent-strong: #efbdcc;
+  --accent-soft: #35252f;
+  --on-accent: #211c25;
+  --brand-brass: #dfbc87;
+  --accent-grad: linear-gradient(135deg, #dda6bb 0%, #e2bb87 100%);
 
-  --bg: #0b0d10;
-  --bg-subtle: #111419;
-  --bg-code: #0f1319;
-  --surface: #12151a;
-  --border: #222831;
-  --border-strong: #2c333d;
-  --text: #e8eaed;
-  --text-muted: #9aa3b2;
-  --text-faint: #6b7484;
+  --bg: #17141a;
+  --bg-subtle: #1e1921;
+  --bg-code: #1b171e;
+  --surface: #241e27;
+  --border: #3e333f;
+  --border-strong: #514351;
+  --text: #f5eee6;
+  --text-muted: #c2b1bd;
+  --text-faint: #a18d9b;
 
-  --note-bg: #0f1f38;
+  --note: #dda6bb;
+  --note-bg: #35252f;
   --tip-bg: #0c2117;
   --important-bg: #1b1230;
   --warning-bg: #241706;
@@ -117,3 +129,6 @@ a:hover { text-decoration: underline; }
 *::-webkit-scrollbar { width: 8px; height: 8px; }
 *::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: var(--radius-sm); }
 *::-webkit-scrollbar-track { background: transparent; }
+
+.skip-link { position: absolute; top: -5rem; left: 1rem; z-index: 100; padding: .6rem 1rem; background: var(--accent); color: var(--on-accent); border-radius: var(--radius-sm); }
+.skip-link:focus { top: .5rem; }

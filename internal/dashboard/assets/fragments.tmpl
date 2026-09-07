@@ -74,7 +74,7 @@
         {{end}}
       </div>
       {{else}}
-      <p class="empty">No calls yet. Drive the editor with <span class="mono">godot-mcp &lt;group&gt; &lt;command&gt;</span>.</p>
+      <p class="empty">No calls yet. Drive the editor with <span class="mono">swallowtail &lt;group&gt; &lt;command&gt;</span>.</p>
       {{end}}
     </div>
 
@@ -99,7 +99,7 @@
   {{if not .Connected}}
   <div class="offline-strip">
     <span class="offline-head">EDITOR NOT REACHABLE</span>
-    <span class="offline-sub">start the editor with the godot-mcp plugin enabled, and the dashboard reconnects automatically</span>
+    <span class="offline-sub">start the editor with the swallowtail plugin enabled, and the dashboard reconnects automatically</span>
   </div>
   {{end}}
 </div>
@@ -140,7 +140,7 @@
     {{end}}
   </div>
   {{else}}
-  <p class="empty tl-empty">No activity yet. Run <span class="mono">godot-mcp project info</span> against the editor.</p>
+  <p class="empty tl-empty">No activity yet. Run <span class="mono">swallowtail project info</span> against the editor.</p>
   {{end}}
 </div>
 {{end}}

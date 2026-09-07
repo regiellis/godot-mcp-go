@@ -1,13 +1,12 @@
 // Site metadata and the docs sidebar. Edit the nav here; the sidebar renders it.
 // `slug` is the docs path (no base, no leading slash). Authored pages live under
-// src/content/docs/; guides are glob-imported from ../skills/godot-mcp/*.md and
+// src/content/docs/; guides are glob-imported from ../skills/swallowtail/*.md and
 // keyed by filename (see GUIDES), so they never drift from the real craft docs.
 
 export const SITE = {
-  name: "Godot MCP CLI",
-  tagline: "Build, play, debug, and verify Godot games from the CLI or an AI agent.",
-  description:
-    "Give an AI agent the complete Godot development loop: discover the live engine, build in the open editor, play and observe the game, debug failures, fix them in place, and verify the result.",
+  name: "Swallowtail",
+  tagline: "Godot automation. Your game. Your workflow.",
+  description: "An automation toolkit for Godot. Inspect scenes, edit projects, run checks, and playtest from your terminal, scripts, or agents. CLI first; MCP optional.",
   repo: "https://github.com/regiellis/godot-mcp-go",
   editorVersion: "Godot 4.7, 4.3+ in beta",
 };
@@ -15,7 +14,7 @@ export const SITE = {
 export type NavItem = { label: string; slug: string; badge?: string };
 export type NavGroup = { group: string; items: NavItem[] };
 
-// The craft references, rendered from ../skills/godot-mcp/<slug>.md. Order here
+// The craft references, rendered from ../skills/swallowtail/<slug>.md. Order here
 // is the reading order within each group. Descriptions are the card/subtitle text.
 export type Guide = { slug: string; title: string; group: string; desc: string; badge?: string };
 
@@ -67,15 +66,18 @@ const AUTHORED: NavGroup[] = [
       { label: "Overview", slug: "" },
       { label: "Quickstart", slug: "quickstart" },
       { label: "Installation", slug: "installation" },
+      { label: "Before you ship", slug: "before-you-ship" },
+      { label: "Migrating to Swallowtail", slug: "migration" },
       { label: "Use with an AI client", slug: "mcp-setup" },
       { label: "What the tool surface costs", slug: "context-cost" },
-      { label: "Addressing AI use in game development", slug: "on-ai" },
+      { label: "Why Swallowtail exists", slug: "on-ai" },
     ],
   },
   {
     group: "Working with the editor",
     items: [
       { label: "Discover, then drive", slug: "discover-then-drive" },
+      { label: "Validate scenes and scripts", slug: "validation" },
       { label: "Spatial placement", slug: "spatial-placement", badge: "deep" },
       { label: "Playtest loop", slug: "playtest-loop" },
       { label: "Upgrading a project", slug: "upgrading", badge: "beta" },

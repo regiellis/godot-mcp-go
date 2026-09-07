@@ -1,0 +1,69 @@
+---
+title: Validate scenes and scripts
+description: Check saved scenes without switching tabs and repair scripts from compiler diagnostics.
+---
+
+Check a scene on disk while keeping another scene's unsaved edits in the editor:
+
+```bash
+swallowtail scene validate --path res://levels/arena.tscn
+```
+
+The result names `scene_path`, sets `source` to `disk`, and returns `valid`,
+`issue_count`, and `issues`. Validation reads the saved scene, including inherited
+scenes and nested instances. It checks external dependencies, stored node paths,
+animation track targets, and missing node classes without opening the scene or
+running its node scripts.
+
+Saved validation excludes unsaved changes and absolute paths that need a runtime
+tree. Omit `--path` to check the active editor scene instead:
+
+```bash
+swallowtail scene validate
+```
+
+## Read compiler diagnostics
+
+```bash
+swallowtail script validate --path res://scripts/score.gd
+```
+
+A GDScript compile failure returns `valid: false` and a `diagnostics` array. For
+example, a reference to an undeclared identifier on line 3 reports:
+
+```json
+{
+  "file": "res://scripts/score.gd",
+  "line": 3,
+  "severity": "error",
+  "message": "Parse Error: Identifier \"missing_score\" not declared in the current scope."
+}
+```
+
+Use the file and line to locate the repair, then validate again. Dependency errors
+keep their own file attribution. Relative preloads resolve from the script's
+directory. The compile check leaves the editor's error buffer available to read.
+
+Structured GDScript diagnostics require Godot 4.5+. On older supported engines,
+`diagnostics_available` is `false`; the compile verdict and error code remain
+available. [C# validation](/docs/csharp) uses the project's build diagnostics.
+
+## Check several scripts
+
+Choose exactly one validation mode:
+
+| Mode | Scope |
+| --- | --- |
+| `--path res://scripts/score.gd` | One script |
+| `--modified` | Modified or untracked GDScript files in a Git project |
+| `--all` | Project GDScript files, excluding addons and hidden directories |
+
+Batch results include checked, passed, and failed counts. The `results` array
+lists failures with their diagnostics. An MCP client can request
+[progress and cancellation](/docs/mcp-setup#progress-and-cancellation) while a
+batch runs.
+
+A validation command can return a successful transport response with
+`valid: false` or a nonzero `failed` count. Automation must check those fields.
+For a process whose exit code tracks compile failures without an open editor,
+use the [cold `check` command](/docs/automation).

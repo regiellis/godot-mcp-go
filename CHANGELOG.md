@@ -1,4 +1,4 @@
-# Changelog
+# Swallowtail changelog
 
 All notable changes to this project are documented here. Format based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); this project aims to
@@ -6,11 +6,97 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- `swallowtail automate`: JSON command plans with project identity checks, method preflight, result assertions, per-step reports, and stop-on-failure execution.
+- Swallowtail editor dock connection setup, error detail inspection, copying failed requests as automation plans, and JSON activity export.
+
+### Changed
+
+- Editor dock branding now uses the Swallowtail butler, mulberry accents, and speech bubbles with light/dark theme support.
+- Activity records retain bounded error details and replayable parameters, with common credential fields redacted.
+- CLI response failures identify timeouts, cancellation, and uncertain outcomes; Ctrl+C cancels editor requests.
+
+## [0.13.0] - 2026-09-05
+
+### Added
+
+- Swallowtail is the primary CLI. Every platform bundle also ships the deprecated
+  `godot-mcp` executable with identical functionality and no scheduled removal date.
+- `swallowtail migrate` previews addon migration; `--apply` installs the renamed
+  addon with a recovery journal, and `--rollback` restores the original installation.
+- `SWALLOWTAIL_*` environment variables, renamed settings, and compatible
+  discovery reads. The addon writes both discovery names for older clients.
+
+- Bash and PowerShell completion for commands and parameter names. Project-scoped
+  cached help remains available offline with a timestamped notice.
+- Global `--project DIR` selects a project for editor commands and rejects an
+  explicit project/port mismatch before dispatch.
+- `--params-file FILE` or `--params-file -` reads a JSON parameter object from
+  a UTF-8 file or stdin. Inline parameters override matching keys.
+- `--errors json` provides structured stderr for editor-command failures.
+
+### Changed
+
+- Public branding becomes Swallowtail, with a butler mascot and a warm ivory,
+  ink, and mulberry documentation theme. The homepage and README lead with
+  automation from your terminal, scripts, and connected tools. New addon and skill
+  directories use `swallowtail`; existing projects migrate explicitly. Runtime
+  autoload identifiers and MCP methods remain compatible. Client configuration
+  refuses duplicate legacy/new server entries.
+
+- Terminal onboarding builds and plays a scene from an empty project without
+  an agent or MCP client. Installation documents the optional agent skill.
+- Typo errors suggest nearby commands. Pretty scene/runtime trees use branches,
+  and validation output shows verdicts and diagnostic file locations.
+
+
+## [0.12.0] - 2026-09-05
+
+### Added
+
+- `scene validate --path` checks a saved scene, including inherited scenes and
+  nested instances, while the active tab and unsaved edits stay in place. It
+  reports missing dependencies, unresolved stored node paths, animation track
+  targets, and missing node classes. Absolute runtime paths need a running tree.
+- GDScript `script validate` returns compiler diagnostics with file, line,
+  severity, and message on Godot 4.5+. Older engines report
+  `diagnostics_available: false`. Relative preloads resolve from the script's
+  directory, and repeated validation avoids temporary resource-cache collisions.
+- Scenario steps have nested schemas in both MCP transports. `test run-scenario`
+  checks the whole plan before playback or input, rejecting unknown fields,
+  missing values, invalid types, unsupported operators, and numeric bounds with
+  the zero-based step index.
+- Stdio MCP progress and cooperative cancellation for scenario steps, validation
+  batches, and imports. Clients request progress with `_meta.progressToken` and
+  cancel with `notifications/cancelled`. Cancellation skips remaining work at
+  safe boundaries and preserves completed effects. A native compile/import or
+  game command already underway can finish. HTTP cancellation is not supported.
+
+### Changed
+
+- Stdio tool catalogs refresh on list requests, before typed calls, and after
+  successful generic editor calls. Editor shutdown clears stale tools; a restart
+  restores them in the same MCP session. Changed descriptors emit
+  `notifications/tools/list_changed`; identical catalogs stay quiet.
+
+### Fixed
+
+- Linux and macOS release archives built on Windows now preserve executable
+  permissions on the CLI binary.
+- Upgrade recovery reports restoration failures, restores only captured paths,
+  and refreshes editor scenes, scripts, and settings. Unrelated files survive
+  recovery, and a partial restore cannot be reported as a successful rollback.
+- Invalid editor or game port configuration fails before dialing or launching.
+- MCP initialization negotiates only supported protocol revisions.
+- HTTP limits apply to headers, bodies, and buffered input while a request is
+  busy, including requests using unsupported HTTP methods.
+
 ## [0.11.0] - 2026-08-31
 
 ### Added
 
-- **`godot-mcp test`, a cold pure-logic test runner.** It completes the set of
+- **`godot-mcp test`, a cold pure-logic test runner**. It completes the set of
   subcommands that run without an editor. With no path it takes `res://test/`,
   swept recursively for `*_test.gd` and `test_*.gd`; a path you name may be a
   directory or a single file. A test file is any script that extends
@@ -73,20 +159,20 @@ follow [Semantic Versioning](https://semver.org/).
   server instructions; `editor reload` stays for disk changes this tool did not
   make, such as a git checkout or an external editor, and now awaits its rescan
   too.
-- **`script edit` left the loaded script object stale.** `Script.reload(true)`
+- **`script edit` left the loaded script object stale**. `Script.reload(true)`
   recompiles from the object's own `source_code`, and nothing re-reads the file
   into it, so a method the edit had just added was missing from the script's
   API. Neither a rescan nor `CACHE_MODE_REPLACE` helped, which means the
   `editor reload` ritual never fixed this half either. `script create` and
   `script edit` now hand the text they wrote to the reload.
-- **`project tree` reported any missing path as an empty directory.** It stamped
+- **`project tree` reported any missing path as an empty directory**. It stamped
   the directory node before opening anything, so a folder that had been deleted,
   and one that never existed at all, both came back as `{"type": "directory"}`.
   That is what read as a stale editor cache holding a ghost; the editor's
   filesystem view never held one. `tree`, `search`, and `grep` now refuse a
   `--path` that is not a directory on disk, and a directory the walk cannot open
   is marked `unreadable` with the reason.
-- **`fs move` stranded a script's `.uid` sidecar.** Only `.import` travelled with
+- **`fs move` stranded a script's `.uid` sidecar**. Only `.import` travelled with
   the file, so the editor minted the destination a new id and broke the `uid://`
   references the move exists to preserve. Both sidecars now move with the file,
   and `fs delete` removes both.
@@ -158,20 +244,20 @@ follow [Semantic Versioning](https://semver.org/).
 - `upgrade verify` reported 0.00 percent changed pixels on every frame pair regardless of the images: the percentage was decoded from `changed_percent` while the addon sends `diff_percentage`. Caught by the first real cross-version run (4.4 to 4.7), where six-figure `changed_pixels` counts sat beside the zeros; the real noise measured mean 7.76 percent per frame on a lit 3D scene.
 - The `upgrade open` harvest counted headless dummy-renderer noise from the launch log as findings; engine C++ lines naming no project file are now dropped, the same rule `editor errors` applies to the panel.
 
-- **`scene.open` reported success for a scene the editor could not load.**
+- **`scene.open` reported success for a scene the editor could not load**.
   `EditorInterface.open_scene_from_path` returns nothing and reports nothing,
   so a scene whose `ext_resource` path no longer exists left the previous scene
   current while the call answered `opened: true`, and every following `node.*`
   command silently targeted the scene the caller had left. The open is now
   verified before it is reported, and a refusal carries the dead paths, which
   are the usual cause and cannot be read out of a tree that never loaded.
-- **`scene.validate` now reads four things, not two.** Alongside the
+- **`scene.validate` now reads four things, not two**. Alongside the
   `AnimationPlayer` track paths and stored `NodePath`s it already checked, it
   reports `MissingNode` and `MissingResource` placeholders left where the
   running build no longer registers a class, and every `ext_resource` path that
   is not on disk. The last check reads the scene's own text rather than the
   loaded tree, because a scene with a dead reference never loads at all.
-- **A screenshot saved into a directory that does not exist now creates it.**
+- **A screenshot saved into a directory that does not exist now creates it**.
   `Image.save_png` does not, so `editor.screenshot` and `runtime.screenshot`
   failed with the engine's own `Can't save PNG at path` line and a result that
   never said why. Both paths create the parent directory and name the path in
@@ -497,7 +583,7 @@ follow [Semantic Versioning](https://semver.org/).
   or refuses, naming the documented JSON-array-of-literals form.
 - **`script.edit --insert-at-line` past the end of the file clamped silently**;
   the result now reports `inserted_at`, `clamped`, and the requested line.
-- **`status --all` exited 1 when a successful scan found nothing running.** A
+- **`status --all` exited 1 when a successful scan found nothing running**. A
   scan that finds nothing has still answered; it exits 0 with the empty payload.
 - **`script validate --path` false-failed on files under `addons/`**. The
   throwaway compile the command runs has no `resource_path`, so the
@@ -873,7 +959,7 @@ though the addon is unchanged apart from a one-word fix in its README.
   spans rather than the summary counts.** That covers the README, INSTALL, both
   addon READMEs, all 18 docs pages, this changelog, and the 28 craft guides,
   which had never been linted at all despite being published as guide pages.
-  Most of the volume was bullet labels shaped `- **Sentence.** Body`, where the
+  Most of the volume was bullet labels shaped `- **Sentence**. Body`, where the
   period sits inside the bold; the rest were empty intensifiers and vague words
   swapped for the concrete thing meant, such as gapless looping in the audio
   guide and "things they can't use must look unusable" in the level-design one.
@@ -1471,7 +1557,7 @@ authoring for `anim_tree`, and eight new craft references. First public release.
   `.gitignore`); `--install --enable` wires the addon and skill in the same
   step. Never overwrites an existing `project.godot`.
 - README: "How is this different from other Godot MCPs?" positioning section
-  (editor-native co-developer vs remote control).
+  (editor-native development workflow versus remote control).
 - **Four craft docs** closing the 2026-07-16 surface-audit gaps, every API claim
   introspected live and flagship recipes behavior-verified in a running game:
   `audio-music.md` (buses, SFX variation, `AudioStreamInteractive` scores,
