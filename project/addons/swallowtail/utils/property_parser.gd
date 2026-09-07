@@ -345,6 +345,24 @@ static func parse_checked(value: Variant, target_type: int, expected_class: Stri
 	if _PACKED_ELEMENT.has(target_type):
 		return _parse_packed(value, target_type)
 
+	# Scalars: the lenient path turns text it cannot read into the type's zero
+	# (float("abc") is 0.0, an unknown word is false), which set light_energy to 0
+	# and hid a light inside a success envelope (found 2026-09-07). Refuse instead.
+	if value is String and target_type in [TYPE_FLOAT, TYPE_INT, TYPE_BOOL]:
+		var text := (value as String).strip_edges()
+		match target_type:
+			TYPE_FLOAT:
+				if not (text.is_valid_float() or text.is_valid_int()):
+					return {"ok": false, "value": null, "reason": "expected a number for a float property, got '%s'" % text}
+			TYPE_INT:
+				if not text.is_valid_int():
+					return {"ok": false, "value": null, "reason": "expected a whole number for an int property, got '%s'" % text}
+			TYPE_BOOL:
+				if not (text.to_lower() in ["true", "false", "1", "0", "yes", "no"]):
+					return {"ok": false, "value": null, "reason": "expected true or false for a bool property, got '%s'" % text}
+	elif target_type in [TYPE_FLOAT, TYPE_INT, TYPE_BOOL] and not (value is bool or value is int or value is float):
+		return {"ok": false, "value": null, "reason": "expected a %s, got %s" % [_type_label(target_type), type_string(typeof(value))]}
+
 	# Composite numeric types: the lenient path pads with zeros when the input is
 	# short, which is how a scalar became Vector2(0, 0).
 	var needed := _components_needed(target_type)

@@ -6,6 +6,15 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- `node set` refuses scalar text it cannot read instead of coercing it to zero.
+  `--value abc` on a float property set it to `0.0` and `--value maybe` on a bool
+  set it to `false`, both inside a success envelope; each now returns `-32602`
+  naming the property and the text. Numbers, `true`/`false`/`yes`/`no`/`1`/`0`,
+  and native JSON scalars parse as before.
+- The web dashboard's wordmark reads Swallowtail.
+
 ## [1.0.0] - 2026-09-07
 
 The first release under the Swallowtail name. Versions 0.12.0 and 0.13.0 were

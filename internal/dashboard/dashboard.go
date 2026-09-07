@@ -1,4 +1,4 @@
-// Package dashboard serves an opt-in single-page stats dashboard for godot-mcp.
+// Package dashboard serves an opt-in single-page stats dashboard for Swallowtail.
 // It holds one persistent WebSocket connection to the editor addon, polls
 // stats.snapshot into a cache, and serves an htmx page (assets embedded) that
 // polls HTML fragments. All activity (CLI + serve + any client) is captured
