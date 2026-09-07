@@ -20,7 +20,7 @@ func runStatus(args []string) int {
 	fs := flag.NewFlagSet("status", flag.ContinueOnError)
 	port := fs.Int("port", 0, "addon WebSocket port (0 = env/discovery/default)")
 	project := fs.String("project", "", "Godot project dir (default: cwd)")
-	all := fs.Bool("all", false, "scan the editor (9080-9095) and game (9200-9215) ranges plus pinned ports and list every live instance")
+	all := fs.Bool("all", false, "scan the editor (9080-9095) and game (9200-9215) ranges plus pinned ports and list every live editor and every standalone game with the direct server enabled")
 	fs.Usage = subHelp(fs, "editor liveness preflight",
 		[]string{
 			"swallowtail status [--project DIR] [--port N]",
@@ -28,7 +28,10 @@ func runStatus(args []string) int {
 		},
 		`The verdict (running / starting / crashed / closed) drives the launch policy:
 never start a second editor when one is running. Exit 0 when reachable; --all
-completes with exit 0 whether or not the scan found anything.`)
+completes with exit 0 whether or not the scan found anything. Its games list
+holds standalone players serving the direct channel (swallowtail/runtime/direct_server);
+a game the editor launched has no server of its own and shows up through
+runtime tree, not here.`)
 	if rc := parseSub(fs, args); rc >= 0 {
 		return rc
 	}

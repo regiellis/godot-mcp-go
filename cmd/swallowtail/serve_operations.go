@@ -105,17 +105,20 @@ func (s *mcpServer) serve(input io.Reader) {
 			}
 		}
 		if err != nil {
+			// A clean EOF is a client that finished writing, so drain the queue
+			// and flush every answer it already asked for. A read error is a
+			// broken transport, so nothing can be delivered: cancel instead.
 			if err != io.EOF {
 				logf("stdin read error: %v", err)
+				s.callsMu.Lock()
+				for _, call := range s.calls {
+					call.cancel()
+				}
+				s.callsMu.Unlock()
 			}
 			break
 		}
 	}
-	s.callsMu.Lock()
-	for _, call := range s.calls {
-		call.cancel()
-	}
-	s.callsMu.Unlock()
 	close(queue)
 	worker.Wait()
 }

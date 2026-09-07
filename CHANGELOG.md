@@ -6,28 +6,22 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-09-07
+
+The first release under the Swallowtail name. Versions 0.12.0 and 0.13.0 were
+prepared but never published; their entries are folded in here. The last release
+under the old name is 0.11.0.
+
 ### Added
 
 - `swallowtail automate`: JSON command plans with project identity checks, method preflight, result assertions, per-step reports, and stop-on-failure execution.
 - Swallowtail editor dock connection setup, error detail inspection, copying failed requests as automation plans, and JSON activity export.
-
-### Changed
-
-- Editor dock branding now uses the Swallowtail butler, mulberry accents, and speech bubbles with light/dark theme support.
-- Activity records retain bounded error details and replayable parameters, with common credential fields redacted.
-- CLI response failures identify timeouts, cancellation, and uncertain outcomes; Ctrl+C cancels editor requests.
-
-## [0.13.0] - 2026-09-05
-
-### Added
-
 - Swallowtail is the primary CLI. Every platform bundle also ships the deprecated
   `godot-mcp` executable with identical functionality and no scheduled removal date.
 - `swallowtail migrate` previews addon migration; `--apply` installs the renamed
   addon with a recovery journal, and `--rollback` restores the original installation.
 - `SWALLOWTAIL_*` environment variables, renamed settings, and compatible
   discovery reads. The addon writes both discovery names for older clients.
-
 - Bash and PowerShell completion for commands and parameter names. Project-scoped
   cached help remains available offline with a timestamped notice.
 - Global `--project DIR` selects a project for editor commands and rejects an
@@ -35,26 +29,6 @@ follow [Semantic Versioning](https://semver.org/).
 - `--params-file FILE` or `--params-file -` reads a JSON parameter object from
   a UTF-8 file or stdin. Inline parameters override matching keys.
 - `--errors json` provides structured stderr for editor-command failures.
-
-### Changed
-
-- Public branding becomes Swallowtail, with a butler mascot and a warm ivory,
-  ink, and mulberry documentation theme. The homepage and README lead with
-  automation from your terminal, scripts, and connected tools. New addon and skill
-  directories use `swallowtail`; existing projects migrate explicitly. Runtime
-  autoload identifiers and MCP methods remain compatible. Client configuration
-  refuses duplicate legacy/new server entries.
-
-- Terminal onboarding builds and plays a scene from an empty project without
-  an agent or MCP client. Installation documents the optional agent skill.
-- Typo errors suggest nearby commands. Pretty scene/runtime trees use branches,
-  and validation output shows verdicts and diagnostic file locations.
-
-
-## [0.12.0] - 2026-09-05
-
-### Added
-
 - `scene validate --path` checks a saved scene, including inherited scenes and
   nested instances, while the active tab and unsaved edits stay in place. It
   reports missing dependencies, unresolved stored node paths, animation track
@@ -72,13 +46,36 @@ follow [Semantic Versioning](https://semver.org/).
   cancel with `notifications/cancelled`. Cancellation skips remaining work at
   safe boundaries and preserves completed effects. A native compile/import or
   game command already underway can finish. HTTP cancellation is not supported.
+- A "Before you ship" page of its own, with the two steps that keep the addon out
+  of an exported game and a pck scan that proves they worked; the installation page
+  and quickstart point at it.
+- Documentation for reaching an editor on another machine over an SSH port forward,
+  for Windows, Linux and macOS, plus running `serve` remotely for stdio clients.
+- The homepage shows four typed CLI sessions (run commands, automate, custom
+  commands, connect tools) captured from the real tool, and the samples page leads
+  with the Reversi game.
 
 ### Changed
 
+- Editor dock branding now uses the Swallowtail butler, mulberry accents, and speech bubbles with light/dark theme support.
+- Activity records retain bounded error details and replayable parameters, with common credential fields redacted.
+- CLI response failures identify timeouts, cancellation, and uncertain outcomes; Ctrl+C cancels editor requests.
+- Public branding becomes Swallowtail, with a butler mascot and a warm ivory,
+  ink, and mulberry documentation theme. The homepage and README lead with
+  automation from your terminal, scripts, and connected tools. New addon and skill
+  directories use `swallowtail`; existing projects migrate explicitly. Runtime
+  autoload identifiers and MCP methods remain compatible. Client configuration
+  refuses duplicate legacy/new server entries.
+- Terminal onboarding builds and plays a scene from an empty project without
+  an agent or MCP client. Installation documents the optional agent skill.
+- Typo errors suggest nearby commands. Pretty scene/runtime trees use branches,
+  and validation output shows verdicts and diagnostic file locations.
 - Stdio tool catalogs refresh on list requests, before typed calls, and after
   successful generic editor calls. Editor shutdown clears stale tools; a restart
   restores them in the same MCP session. Changed descriptors emit
   `notifications/tools/list_changed`; identical catalogs stay quiet.
+- The README and the migration page state why the name changed, and a dismissible
+  announcement on the docs site links to it.
 
 ### Fixed
 
@@ -91,6 +88,13 @@ follow [Semantic Versioning](https://semver.org/).
 - MCP initialization negotiates only supported protocol revisions.
 - HTTP limits apply to headers, bodies, and buffered input while a request is
   busy, including requests using unsupported HTTP methods.
+- `script validate` no longer leaves a `<script>.mcpcheck_<id>.gd` copy and its
+  `.uid` in the project after the next `scene save`. The throwaway compile script
+  released its unique path only when the editor flushed cached resources to disk;
+  it now releases it before the command returns.
+- `swallowtail serve` answers every request it has already read when stdin closes,
+  instead of cancelling the queue on EOF. Piping a file of requests now gets its
+  responses; a read error still cancels in-flight calls.
 
 ## [0.11.0] - 2026-08-31
 

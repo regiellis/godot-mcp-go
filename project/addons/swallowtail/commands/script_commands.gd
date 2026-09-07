@@ -640,7 +640,16 @@ func _compile(source: String, context_path: String = "") -> Dictionary:
 			diagnostics.append({"file": file, "line": entry.get("line", 0),
 				"severity": "warning" if entry.get("kind") == "warning" else "error",
 				"message": entry.get("message", "")})
-	return {"error": err, "diagnostics": diagnostics, "diagnostics_available": logger != null}
+	# Claiming check_path registered the throwaway in ResourceCache, and the
+	# editor's scene-save flush writes every cached res:// resource to disk: a
+	# validate followed by scene.save dropped a real `<script>.mcpcheck_<id>.gd`
+	# (plus its .uid) beside the validated file, every time. Release the slot
+	# once the diagnostics are mapped back. An empty path erases the cache entry
+	# and registers nothing, so the compile keeps its sibling path while the
+	# flush finds nothing to write.
+	script.resource_path = ""
+	return {"error": err, "diagnostics": diagnostics, "diagnostics_available": logger != null,
+		"check_path": check_path}
 
 
 ## Drop a `class_name` declaration so a throwaway compile does not collide with
@@ -839,7 +848,7 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"script.read": {
-			"description": "Read a script file by --path: the whole text, or the 1-based inclusive line range --start-line..--end-line. line_count is always the file's real total.",
+			"description": "Read a script file by --path: the whole text, or the 1-based inclusive line range --start-line..--end-line. line_count is always the file's real total, counting the empty final line after a trailing newline the way the script editor numbers it, so it matches the range --start-line/--end-line accept.",
 			"params": [
 				doc_param("path", "String", true, "res:// path to a .gd or .cs file."),
 				doc_param("start_line", "int", false, "1-based first line to return (default 1). Clamped to the file."),
@@ -888,7 +897,7 @@ func get_command_docs() -> Dictionary:
 			"description": "List scripts currently open in the editor's script editor.",
 		},
 		"script.symbols": {
-			"description": "Read one GDScript's declared API (methods, properties, signals, constants) without reading the file. Works on any .gd path, including scripts with no class_name (which engine.class_info cannot reach). Reports what this file declares; --include-inherited adds members from the scripts it extends. Engine members are never included, so get those from engine.class_info on the reported base_type.",
+			"description": "Read one GDScript's declared API (methods, properties, signals, constants) without reading the file. Works on any .gd path, including scripts with no class_name (which engine.class_info cannot reach). Reports what this file declares; --include-inherited adds members from the scripts it extends. Engine members are never included, so get those from engine.class_info on the reported base_type. can_instantiate is the engine's answer inside the editor: false for a script without @tool even when it compiles, because the editor instantiates such scripts only through editor.run_script or a running game.",
 			"params": [
 				doc_param("path", "String", true, "res:// path to a .gd file."),
 				doc_param("filter", "String", false, "Case-insensitive substring filter over member names."),

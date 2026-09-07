@@ -2,9 +2,12 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -18,7 +21,7 @@ import (
 
 func TestServeCancellationAndProgress(t *testing.T) {
 	closed := make(chan struct{})
-	eofClosed := make(chan struct{})
+	brokenClosed := make(chan struct{})
 	called := make(chan string, 4)
 	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		conn, err := websocket.Accept(w, r, nil)
@@ -31,9 +34,9 @@ func TestServeCancellationAndProgress(t *testing.T) {
 			return
 		}
 		called <- req.Method
-		if req.Method == "test.eof" {
+		if req.Method == "test.broken" {
 			conn.Read(r.Context())
-			close(eofClosed)
+			close(brokenClosed)
 			return
 		}
 		if req.Method == "test.slow" {
@@ -123,25 +126,27 @@ func TestServeCancellationAndProgress(t *testing.T) {
 	if string(next().ID) != "99" {
 		t.Fatal("late cancellation broke transport")
 	}
-	write(`{"id":"eof","method":"tools/call","params":{"name":"godot_run","arguments":{"method":"test.eof"}}}`)
+	// A broken transport, unlike a clean EOF, cannot deliver an answer, so the
+	// in-flight call is cancelled rather than drained.
+	write(`{"id":"broken","method":"tools/call","params":{"name":"godot_run","arguments":{"method":"test.broken"}}}`)
 	select {
 	case method := <-called:
-		if method != "test.eof" {
+		if method != "test.broken" {
 			t.Fatal(method)
 		}
 	case <-time.After(4 * time.Second):
-		t.Fatal("EOF probe did not start")
+		t.Fatal("read-error probe did not start")
 	}
-	send.Close()
+	send.CloseWithError(errors.New("stdin transport failure"))
 	select {
-	case <-eofClosed:
+	case <-brokenClosed:
 	case <-time.After(4 * time.Second):
-		t.Fatal("EOF left backend running")
+		t.Fatal("read error left backend running")
 	}
 	select {
 	case <-done:
 	case <-time.After(4 * time.Second):
-		t.Fatal("EOF did not shut down")
+		t.Fatal("read error did not shut down")
 	}
 }
 
@@ -166,5 +171,59 @@ func TestProgressTokenTypes(t *testing.T) {
 		if validProgressToken(json.RawMessage(raw)) != want {
 			t.Errorf("token %s", raw)
 		}
+	}
+}
+
+// A batch client that writes its requests and closes stdin still gets every
+// answer: EOF drains the queue instead of cancelling it.
+func TestServeDrainsQueuedRequestsOnEOF(t *testing.T) {
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	port := listener.Addr().(*net.TCPAddr).Port
+	listener.Close() // no editor answers, so tools/list degrades to godot_run alone
+	var output bytes.Buffer
+	s := &mcpServer{flagPort: port, cwd: t.TempDir(), timeout: 5 * time.Second, typed: true, out: bufio.NewWriter(&output)}
+	input := strings.NewReader(`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}` + "\n" +
+		`{"jsonrpc":"2.0","method":"notifications/initialized"}` + "\n" +
+		`{"jsonrpc":"2.0","id":2,"method":"tools/list"}` + "\n")
+	done := make(chan struct{})
+	go func() { s.serve(input); close(done) }()
+	select {
+	case <-done:
+	case <-time.After(20 * time.Second):
+		t.Fatal("serve did not return after EOF")
+	}
+	answered := map[float64]bool{}
+	var tools []struct {
+		Name string `json:"name"`
+	}
+	dec := json.NewDecoder(bytes.NewReader(output.Bytes()))
+	for {
+		var msg struct {
+			ID     *float64 `json:"id"`
+			Result struct {
+				Tools []struct {
+					Name string `json:"name"`
+				} `json:"tools"`
+			} `json:"result"`
+		}
+		if dec.Decode(&msg) != nil {
+			break
+		}
+		if msg.ID == nil {
+			continue
+		}
+		answered[*msg.ID] = true
+		if *msg.ID == 2 {
+			tools = msg.Result.Tools
+		}
+	}
+	if !answered[1] || !answered[2] {
+		t.Fatalf("EOF dropped queued responses: %s", output.String())
+	}
+	if len(tools) != 1 || tools[0].Name != "godot_run" {
+		t.Fatalf("tools/list without an editor: %v", tools)
 	}
 }

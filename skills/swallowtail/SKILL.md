@@ -278,6 +278,7 @@ An input step that reports `consumed: false` means the game never read the paylo
 - **A game stopped at a debugger break serves nothing**: every `runtime.*` call spends its timeout and comes back with `debugger_breaked` and the break reason. Read the stop with `debug state`, then `debug resume`.
 - **Input timing:** prefer `input action` over raw `input key` when InputMap actions exist; UI buttons fire on release (`input click` auto press+releases).
 - **Save:** `scene save` after significant edits.
+- **Git Bash rewrites absolute node paths.** MSYS path conversion turns `--node-path /root/Stage/Tag` into `C:/Program Files/Git/root/Stage/Tag` before the CLI sees it, and the error reads `Node not found: C:/Program Files/Git/root/...`. Use scene-relative paths (`Tag`, `Player/Cam`), or set `MSYS_NO_PATHCONV=1` for the call.
 - Mutations are undoable; reads are safe. Errors return JSON-RPC codes (`-32000` no scene/not playing, `-32001` not found, `-32602` bad params, `-32009` conflict, e.g. a scene/file open in the editor).
 
 ## Verifying a command works (for testing/QA)

@@ -11,7 +11,7 @@ work with scripts, or let an agent use the same commands. No agent, model, or AI
 account is required. MCP is an optional interface.
 
 > [!NOTE]
-> This project shipped as `godot-mcp` through 0.12. That name described one
+> This project shipped as `godot-mcp` through 0.11. That name described one
 > connector, and the toolkit automates Godot from a terminal, a shell script, or
 > a connected client, with MCP as one optional interface. The old name also
 > matched many other Godot MCP projects. Swallowtail names the toolkit itself.
