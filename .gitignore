@@ -46,3 +46,7 @@ editor_session/
 
 # Python eval helper bytecode.
 __pycache__/
+
+# Local credentials for scripts (asset-library submit); never committed, never mirrored.
+.env
+.env.*

@@ -115,17 +115,27 @@ tasks:
       # Same platform dispatch as `task mirror`: both scripts accept -Version.
       - '{{if eq OS "windows"}}pwsh -NoProfile -File scripts/release.ps1{{else}}scripts/release.sh{{end}} {{.CLI_ARGS}}'
 
+  release:store:
+    desc: "Re-root the release addon zip at addons/swallowtail/ for the Godot Asset Store (pass --version X.Y.Z)"
+    cmds:
+      - python3 scripts/lib/store_zip.py {{.CLI_ARGS}}
+
   release:check:
     desc: "Verify release payloads and executable permissions (pass --version X.Y.Z)"
     cmds:
       - python3 scripts/check-release.py {{.CLI_ARGS}}
 
   mirror:
-    desc: "Build a filtered mirror snapshot commit (e.g. task mirror -- -Parent <sha> -Message \"...\"); prints the sha, pushes nothing"
+    desc: "Build a filtered mirror snapshot commit for main (e.g. task mirror -- -Message \"...\"); prints the sha, pushes nothing"
     cmds:
       # Windows runs the pwsh original, everything else the POSIX port. Both accept
-      # the -Parent/-Message spellings, so one CLI_ARGS passthrough serves both.
+      # the -Branch/-Parent/-Message spellings, so one CLI_ARGS passthrough serves both.
       - '{{if eq OS "windows"}}pwsh -NoProfile -File scripts/mirror.ps1{{else}}scripts/mirror.sh{{end}} {{.CLI_ARGS}}'
+
+  mirror:dev:
+    desc: "Build a filtered mirror snapshot commit for the dev branch (e.g. task mirror:dev -- -Message \"...\"); prints the sha, pushes nothing"
+    cmds:
+      - '{{if eq OS "windows"}}pwsh -NoProfile -File scripts/mirror.ps1{{else}}scripts/mirror.sh{{end}} -Branch dev {{.CLI_ARGS}}'
 
   mirror:audit:
     desc: Audit what is already public (github/main + asset-library) against the publish policy
@@ -141,3 +151,27 @@ tasks:
     desc: Does the Asset Library entry need touching? Diffs the addon against the published tip
     cmds:
       - pwsh -NoProfile -File scripts/asset-library.ps1 {{.CLI_ARGS}}
+
+  asset:submit:
+    desc: Post the full Asset Library edit (password from GODOT_ASSET_PASS or the git-ignored .env); run asset:submit:dry first
+    cmds:
+      - >-
+        pwsh -NoProfile -File scripts/asset-library.ps1 -Submit
+        -Title "Swallowtail - Godot Automation"
+        -DescriptionFile docs/asset-library-description.txt
+        -PreviewsFile docs/asset-library-previews.json
+        -ReplacePreviews
+        -IconUrl "https://raw.githubusercontent.com/regiellis/godot-mcp-go/asset-library/addons/swallowtail/icon.png"
+        {{.CLI_ARGS}}
+
+  asset:submit:dry:
+    desc: Print the full Asset Library edit body the owner's -Submit would post; logs in to nothing
+    cmds:
+      - >-
+        pwsh -NoProfile -File scripts/asset-library.ps1 -DryRun
+        -Title "Swallowtail - Godot Automation"
+        -DescriptionFile docs/asset-library-description.txt
+        -PreviewsFile docs/asset-library-previews.json
+        -ReplacePreviews
+        -IconUrl "https://raw.githubusercontent.com/regiellis/godot-mcp-go/asset-library/addons/swallowtail/icon.png"
+        {{.CLI_ARGS}}
