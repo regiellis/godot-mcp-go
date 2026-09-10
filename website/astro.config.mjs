@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
+import { unified } from "@astrojs/markdown-remark";
 import mdx from "@astrojs/mdx";
 import expressiveCode from "astro-expressive-code";
 import pagefind from "astro-pagefind";
@@ -55,21 +56,26 @@ export default defineConfig({
   // pagefind indexes the built HTML after `astro build` and serves the index in dev
   // (after at least one build has produced dist/pagefind).
   integrations: [expressiveCode(), mdx(), pagefind()],
+  // Astro 7.3 defaults to the Satteri Markdown processor, which runs no
+  // remark/rehype plugins. The unified processor from @astrojs/markdown-remark
+  // carries them, and mdx() inherits it.
   markdown: {
-    remarkPlugins: [remarkStripFirstH1],
-    rehypePlugins: [
-      rehypeSlug,
-      [
-        rehypeAutolinkHeadings,
-        {
-          behavior: "append",
-          // dataPagefindIgnore keeps the "#" anchor text out of the search index
-          // (it was polluting result excerpts and sub-result titles).
-          properties: { className: ["heading-anchor"], ariaHidden: true, tabIndex: -1, dataPagefindIgnore: "all" },
-          content: { type: "text", value: "#" },
-        },
+    processor: unified({
+      remarkPlugins: [remarkStripFirstH1],
+      rehypePlugins: [
+        rehypeSlug,
+        [
+          rehypeAutolinkHeadings,
+          {
+            behavior: "append",
+            // dataPagefindIgnore keeps the "#" anchor text out of the search index
+            // (it was polluting result excerpts and sub-result titles).
+            properties: { className: ["heading-anchor"], ariaHidden: true, tabIndex: -1, dataPagefindIgnore: "all" },
+            content: { type: "text", value: "#" },
+          },
+        ],
+        rehypeBaseLinks,
       ],
-      rehypeBaseLinks,
-    ],
+    }),
   },
 });
