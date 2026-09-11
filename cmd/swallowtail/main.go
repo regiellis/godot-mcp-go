@@ -26,7 +26,7 @@ import (
 // cliVersion is reported to MCP clients in the initialize handshake. Keep it in
 // step with the addon's plugin.cfg version and the CHANGELOG heading at release
 // time; the addon reads its own from plugin.cfg, so this is the only literal.
-const cliVersion = "1.0.0"
+const cliVersion = "1.0.1"
 
 func main() {
 	if strings.EqualFold(strings.TrimSuffix(filepath.Base(os.Args[0]), ".exe"), "godot-mcp") && ui.IsTerminal(os.Stdout) && ui.IsTerminal(os.Stderr) {

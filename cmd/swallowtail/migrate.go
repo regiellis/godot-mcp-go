@@ -15,8 +15,62 @@ import (
 
 // Migration keeps a recoverable journal outside .godot, which Godot may clear.
 type migrationJournal struct {
-	Original []byte `json:"original_project"`
-	Migrated []byte `json:"migrated_project"`
+	Original []byte            `json:"original_project"`
+	Migrated []byte            `json:"migrated_project"`
+	Commands []migratedCommand `json:"project_commands,omitempty"`
+}
+
+// A project-local command file under mcp_commands/ whose legacy addon references
+// are rewritten. The router skips a file that fails to parse, so a stale extends
+// path silently drops every command the file registers.
+type migratedCommand struct {
+	Path     string `json:"path"`
+	Original []byte `json:"original"`
+	Migrated []byte `json:"migrated"`
+}
+
+const (
+	legacyAddonPrefix = "res://addons/godot_mcp/"
+	addonPrefix       = "res://addons/swallowtail/"
+)
+
+// migrationCommands lists every .gd file under mcp_commands/ that references the
+// legacy addon path, paired with its rewritten text.
+func migrationCommands(root string) ([]migratedCommand, error) {
+	dir := filepath.Join(root, "mcp_commands")
+	if !pathExists(dir) {
+		return nil, nil
+	}
+	if err := rejectMigrationLinks(dir); err != nil {
+		return nil, err
+	}
+	var out []migratedCommand
+	err := filepath.WalkDir(dir, func(path string, d os.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() || !strings.EqualFold(filepath.Ext(path), ".gd") {
+			return nil
+		}
+		b, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		if !bytes.Contains(b, []byte(legacyAddonPrefix)) {
+			return nil
+		}
+		rel, err := filepath.Rel(root, path)
+		if err != nil {
+			return err
+		}
+		out = append(out, migratedCommand{
+			Path:     filepath.ToSlash(rel),
+			Original: b,
+			Migrated: bytes.ReplaceAll(b, []byte(legacyAddonPrefix), []byte(addonPrefix)),
+		})
+		return nil
+	})
+	return out, err
 }
 
 func migrationIdle(root string) error {
@@ -118,6 +172,10 @@ func migrateProject(root, from string, apply, rollback bool) (resultErr error) {
 	if err != nil {
 		return err
 	}
+	commands, err := migrationCommands(root)
+	if err != nil {
+		return err
+	}
 	source, _ := resolveAsset(from, "plugin.cfg", []string{"addons", "swallowtail"}, []string{"project", "addons", "swallowtail"})
 	if source == "" {
 		return fmt.Errorf("Swallowtail addon source not found; keep addons beside the executable or use --from")
@@ -128,7 +186,11 @@ func migrateProject(root, from string, apply, rollback bool) (resultErr error) {
 			return err
 		}
 	}
-	fmt.Printf("Move addon: %s -> %s\nUpdate owned paths and setting namespace in project.godot\nPreserve runtime autoload names for existing scripts\nBackup and recovery journal: %s\n", oldDir, newDir, backup)
+	fmt.Printf("Move addon: %s -> %s\nUpdate owned paths and setting namespace in project.godot\nPreserve runtime autoload names for existing scripts\n", oldDir, newDir)
+	for _, c := range commands {
+		fmt.Printf("Rewrite legacy addon paths in project command file %s\n", c.Path)
+	}
+	fmt.Printf("Backup and recovery journal: %s\n", backup)
 	if !apply {
 		fmt.Println("Preview only. Add --apply to migrate with the editor closed.")
 		return nil
@@ -136,7 +198,7 @@ func migrateProject(root, from string, apply, rollback bool) (resultErr error) {
 	if err = os.Mkdir(backup, 0700); err != nil {
 		return err
 	}
-	journal, _ := json.MarshalIndent(migrationJournal{original, migrated}, "", "  ")
+	journal, _ := json.MarshalIndent(migrationJournal{original, migrated, commands}, "", "  ")
 	if err = os.WriteFile(journalPath, journal, 0600); err != nil {
 		return err
 	}
@@ -160,15 +222,31 @@ func migrateProject(root, from string, apply, rollback bool) (resultErr error) {
 	if err = os.Rename(stage, newDir); err != nil {
 		return fmt.Errorf("staged addon activation failed; use --rollback: %w", err)
 	}
-	// Recheck the file just before replacing it, so an external edit is not lost.
-	current, err := os.ReadFile(config)
+	if err = replaceMigratedFile(config, original, migrated, backup); err != nil {
+		return err
+	}
+	for _, c := range commands {
+		if err = replaceMigratedFile(filepath.Join(root, filepath.FromSlash(c.Path)), c.Original, c.Migrated, backup); err != nil {
+			return err
+		}
+	}
+	fmt.Println("Migration complete. Run swallowtail doctor, then launch and test your project. Keep .swallowtail-migration until verified.")
+	return nil
+}
+
+// replaceMigratedFile swaps a file's bytes through a temp file and rename, then
+// reads the result back. It rechecks the file just before replacing it, so an
+// external edit made since the preview is not lost.
+func replaceMigratedFile(path string, original, migrated []byte, backup string) error {
+	name := filepath.Base(path)
+	current, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
 	if !bytes.Equal(current, original) {
-		return fmt.Errorf("project.godot changed during migration; backup retained for manual recovery at %s", backup)
+		return fmt.Errorf("%s changed during migration; backup retained for manual recovery at %s", name, backup)
 	}
-	tmp := filepath.Join(root, ".swallowtail-project.tmp")
+	tmp := path + ".swallowtail-migration.tmp"
 	f, err := os.OpenFile(tmp, os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0600)
 	if err != nil {
 		return err
@@ -181,17 +259,16 @@ func migrateProject(root, from string, apply, rollback bool) (resultErr error) {
 	if closeErr != nil {
 		return closeErr
 	}
-	if err = os.Rename(tmp, config); err != nil {
-		return fmt.Errorf("settings activation failed; use --rollback: %w", err)
+	if err = os.Rename(tmp, path); err != nil {
+		return fmt.Errorf("%s activation failed; use --rollback: %w", name, err)
 	}
-	check, err := os.ReadFile(config)
+	check, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
 	if !bytes.Equal(check, migrated) {
-		return fmt.Errorf("settings verification failed; use --rollback")
+		return fmt.Errorf("%s verification failed; use --rollback", name)
 	}
-	fmt.Println("Migration complete. Run swallowtail doctor, then launch and test your project. Keep .swallowtail-migration until verified.")
 	return nil
 }
 
@@ -226,6 +303,16 @@ func rollbackMigration(config, oldDir, newDir, backup, journalPath string) error
 	if !bytes.Equal(current, j.Original) && !bytes.Equal(current, j.Migrated) {
 		return fmt.Errorf("project.godot changed since migration; refusing to overwrite your edits; backup: %s", backup)
 	}
+	root := filepath.Dir(config)
+	for _, c := range j.Commands {
+		current, err := os.ReadFile(filepath.Join(root, filepath.FromSlash(c.Path)))
+		if err != nil {
+			return err
+		}
+		if !bytes.Equal(current, c.Original) && !bytes.Equal(current, c.Migrated) {
+			return fmt.Errorf("%s changed since migration; refusing to overwrite your edits; backup: %s", c.Path, backup)
+		}
+	}
 	legacy := filepath.Join(backup, "legacy-addon")
 	if pathExists(legacy) {
 		if pathExists(oldDir) {
@@ -242,6 +329,11 @@ func rollbackMigration(config, oldDir, newDir, backup, journalPath string) error
 	}
 	if err = os.WriteFile(config, j.Original, 0600); err != nil {
 		return err
+	}
+	for _, c := range j.Commands {
+		if err = os.WriteFile(filepath.Join(root, filepath.FromSlash(c.Path)), c.Original, 0600); err != nil {
+			return err
+		}
 	}
 	fmt.Printf("Restored original project settings and addon. Retained migration files at %s\n", backup)
 	return nil

@@ -1,5 +1,5 @@
 @tool
-extends "res://addons/godot_mcp/commands/base_command.gd"
+extends "res://addons/swallowtail/commands/base_command.gd"
 
 ## Project-local command group: the reference audit.
 ##

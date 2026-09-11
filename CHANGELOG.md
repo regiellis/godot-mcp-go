@@ -6,6 +6,13 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-09-10
+
+A hotfix for `swallowtail migrate`. The addon is unchanged apart from its
+version; reinstalling it is optional. Projects already migrated with 1.0.0 that
+carry custom commands under `mcp_commands/` should fix each file's `extends`
+path by hand or roll back and migrate again with this release.
+
 ### Fixed
 
 - `node set` refuses scalar text it cannot read instead of coercing it to zero.
@@ -13,6 +20,18 @@ follow [Semantic Versioning](https://semver.org/).
   set it to `false`, both inside a success envelope; each now returns `-32602`
   naming the property and the text. Numbers, `true`/`false`/`yes`/`no`/`1`/`0`,
   and native JSON scalars parse as before.
+- The test project's two project-local command files (`mcp_commands/example_commands.gd`,
+  `mcp_commands/refs_commands.gd`) extend the addon at its migrated path. Since the
+  1.0.0 rename they failed to parse on every editor launch and the `custom` group
+  never registered; found while retesting against Godot 4.8 dev5.
+- `swallowtail migrate` rewrites the old addon path inside project-local command
+  files under `mcp_commands/`. A migrated project's custom commands used to fail
+  to parse and vanish from the catalog with only an editor warning. The preview
+  names each file, the journal keeps its original bytes, and rollback restores
+  it unless you edited it after migration.
+- `task test:http:failures` runs again: it loads the HTTP server with the test
+  project as `res://`, which the server's `identity.gd` preload has needed since
+  the rename.
 - The web dashboard's wordmark reads Swallowtail.
 
 ## [1.0.0] - 2026-09-07

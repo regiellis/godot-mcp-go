@@ -40,10 +40,12 @@ swallowtail launch --project /path/to/game
 ```
 
 Migration installs `addons/swallowtail/`, updates owned addon paths and the
-`[swallowtail]` settings section in `project.godot`, and preserves the original
-addon and project settings under `.swallowtail-migration/`. Runtime autoload
-names `MCPGameInspector` and `MCPGameInput` remain compatibility identifiers so
-existing script references keep working.
+`[swallowtail]` settings section in `project.godot`, rewrites the old addon path
+in every [project-local command](/docs/extending) file under `mcp_commands/`,
+and preserves the original addon, project settings, and command files under
+`.swallowtail-migration/`. The preview names each command file it will change.
+Runtime autoload names `MCPGameInspector` and `MCPGameInput` remain
+compatibility identifiers so existing script references keep working.
 
 Migration refuses open editors, mixed addon installations, linked addon trees,
 conflicting setting sections, and autoloads belonging to another script.
@@ -59,9 +61,9 @@ leaves its journal for rollback. With the editor and game closed:
 swallowtail migrate --project /path/to/game --rollback
 ```
 
-Rollback restores the original addon and project settings, retaining migration
-files for inspection. It refuses to overwrite `project.godot` if you edited it
-after migration. In that case, review the retained journal and addon backup to
+Rollback restores the original addon, project settings, and command files,
+retaining migration files for inspection. It refuses to overwrite `project.godot`
+or a command file if you edited it after migration. In that case, review the retained journal and addon backup to
 recover your changes manually. Keep the backup until you have tested your scenes
 and playtests. Archive it outside the project before retrying a completed or
 rolled-back migration.
