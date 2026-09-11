@@ -149,9 +149,11 @@ This repository is a one-way public mirror with squashed history. Open an
 questions, or proposed changes. Pull requests cannot be merged directly into the
 canonical development history.
 
-The `asset-library` branch is an addon packaging snapshot. Maintainer-only
-`scripts/`, internal docs, and eval harnesses are omitted from the public mirror;
-Taskfile tasks that depend on those files are maintainer-only.
+`main` is the released tool and `dev` is what comes next, published as it lands
+with no support promise. The `asset-library` branch is an addon packaging
+snapshot. Maintainer-only `scripts/`, internal docs, and eval harnesses are
+omitted from the public mirror; Taskfile tasks that depend on those files are
+maintainer-only.
 
 ## How it works
 
