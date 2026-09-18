@@ -14,14 +14,20 @@ func get_commands() -> Dictionary:
 	}
 
 
+const NodeUtils := preload("res://addons/swallowtail/utils/node_utils.gd")
 const _BODY_TYPES_3D := ["StaticBody3D", "CharacterBody3D", "RigidBody3D", "Area3D"]
 const _SHAPES_3D := ["box", "sphere", "capsule", "trimesh", "convex"]
 
 
 ## A 3D physics body with its CollisionShape3D + shape resource in one call, the
 ## scene2d.add_body counterpart the 3D side lacked. Primitive shapes come from --size/
-## --radius/--height; trimesh/convex build a collider from a --from-mesh MeshInstance3D
-## (the common "make this imported geometry collidable" need).
+## --radius/--height. With --from-mesh the body is seated on that MeshInstance3D
+## (its rotation and origin; scale is baked into the shape, since a scaled body
+## does not simulate), a primitive is sized from the mesh bounds read in the
+## body's own frame, and trimesh/convex build the collider from the mesh geometry
+## (the common "make this imported geometry collidable" need). --reparent-mesh
+## moves the mesh under the new body so the two stay transform-coupled, in the
+## same undo step.
 func _add_body(params: Dictionary) -> Dictionary:
 	var rr := require_scene_root_3d("scene3d.add_body")
 	if rr[1] != null:
@@ -38,48 +44,165 @@ func _add_body(params: Dictionary) -> Dictionary:
 	if shape_kind not in _SHAPES_3D:
 		return error_invalid_params("shape must be one of %s" % [_SHAPES_3D])
 
+	# --from-mesh resolution happens up front so nothing below can half-apply.
+	var mesh_path := optional_string(params, "from_mesh", "")
+	var mesh_node: MeshInstance3D = null
+	var reparent := optional_bool(params, "reparent_mesh", false)
+	if mesh_path.is_empty():
+		if shape_kind in ["trimesh", "convex"]:
+			return error_invalid_params("shape '%s' needs --from-mesh <MeshInstance3D node path>" % shape_kind)
+		if reparent:
+			return error_invalid_params("reparent_mesh needs --from-mesh")
+	else:
+		var mn := find_node_by_path(mesh_path)
+		if mn == null or not mn is MeshInstance3D:
+			return error_not_found("MeshInstance3D '%s'" % mesh_path, "Pass --from-mesh a MeshInstance3D path")
+		mesh_node = mn as MeshInstance3D
+		if mesh_node.mesh == null:
+			return error_invalid_params("MeshInstance3D '%s' has no mesh" % mesh_path)
+		if params.has("position"):
+			return error_invalid_params("from_mesh seats the body on the mesh, so 'position' does not apply; move the body afterwards with node.set")
+		if reparent:
+			if mesh_node == root or mesh_node.get_parent() == null:
+				return error_invalid_params("cannot reparent the scene root '%s' under a new body" % mesh_path)
+			if mesh_node == parent or mesh_node.is_ancestor_of(parent):
+				return error_invalid_params("reparent_mesh would put '%s' under its own descendant; pick a parent_path outside the mesh" % mesh_path)
+			var guard := guard_instance_write(mesh_node)
+			if not guard.is_empty():
+				return guard
+
+	# The body's frame: the mesh's rotation and origin without its scale (with no
+	# mesh, the parent's frame at --position). Every fit below is measured here.
+	var parent_gt := (parent as Node3D).global_transform if parent is Node3D else Transform3D.IDENTITY
+	var body_gt := parent_gt
+	var mesh_scale := Vector3.ONE
+	if mesh_node != null:
+		var mesh_gt := mesh_node.global_transform
+		mesh_scale = mesh_gt.basis.get_scale()
+		body_gt = Transform3D(mesh_gt.basis.orthonormalized(), mesh_gt.origin)
+	else:
+		body_gt.origin = parent_gt * vec3_param(params, "position", Vector3.ZERO)
+
+	# Mesh bounds in the body's frame: the eight local corners through the mesh's
+	# full transform (scale included) and back through the body's, then the union.
+	var fit := AABB()
+	if mesh_node != null:
+		var local := mesh_node.get_aabb()
+		var to_body := body_gt.affine_inverse() * mesh_node.global_transform
+		fit = AABB(to_body * local.get_endpoint(0), Vector3.ZERO)
+		for i in range(1, 8):
+			fit = fit.expand(to_body * local.get_endpoint(i))
+
 	var shape: Shape3D = null
+	var shape_offset := Vector3.ZERO
 	match shape_kind:
 		"box":
 			var b := BoxShape3D.new()
-			b.size = vec3_param(params, "size", Vector3.ONE)
+			b.size = vec3_param(params, "size", fit.size if mesh_node != null else Vector3.ONE)
 			shape = b
 		"sphere":
 			var s := SphereShape3D.new()
-			s.radius = float(params.get("radius", 0.5))
+			var fit_r := maxf(fit.size.x, maxf(fit.size.y, fit.size.z)) / 2.0
+			s.radius = float(params.get("radius", fit_r if mesh_node != null else 0.5))
 			shape = s
 		"capsule":
 			var c := CapsuleShape3D.new()
-			c.radius = float(params.get("radius", 0.5))
-			c.height = float(params.get("height", 2.0))
+			c.radius = float(params.get("radius", maxf(fit.size.x, fit.size.z) / 2.0 if mesh_node != null else 0.5))
+			c.height = float(params.get("height", fit.size.y if mesh_node != null else 2.0))
 			shape = c
 		"trimesh", "convex":
-			var mp := optional_string(params, "from_mesh", "")
-			if mp.is_empty():
-				return error_invalid_params("shape '%s' needs --from-mesh <MeshInstance3D node path>" % shape_kind)
-			var mn := find_node_by_path(mp)
-			if mn == null or not mn is MeshInstance3D:
-				return error_not_found("MeshInstance3D '%s'" % mp, "Pass --from-mesh a MeshInstance3D path")
-			var mesh := (mn as MeshInstance3D).mesh
-			if mesh == null:
-				return error_invalid_params("MeshInstance3D '%s' has no mesh" % mp)
-			shape = mesh.create_trimesh_shape() if shape_kind == "trimesh" else mesh.create_convex_shape()
+			shape = _mesh_shape(mesh_node.mesh, shape_kind, mesh_scale)
 			if shape == null:
-				return error_internal("could not build a %s shape from '%s'" % [shape_kind, mp])
+				return error_internal("could not build a %s shape from '%s'" % [shape_kind, mesh_path])
+	if mesh_node != null and shape_kind not in ["trimesh", "convex"]:
+		shape_offset = fit.get_center()
 
 	var body: Node3D = ClassDB.instantiate(type)
 	body.name = optional_string(params, "name", type)
-	body.position = vec3_param(params, "position", Vector3.ZERO)
+	body.transform = parent_gt.affine_inverse() * body_gt
 	var col := CollisionShape3D.new()
 	col.name = "CollisionShape3D"
 	col.shape = shape
+	col.position = shape_offset
 
-	add_child_with_undo(parent, body, root, "MCP: Add %s" % type)
-	add_child_with_undo(body, col, root, "MCP: Add CollisionShape3D")
-	return success({
+	# One action for the body, its shape, and the optional reparent: undo puts the
+	# mesh back where it was and drops the body in a single step.
+	var undo_redo := get_undo_redo()
+	undo_redo.create_action("MCP: Add %s" % type)
+	undo_redo.add_do_method(parent, "add_child", body)
+	undo_redo.add_do_method(body, "set_owner", root)
+	undo_redo.add_do_method(body, "add_child", col)
+	undo_redo.add_do_method(col, "set_owner", root)
+	undo_redo.add_do_reference(body)
+	var old_mesh_parent: Node = null
+	var old_mesh_index := -1
+	var old_mesh_transform := Transform3D.IDENTITY
+	if reparent:
+		old_mesh_parent = mesh_node.get_parent()
+		old_mesh_index = mesh_node.get_index()
+		old_mesh_transform = mesh_node.transform
+		# Leaving the tree clears the owner of the whole moved subtree, so both
+		# directions re-own it after the add.
+		undo_redo.add_do_method(old_mesh_parent, "remove_child", mesh_node)
+		undo_redo.add_do_method(body, "add_child", mesh_node)
+		undo_redo.add_do_method(self, "_reown", mesh_node, root)
+		undo_redo.add_do_property(mesh_node, "transform", body_gt.affine_inverse() * mesh_node.global_transform)
+		undo_redo.add_undo_property(mesh_node, "transform", old_mesh_transform)
+		undo_redo.add_undo_method(body, "remove_child", mesh_node)
+		undo_redo.add_undo_method(old_mesh_parent, "add_child", mesh_node)
+		undo_redo.add_undo_method(old_mesh_parent, "move_child", mesh_node, old_mesh_index)
+		undo_redo.add_undo_method(self, "_reown", mesh_node, root)
+	undo_redo.add_undo_method(parent, "remove_child", body)
+	undo_redo.commit_action()
+
+	var result := {
 		"node_path": str(root.get_path_to(body)), "name": String(body.name), "type": type,
 		"collision_path": str(root.get_path_to(col)), "shape": shape_kind,
-	})
+	}
+	if mesh_node != null:
+		result["seated_on"] = mesh_path
+		result["global_position"] = PropertyParser.serialize_value(body_gt.origin)
+		result["mesh_scale_baked"] = PropertyParser.serialize_value(mesh_scale)
+		result["fit"] = {
+			"size": PropertyParser.serialize_value(fit.size),
+			"center": PropertyParser.serialize_value(fit.get_center()),
+			"shape_offset": PropertyParser.serialize_value(shape_offset),
+		}
+		if reparent:
+			result["mesh_path"] = str(root.get_path_to(mesh_node))
+	return success(result)
+
+
+## A trimesh or convex shape from a Mesh, with the instance's scale baked into
+## the vertices. The body carrying the shape is unscaled on purpose, so a scaled
+## MeshInstance3D would otherwise get a collider at the mesh's unit size.
+func _mesh_shape(mesh: Mesh, kind: String, scale: Vector3) -> Shape3D:
+	if scale.is_equal_approx(Vector3.ONE):
+		return mesh.create_trimesh_shape() if kind == "trimesh" else mesh.create_convex_shape()
+	if kind == "trimesh":
+		var faces := mesh.get_faces()
+		if faces.is_empty():
+			return null
+		for i in faces.size():
+			faces[i] = faces[i] * scale
+		var concave := ConcavePolygonShape3D.new()
+		concave.set_faces(faces)
+		return concave
+	var convex := mesh.create_convex_shape()
+	if convex == null:
+		return null
+	var points := convex.points
+	for i in points.size():
+		points[i] = points[i] * scale
+	convex.points = points
+	return convex
+
+
+## Undo/redo target for the reparent step: a subtree re-added to the tree needs
+## its owner set again before the packer will save it.
+func _reown(node: Node, root: Node) -> void:
+	node.owner = root
+	NodeUtils.set_owner_recursive(node, root)
 
 
 # --- Parameter parsing helpers ----------------------------------------------
@@ -802,17 +925,18 @@ func get_command_docs() -> Dictionary:
 			],
 		},
 		"scene3d.add_body": {
-			"description": "Add a 3D physics body with its CollisionShape3D and shape in one call. Primitive shapes from size/radius/height, or a trimesh/convex collider from a --from-mesh MeshInstance3D. Undoable.",
+			"description": "Add a 3D physics body with its CollisionShape3D and shape in one call. Primitive shapes from size/radius/height. With --from-mesh the body is seated on that MeshInstance3D (rotation and origin; its scale is baked into the shape), a primitive is sized to the mesh bounds unless size/radius/height are given, and trimesh/convex build the collider from the mesh geometry; --reparent-mesh moves the mesh under the body so the two move together. One undo step.",
 			"params": [
 				doc_param("parent_path", "NodePath", false, "Parent to add under (default '.')."),
 				doc_param("type", "String", false, "StaticBody3D (default), CharacterBody3D, RigidBody3D, or Area3D."),
 				doc_param("shape", "String", false, "box (default), sphere, capsule, trimesh, or convex."),
 				doc_param("name", "String", false, "Body node name (default the type)."),
-				doc_param("size", "Vector3", false, "Box size (default 1,1,1)."),
-				doc_param("radius", "float", false, "Sphere/capsule radius (default 0.5)."),
-				doc_param("height", "float", false, "Capsule height (default 2)."),
-				doc_param("from_mesh", "NodePath", false, "MeshInstance3D to build a trimesh/convex collider from (required for those shapes)."),
-				doc_param("position", "Vector3", false, "Local position."),
+				doc_param("size", "Vector3", false, "Box size (default 1,1,1, or the mesh bounds with --from-mesh)."),
+				doc_param("radius", "float", false, "Sphere/capsule radius (default 0.5, or fitted to the mesh bounds with --from-mesh)."),
+				doc_param("height", "float", false, "Capsule height (default 2, or the mesh's Y extent with --from-mesh)."),
+				doc_param("from_mesh", "NodePath", false, "MeshInstance3D to seat the body on and size the shape from (required for trimesh/convex). The result reports fit and the baked scale."),
+				doc_param("reparent_mesh", "bool", false, "With --from-mesh: move the MeshInstance3D under the new body, keeping its world placement (default false)."),
+				doc_param("position", "Vector3", false, "Local position. Not accepted with --from-mesh, which seats the body on the mesh."),
 			],
 		},
 	}

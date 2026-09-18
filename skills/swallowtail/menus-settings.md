@@ -71,7 +71,7 @@ Each row pairs a `Label` with the right widget. The family, each with the signal
 | Resolution / Quality | `OptionButton` | `item_selected(index)` → `get_item_id(index)` | `add_item(label, id)`, `select(idx)` |
 | Bus volume | `HSlider` (`Range`) | `value_changed(value)` → `.value` | set `min_value`/`max_value`/`step` |
 | VSync / Fullscreen | `CheckButton` | `toggled(on)` → `.button_pressed` | toggle button, label beside it |
-| Numeric (FOV, …) | `SpinBox` (`Range`) | `value_changed(value)` → `.value` | `.suffix = "°"`, `.prefix` |
+| Numeric (FOV, …) | `SpinBox` (`Range`) | `value_changed(value)` → `.value` | `.suffix = "°"`, `.prefix` (4.8 deprecates both for a `format` string; check `engine class-info --class SpinBox` on the running build) |
 | Credits / web link | `LinkButton` | `pressed` | set `.uri` to auto-open on click |
 | Extra actions | `MenuButton` / `MenuBar` | popup's `id_pressed(id)` | see below |
 

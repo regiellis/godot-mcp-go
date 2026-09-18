@@ -91,7 +91,7 @@ tasks:
   test:http:failures:
     desc: Isolated HTTP framing and busy-buffer failure tests (no editor required)
     cmds:
-      - "{{.GODOT}} --headless --script scripts/test-http-failures.gd"
+      - "{{.GODOT}} --headless --path project --script ../scripts/test-http-failures.gd"
 
   eval:
     desc: "Run eval scenario checks against a live project (e.g. task eval -- -Project <dir> -Scenario 00-smoke)"

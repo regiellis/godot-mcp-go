@@ -303,6 +303,9 @@ func _compare_screenshots(params: Dictionary) -> Dictionary:
 
 
 func _emit_image(image: Image, save_path: String) -> Dictionary:
+	# The editor's root viewport follows rendering/viewport/hdr_2d as well, so
+	# the same linear frame arrives here once a project turns 2D glow on.
+	var conversion: Dictionary = ImageCapture.to_srgb8(image)
 	if not save_path.is_empty():
 		var abs_path := ProjectSettings.globalize_path(save_path) if save_path.begins_with("res://") or save_path.begins_with("user://") else save_path
 		# Image.save_png does not create directories, so a save_path naming one
@@ -316,9 +319,9 @@ func _emit_image(image: Image, save_path: String) -> Dictionary:
 		if err != OK:
 			return error_internal("Failed to save screenshot to '%s': %s" % [save_path, error_string(err)])
 		notify_fs_changed(save_path)
-		return success({"saved_path": save_path, "width": image.get_width(), "height": image.get_height(), "format": "png"})
+		return success(ImageCapture.stamp({"saved_path": save_path, "width": image.get_width(), "height": image.get_height(), "format": "png"}, conversion))
 	var base64 := Marshalls.raw_to_base64(image.save_png_to_buffer())
-	return success({"image_base64": base64, "width": image.get_width(), "height": image.get_height(), "format": "png"})
+	return success(ImageCapture.stamp({"image_base64": base64, "width": image.get_width(), "height": image.get_height(), "format": "png"}, conversion))
 
 
 func _load_image(value: String, label: String) -> Array:
@@ -355,11 +358,22 @@ func _run_script(params: Dictionary) -> Dictionary:
 		return guard
 	audit_exec("editor.run_script", code)
 
-	var wrapped := "@tool\nextends Node\n\nvar output: Array = []\n\nfunc emit(value: Variant) -> void:\n\toutput.append(str(value))\n\nfunc run() -> void:\n%s\n" % _indent(code)
+	var wrapped := _RUN_WRAPPER % _indent(code)
 	var script := GDScript.new()
 	script.source_code = wrapped
+	var script_path := ExecErrors.script_file(script)
+	# One capture spans compile and run: a parse error reports only
+	# ERR_PARSE_ERROR, and a runtime fault aborts run() and reports nothing at
+	# all, so the reason for either lives only in what the engine logged.
+	var logger := start_error_capture()
 	if script.reload() != OK:
-		return error(-32602, "Script compilation failed", {"wrapped_code": wrapped})
+		var failed := ExecErrors.classify(stop_error_capture(logger), script_path, _RUN_PREAMBLE_LINES)
+		var reason := ""
+		for e in failed["errors"]:
+			if e["file"] == "<your code>":
+				reason = ": %s (line %d of your code)" % [e["message"], int(e["line"])]
+				break
+		return error(-32602, "Script compilation failed" + reason, {"wrapped_code": wrapped, "errors": failed["errors"]})
 
 	var node := Node.new()
 	node.set_script(script)
@@ -368,7 +382,22 @@ func _run_script(params: Dictionary) -> Dictionary:
 		node.run()
 	var out: Variant = node.get("output")
 	node.queue_free()
-	return success({"output": out if out is Array else []})
+	var output: Array = out if out is Array else []
+	var ran := ExecErrors.classify(stop_error_capture(logger), script_path, _RUN_PREAMBLE_LINES)
+	if ran["aborted"]:
+		return error(-32603, ExecErrors.abort_text(ran), {"output": output, "errors": ran["errors"]})
+	var result := {"output": output}
+	if logger == null:
+		result["error_capture"] = "unavailable"
+	elif not ran["errors"].is_empty():
+		result["errors"] = ran["errors"]
+	return success(result)
+
+
+## The run_script wrapper. Its preamble is _RUN_PREAMBLE_LINES long, so an error
+## line in the throwaway maps back to the caller's code as line - preamble.
+const _RUN_WRAPPER := "@tool\nextends Node\n\nvar output: Array = []\n\nfunc emit(value: Variant) -> void:\n\toutput.append(str(value))\n\nfunc run() -> void:\n%s\n"
+const _RUN_PREAMBLE_LINES := 9
 
 
 func _guard_unsafe_io(code: String, allow: bool) -> Dictionary:

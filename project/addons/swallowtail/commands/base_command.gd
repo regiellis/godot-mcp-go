@@ -5,6 +5,8 @@ extends Node
 ## {"<group>.<command>": Callable}. Helpers below keep handlers terse.
 
 const PropertyParser := preload("res://addons/swallowtail/utils/property_parser.gd")
+const ImageCapture := preload("res://addons/swallowtail/utils/image_capture.gd")
+const ExecErrors := preload("res://addons/swallowtail/utils/exec_errors.gd")
 
 var editor_plugin: EditorPlugin
 
@@ -461,6 +463,31 @@ func audit_exec(kind: String, code: String) -> void:
 	# rendered every line red as "ERROR:" in the Output panel, so editor.errors
 	# (which scans for "ERROR") collected the whole script body as fake errors.
 	print("[swallowtail] %s executing (%d bytes):\n%s\n[swallowtail] --- end %s ---" % [kind, code.length(), code, kind])
+
+
+## Scoped error capture around one editor-side compile or run: a Logger
+## subclass registered for the duration, so what the operation logged comes
+## back in the result rather than only in the Output panel. Logger is 4.5+ and
+## the subclass cannot parse below it, so both are reached dynamically; null
+## means capture is unavailable on this engine, and the caller says so. Never
+## reads or clears the editor's own buffer.
+func start_error_capture() -> Object:
+	if not (ClassDB.class_exists("Logger") and OS.has_method("add_logger") and OS.has_method("remove_logger")):
+		return null
+	var logger_script: Variant = load("res://addons/swallowtail/services/game_error_log.gd")
+	if logger_script == null or not logger_script.can_instantiate():
+		return null
+	var logger: Object = logger_script.new()
+	OS.call("add_logger", logger)
+	return logger
+
+
+## Unregister the capture and return everything it saw, oldest first.
+func stop_error_capture(logger: Object) -> Array:
+	if logger == null:
+		return []
+	OS.call("remove_logger", logger)
+	return logger.poll(0, false).errors
 
 
 ## Resolve a node path relative to the edited scene root. Accepts ".", the root

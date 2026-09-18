@@ -6,6 +6,22 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- **`scene3d add-body --from-mesh` seats the body on the mesh and fits the shape to it**. The body takes the mesh's rotation and origin, the mesh's scale is baked into the collider, and a box, sphere, or capsule is sized to the mesh bounds unless `--size`, `--radius`, or `--height` is given. Before this the body landed at `--position` with the collider at the mesh's unit size, so a collider for a mesh anywhere but the origin was seated wrong. `--reparent-mesh true` moves the MeshInstance3D under the new body so the two move together, and the whole call is one undo step. `--position` is refused together with `--from-mesh`.
+
+### Fixed
+
+- **`editor run-script` and `runtime eval` report a runtime fault instead of a clean run**. A snippet that hit a script error (an invalid call, a null dereference) aborted at that line and came back with whatever it had emitted so far and no error, so the only trace was a line in the Output panel. Both now capture what the engine logged around the run and answer `-32603` naming the line of the caller's code, with the partial `output` and the captured `errors` attached. A `push_error` or an engine error inside a called method does not fail the call and is attached as `errors`, with the snippet's own line where the backtrace names it. A parse error now names its line too. On Godot 4.3 and 4.4, which have no `Logger`, the reply carries `error_capture: "unavailable"`. A game launched from the editor still breaks into the debugger on a script error before the reply can be built, and the timeout message already reports that break; the new reply is what a standalone game answers over the direct channel.
+- **Screenshots of an HDR 2D viewport are encoded as sRGB**. With `rendering/viewport/hdr_2d` on (which `lighting glow-2d` enables), the viewport hands back a half-float linear image, and `runtime screenshot`, `runtime capture-frames`, and `editor screenshot` saved those values straight to PNG, so every capture read far darker than the window. The three captures now convert to 8-bit sRGB first and report `hdr_2d` in the result. On Godot 4.3 the engine has no conversion method, so the frame stays linear and the result carries `color_space: "linear"`.
+
+## [1.0.1] - 2026-09-10
+
+A hotfix for `swallowtail migrate`. The addon is unchanged apart from its
+version; reinstalling it is optional. Projects already migrated with 1.0.0 that
+carry custom commands under `mcp_commands/` should fix each file's `extends`
+path by hand or roll back and migrate again with this release.
+
 ### Fixed
 
 - `node set` refuses scalar text it cannot read instead of coercing it to zero.
@@ -13,6 +29,18 @@ follow [Semantic Versioning](https://semver.org/).
   set it to `false`, both inside a success envelope; each now returns `-32602`
   naming the property and the text. Numbers, `true`/`false`/`yes`/`no`/`1`/`0`,
   and native JSON scalars parse as before.
+- The test project's two project-local command files (`mcp_commands/example_commands.gd`,
+  `mcp_commands/refs_commands.gd`) extend the addon at its migrated path. Since the
+  1.0.0 rename they failed to parse on every editor launch and the `custom` group
+  never registered; found while retesting against Godot 4.8 dev5.
+- `swallowtail migrate` rewrites the old addon path inside project-local command
+  files under `mcp_commands/`. A migrated project's custom commands used to fail
+  to parse and vanish from the catalog with only an editor warning. The preview
+  names each file, the journal keeps its original bytes, and rollback restores
+  it unless you edited it after migration.
+- `task test:http:failures` runs again: it loads the HTTP server with the test
+  project as `res://`, which the server's `identity.gd` preload has needed since
+  the rename.
 - The web dashboard's wordmark reads Swallowtail.
 
 ## [1.0.0] - 2026-09-07

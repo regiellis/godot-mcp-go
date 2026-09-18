@@ -1,3 +1,7 @@
+## @tool because the editor registers this same subclass around an ad-hoc
+## compile or run (base_command.start_error_capture), and Script.can_instantiate
+## is false for a non-tool script inside the editor even when it parsed.
+@tool
 extends Logger
 
 ## Captures runtime errors/warnings from the RUNNING game into a bounded ring

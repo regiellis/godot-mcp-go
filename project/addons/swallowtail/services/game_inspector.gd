@@ -13,6 +13,8 @@ const Identity = preload("res://addons/swallowtail/identity.gd")
 ## the request file and dispatches via _handle_request().
 
 const PropertyParser := preload("res://addons/swallowtail/utils/property_parser.gd")
+const ImageCapture := preload("res://addons/swallowtail/utils/image_capture.gd")
+const ExecErrors := preload("res://addons/swallowtail/utils/exec_errors.gd")
 const GameServer := preload("res://addons/swallowtail/services/game_server.gd")
 ## Loaded at RUNTIME, never preloaded: see _start_error_log.
 const GAME_ERROR_LOG_PATH := "res://addons/swallowtail/services/game_error_log.gd"
@@ -60,6 +62,7 @@ var _captured_images: Array = []
 var _capture_node_path: String = ""
 var _capture_node_props: Array = []
 var _capture_frame_data: Array = []
+var _capture_conversion: Dictionary = {}
 
 # Monitor state
 var _monitor_node_path: String = ""
@@ -576,11 +579,26 @@ func _execute_script(params: Dictionary) -> void:
 	var node := Node.new()
 	node.set_script(script)
 	add_child(node)
+	var run_since: int = _error_log.next_seq() if _error_log != null else 0
 	if node.has_method("run"):
 		node.run()
 	var out: Variant = node.get("output")
 	node.queue_free()
-	_respond({"output": out if out is Array else []})
+	var output: Array = out if out is Array else []
+	# A runtime fault aborts run() and reports nothing here; the error log is
+	# the only place the engine wrote the reason. Below 4.5 there is no log and
+	# the reply says so rather than reading as a clean run.
+	if _error_log == null:
+		_respond({"output": output, "error_capture": "unavailable"})
+		return
+	var ran: Dictionary = ExecErrors.classify(_error_log.poll(run_since, false).errors, ExecErrors.script_file(script), _EVAL_PREAMBLE_LINES)
+	if ran["aborted"]:
+		_respond({"error": ExecErrors.abort_text(ran), "error_code": -32603, "error_data": {"output": output, "errors": ran["errors"]}})
+		return
+	var response := {"output": output}
+	if not ran["errors"].is_empty():
+		response["errors"] = ran["errors"]
+	_respond(response)
 
 
 func _indent(code: String) -> String:
@@ -647,6 +665,7 @@ func _screenshot(params: Dictionary) -> void:
 		await RenderingServer.frame_post_draw
 		image = get_viewport().get_texture().get_image()
 		black = _is_black(image)
+	var hdr := ImageCapture.to_srgb8(image)
 	# Default false, unlike capture_frames: a saved PNG is evidence someone looks
 	# at, and silently halving every existing caller's file would be its own
 	# surprise. Opt in explicitly. The step schema and --help both say so.
@@ -669,16 +688,16 @@ func _screenshot(params: Dictionary) -> void:
 		if save_err != OK:
 			_respond({"error": "Failed to save screenshot to '%s': %s" % [save_path, error_string(save_err)]})
 			return
-		_respond({"saved_path": save_path, "width": image.get_width(), "height": image.get_height(),
-			"format": "png", "black_frame": black})
+		_respond(ImageCapture.stamp({"saved_path": save_path, "width": image.get_width(),
+			"height": image.get_height(), "format": "png", "black_frame": black}, hdr))
 		return
-	_respond({
+	_respond(ImageCapture.stamp({
 		"image_base64": Marshalls.raw_to_base64(image.save_png_to_buffer()),
 		"width": image.get_width(),
 		"height": image.get_height(),
 		"format": "png",
 		"black_frame": black,
-	})
+	}, hdr))
 
 
 ## Is every pixel black? Checked on a 16x16 downscale so a 1440p frame costs
@@ -741,6 +760,9 @@ func _capture_one_frame() -> void:
 		_finish_capture()
 		return
 
+	var conversion: Dictionary = ImageCapture.to_srgb8(image)
+	if conversion["hdr"]:
+		_capture_conversion = conversion
 	if _capture_half_res:
 		var new_size := image.get_size() / 2
 		if new_size.x > 0 and new_size.y > 0:
@@ -780,11 +802,13 @@ func _finish_capture() -> void:
 		"height": h,
 		"half_resolution": _capture_half_res,
 	}
+	ImageCapture.stamp(response, _capture_conversion)
 	if not _capture_frame_data.is_empty():
 		response["frame_data"] = _capture_frame_data
 	_respond(response)
 	_captured_images.clear()
 	_capture_frame_data.clear()
+	_capture_conversion = {}
 
 
 # ── monitor_properties (stateful) ─────────────────────────────────────────────

@@ -1,5 +1,5 @@
 @tool
-extends "res://addons/godot_mcp/commands/base_command.gd"
+extends "res://addons/swallowtail/commands/base_command.gd"
 
 ## Example project-local command group.
 ##

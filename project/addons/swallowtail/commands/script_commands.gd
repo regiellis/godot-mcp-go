@@ -613,15 +613,9 @@ func _collect_all_gd(dir_path: String, out: Array) -> void:
 
 
 func _compile(source: String, context_path: String = "") -> Dictionary:
-	# Logger arrived in 4.5. Keep the 4.3 addon floor by loading its subclass
-	# dynamically, just as the game inspector does. Capture only this compile;
-	# never consume or clear the user's editor output buffer.
-	var logger: Object = null
-	if ClassDB.class_exists("Logger") and OS.has_method("add_logger") and OS.has_method("remove_logger"):
-		var logger_script = load("res://addons/swallowtail/services/game_error_log.gd")
-		if logger_script != null:
-			logger = logger_script.new()
-			OS.call("add_logger", logger)
+	# Capture only this compile (base_command.start_error_capture: Logger is 4.5+,
+	# null below); never consume or clear the user's editor output buffer.
+	var logger := start_error_capture()
 	var script := GDScript.new()
 	var check_path := context_path + ".mcpcheck_%s.gd" % script.get_instance_id()
 	if not context_path.is_empty():
@@ -632,8 +626,7 @@ func _compile(source: String, context_path: String = "") -> Dictionary:
 	var err := script.reload()
 	var diagnostics: Array = []
 	if logger != null:
-		OS.call("remove_logger", logger)
-		for entry in logger.poll(0, false).errors:
+		for entry in stop_error_capture(logger):
 			var file: String = entry.get("file", "")
 			if file == check_path:
 				file = context_path
