@@ -3,3 +3,6 @@
 # file forever). Release artifacts are unaffected: both release scripts already
 # force autocrlf off for git archive.
 *.go text eol=lf
+
+# Downloadable reports retain their exact PDF bytes.
+*.pdf binary

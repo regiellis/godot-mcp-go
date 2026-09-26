@@ -80,6 +80,8 @@ const AUTHORED: NavGroup[] = [
       { label: "Validate scenes and scripts", slug: "validation" },
       { label: "Spatial placement", slug: "spatial-placement", badge: "deep" },
       { label: "Playtest loop", slug: "playtest-loop" },
+      { label: "Game QA and reports", slug: "game-qa", badge: "beta" },
+      { label: "Dueling Dice QA case study", slug: "dueling-dice-qa" },
       { label: "Upgrading a project", slug: "upgrading", badge: "beta" },
       { label: "C# projects", slug: "csharp" },
       { label: "Live-engine gotchas", slug: "gotchas" },

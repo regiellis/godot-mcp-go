@@ -1,0 +1,127 @@
+---
+title: Game QA and release reports
+description: Run game-specific scenarios, retain frame captures, compare baselines and generate Swallowtail branded PDFs.
+---
+
+<Callout type="important" title="QA feature preview">
+  These commands are in development and are not included in the published Swallowtail
+  1.0.1 binaries. Read the [Dueling Dice case study](/docs/dueling-dice-qa) and download
+  its complete launch report to see the workflow and its limits.
+</Callout>
+
+`swallowtail qa` keeps a repeatable test run with its logs, build hashes, frame intervals,
+screenshots and coverage. Source games extend it with a GDScript scenario. Packaged games
+run as their actual executable, with manual checks recorded separately.
+
+Python 3.10+ is required. PDF generation also needs ReportLab 4 in that interpreter.
+Set `SWALLOWTAIL_PYTHON` to select a project environment.
+
+```sh
+swallowtail qa init --project /games/example
+swallowtail qa run --project /games/example --config qa/config.json --pdf
+```
+
+`init` creates a configuration and smoke scenario without replacing existing files. Edit
+the executable, rendering arguments, environment description, manual checks and budgets
+for the game. Run directories default to `.godot/swallowtail-qa/runs/`. Preserve approved
+baselines outside disposable caches.
+
+## Extend the scenario
+
+```gdscript
+extends RefCounted
+
+func run(qa) -> void:
+    qa.phase("boot")
+    qa.check(qa.change_scene_to_file("res://menu.tscn") == OK, "menu loads")
+    await qa.wait(2.0)
+    qa.check(qa.current_scene != null, "menu stays alive")
+    qa.phase("idle")
+    await qa.wait(5.0)
+    await qa.screenshot("Menu ready for visual review")
+```
+
+`qa` is a SceneTree. Add normal game actions and assertions for repeated navigation,
+representative gameplay, settings, pause and saves. Give every wait for a game condition a
+deadline. Pixel readback has its own screenshot phase so it does not contaminate idle timing.
+Keep scenarios outside player export filters.
+
+Source scenarios are instrumented tests. An exported executable can disable script
+overrides, so package mode does not inject them. Configure `kind: "package"`, the game's
+executable, no scenario, and arguments that exit normally before the timeout. Record human
+input checks as manual coverage. Exit-zero startup alone does not establish a full playtest.
+
+## Capture and compare
+
+```sh
+swallowtail qa run --config qa/config.json --presentmon /tools/PresentMon.exe
+swallowtail qa compare --run path/to/current --baseline path/to/approved --tolerance-percent 10
+```
+
+PresentMon is an optional Windows dependency supplied by the developer. It captures the
+spawned PID and retains the raw CSV. Process-frame intervals and submitted-present intervals
+are different measurements; neither alone proves displayed-frame timing or identifies a
+CPU/GPU cause. The report retains cold-start spikes and named phases rather than averaging
+them away.
+
+Comparisons require matching host, OS, executable engine, scenario, rendering arguments
+and capture source. Available renderer/device/viewport data must match too. A changed PCK
+can be compared on the same template, while an executable change is conservatively treated
+as incompatible. Missing phases and incomplete coverage cannot pass a comparison.
+
+## Record manual coverage and render the report
+
+```sh
+swallowtail qa attest --run path/to/run --check "Visual and audio review" --status pass --detail "Completed menu, five turns and pause/resume; no missing art or audio dropout."
+swallowtail qa report --run path/to/run --out output/qa.pdf
+```
+
+Only declared manual checks can be attested. Evidence and previous state remain in the
+record. Regenerate the PDF after adding an attestation or comparison. The report includes
+the mascot, brand colors, checks, timing, screenshots, limitations and artifact hashes.
+
+Run/compare exit 0 for a pass, 1 for failed or incomplete evidence, and 2 for invalid
+configuration or missing tooling. Complete process logs are checked, including errors after
+an assertion summary. Windows APPDATA/LOCALAPPDATA and Linux XDG data paths are isolated;
+macOS, cloud saves and custom absolute paths need a game-specific adapter. The initial
+implementation controls direct child processes; separately spawned launchers need their
+own cleanup. Review the generated PDF and raw evidence before using them for a release decision.
+
+## Conclude each test and assess readiness
+
+The PDF gives each test a conclusion, fix status, next action and evidence reference.
+A separate ship-readiness section explains required work, follow-up and closure criteria.
+Passing checks alone leave readiness unassessed.
+
+Supply a reviewed assessment for game-specific conclusions:
+
+```sh
+swallowtail qa report --run path/to/run --assessment qa/assessment.json --out output/qa.pdf
+```
+
+```json
+{
+  "schema": 1,
+  "prepared_by": "QA review of the release candidate",
+  "tests": [{
+    "name": "Repeated menu transitions",
+    "conclusion": "Warm source transitions meet the measured budget.",
+    "fix_status": "Cache fix verified in source; package retest remains.",
+    "next_action": "Repeat timestamped transitions in the shipping build.",
+    "evidence": "navigation/run.json and frames.csv"
+  }],
+  "readiness": {
+    "verdict": "hold",
+    "summary": "Release candidate; required package coverage is incomplete.",
+    "required": ["Complete the package retest."],
+    "follow_up": ["Expand hardware coverage."],
+    "acceptance": ["Attach retest evidence and the release owner's decision."]
+  }
+}
+```
+
+Verdicts are `hold`, `conditional`, `ready` and `not_assessed`. A `ready` assessment
+requires a passing package run and an empty `required` list. Source runs, failed checks
+and pending coverage cannot receive that verdict. The assessment stays separate from
+recorded test results, and the PDF includes its hash. The release owner still decides
+whether the evidence covers the game's advertised support.
