@@ -70,6 +70,23 @@ editor session and running game.
 Godot is installed separately. See [Godot's command-line reference](https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html)
 and [How it works](https://regiellis.github.io/godot-mcp-go/docs/how-it-works).
 
+## Game QA and release reports
+
+Available in 1.1.0, `swallowtail qa` runs game-owned GDScript scenarios, retains logs,
+screenshots and frame samples, compares compatible baselines and generates branded PDFs.
+Reports distinguish source tests, manual package coverage and ship-readiness assessments.
+
+```sh
+swallowtail qa init --project /games/example
+swallowtail qa run --project /games/example --config qa/config.json
+swallowtail qa report --project /games/example --run path/to/run --out output/qa.pdf
+```
+
+Python 3.10+ is required. PDF generation needs ReportLab 4 in that interpreter.
+Set `SWALLOWTAIL_PYTHON` to use a project environment. PresentMon is an optional Windows
+capture dependency. Platform bundles include the `swallowtail-qa` skill.
+See [Game QA and reports](https://regiellis.github.io/godot-mcp-go/docs/game-qa).
+
 ## CLI first, MCP optional
 
 Run commands from your terminal, reuse them in scripts, or add them to CI.

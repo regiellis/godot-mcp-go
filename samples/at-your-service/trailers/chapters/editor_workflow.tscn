@@ -1,0 +1,141 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://trailers/chapter.gd" id="1"]
+[ext_resource type="FontVariation" path="res://trailers/timeline/display_font.tres" id="2"]
+[ext_resource type="FontFile" path="res://assets/inter/Inter-Regular.ttf" id="3"]
+
+[node name="EditorWorkflow" type="Control"]
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+script = ExtResource("1")
+
+[node name="Card" type="Control" parent="."]
+visible = false
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/start = 29.46667
+metadata/end = 41.35667
+
+[node name="Background" type="ColorRect" parent="Card"]
+offset_right = 1000.0
+offset_bottom = 1080.0
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Rule" type="ColorRect" parent="Card"]
+offset_left = 76.0
+offset_top = 110.0
+offset_right = 286.0
+offset_bottom = 113.0
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Wordmark" type="Label" parent="Card"]
+offset_left = 76.0
+offset_top = 48.0
+offset_right = 676.0
+offset_bottom = 96.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="Chapter" type="Label" parent="Card"]
+offset_left = 76.0
+offset_top = 158.0
+offset_right = 926.0
+offset_bottom = 200.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 24
+text = "WHY AUTOMATE?"
+
+[node name="Title" type="Label" parent="Card"]
+offset_left = 72.0
+offset_top = 214.0
+offset_right = 932.0
+offset_bottom = 364.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_fonts/font = ExtResource("2")
+theme_override_font_sizes/font_size = 54
+text = "Why not just use\nthe editor?"
+
+[node name="Subtitle" type="Label" parent="Card"]
+offset_left = 76.0
+offset_top = 380.0
+offset_right = 926.0
+offset_bottom = 470.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 29
+text = "Start with the way you already work."
+
+[node name="Heading0" type="Label" parent="Card"]
+offset_left = 76.0
+offset_top = 508.0
+offset_right = 926.0
+offset_bottom = 546.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 24
+text = "PLACE BY EYE"
+
+[node name="Body0" type="Label" parent="Card"]
+offset_left = 76.0
+offset_top = 553.0
+offset_right = 926.0
+offset_bottom = 633.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 31
+text = "Move one rock in the inspector."
+
+[node name="Heading1" type="Label" parent="Card"]
+offset_left = 76.0
+offset_top = 640.0
+offset_right = 926.0
+offset_bottom = 678.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 24
+text = "REPEAT A CHANGE"
+
+[node name="Body1" type="Label" parent="Card"]
+offset_left = 76.0
+offset_top = 685.0
+offset_right = 926.0
+offset_bottom = 765.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 31
+text = "Apply the same settings again."
+
+[node name="Heading2" type="Label" parent="Card"]
+offset_left = 76.0
+offset_top = 772.0
+offset_right = 926.0
+offset_bottom = 810.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 24
+text = "HAND OFF A TASK"
+
+[node name="Body2" type="Label" parent="Card"]
+offset_left = 76.0
+offset_top = 817.0
+offset_right = 926.0
+offset_bottom = 897.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 31
+text = "Let an agent help, then review the scene."
+
+[node name="Footer" type="Label" parent="Card"]
+offset_left = 76.0
+offset_top = 955.0
+offset_right = 926.0
+offset_bottom = 1045.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_fonts/font = ExtResource("3")
+theme_override_font_sizes/font_size = 25
+text = "The editor stays part of your workflow."

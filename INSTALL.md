@@ -16,13 +16,24 @@ swallowtail install --project /path/to/your/project --enable
 
 This copies `addons/swallowtail/` and `.claude/skills/swallowtail/` into the project and enables the plugin in `project.godot`. Flags: `--skill=false` to skip the skill, `--enable` to turn the plugin on (otherwise enable it in-editor), `--force` to overwrite. Omit `--project` to target the project containing your current directory.
 
+When the bundle contains `skills/swallowtail-qa`, installation also copies that companion skill
+to `.claude/skills/swallowtail-qa/`. It covers release playtests, GDScript scenarios, frame
+baselines and branded reports. `--skill=false` skips both skills.
+
 Then open the project in Godot 4.7 and you are done. The manual steps below are the alternative if you'd rather copy things yourself.
 
 ## 1. The CLI
 
 The bundle contains the `swallowtail` binary (`swallowtail.exe` on Windows). Put it somewhere on your `PATH`, or run it by full path.
 
-Only `install` and `install-assets` care where the binary lives, because they copy files that ship next to it. Everything else drives a running editor over a socket, so once the addon is in your project the binary works fine on its own from anywhere.
+`install` and `install-assets` copy files that ship next to the binary. Editor commands connect
+over a socket; local commands such as `run`, `test`, `export`, and `qa` work without a running
+editor. The binary can be invoked by full path from a game project.
+
+`qa` embeds its runner, report template, fonts and mascot. It requires Python 3.10+; set
+`SWALLOWTAIL_PYTHON` to a specific interpreter. For PDF output, install `reportlab>=4,<5` into
+that interpreter. `swallowtail qa --help` lists the local QA commands. Optional Windows frame
+capture uses a separately supplied PresentMon executable.
 
 ```sh
 swallowtail --help
@@ -53,6 +64,9 @@ To give a Claude Code agent full context on the tool, copy the skill so you have
 ```
 
 (Standalone `swallowtail-skill_<version>.zip` extracts the `swallowtail` folder. Drop it into `.claude/skills/`.)
+
+The companion `swallowtail-qa-skill_<version>.zip` extracts `swallowtail-qa`. Other agents can
+use the same SKILL.md and references in their supported skill directory.
 
 ## 4. Bundled greybox assets (optional)
 

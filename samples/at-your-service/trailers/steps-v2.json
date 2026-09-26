@@ -1,0 +1,582 @@
+[
+  {
+    "at": 38,
+    "chapter": "01 / GET CONNECTED",
+    "title": "Connect the editor.",
+    "subtitle": "Start inside your Godot project.",
+    "lines": [
+      "$ swallowtail install --enable",
+      "$ swallowtail launch",
+      "$ swallowtail status"
+    ],
+    "result": "Addon installed and enabled.",
+    "note": "Install the CLI for your platform from the docs.",
+    "scene": "One project. One open editor.",
+    "take": "",
+    "source": "SETUP COMMANDS"
+  },
+  {
+    "at": 46,
+    "chapter": "01 / GET CONNECTED",
+    "title": "Check the connection.",
+    "subtitle": "The next command reaches this editor.",
+    "lines": [
+      "$ swallowtail status"
+    ],
+    "result": "",
+    "note": "Status identifies the running editor.",
+    "scene": "The editor is reachable.",
+    "take": "status"
+  },
+  {
+    "at": 54,
+    "chapter": "01 / GET CONNECTED",
+    "title": "Ask for help.",
+    "subtitle": "Command names and parameters are discoverable.",
+    "lines": [
+      "$ swallowtail node set --help",
+      "",
+      "--node-path   Target node",
+      "--property    Property to change",
+      "--value       New value"
+    ],
+    "result": "Single-property and batch forms are available.",
+    "note": "Read the options before changing the scene.",
+    "scene": "Help comes from the command catalog.",
+    "take": "help",
+    "label": "YOUR TERMINAL / HELP EXCERPT"
+  },
+  {
+    "at": 61,
+    "chapter": "01 / GET CONNECTED",
+    "title": "See what's there.",
+    "subtitle": "Inspect the scene before editing it.",
+    "lines": [
+      "$ swallowtail scene tree",
+      "",
+      "Sun               DirectionalLight3D",
+      "Water             MeshInstance3D",
+      "Camera            Camera3D",
+      "Dressing/Lighthouse"
+    ],
+    "result": "Scene tree returned from the open editor.",
+    "note": "Use the real node paths in the next command.",
+    "scene": "The lighthouse is a normal scene node.",
+    "take": "tree",
+    "label": "YOUR TERMINAL / TREE EXCERPT"
+  },
+  {
+    "at": 68,
+    "chapter": "02 / BUILD IN THE EDITOR",
+    "title": "Start with a scene.",
+    "subtitle": "Read the lighthouse's current transform.",
+    "lines": [
+      "$ swallowtail node get",
+      "  --node-path Dressing/Lighthouse",
+      "  --properties '[\"position\",\"scale\"]'"
+    ],
+    "result": "Position (-4, 1.08, -7). Scale (0.5, 0.5, 0.5).",
+    "note": "Inspect first. Then change one thing.",
+    "scene": "Before: a smaller tower, farther left.",
+    "take": "inspect"
+  },
+  {
+    "at": 78,
+    "chapter": "02 / BUILD IN THE EDITOR",
+    "title": "Give it a home.",
+    "subtitle": "Move the existing node across the coast.",
+    "lines": [
+      "$ swallowtail node set",
+      "  --node-path Dressing/Lighthouse",
+      "  --property position",
+      "  --value 'Vector3(7, 1.08, -7)'"
+    ],
+    "result": "position set to (7, 1.08, -7).",
+    "note": "The position changes in the open scene.",
+    "scene": "Watch the tower move to the right.",
+    "take": "place"
+  },
+  {
+    "at": 87,
+    "chapter": "02 / BUILD IN THE EDITOR",
+    "title": "Make it stand out.",
+    "subtitle": "A second edit changes the tower's scale.",
+    "lines": [
+      "$ swallowtail node set",
+      "  --node-path Dressing/Lighthouse",
+      "  --property scale",
+      "  --value 'Vector3(0.7, 0.7, 0.7)'"
+    ],
+    "result": "scale set to (0.7, 0.7, 0.7).",
+    "note": "The same node is still editable in Godot.",
+    "scene": "The lighthouse becomes larger.",
+    "take": "scale"
+  },
+  {
+    "at": 95,
+    "chapter": "02 / BUILD IN THE EDITOR",
+    "title": "Build out the shore.",
+    "subtitle": "Reuse a mesh already in the scene.",
+    "lines": [
+      "$ swallowtail node duplicate",
+      "  --node-path Dressing/Scatter0",
+      "  --name ShoreRock"
+    ],
+    "result": "Dressing/ShoreRock created.",
+    "note": "Give the copy a stable name.",
+    "scene": "A copy starts at the original rock.",
+    "take": "duplicate"
+  },
+  {
+    "at": 104,
+    "chapter": "02 / BUILD IN THE EDITOR",
+    "title": "Place the new rock.",
+    "subtitle": "Move the copy into the foreground.",
+    "lines": [
+      "$ swallowtail node set",
+      "  --node-path Dressing/ShoreRock",
+      "  --property position",
+      "  --value 'Vector3(12, 0.5, 1)'"
+    ],
+    "result": "position set to (12, 0.5, 1).",
+    "note": "Small commands, visible scene changes.",
+    "scene": "The new rock moves toward the shore.",
+    "take": "rock"
+  },
+  {
+    "at": 109,
+    "chapter": "02 / BUILD IN THE EDITOR",
+    "title": "Give it some weight.",
+    "subtitle": "Scale the copy independently.",
+    "lines": [
+      "$ swallowtail node set",
+      "  --node-path Dressing/ShoreRock",
+      "  --property scale",
+      "  --value 'Vector3(2, 2, 2)'"
+    ],
+    "result": "scale set to (2, 2, 2).",
+    "note": "The original mesh stays available to reuse.",
+    "scene": "The foreground rock grows.",
+    "take": "rock_scale"
+  },
+  {
+    "at": 113,
+    "chapter": "02 / BUILD IN THE EDITOR",
+    "title": "Bring the water up.",
+    "subtitle": "Change a shader parameter in the editor.",
+    "lines": [
+      "$ swallowtail shader set-param",
+      "  --node-path Water",
+      "  --param wave1_amplitude",
+      "  --value 0.65"
+    ],
+    "result": "wave1_amplitude set to 0.65.",
+    "note": "Watch the water against the shoreline.",
+    "scene": "More swell. More movement.",
+    "take": "waves"
+  },
+  {
+    "at": 119,
+    "chapter": "02 / BUILD IN THE EDITOR",
+    "title": "Keep the scene edit.",
+    "subtitle": "Save the work in a normal Godot scene.",
+    "lines": [
+      "$ swallowtail scene save"
+    ],
+    "result": "lighthouse_demo.tscn saved.",
+    "note": "Your project stays ordinary Godot files.",
+    "scene": "The scene changes are saved.",
+    "take": "save"
+  },
+  {
+    "at": 122,
+    "chapter": "03 / MAKE IT REPEATABLE",
+    "title": "Keep what works.",
+    "subtitle": "A reusable plan: trailers/calm.json",
+    "lines": [
+      "shader.set_param  wave1_amplitude = 0.18",
+      "node.set          daylight settings",
+      "scene.save",
+      "scene.validate    expect valid = true"
+    ],
+    "result": "Four ordered steps, with a validation check.",
+    "note": "Keep repeatable work in a file.",
+    "scene": "Current water: 0.65",
+    "take": "",
+    "label": "PLAN / FOUR STEPS",
+    "source": "PLAN CONTENTS"
+  },
+  {
+    "at": 133,
+    "chapter": "03 / MAKE IT REPEATABLE",
+    "title": "Run the sequence.",
+    "subtitle": "Restore calm water and daylight.",
+    "lines": [
+      "$ swallowtail automate",
+      "  --file trailers/calm.json"
+    ],
+    "result": "",
+    "note": "The plan runs against the open editor.",
+    "scene": "Wave amplitude: 0.65 → 0.18",
+    "take": "plan"
+  },
+  {
+    "at": 145,
+    "chapter": "03 / MAKE IT REPEATABLE",
+    "title": "Run it again.",
+    "subtitle": "Return to the same starting point.",
+    "lines": [
+      "$ swallowtail automate",
+      "  --file trailers/calm.json"
+    ],
+    "result": "",
+    "note": "Reuse the file after the next experiment.",
+    "scene": "Same plan. Same settings.",
+    "take": "plan_again"
+  },
+  {
+    "at": 154,
+    "chapter": "03 / MAKE IT REPEATABLE",
+    "title": "Check before playing.",
+    "subtitle": "Parse the scripts with your installed Godot.",
+    "lines": [
+      "$ swallowtail check ."
+    ],
+    "result": "",
+    "note": "This step invokes the engine to check scripts.",
+    "scene": "Ready for the next playtest.",
+    "take": "check"
+  },
+  {
+    "at": 163,
+    "chapter": "04 / PLAYTEST AND ADJUST",
+    "title": "Run it.",
+    "subtitle": "Try a rough-water variation in play mode.",
+    "lines": [
+      "$ swallowtail scene play --mode current"
+    ],
+    "result": "Current scene started.",
+    "note": "Playtest commands address the running game.",
+    "scene": "Play mode / wave amplitude 0.65",
+    "take": "play"
+  },
+  {
+    "at": 171,
+    "chapter": "04 / PLAYTEST AND ADJUST",
+    "title": "Inspect the game.",
+    "subtitle": "Read the running camera's movement speed.",
+    "lines": [
+      "$ swallowtail runtime get",
+      "  --node-path Camera",
+      "  --properties '[\"movement_speed\"]'"
+    ],
+    "result": "",
+    "note": "Runtime values come from the game instance.",
+    "scene": "Camera speed: 8 metres per second.",
+    "take": "camera"
+  },
+  {
+    "at": 179,
+    "chapter": "04 / PLAYTEST AND ADJUST",
+    "title": "Move through it.",
+    "subtitle": "Send input, then release the key.",
+    "lines": [
+      "$ swallowtail input key",
+      "  --keycode W --pressed true",
+      "",
+      "$ swallowtail input key",
+      "  --keycode W --pressed false"
+    ],
+    "result": "Key pressed, then released.",
+    "note": "A lower viewpoint makes the swell easier to judge.",
+    "scene": "Move closer. Look at the shoreline.",
+    "take": "move"
+  },
+  {
+    "at": 185,
+    "chapter": "04 / PLAYTEST AND ADJUST",
+    "title": "Read the value.",
+    "subtitle": "Inspect the water material while it runs.",
+    "lines": [
+      "$ swallowtail runtime eval --code '<below>'",
+      "",
+      "var scene = get_tree().current_scene",
+      "var water = scene.get_node(\"Water\")",
+      "emit(water.material_override.",
+      "  get_shader_parameter(\"wave1_amplitude\"))"
+    ],
+    "result": "",
+    "note": "Readback confirms the value being tested.",
+    "scene": "A little too much swell.",
+    "take": "before",
+    "label": "RUNTIME EVAL / GDSCRIPT"
+  },
+  {
+    "at": 193,
+    "chapter": "04 / PLAYTEST AND ADJUST",
+    "title": "Change it live.",
+    "subtitle": "Try a gentler wave amplitude.",
+    "lines": [
+      "$ swallowtail runtime eval --code '<below>'",
+      "",
+      "var scene = get_tree().current_scene",
+      "var water = scene.get_node(\"Water\")",
+      "water.material_override.set_shader_parameter(",
+      "  \"wave1_amplitude\", 0.18)"
+    ],
+    "result": "Runtime material updated.",
+    "note": "Watch the shoreline as the waves get smaller.",
+    "scene": "Wave amplitude: 0.65 → 0.18",
+    "take": "adjust",
+    "label": "RUNTIME EVAL / GDSCRIPT"
+  },
+  {
+    "at": 201,
+    "chapter": "04 / PLAYTEST AND ADJUST",
+    "title": "Read it back.",
+    "subtitle": "Confirm the value after the change.",
+    "lines": [
+      "$ swallowtail runtime eval --code '<below>'",
+      "",
+      "var scene = get_tree().current_scene",
+      "var water = scene.get_node(\"Water\")",
+      "emit(water.material_override.",
+      "  get_shader_parameter(\"wave1_amplitude\"))"
+    ],
+    "result": "",
+    "note": "Verify the state as well as the picture.",
+    "scene": "That's closer.",
+    "take": "after",
+    "label": "RUNTIME EVAL / GDSCRIPT"
+  },
+  {
+    "at": 208,
+    "chapter": "04 / PLAYTEST AND ADJUST",
+    "title": "Check what happened.",
+    "subtitle": "Inspect the runtime error log.",
+    "lines": [
+      "$ swallowtail runtime errors"
+    ],
+    "result": "",
+    "note": "An error check complements the visual review.",
+    "scene": "Inspect. Adjust. Verify.",
+    "take": "errors"
+  },
+  {
+    "at": 213,
+    "chapter": "04 / PLAYTEST AND ADJUST",
+    "title": "Keep a frame.",
+    "subtitle": "Capture the game for review.",
+    "lines": [
+      "$ swallowtail runtime screenshot",
+      "  --save-path user://coast-reviewed.png"
+    ],
+    "result": "Frame saved to user://coast-reviewed.png.",
+    "note": "Keep a visual record of the result.",
+    "scene": "Capture the running viewport.",
+    "take": "capture"
+  },
+  {
+    "at": 216,
+    "chapter": "04 / PLAYTEST AND ADJUST",
+    "title": "Finish the experiment.",
+    "subtitle": "A runtime change is not a saved scene edit.",
+    "lines": [
+      "$ swallowtail scene stop"
+    ],
+    "result": "Play mode stopped.",
+    "note": "Apply the chosen value in the editor to keep it.",
+    "scene": "Next: keep the calm water.",
+    "take": "stop"
+  },
+  {
+    "at": 218,
+    "chapter": "05 / WORK WITH AN AGENT",
+    "title": "Hand off a task.",
+    "subtitle": "Keep the creative decisions yours.",
+    "lines": [
+      "Keep the calmer water.",
+      "Warm the light.",
+      "Save the scene for review."
+    ],
+    "result": "A bounded task with a visible result.",
+    "note": "The agent can use the same CLI commands.",
+    "scene": "Task → commands → review",
+    "take": "",
+    "label": "YOUR REQUEST",
+    "source": "TASK BRIEF"
+  },
+  {
+    "at": 225,
+    "chapter": "05 / WORK WITH AN AGENT",
+    "title": "Discover the command.",
+    "subtitle": "Read the available parameters first.",
+    "lines": [
+      "$ swallowtail shader set-param --help",
+      "",
+      "--node-path   Target mesh",
+      "--param       Shader parameter",
+      "--value       Parameter value"
+    ],
+    "result": "Help returned from the live catalog.",
+    "note": "The agent reads the same help you do.",
+    "scene": "First: inspect the tool.",
+    "take": "agent_help",
+    "label": "AGENT / HELP EXCERPT"
+  },
+  {
+    "at": 231,
+    "chapter": "05 / WORK WITH AN AGENT",
+    "title": "Keep the calm water.",
+    "subtitle": "Apply the playtest choice in the editor.",
+    "lines": [
+      "$ swallowtail shader set-param",
+      "  --node-path Water",
+      "  --param wave1_amplitude",
+      "  --value 0.18"
+    ],
+    "result": "Editor material updated to 0.18.",
+    "note": "This applies the value to the editable scene.",
+    "scene": "The chosen wave setting stays.",
+    "take": "agent_water",
+    "label": "AGENT / RECORDED COMMAND"
+  },
+  {
+    "at": 239,
+    "chapter": "05 / WORK WITH AN AGENT",
+    "title": "Lower the sun.",
+    "subtitle": "Change the light's direction.",
+    "lines": [
+      "$ swallowtail node set",
+      "  --node-path Sun",
+      "  --property rotation_degrees",
+      "  --value 'Vector3(-18, -40, 0)'"
+    ],
+    "result": "Sun rotation set to (-18, -40, 0).",
+    "note": "Watch the shadows and the water.",
+    "scene": "Daylight becomes evening.",
+    "take": "agent_light",
+    "label": "AGENT / RECORDED COMMAND"
+  },
+  {
+    "at": 246,
+    "chapter": "05 / WORK WITH AN AGENT",
+    "title": "Warm the light.",
+    "subtitle": "Give the sunlight a warmer colour.",
+    "lines": [
+      "$ swallowtail node set",
+      "  --node-path Sun",
+      "  --property light_color",
+      "  --value 'Color(1, 0.75, 0.5)'"
+    ],
+    "result": "Sun colour set to (1, 0.75, 0.5).",
+    "note": "Review how the scene feels after the change.",
+    "scene": "Warm light across the coast.",
+    "take": "agent_color",
+    "label": "AGENT / RECORDED COMMAND"
+  },
+  {
+    "at": 251,
+    "chapter": "05 / WORK WITH AN AGENT",
+    "title": "Save for review.",
+    "subtitle": "Keep the scene edits.",
+    "lines": [
+      "$ swallowtail scene save"
+    ],
+    "result": "lighthouse_demo.tscn saved.",
+    "note": "The next decision is yours.",
+    "scene": "Keep it, adjust it, or try another pass.",
+    "take": "agent_save",
+    "label": "AGENT / RECORDED COMMAND"
+  },
+  {
+    "at": 254,
+    "chapter": "05 / WORK WITH AN AGENT",
+    "title": "Inspect the result.",
+    "subtitle": "Read the changed light properties.",
+    "lines": [
+      "$ swallowtail node get",
+      "  --node-path Sun",
+      "  --properties",
+      "  '[\"rotation_degrees\",\"light_color\"]'"
+    ],
+    "result": "Rotation and colour returned from Sun.",
+    "note": "Review the commands and the resulting scene.",
+    "scene": "The changes can be inspected.",
+    "take": "agent_read",
+    "label": "AGENT / RECORDED COMMAND"
+  },
+  {
+    "at": 258,
+    "chapter": "06 / CONNECT THROUGH MCP",
+    "title": "MCP when you want it.",
+    "subtitle": "Connect to the same editor session.",
+    "lines": [
+      "$ swallowtail serve --project .",
+      "  --typed=false",
+      "",
+      "MCP stdio → godot_run"
+    ],
+    "result": "One connection to the existing project.",
+    "note": "The CLI remains available alongside MCP.",
+    "scene": "Same editor. Same scene.",
+    "take": "",
+    "label": "MCP / CONNECTION",
+    "source": "RECORDED SESSION"
+  },
+  {
+    "at": 266,
+    "chapter": "06 / CONNECT THROUGH MCP",
+    "title": "Make one more change.",
+    "subtitle": "Lower the sun for a later evening look.",
+    "lines": [
+      "tool: godot_run",
+      "method: node.set",
+      "params:",
+      "  node_path: Sun",
+      "  property: rotation_degrees",
+      "  value: \"Vector3(-8, -40, 0)\""
+    ],
+    "result": "Tool call prepared for the same Sun node.",
+    "note": "The method and parameters describe the edit.",
+    "scene": "Next: a lower evening sun.",
+    "take": "",
+    "label": "MCP / TOOL ARGUMENTS",
+    "source": "RECORDED REQUEST"
+  },
+  {
+    "at": 272,
+    "chapter": "06 / CONNECT THROUGH MCP",
+    "title": "Watch the change.",
+    "subtitle": "The MCP call edits the same node.",
+    "lines": [
+      "tool: godot_run",
+      "method: node.set",
+      "  node_path: Sun",
+      "  property: rotation_degrees",
+      "  value: \"Vector3(-8, -40, 0)\""
+    ],
+    "result": "Sun rotation updated through MCP.",
+    "note": "The scene changes through the same editor tools.",
+    "scene": "The sun drops from -18° to -8°.",
+    "take": "mcp_edit",
+    "label": "MCP / RECORDED TOOL CALL"
+  },
+  {
+    "at": 278,
+    "chapter": "06 / CONNECT THROUGH MCP",
+    "title": "Read it back.",
+    "subtitle": "Confirm the result through MCP.",
+    "lines": [
+      "tool: godot_run",
+      "method: node.get",
+      "  node_path: Sun",
+      "  property: rotation_degrees"
+    ],
+    "result": "",
+    "note": "Your scenes and scripts stay ordinary Godot files.",
+    "scene": "Your game. Your workflow.",
+    "take": "mcp_read",
+    "label": "MCP / RECORDED RESPONSE"
+  }
+]

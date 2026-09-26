@@ -1,0 +1,2254 @@
+[gd_scene format=3 uid="uid://bdjt7qwahjeqm"]
+
+[ext_resource type="Script" uid="uid://c4rxjuskm0rk" path="res://trailers/chapter.gd" id="1_j0q8y"]
+[ext_resource type="FontVariation" path="res://trailers/timeline/display_font.tres" id="2_x1ka4"]
+[ext_resource type="FontFile" uid="uid://by75qrvimdas8" path="res://assets/source-code-pro/SourceCodePro-Regular.ttf" id="3_ilw3u"]
+[ext_resource type="FontFile" uid="uid://dtbm556602jfo" path="res://assets/inter/Inter-Regular.ttf" id="4_dsfja"]
+[ext_resource type="Texture2D" uid="uid://bk7ygsbgkx6ev" path="res://trailers/brand/swallowtail-checking.png" id="5_cka5q"]
+
+[node name="Playtest" type="Control" unique_id=1803683259]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+script = ExtResource("1_j0q8y")
+
+[node name="S17_RunIt" type="Control" parent="." unique_id=1644126211]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "play"
+metadata/start_seconds = 239.6
+metadata/end_seconds = 245.353
+metadata/start = 261.9
+metadata/end = 273.42
+
+[node name="Background" type="ColorRect" parent="S17_RunIt" unique_id=206879888]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S17_RunIt" unique_id=369219130]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S17_RunIt" unique_id=1496602230]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S17_RunIt" unique_id=273803871]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "04 / PLAYTEST AND ADJUST"
+
+[node name="Title" type="Label" parent="S17_RunIt" unique_id=590782565]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 265.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 61
+text = "Run it."
+
+[node name="Subtitle" type="Label" parent="S17_RunIt" unique_id=2104930664]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 642.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 29
+text = "Try a rough-water variation in play mode."
+
+[node name="Console" type="Control" parent="S17_RunIt" unique_id=1041437962]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S17_RunIt/Console" unique_id=225651944]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S17_RunIt/Console" unique_id=562903786]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S17_RunIt/Console" unique_id=2031135215]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S17_RunIt/Console" unique_id=499000066]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 637.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail scene play --mode current"
+
+[node name="ResultRule" type="ColorRect" parent="S17_RunIt/Console" unique_id=1701491859]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S17_RunIt/Console" unique_id=1737610957]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S17_RunIt/Console" unique_id=707756732]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 325.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 28
+text = "Current scene started."
+
+[node name="Note" type="Label" parent="S17_RunIt" unique_id=393264097]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 743.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 30
+text = "Playtest commands address the running game."
+
+[node name="Footer" type="Label" parent="S17_RunIt" unique_id=2062222792]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S17_RunIt" unique_id=526434818]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S17_RunIt" unique_id=2136832680]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 803.0
+offset_right = 1870.0
+offset_bottom = 1011.0
+mouse_filter = 2
+texture = ExtResource("5_cka5q")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S17_RunIt" unique_id=613979512]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S17_RunIt" unique_id=999371305]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1463.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 26
+text = "Play mode / wave amplitude 0.65"
+
+[node name="S18_InspectTheGame" type="Control" parent="." unique_id=663528581]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "camera"
+metadata/start_seconds = 245.353
+metadata/end_seconds = 247.602
+metadata/start = 273.42
+metadata/end = 275.25
+
+[node name="Background" type="ColorRect" parent="S18_InspectTheGame" unique_id=875700541]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S18_InspectTheGame" unique_id=2087228067]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S18_InspectTheGame" unique_id=1828136131]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S18_InspectTheGame" unique_id=2077243582]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "04 / PLAYTEST AND ADJUST"
+
+[node name="Title" type="Label" parent="S18_InspectTheGame" unique_id=2003755578]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 604.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 61
+text = "Inspect the game."
+
+[node name="Subtitle" type="Label" parent="S18_InspectTheGame" unique_id=1089210761]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 699.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 29
+text = "Read the running camera's movement speed."
+
+[node name="Console" type="Control" parent="S18_InspectTheGame" unique_id=2089549297]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S18_InspectTheGame/Console" unique_id=1895993051]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S18_InspectTheGame/Console" unique_id=258384429]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S18_InspectTheGame/Console" unique_id=741643918]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S18_InspectTheGame/Console" unique_id=1863628922]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 418.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail runtime get"
+
+[node name="Command02" type="Label" parent="S18_InspectTheGame/Console" unique_id=1191896768]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 340.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "  --node-path Camera"
+
+[node name="Command03" type="Label" parent="S18_InspectTheGame/Console" unique_id=1635984340]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 574.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "  --properties '[\"movement_speed\"]'"
+
+[node name="ResultRule" type="ColorRect" parent="S18_InspectTheGame/Console" unique_id=645118955]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S18_InspectTheGame/Console" unique_id=907350532]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S18_InspectTheGame/Console" unique_id=422392983]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 319.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 28
+text = "movement_speed: 8.0"
+
+[node name="Note" type="Label" parent="S18_InspectTheGame" unique_id=730321565]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 733.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 30
+text = "Runtime values come from the game instance."
+
+[node name="Footer" type="Label" parent="S18_InspectTheGame" unique_id=1797658073]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S18_InspectTheGame" unique_id=201020567]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S18_InspectTheGame" unique_id=2086408026]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 803.0
+offset_right = 1870.0
+offset_bottom = 1011.0
+mouse_filter = 2
+texture = ExtResource("5_cka5q")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S18_InspectTheGame" unique_id=2085829156]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S18_InspectTheGame" unique_id=1409688881]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1511.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 26
+text = "Camera speed: 8 metres per second."
+
+[node name="S19_MoveThroughIt" type="Control" parent="." unique_id=364999469]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "move"
+metadata/start_seconds = 247.602
+metadata/end_seconds = 258.348
+metadata/start = 275.25
+metadata/end = 284.74
+
+[node name="Background" type="ColorRect" parent="S19_MoveThroughIt" unique_id=871234445]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S19_MoveThroughIt" unique_id=1204431225]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S19_MoveThroughIt" unique_id=299358167]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S19_MoveThroughIt" unique_id=201010841]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "04 / PLAYTEST AND ADJUST"
+
+[node name="Title" type="Label" parent="S19_MoveThroughIt" unique_id=607411054]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 558.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 61
+text = "Move through it."
+
+[node name="Subtitle" type="Label" parent="S19_MoveThroughIt" unique_id=1197703176]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 525.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 29
+text = "Send input, then release the key."
+
+[node name="Console" type="Control" parent="S19_MoveThroughIt" unique_id=652526302]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S19_MoveThroughIt/Console" unique_id=949594026]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S19_MoveThroughIt/Console" unique_id=1248108555]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S19_MoveThroughIt/Console" unique_id=1929074369]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S19_MoveThroughIt/Console" unique_id=775013134]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 387.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail input key"
+
+[node name="Command02" type="Label" parent="S19_MoveThroughIt/Console" unique_id=1060020939]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 465.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "  --keycode W --pressed true"
+
+[node name="Command03" type="Label" parent="S19_MoveThroughIt/Console" unique_id=400052573]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 29.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+
+[node name="Command04" type="Label" parent="S19_MoveThroughIt/Console" unique_id=2073286805]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 387.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail input key"
+
+[node name="Command05" type="Label" parent="S19_MoveThroughIt/Console" unique_id=3479720]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 222.0
+offset_right = 481.0
+offset_bottom = 256.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "  --keycode W --pressed false"
+
+[node name="ResultRule" type="ColorRect" parent="S19_MoveThroughIt/Console" unique_id=1980863446]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S19_MoveThroughIt/Console" unique_id=1515188356]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S19_MoveThroughIt/Console" unique_id=1774986094]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 396.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 28
+text = "Key pressed, then released."
+
+[node name="Note" type="Label" parent="S19_MoveThroughIt" unique_id=741187275]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 791.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 30
+text = "A lower viewpoint makes the swell easier to judge."
+
+[node name="Footer" type="Label" parent="S19_MoveThroughIt" unique_id=1671478640]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S19_MoveThroughIt" unique_id=2121583594]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S19_MoveThroughIt" unique_id=2067295074]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 803.0
+offset_right = 1870.0
+offset_bottom = 1011.0
+mouse_filter = 2
+texture = ExtResource("5_cka5q")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S19_MoveThroughIt" unique_id=1139322134]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S19_MoveThroughIt" unique_id=469868669]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1483.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 26
+text = "Move closer. Look at the shoreline."
+
+[node name="S20_ReadTheValue" type="Control" parent="." unique_id=2122863207]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "before"
+metadata/start_seconds = 258.348
+metadata/end_seconds = 269.63333
+metadata/start = 284.74
+metadata/end = 292.0
+
+[node name="Background" type="ColorRect" parent="S20_ReadTheValue" unique_id=1041591470]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S20_ReadTheValue" unique_id=47587464]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S20_ReadTheValue" unique_id=1861716537]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S20_ReadTheValue" unique_id=1024377463]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "04 / PLAYTEST AND ADJUST"
+
+[node name="Title" type="Label" parent="S20_ReadTheValue" unique_id=2062486920]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 525.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 61
+text = "Read the value."
+
+[node name="Subtitle" type="Label" parent="S20_ReadTheValue" unique_id=1927486479]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 616.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 29
+text = "Inspect the water material while it runs."
+
+[node name="Console" type="Control" parent="S20_ReadTheValue" unique_id=1326515762]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S20_ReadTheValue/Console" unique_id=1924136163]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S20_ReadTheValue/Console" unique_id=1312930362]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S20_ReadTheValue/Console" unique_id=760036192]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 373.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "RUNTIME EVAL / GDSCRIPT"
+
+[node name="Command01" type="Label" parent="S20_ReadTheValue/Console" unique_id=148791240]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 699.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail runtime eval --code '<below>'"
+
+[node name="Command02" type="Label" parent="S20_ReadTheValue/Console" unique_id=223590227]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 29.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+
+[node name="Command03" type="Label" parent="S20_ReadTheValue/Console" unique_id=947177142]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 590.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "var scene = get_tree().current_scene"
+
+[node name="Command04" type="Label" parent="S20_ReadTheValue/Console" unique_id=384127326]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 574.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "var water = scene.get_node(\"Water\")"
+
+[node name="Command05" type="Label" parent="S20_ReadTheValue/Console" unique_id=1292294963]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 222.0
+offset_right = 480.0
+offset_bottom = 256.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "emit(water.material_override."
+
+[node name="Command06" type="Label" parent="S20_ReadTheValue/Console" unique_id=1488324668]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 258.0
+offset_right = 683.0
+offset_bottom = 292.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "  get_shader_parameter(\"wave1_amplitude\"))"
+
+[node name="ResultRule" type="ColorRect" parent="S20_ReadTheValue/Console" unique_id=82477085]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S20_ReadTheValue/Console" unique_id=1289729738]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S20_ReadTheValue/Console" unique_id=265679282]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 325.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 28
+text = "wave1_amplitude: 0.65"
+
+[node name="Note" type="Label" parent="S20_ReadTheValue" unique_id=1905702945]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 683.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 30
+text = "Readback confirms the value being tested."
+
+[node name="Footer" type="Label" parent="S20_ReadTheValue" unique_id=1700830139]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S20_ReadTheValue" unique_id=314129084]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S20_ReadTheValue" unique_id=1087218561]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 803.0
+offset_right = 1870.0
+offset_bottom = 1011.0
+mouse_filter = 2
+texture = ExtResource("5_cka5q")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S20_ReadTheValue" unique_id=1267649758]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S20_ReadTheValue" unique_id=717288503]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1332.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 26
+text = "A little too much swell."
+
+[node name="S21_ChangeItLive" type="Control" parent="." unique_id=346369059]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "adjust"
+metadata/start_seconds = 269.63333
+metadata/end_seconds = 280.78733
+metadata/start = 292.0
+metadata/end = 303.55
+
+[node name="Background" type="ColorRect" parent="S21_ChangeItLive" unique_id=1323432330]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S21_ChangeItLive" unique_id=745214285]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S21_ChangeItLive" unique_id=1637813806]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S21_ChangeItLive" unique_id=1178540692]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "04 / PLAYTEST AND ADJUST"
+
+[node name="Title" type="Label" parent="S21_ChangeItLive" unique_id=306749003]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 494.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 61
+text = "Change it live."
+
+[node name="Subtitle" type="Label" parent="S21_ChangeItLive" unique_id=1043192242]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 482.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 29
+text = "Try a gentler wave amplitude."
+
+[node name="Console" type="Control" parent="S21_ChangeItLive" unique_id=124950207]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S21_ChangeItLive/Console" unique_id=1448515569]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S21_ChangeItLive/Console" unique_id=1688547938]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S21_ChangeItLive/Console" unique_id=727579898]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 373.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "RUNTIME EVAL / GDSCRIPT"
+
+[node name="Command01" type="Label" parent="S21_ChangeItLive/Console" unique_id=1163476528]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 699.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail runtime eval --code '<below>'"
+
+[node name="Command02" type="Label" parent="S21_ChangeItLive/Console" unique_id=454414313]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 29.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+
+[node name="Command03" type="Label" parent="S21_ChangeItLive/Console" unique_id=567782108]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 590.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "var scene = get_tree().current_scene"
+
+[node name="Command04" type="Label" parent="S21_ChangeItLive/Console" unique_id=617051450]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 574.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "var water = scene.get_node(\"Water\")"
+
+[node name="Command05" type="Label" parent="S21_ChangeItLive/Console" unique_id=2105629206]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 222.0
+offset_right = 730.0
+offset_bottom = 256.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "water.material_override.set_shader_parameter("
+
+[node name="Command06" type="Label" parent="S21_ChangeItLive/Console" unique_id=1772938506]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 258.0
+offset_right = 434.0
+offset_bottom = 292.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "  \"wave1_amplitude\", 0.18)"
+
+[node name="ResultRule" type="ColorRect" parent="S21_ChangeItLive/Console" unique_id=928338975]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S21_ChangeItLive/Console" unique_id=1050161280]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S21_ChangeItLive/Console" unique_id=1752628436]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 374.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 28
+text = "Runtime material updated."
+
+[node name="Note" type="Label" parent="S21_ChangeItLive" unique_id=1806406494]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 722.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 30
+text = "Watch the shoreline as the waves get smaller."
+
+[node name="Footer" type="Label" parent="S21_ChangeItLive" unique_id=1640106099]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S21_ChangeItLive" unique_id=1315836358]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S21_ChangeItLive" unique_id=1106468021]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 803.0
+offset_right = 1870.0
+offset_bottom = 1011.0
+mouse_filter = 2
+texture = ExtResource("5_cka5q")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S21_ChangeItLive" unique_id=250663352]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S21_ChangeItLive" unique_id=764917160]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1408.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 26
+text = "Wave amplitude: 0.65 → 0.18"
+
+[node name="S22_ReadItBack" type="Control" parent="." unique_id=1047442184]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "after"
+metadata/start_seconds = 280.78733
+metadata/end_seconds = 284.41933
+metadata/start = 303.55
+metadata/end = 307.11
+
+[node name="Background" type="ColorRect" parent="S22_ReadItBack" unique_id=943795437]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S22_ReadItBack" unique_id=758826135]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S22_ReadItBack" unique_id=1943351442]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S22_ReadItBack" unique_id=1343128445]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "04 / PLAYTEST AND ADJUST"
+
+[node name="Title" type="Label" parent="S22_ReadItBack" unique_id=143683383]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 450.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 61
+text = "Read it back."
+
+[node name="Subtitle" type="Label" parent="S22_ReadItBack" unique_id=1038381092]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 563.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 29
+text = "Confirm the value after the change."
+
+[node name="Console" type="Control" parent="S22_ReadItBack" unique_id=805399852]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S22_ReadItBack/Console" unique_id=2129949237]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S22_ReadItBack/Console" unique_id=1722295054]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S22_ReadItBack/Console" unique_id=903561949]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 373.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "RUNTIME EVAL / GDSCRIPT"
+
+[node name="Command01" type="Label" parent="S22_ReadItBack/Console" unique_id=1515929242]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 699.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail runtime eval --code '<below>'"
+
+[node name="Command02" type="Label" parent="S22_ReadItBack/Console" unique_id=686652565]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 29.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+
+[node name="Command03" type="Label" parent="S22_ReadItBack/Console" unique_id=1585935261]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 590.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "var scene = get_tree().current_scene"
+
+[node name="Command04" type="Label" parent="S22_ReadItBack/Console" unique_id=1595992836]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 574.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "var water = scene.get_node(\"Water\")"
+
+[node name="Command05" type="Label" parent="S22_ReadItBack/Console" unique_id=1225393277]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 222.0
+offset_right = 480.0
+offset_bottom = 256.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "emit(water.material_override."
+
+[node name="Command06" type="Label" parent="S22_ReadItBack/Console" unique_id=1059390859]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 258.0
+offset_right = 683.0
+offset_bottom = 292.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "  get_shader_parameter(\"wave1_amplitude\"))"
+
+[node name="ResultRule" type="ColorRect" parent="S22_ReadItBack/Console" unique_id=1729754191]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S22_ReadItBack/Console" unique_id=1764382448]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S22_ReadItBack/Console" unique_id=1848114203]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 318.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 28
+text = "wave1_amplitude: 0.18"
+
+[node name="Note" type="Label" parent="S22_ReadItBack" unique_id=17512886]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 608.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 30
+text = "Verify the state as well as the picture."
+
+[node name="Footer" type="Label" parent="S22_ReadItBack" unique_id=1362078719]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S22_ReadItBack" unique_id=1565566822]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S22_ReadItBack" unique_id=55875567]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 803.0
+offset_right = 1870.0
+offset_bottom = 1011.0
+mouse_filter = 2
+texture = ExtResource("5_cka5q")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S22_ReadItBack" unique_id=1724215710]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S22_ReadItBack" unique_id=1148133320]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1222.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 26
+text = "That's closer."
+
+[node name="S23_CheckWhatHappened" type="Control" parent="." unique_id=306273767]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "errors"
+metadata/start_seconds = 284.41933
+metadata/end_seconds = 286.50933
+metadata/start = 307.11
+metadata/end = 310.59
+
+[node name="Background" type="ColorRect" parent="S23_CheckWhatHappened" unique_id=1991706005]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S23_CheckWhatHappened" unique_id=1486907712]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S23_CheckWhatHappened" unique_id=2048161452]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S23_CheckWhatHappened" unique_id=581821888]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "04 / PLAYTEST AND ADJUST"
+
+[node name="Title" type="Label" parent="S23_CheckWhatHappened" unique_id=1187609370]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 750.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 61
+text = "Check what happened."
+
+[node name="Subtitle" type="Label" parent="S23_CheckWhatHappened" unique_id=1377357336]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 477.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 29
+text = "Inspect the runtime error log."
+
+[node name="Console" type="Control" parent="S23_CheckWhatHappened" unique_id=498202141]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S23_CheckWhatHappened/Console" unique_id=426319646]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S23_CheckWhatHappened/Console" unique_id=1968200890]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S23_CheckWhatHappened/Console" unique_id=540019406]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S23_CheckWhatHappened/Console" unique_id=484533613]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 465.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail runtime errors"
+
+[node name="ResultRule" type="ColorRect" parent="S23_CheckWhatHappened/Console" unique_id=148085939]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S23_CheckWhatHappened/Console" unique_id=832624505]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S23_CheckWhatHappened/Console" unique_id=1394558163]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 249.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 28
+text = "0 runtime errors."
+
+[node name="Note" type="Label" parent="S23_CheckWhatHappened" unique_id=118295475]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 739.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 30
+text = "An error check complements the visual review."
+
+[node name="Footer" type="Label" parent="S23_CheckWhatHappened" unique_id=452698127]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S23_CheckWhatHappened" unique_id=553696452]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S23_CheckWhatHappened" unique_id=1747059204]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 803.0
+offset_right = 1870.0
+offset_bottom = 1011.0
+mouse_filter = 2
+texture = ExtResource("5_cka5q")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S23_CheckWhatHappened" unique_id=955099487]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S23_CheckWhatHappened" unique_id=164085376]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1333.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 26
+text = "Inspect. Adjust. Verify."
+
+[node name="S24_KeepAFrame" type="Control" parent="." unique_id=1462523427]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "capture"
+metadata/start_seconds = 286.50933
+metadata/end_seconds = 290.89133
+metadata/start = 310.59
+metadata/end = 314.83
+
+[node name="Background" type="ColorRect" parent="S24_KeepAFrame" unique_id=2016573943]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S24_KeepAFrame" unique_id=39245141]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S24_KeepAFrame" unique_id=530329040]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S24_KeepAFrame" unique_id=273993783]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "04 / PLAYTEST AND ADJUST"
+
+[node name="Title" type="Label" parent="S24_KeepAFrame" unique_id=791570636]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 470.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 61
+text = "Keep a frame."
+
+[node name="Subtitle" type="Label" parent="S24_KeepAFrame" unique_id=555430190]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 475.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 29
+text = "Capture the game for review."
+
+[node name="Console" type="Control" parent="S24_KeepAFrame" unique_id=722804318]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S24_KeepAFrame/Console" unique_id=750514496]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S24_KeepAFrame/Console" unique_id=1837856693]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S24_KeepAFrame/Console" unique_id=693632524]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S24_KeepAFrame/Console" unique_id=1984848594]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 528.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail runtime screenshot"
+
+[node name="Command02" type="Label" parent="S24_KeepAFrame/Console" unique_id=1106674447]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 636.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "  --save-path user://coast-reviewed.png"
+
+[node name="ResultRule" type="ColorRect" parent="S24_KeepAFrame/Console" unique_id=36510144]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S24_KeepAFrame/Console" unique_id=2083073129]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S24_KeepAFrame/Console" unique_id=541525020]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 598.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 28
+text = "Frame saved to user://coast-reviewed.png."
+
+[node name="Note" type="Label" parent="S24_KeepAFrame" unique_id=1842677317]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 553.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 30
+text = "Keep a visual record of the result."
+
+[node name="Footer" type="Label" parent="S24_KeepAFrame" unique_id=1565830464]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S24_KeepAFrame" unique_id=411185583]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S24_KeepAFrame" unique_id=980385005]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 803.0
+offset_right = 1870.0
+offset_bottom = 1011.0
+mouse_filter = 2
+texture = ExtResource("5_cka5q")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S24_KeepAFrame" unique_id=1532594924]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S24_KeepAFrame" unique_id=1745031925]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1423.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 26
+text = "Capture the running viewport."
+
+[node name="S25_FinishTheExperiment" type="Control" parent="." unique_id=236102745]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "stop"
+metadata/start_seconds = 290.89133
+metadata/end_seconds = 305.1
+metadata/start = 314.83
+metadata/end = 331.1
+
+[node name="Background" type="ColorRect" parent="S25_FinishTheExperiment" unique_id=306746402]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S25_FinishTheExperiment" unique_id=594033450]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S25_FinishTheExperiment" unique_id=326296152]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S25_FinishTheExperiment" unique_id=559034054]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "04 / PLAYTEST AND ADJUST"
+
+[node name="Title" type="Label" parent="S25_FinishTheExperiment" unique_id=63736227]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 733.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x1ka4")
+theme_override_font_sizes/font_size = 61
+text = "Finish the experiment."
+
+[node name="Subtitle" type="Label" parent="S25_FinishTheExperiment" unique_id=2022406117]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 676.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 29
+text = "A runtime change is not a saved scene edit."
+
+[node name="Console" type="Control" parent="S25_FinishTheExperiment" unique_id=1433727771]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S25_FinishTheExperiment/Console" unique_id=109935817]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S25_FinishTheExperiment/Console" unique_id=839536682]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S25_FinishTheExperiment/Console" unique_id=2081441291]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S25_FinishTheExperiment/Console" unique_id=313926905]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 403.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail scene stop"
+
+[node name="ResultRule" type="ColorRect" parent="S25_FinishTheExperiment/Console" unique_id=606667502]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S25_FinishTheExperiment/Console" unique_id=353103888]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S25_FinishTheExperiment/Console" unique_id=811532998]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 291.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 28
+text = "Play mode stopped."
+
+[node name="Note" type="Label" parent="S25_FinishTheExperiment" unique_id=1631194971]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 733.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 30
+text = "Apply the chosen value in the editor to keep it."
+
+[node name="Footer" type="Label" parent="S25_FinishTheExperiment" unique_id=1542879181]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ilw3u")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S25_FinishTheExperiment" unique_id=1508578318]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S25_FinishTheExperiment" unique_id=755472563]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 803.0
+offset_right = 1870.0
+offset_bottom = 1011.0
+mouse_filter = 2
+texture = ExtResource("5_cka5q")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S25_FinishTheExperiment" unique_id=460588840]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S25_FinishTheExperiment" unique_id=1304261857]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1382.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_dsfja")
+theme_override_font_sizes/font_size = 26
+text = "Next: keep the calm water."

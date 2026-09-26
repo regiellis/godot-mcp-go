@@ -1,0 +1,236 @@
+{
+ "audio_dir": "audio/take4",
+ "voice_id": "bYXvTprZQHr4vlg4TPx7",
+ "model": "eleven_v3",
+ "stability": 0.5,
+ "similarity_boost": 0.85,
+ "seed": 61928,
+ "source_script": "voiceover-draft.md (draft 4)",
+ "cues": [
+  {
+   "index": 0,
+   "title": "At your service",
+   "delivery": [
+    "casually"
+   ],
+   "holds": [
+    3
+   ],
+   "paragraphs": [
+    "So... this is Swallowtail. I've got Godot open here, with this little stretch of coast... and I'm going to do most of this from the terminal. I'll move some things around, change a few values, run the game... even change stuff while it's running. And Godot stays open the whole time. So... let me show you."
+   ]
+  },
+  {
+   "index": 1,
+   "title": "Why not just use the editor?",
+   "delivery": [
+    "curious",
+    "casually"
+   ],
+   "holds": [
+    2,
+    2
+   ],
+   "paragraphs": [
+    "Now, you might be thinking... why not just do this in the editor? And for one rock? Yeah. Just drag it.",
+    "But if I need to do it again... or do the same thing to fifty rocks... that's different. Here I can do it once, save what I did, and just run it again. And every command tells me what actually happened, so I'm not eyeballing it. Okay. Let's get it hooked up."
+   ]
+  },
+  {
+   "index": 2,
+   "title": "Connect the editor",
+   "delivery": [
+    "casually",
+    "amused",
+    "casually"
+   ],
+   "holds": [
+    2,
+    3,
+    1
+   ],
+   "paragraphs": [
+    "So I've got Godot, and I've got the Swallowtail binary. I'm in the project folder. Install puts the addon in and turns it on... launch opens the editor... and status... yep. It can see it.",
+    "There are a lot of commands. Over three hundred. I don't remember them either. So I just ask. Node set, help... and it tells me what it wants. Scene tree... that's everything in the scene. And there's the lighthouse.",
+    "Okay, we're in. Let's change something."
+   ]
+  },
+  {
+   "index": 3,
+   "title": "Move and scale the lighthouse",
+   "delivery": [
+    "focused",
+    "pleased",
+    "casually"
+   ],
+   "holds": [
+    3,
+    2,
+    2
+   ],
+   "paragraphs": [
+    "Watch the lighthouse. First... where is it right now? Okay. That's the position, that's the scale. I'm going to move it over here.",
+    "There. And a little bigger.",
+    "And that's the actual scene. If I click it in Godot... same object. I can keep going in the inspector if I want."
+   ]
+  },
+  {
+   "index": 4,
+   "title": "Shape the shoreline",
+   "delivery": [
+    "casually",
+    "pleased",
+    "amused"
+   ],
+   "holds": [
+    3,
+    3,
+    2
+   ],
+   "paragraphs": [
+    "Now the shore looks a bit empty. I'll copy one of these rocks... give it a name... move it in... and make it bigger.",
+    "That's better. And the water... let's turn the waves up.",
+    "Yeah, that's rough. Okay. Save."
+   ]
+  },
+  {
+   "index": 5,
+   "title": "When the work scales up",
+   "delivery": [
+    "thoughtful",
+    "confident"
+   ],
+   "holds": [
+    2,
+    2
+   ],
+   "paragraphs": [
+    "So that's all one command at a time. And honestly, I could've done all of that by hand. But say it's not one rock. Say it's a few hundred. Or I want five versions of this coast... calm, stormy, sunset... and I want to flip between them.",
+    "Clicking through that every time? No thanks. This is where Swallowtail really shines."
+   ]
+  },
+  {
+   "index": 6,
+   "title": "Make it repeatable",
+   "delivery": [
+    "casually",
+    "casually",
+    "pleased"
+   ],
+   "holds": [
+    3,
+    3,
+    2
+   ],
+   "paragraphs": [
+    "So here's a plan. It's just a JSON file. Four steps. Calm the water, bring the daylight back, save, and check the scene's valid. If that check fails, it stops and tells me where. Let's run it.",
+    "Water's calm... and every step came back. Run it again...",
+    "Same result. That's kind of the point. I can always get back to this. And it's a file, so it goes in git with everything else. One more thing before we play. Check... that runs Godot's own script checker over the project. Four scripts... all good."
+   ]
+  },
+  {
+   "index": 7,
+   "title": "Playtest and inspect",
+   "delivery": [
+    "excited",
+    "casually",
+    "thoughtful"
+   ],
+   "holds": [
+    2,
+    3,
+    2
+   ],
+   "paragraphs": [
+    "Okay. Let's play it. I put the rough water back on first... so there's something to fix.",
+    "Start the scene... check the camera... and move forward a bit.",
+    "Hmm. From down here, that's a lot of wave. Let me ask the game what it's actually set to... point six five."
+   ]
+  },
+  {
+   "index": 8,
+   "title": "Try it live, then save the choice",
+   "delivery": [
+    "focused",
+    "relieved",
+    "casually"
+   ],
+   "holds": [
+    4,
+    2,
+    2
+   ],
+   "paragraphs": [
+    "Let's drop it. Point one eight... while it's running.",
+    "Yeah. That's more like it. Read it back... point one eight. Any errors? None. And I'll grab a frame to compare later.",
+    "Now... the catch. That's only in the running game. When I stop, it's gone. So that value has to go into the scene, and get saved. Which is a nice little job for an agent."
+   ]
+  },
+  {
+   "index": 9,
+   "title": "What the AI actually does",
+   "delivery": [
+    "casually",
+    "confident"
+   ],
+   "holds": [
+    10,
+    2
+   ],
+   "paragraphs": [
+    "So I'd tell it something like... keep the calm water, lower the sun, warm the light up, and save it so I can take a look. And it does the same thing I just did. Looks up the command... sets the water... moves the sun... warms it up... saves.",
+    "Then it reads it all back, so it knows it worked. It's not guessing. And I can see every command it ran. Don't like it? I change it, or ask again. The creative calls are still mine."
+   ]
+  },
+  {
+   "index": 10,
+   "title": "Where MCP fits",
+   "delivery": [
+    "casually",
+    "casually",
+    "pleased"
+   ],
+   "holds": [
+    2,
+    3,
+    3
+   ],
+   "paragraphs": [
+    "Now... MCP. If your agent has a terminal, it can just use these same commands. You don't need MCP for that. MCP is for tools like Claude Code, Cursor, VS Code. They connect, see the tools, and call them.",
+    "Here's one connecting. It lowers the sun...",
+    "...and reads it back. Same editor. Same commands underneath. Nothing's moved."
+   ]
+  },
+  {
+   "index": 11,
+   "title": "Choose your workflow",
+   "delivery": [
+    "warmly"
+   ],
+   "holds": [
+    2
+   ],
+   "paragraphs": [
+    "So, quick recap. We hooked up the editor... moved some stuff around... saved it as a plan... played the game and fixed it live... and handed the last bit to an agent. Use whatever part you want. Just the terminal... scripts... an agent. The AI part's completely optional. And it's all still plain Godot files. Open it without Swallowtail and it's just your project."
+   ]
+  },
+  {
+   "index": 12,
+   "title": "Your game. Your workflow.",
+   "delivery": [
+    "warmly",
+    "warmly"
+   ],
+   "holds": [
+    1,
+    3
+   ],
+   "paragraphs": [
+    "So... there's a game you want to make. Start with a scene... and build from there.",
+    "Swallowtail. At your service."
+   ]
+  }
+ ],
+ "text": "[casually] So... this is Swallowtail. I've got Godot open here, with this little stretch of coast... and I'm going to do most of this from the terminal. I'll move some things around, change a few values, run the game... even change stuff while it's running. And Godot stays open the whole time. So... let me show you.\n\n[curious] Now, you might be thinking... why not just do this in the editor? And for one rock? Yeah. Just drag it.\n\n[casually] But if I need to do it again... or do the same thing to fifty rocks... that's different. Here I can do it once, save what I did, and just run it again. And every command tells me what actually happened, so I'm not eyeballing it. Okay. Let's get it hooked up.\n\n[casually] So I've got Godot, and I've got the Swallowtail binary. I'm in the project folder. Install puts the addon in and turns it on... launch opens the editor... and status... yep. It can see it.\n\n[amused] There are a lot of commands. Over three hundred. I don't remember them either. So I just ask. Node set, help... and it tells me what it wants. Scene tree... that's everything in the scene. And there's the lighthouse.\n\n[casually] Okay, we're in. Let's change something.\n\n[focused] Watch the lighthouse. First... where is it right now? Okay. That's the position, that's the scale. I'm going to move it over here.\n\n[pleased] There. And a little bigger.\n\n[casually] And that's the actual scene. If I click it in Godot... same object. I can keep going in the inspector if I want.\n\n[casually] Now the shore looks a bit empty. I'll copy one of these rocks... give it a name... move it in... and make it bigger.\n\n[pleased] That's better. And the water... let's turn the waves up.\n\n[amused] Yeah, that's rough. Okay. Save.\n\n[thoughtful] So that's all one command at a time. And honestly, I could've done all of that by hand. But say it's not one rock. Say it's a few hundred. Or I want five versions of this coast... calm, stormy, sunset... and I want to flip between them.\n\n[confident] Clicking through that every time? No thanks. This is where Swallowtail really shines.\n\n[casually] So here's a plan. It's just a JSON file. Four steps. Calm the water, bring the daylight back, save, and check the scene's valid. If that check fails, it stops and tells me where. Let's run it.\n\n[casually] Water's calm... and every step came back. Run it again...\n\n[pleased] Same result. That's kind of the point. I can always get back to this. And it's a file, so it goes in git with everything else. One more thing before we play. Check... that runs Godot's own script checker over the project. Four scripts... all good.\n\n[excited] Okay. Let's play it. I put the rough water back on first... so there's something to fix.\n\n[casually] Start the scene... check the camera... and move forward a bit.\n\n[thoughtful] Hmm. From down here, that's a lot of wave. Let me ask the game what it's actually set to... point six five.\n\n[focused] Let's drop it. Point one eight... while it's running.\n\n[relieved] Yeah. That's more like it. Read it back... point one eight. Any errors? None. And I'll grab a frame to compare later.\n\n[casually] Now... the catch. That's only in the running game. When I stop, it's gone. So that value has to go into the scene, and get saved. Which is a nice little job for an agent.\n\n[casually] So I'd tell it something like... keep the calm water, lower the sun, warm the light up, and save it so I can take a look. And it does the same thing I just did. Looks up the command... sets the water... moves the sun... warms it up... saves.\n\n[confident] Then it reads it all back, so it knows it worked. It's not guessing. And I can see every command it ran. Don't like it? I change it, or ask again. The creative calls are still mine.\n\n[casually] Now... MCP. If your agent has a terminal, it can just use these same commands. You don't need MCP for that. MCP is for tools like Claude Code, Cursor, VS Code. They connect, see the tools, and call them.\n\n[casually] Here's one connecting. It lowers the sun...\n\n[pleased] ...and reads it back. Same editor. Same commands underneath. Nothing's moved.\n\n[warmly] So, quick recap. We hooked up the editor... moved some stuff around... saved it as a plan... played the game and fixed it live... and handed the last bit to an agent. Use whatever part you want. Just the terminal... scripts... an agent. The AI part's completely optional. And it's all still plain Godot files. Open it without Swallowtail and it's just your project.\n\n[warmly] So... there's a game you want to make. Start with a scene... and build from there.\n\n[warmly] Swallowtail. At your service.",
+ "characters": 4606
+}

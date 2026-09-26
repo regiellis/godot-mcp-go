@@ -1,0 +1,133 @@
+[gd_scene format=3 uid="uid://53l6k6vei0p0"]
+
+[ext_resource type="Script" uid="uid://c4rxjuskm0rk" path="res://trailers/chapter.gd" id="1_gne6c"]
+[ext_resource type="FontFile" uid="uid://by75qrvimdas8" path="res://assets/source-code-pro/SourceCodePro-Regular.ttf" id="2_anj2m"]
+[ext_resource type="FontVariation" path="res://trailers/timeline/display_font.tres" id="3_sbdux"]
+[ext_resource type="Texture2D" uid="uid://30c0tetrchv6" path="res://trailers/brand/swallowtail-butler.png" id="4_6s5qo"]
+[ext_resource type="FontFile" uid="uid://dtbm556602jfo" path="res://assets/inter/Inter-Regular.ttf" id="5_l8w4c"]
+
+[node name="Intro" type="Control" unique_id=685030517]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+script = ExtResource("1_gne6c")
+
+[node name="Card" type="Control" parent="." unique_id=1700222992]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/start_seconds = 0.0
+metadata/end_seconds = 8.0
+metadata/start = 0.0
+metadata/end = 8.0
+
+[node name="Background" type="ColorRect" parent="Card" unique_id=306205354]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="AccentRule" type="ColorRect" parent="Card" unique_id=638837357]
+layout_mode = 0
+offset_right = 22.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Eyebrow" type="Label" parent="Card" unique_id=986543146]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 220.0
+offset_right = 900.0
+offset_bottom = 268.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("2_anj2m")
+theme_override_font_sizes/font_size = 36
+text = "Welcome to"
+
+[node name="Title" type="Label" parent="Card" unique_id=187978224]
+layout_mode = 0
+offset_left = 112.0
+offset_top = 304.0
+offset_right = 856.0
+offset_bottom = 488.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -21
+theme_override_fonts/font = ExtResource("3_sbdux")
+theme_override_font_sizes/font_size = 134
+text = "Swallowtail"
+
+[node name="Tagline" type="Label" parent="Card" unique_id=1469854087]
+layout_mode = 0
+offset_left = 119.0
+offset_top = 470.0
+offset_right = 1000.0
+offset_bottom = 630.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = 0
+theme_override_fonts/font = ExtResource("3_sbdux")
+theme_override_font_sizes/font_size = 52
+text = "the Godot automation toolkit"
+autowrap_mode = 2
+
+[node name="Mascot" type="TextureRect" parent="Card" unique_id=1555546572]
+layout_mode = 0
+offset_left = 1004.0
+offset_top = 38.0
+offset_right = 1764.0
+offset_bottom = 798.0
+mouse_filter = 2
+texture = ExtResource("4_6s5qo")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Divider" type="ColorRect" parent="Card" unique_id=898197389]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 736.0
+offset_right = 1800.0
+offset_bottom = 738.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="Description" type="Label" parent="Card" unique_id=1429734046]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 778.0
+offset_right = 1760.0
+offset_bottom = 902.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = 0
+theme_override_fonts/font = ExtResource("5_l8w4c")
+theme_override_font_sizes/font_size = 36
+text = "Connect the editor. Automate a workflow. Bring an agent into the process."
+autowrap_mode = 2
+
+[node name="Footer" type="Label" parent="Card" unique_id=750158851]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 933.0
+offset_right = 497.0
+offset_bottom = 965.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("2_anj2m")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="Signature" type="Label" parent="Card" unique_id=589019071]
+layout_mode = 0
+offset_left = 1420.0
+offset_top = 933.0
+offset_right = 1647.0
+offset_bottom = 965.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("2_anj2m")
+theme_override_font_sizes/font_size = 25
+text = "AT YOUR SERVICE"

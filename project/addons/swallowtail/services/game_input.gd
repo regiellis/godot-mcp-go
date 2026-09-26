@@ -118,11 +118,11 @@ func _create_event(data: Dictionary) -> InputEvent:
 func _key_event(data: Dictionary) -> InputEventKey:
 	var event := InputEventKey.new()
 	var keycode_str: String = data.get("keycode", "")
+	# GlobalScope is not a ClassDB class. Resolve its documented KEY_* spelling through
+	# OS instead; keypad constants use underscores where Godot's key names use spaces.
 	if keycode_str.begins_with("KEY_"):
-		var c := ClassDB.class_get_integer_constant("@GlobalScope", keycode_str)
-		event.keycode = c if c != 0 else OS.find_keycode_from_string(keycode_str.substr(4))
-	else:
-		event.keycode = OS.find_keycode_from_string(keycode_str)
+		keycode_str = keycode_str.substr(4).replace("_", " ")
+	event.keycode = OS.find_keycode_from_string(keycode_str)
 	event.pressed = data.get("pressed", true)
 	event.shift_pressed = data.get("shift", false)
 	event.ctrl_pressed = data.get("ctrl", false)

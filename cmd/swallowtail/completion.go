@@ -14,6 +14,7 @@ import (
 )
 
 var localCompletionFlags = map[string][]string{
+	"qa":             {},
 	"automate":       {"--file", "--project", "--port", "--timeout", "--dry-run", "--continue-on-error"},
 	"create":         {"--enable", "--force", "--install", "--name", "--path"},
 	"install":        {"--enable", "--force", "--from", "--project", "--skill", "--skill-from"},
@@ -40,6 +41,14 @@ var upgradeCompletionFlags = map[string][]string{
 	"open":      {"--godot", "--json", "--project", "--timeout"},
 	"fix":       {"--category", "--dry-run", "--godot", "--json", "--project", "--scenario", "--timeout"},
 	"verify":    {"--frames", "--godot", "--json", "--project", "--scenario", "--threshold", "--timeout"},
+}
+
+var qaCompletionFlags = map[string][]string{
+	"init":    {"--project", "--config"},
+	"run":     {"--project", "--config", "--out", "--presentmon", "--pdf"},
+	"compare": {"--project", "--run", "--baseline", "--tolerance-percent"},
+	"attest":  {"--project", "--run", "--check", "--status", "--detail"},
+	"report":  {"--project", "--run", "--out", "--assessment"},
 }
 
 func sortedKeys[V any](m map[string]V) []string {
@@ -131,6 +140,13 @@ func completionCandidates(words []string, c cliCatalog) []string {
 		if group == "help" && len(words) == 2 {
 			all = append(all, sortedKeys(groups)...)
 			all = append(all, "all")
+		} else if group == "qa" {
+			if len(words) == 2 {
+				all = append(all, sortedKeys(qaCompletionFlags)...)
+			} else {
+				all = append(all, qaCompletionFlags[words[1]]...)
+			}
+			all = append(all, "--help")
 		} else if group == "upgrade" {
 			if len(words) == 2 {
 				all = append(all, sortedKeys(upgradeCompletionFlags)...)

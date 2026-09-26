@@ -547,8 +547,13 @@ func _setup_environment(params: Dictionary) -> Dictionary:
 		"clear_color":
 			env.background_mode = Environment.BG_CLEAR_COLOR
 
-	if params.has("sky"):
-		var sky_r := require_dict(params, "sky")
+	# Sky mode with no Sky resource renders black, so the default mode builds
+	# the procedural sky with the default colors when --sky is absent (found
+	# 2026-09-17: a bare setup-environment answered success and the game came
+	# up on a black background). An existing node keeps the sky it has.
+	var wants_sky := params.has("sky") or (bg_mode == "sky" and env.sky == null)
+	if wants_sky:
+		var sky_r := optional_dict(params, "sky")
 		if sky_r[1] != null:
 			return sky_r[1]
 		var sky_params: Dictionary = sky_r[0]
@@ -715,7 +720,21 @@ func _setup_camera(params: Dictionary) -> Dictionary:
 	if params.has("rotation"):
 		camera.rotation_degrees = _vector3_param(params, "rotation", camera.rotation_degrees)
 	if params.has("look_at"):
-		camera.look_at(_vector3_param(params, "look_at", Vector3.ZERO))
+		var target := _vector3_param(params, "look_at", Vector3.ZERO)
+		if is_existing:
+			camera.look_at(target)
+		else:
+			# Node3D.look_at needs the node in the tree (it reads the global
+			# transform), and a new camera is not added yet: the call errored
+			# and the camera kept an identity rotation inside a success
+			# envelope (found 2026-09-17). Aim it from the basis instead, with
+			# the world target carried into the parent's space.
+			var parent_gt := (parent as Node3D).global_transform if parent is Node3D else Transform3D.IDENTITY
+			var local_target := parent_gt.affine_inverse() * target
+			var dir := local_target - camera.position
+			if not dir.is_zero_approx():
+				var up := Vector3.UP if absf(dir.normalized().dot(Vector3.UP)) < 0.999 else Vector3.BACK
+				camera.basis = Basis.looking_at(dir, up)
 
 	if params.has("environment_path") and ResourceLoader.exists(params["environment_path"]):
 		var env_res: Resource = load(params["environment_path"])

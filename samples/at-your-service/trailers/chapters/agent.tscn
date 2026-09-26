@@ -1,0 +1,1706 @@
+[gd_scene format=3 uid="uid://ds73i1qrd7k36"]
+
+[ext_resource type="Script" uid="uid://c4rxjuskm0rk" path="res://trailers/chapter.gd" id="1_o7jtp"]
+[ext_resource type="FontVariation" path="res://trailers/timeline/display_font.tres" id="2_ltd7q"]
+[ext_resource type="FontFile" uid="uid://by75qrvimdas8" path="res://assets/source-code-pro/SourceCodePro-Regular.ttf" id="3_36o75"]
+[ext_resource type="FontFile" uid="uid://dtbm556602jfo" path="res://assets/inter/Inter-Regular.ttf" id="4_egklx"]
+[ext_resource type="Texture2D" uid="uid://b8hvet6cfakme" path="res://trailers/brand/swallowtail-seated.png" id="5_7prcb"]
+
+[node name="Agent" type="Control" unique_id=25921047]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+script = ExtResource("1_o7jtp")
+
+[node name="S26_HandOffATask" type="Control" parent="." unique_id=1541407614]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = ""
+metadata/start_seconds = 305.1
+metadata/end_seconds = 320.488
+metadata/start = 331.1
+metadata/end = 345.44
+
+[node name="Background" type="ColorRect" parent="S26_HandOffATask" unique_id=1533158652]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+
+[node name="Wordmark" type="Label" parent="S26_HandOffATask" unique_id=1643001120]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S26_HandOffATask" unique_id=314558238]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="Chapter" type="Label" parent="S26_HandOffATask" unique_id=1453058866]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 423.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "05 / WORK WITH AN AGENT"
+
+[node name="Title" type="Label" parent="S26_HandOffATask" unique_id=235770626]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 526.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 61
+text = "Hand off a task."
+
+[node name="Subtitle" type="Label" parent="S26_HandOffATask" unique_id=721076798]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 550.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 29
+text = "Keep the creative decisions yours."
+
+[node name="Console" type="Control" parent="S26_HandOffATask" unique_id=1446884911]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S26_HandOffATask/Console" unique_id=925724193]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.1882353, 0.15294118, 0.2, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S26_HandOffATask/Console" unique_id=895041900]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S26_HandOffATask/Console" unique_id=1746860088]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 208.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "YOUR REQUEST"
+
+[node name="Command01" type="Label" parent="S26_HandOffATask/Console" unique_id=95766102]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 370.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "Keep the calmer water."
+
+[node name="Command02" type="Label" parent="S26_HandOffATask/Console" unique_id=1335676872]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 261.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "Warm the light."
+
+[node name="Command03" type="Label" parent="S26_HandOffATask/Console" unique_id=1677176020]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 433.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "Save the scene for review."
+
+[node name="ResultRule" type="ColorRect" parent="S26_HandOffATask/Console" unique_id=1698129346]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.31764707, 0.2627451, 0.31764707, 1)
+
+[node name="ResultHeading" type="Label" parent="S26_HandOffATask/Console" unique_id=2088262710]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 313.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / TASK BRIEF"
+
+[node name="Result" type="Label" parent="S26_HandOffATask/Console" unique_id=1006550171]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 505.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 28
+text = "A bounded task with a visible result."
+
+[node name="Note" type="Label" parent="S26_HandOffATask" unique_id=27871824]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 708.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 30
+text = "The agent can use the same CLI commands."
+
+[node name="Footer" type="Label" parent="S26_HandOffATask" unique_id=1512515195]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S26_HandOffATask" unique_id=1444842290]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_7prcb")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S26_HandOffATask" unique_id=1893848323]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S26_HandOffATask" unique_id=1403333030]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1408.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 26
+text = "Task → commands → review"
+
+[node name="S27_DiscoverTheCommand" type="Control" parent="." unique_id=1296330558]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "agent_help"
+metadata/start_seconds = 320.488
+metadata/end_seconds = 322.328
+metadata/start = 345.44
+metadata/end = 347.22
+
+[node name="Background" type="ColorRect" parent="S27_DiscoverTheCommand" unique_id=1940334416]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+
+[node name="Wordmark" type="Label" parent="S27_DiscoverTheCommand" unique_id=1215674463]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S27_DiscoverTheCommand" unique_id=1051090072]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="Chapter" type="Label" parent="S27_DiscoverTheCommand" unique_id=507061563]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 423.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "05 / WORK WITH AN AGENT"
+
+[node name="Title" type="Label" parent="S27_DiscoverTheCommand" unique_id=937344667]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 767.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 61
+text = "Discover the command."
+
+[node name="Subtitle" type="Label" parent="S27_DiscoverTheCommand" unique_id=760709542]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 561.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 29
+text = "Read the available parameters first."
+
+[node name="Console" type="Control" parent="S27_DiscoverTheCommand" unique_id=439600829]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S27_DiscoverTheCommand/Console" unique_id=1572669626]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.1882353, 0.15294118, 0.2, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S27_DiscoverTheCommand/Console" unique_id=1102739151]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S27_DiscoverTheCommand/Console" unique_id=1044066937]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 328.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "AGENT / HELP EXCERPT"
+
+[node name="Command01" type="Label" parent="S27_DiscoverTheCommand/Console" unique_id=51328903]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 605.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail shader set-param --help"
+
+[node name="Command02" type="Label" parent="S27_DiscoverTheCommand/Console" unique_id=1743286649]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 29.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+
+[node name="Command03" type="Label" parent="S27_DiscoverTheCommand/Console" unique_id=1117599369]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 419.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "--node-path   Target mesh"
+
+[node name="Command04" type="Label" parent="S27_DiscoverTheCommand/Console" unique_id=298943662]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 498.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "--param       Shader parameter"
+
+[node name="Command05" type="Label" parent="S27_DiscoverTheCommand/Console" unique_id=149125303]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 222.0
+offset_right = 483.0
+offset_bottom = 256.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "--value       Parameter value"
+
+[node name="ResultRule" type="ColorRect" parent="S27_DiscoverTheCommand/Console" unique_id=1238040739]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.31764707, 0.2627451, 0.31764707, 1)
+
+[node name="ResultHeading" type="Label" parent="S27_DiscoverTheCommand/Console" unique_id=1169209397]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S27_DiscoverTheCommand/Console" unique_id=1204061337]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 497.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 28
+text = "Help returned from the live catalog."
+
+[node name="Note" type="Label" parent="S27_DiscoverTheCommand" unique_id=476857237]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 630.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 30
+text = "The agent reads the same help you do."
+
+[node name="Footer" type="Label" parent="S27_DiscoverTheCommand" unique_id=1115225930]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S27_DiscoverTheCommand" unique_id=708300079]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_7prcb")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S27_DiscoverTheCommand" unique_id=35184856]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S27_DiscoverTheCommand" unique_id=435721753]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1321.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 26
+text = "First: inspect the tool."
+
+[node name="S28_KeepTheCalmWater" type="Control" parent="." unique_id=1336729181]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "agent_water"
+metadata/start_seconds = 322.328
+metadata/end_seconds = 326.763
+metadata/start = 347.22
+metadata/end = 353.03
+
+[node name="Background" type="ColorRect" parent="S28_KeepTheCalmWater" unique_id=345130205]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+
+[node name="Wordmark" type="Label" parent="S28_KeepTheCalmWater" unique_id=105874054]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S28_KeepTheCalmWater" unique_id=50779871]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="Chapter" type="Label" parent="S28_KeepTheCalmWater" unique_id=1744351514]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 423.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "05 / WORK WITH AN AGENT"
+
+[node name="Title" type="Label" parent="S28_KeepTheCalmWater" unique_id=1930562562]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 682.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 61
+text = "Keep the calm water."
+
+[node name="Subtitle" type="Label" parent="S28_KeepTheCalmWater" unique_id=1908019787]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 603.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 29
+text = "Apply the playtest choice in the editor."
+
+[node name="Console" type="Control" parent="S28_KeepTheCalmWater" unique_id=1906946011]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S28_KeepTheCalmWater/Console" unique_id=2085971808]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.1882353, 0.15294118, 0.2, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S28_KeepTheCalmWater/Console" unique_id=329717894]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S28_KeepTheCalmWater/Console" unique_id=1237455495]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 388.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "AGENT / RECORDED COMMAND"
+
+[node name="Command01" type="Label" parent="S28_KeepTheCalmWater/Console" unique_id=1140234069]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 496.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail shader set-param"
+
+[node name="Command02" type="Label" parent="S28_KeepTheCalmWater/Console" unique_id=2016054630]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 325.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "  --node-path Water"
+
+[node name="Command03" type="Label" parent="S28_KeepTheCalmWater/Console" unique_id=1448135161]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 419.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "  --param wave1_amplitude"
+
+[node name="Command04" type="Label" parent="S28_KeepTheCalmWater/Console" unique_id=916151870]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 247.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "  --value 0.18"
+
+[node name="ResultRule" type="ColorRect" parent="S28_KeepTheCalmWater/Console" unique_id=1637343650]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.31764707, 0.2627451, 0.31764707, 1)
+
+[node name="ResultHeading" type="Label" parent="S28_KeepTheCalmWater/Console" unique_id=297674131]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S28_KeepTheCalmWater/Console" unique_id=1260584353]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 436.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 28
+text = "Editor material updated to 0.18."
+
+[node name="Note" type="Label" parent="S28_KeepTheCalmWater" unique_id=1611515859]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 698.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 30
+text = "This applies the value to the editable scene."
+
+[node name="Footer" type="Label" parent="S28_KeepTheCalmWater" unique_id=1213725627]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S28_KeepTheCalmWater" unique_id=139147260]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_7prcb")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S28_KeepTheCalmWater" unique_id=1936972637]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S28_KeepTheCalmWater" unique_id=349627481]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1443.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 26
+text = "The chosen wave setting stays."
+
+[node name="S29_LowerTheSun" type="Control" parent="." unique_id=1158354459]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "agent_light"
+metadata/start_seconds = 326.763
+metadata/end_seconds = 330.263
+metadata/start = 353.03
+metadata/end = 356.53
+
+[node name="Background" type="ColorRect" parent="S29_LowerTheSun" unique_id=1523023515]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+
+[node name="Wordmark" type="Label" parent="S29_LowerTheSun" unique_id=386631405]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S29_LowerTheSun" unique_id=176474947]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="Chapter" type="Label" parent="S29_LowerTheSun" unique_id=1839734785]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 423.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "05 / WORK WITH AN AGENT"
+
+[node name="Title" type="Label" parent="S29_LowerTheSun" unique_id=1752332081]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 505.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 61
+text = "Lower the sun."
+
+[node name="Subtitle" type="Label" parent="S29_LowerTheSun" unique_id=1276331511]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 463.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 29
+text = "Change the light's direction."
+
+[node name="Console" type="Control" parent="S29_LowerTheSun" unique_id=1674933540]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S29_LowerTheSun/Console" unique_id=1751303021]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.1882353, 0.15294118, 0.2, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S29_LowerTheSun/Console" unique_id=1325517495]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S29_LowerTheSun/Console" unique_id=385350350]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 388.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "AGENT / RECORDED COMMAND"
+
+[node name="Command01" type="Label" parent="S29_LowerTheSun/Console" unique_id=2084270315]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 371.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail node set"
+
+[node name="Command02" type="Label" parent="S29_LowerTheSun/Console" unique_id=545437714]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 293.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "  --node-path Sun"
+
+[node name="Command03" type="Label" parent="S29_LowerTheSun/Console" unique_id=332068030]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 481.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "  --property rotation_degrees"
+
+[node name="Command04" type="Label" parent="S29_LowerTheSun/Console" unique_id=49622991]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 527.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "  --value 'Vector3(-18, -40, 0)'"
+
+[node name="ResultRule" type="ColorRect" parent="S29_LowerTheSun/Console" unique_id=1426567131]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.31764707, 0.2627451, 0.31764707, 1)
+
+[node name="ResultHeading" type="Label" parent="S29_LowerTheSun/Console" unique_id=652560660]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S29_LowerTheSun/Console" unique_id=589295070]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 445.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 28
+text = "Sun rotation set to (-18, -40, 0)."
+
+[node name="Note" type="Label" parent="S29_LowerTheSun" unique_id=553236509]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 564.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 30
+text = "Watch the shadows and the water."
+
+[node name="Footer" type="Label" parent="S29_LowerTheSun" unique_id=1503882161]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S29_LowerTheSun" unique_id=186380667]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_7prcb")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S29_LowerTheSun" unique_id=988180946]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S29_LowerTheSun" unique_id=659118499]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1389.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 26
+text = "Daylight becomes evening."
+
+[node name="S30_WarmTheLight" type="Control" parent="." unique_id=1977848295]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "agent_color"
+metadata/start_seconds = 330.263
+metadata/end_seconds = 333.263
+metadata/start = 356.53
+metadata/end = 359.53
+
+[node name="Background" type="ColorRect" parent="S30_WarmTheLight" unique_id=1730496952]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+
+[node name="Wordmark" type="Label" parent="S30_WarmTheLight" unique_id=2003119447]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S30_WarmTheLight" unique_id=717394211]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="Chapter" type="Label" parent="S30_WarmTheLight" unique_id=143910425]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 423.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "05 / WORK WITH AN AGENT"
+
+[node name="Title" type="Label" parent="S30_WarmTheLight" unique_id=129441276]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 525.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 61
+text = "Warm the light."
+
+[node name="Subtitle" type="Label" parent="S30_WarmTheLight" unique_id=862660365]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 545.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 29
+text = "Give the sunlight a warmer colour."
+
+[node name="Console" type="Control" parent="S30_WarmTheLight" unique_id=277378558]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S30_WarmTheLight/Console" unique_id=1499260066]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.1882353, 0.15294118, 0.2, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S30_WarmTheLight/Console" unique_id=657206962]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S30_WarmTheLight/Console" unique_id=2003522725]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 388.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "AGENT / RECORDED COMMAND"
+
+[node name="Command01" type="Label" parent="S30_WarmTheLight/Console" unique_id=275918591]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 371.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail node set"
+
+[node name="Command02" type="Label" parent="S30_WarmTheLight/Console" unique_id=1504608037]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 293.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "  --node-path Sun"
+
+[node name="Command03" type="Label" parent="S30_WarmTheLight/Console" unique_id=564436061]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 403.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "  --property light_color"
+
+[node name="Command04" type="Label" parent="S30_WarmTheLight/Console" unique_id=2092698250]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 513.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "  --value 'Color(1, 0.75, 0.5)'"
+
+[node name="ResultRule" type="ColorRect" parent="S30_WarmTheLight/Console" unique_id=732300211]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.31764707, 0.2627451, 0.31764707, 1)
+
+[node name="ResultHeading" type="Label" parent="S30_WarmTheLight/Console" unique_id=2010533244]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S30_WarmTheLight/Console" unique_id=1933309177]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 429.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 28
+text = "Sun colour set to (1, 0.75, 0.5)."
+
+[node name="Note" type="Label" parent="S30_WarmTheLight" unique_id=388012133]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 720.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 30
+text = "Review how the scene feels after the change."
+
+[node name="Footer" type="Label" parent="S30_WarmTheLight" unique_id=130573150]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S30_WarmTheLight" unique_id=434556695]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_7prcb")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S30_WarmTheLight" unique_id=610977734]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S30_WarmTheLight" unique_id=2033114281]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1405.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 26
+text = "Warm light across the coast."
+
+[node name="S31_SaveForReview" type="Control" parent="." unique_id=1307769042]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "agent_save"
+metadata/start_seconds = 333.263
+metadata/end_seconds = 336.763
+metadata/start = 359.53
+metadata/end = 363.03
+
+[node name="Background" type="ColorRect" parent="S31_SaveForReview" unique_id=1191632341]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+
+[node name="Wordmark" type="Label" parent="S31_SaveForReview" unique_id=1324641079]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S31_SaveForReview" unique_id=741227866]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="Chapter" type="Label" parent="S31_SaveForReview" unique_id=1936382534]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 423.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "05 / WORK WITH AN AGENT"
+
+[node name="Title" type="Label" parent="S31_SaveForReview" unique_id=1534732101]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 533.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 61
+text = "Save for review."
+
+[node name="Subtitle" type="Label" parent="S31_SaveForReview" unique_id=1276384601]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 374.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 29
+text = "Keep the scene edits."
+
+[node name="Console" type="Control" parent="S31_SaveForReview" unique_id=1936883999]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S31_SaveForReview/Console" unique_id=1009385289]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.1882353, 0.15294118, 0.2, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S31_SaveForReview/Console" unique_id=4059403]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S31_SaveForReview/Console" unique_id=36608326]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 388.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "AGENT / RECORDED COMMAND"
+
+[node name="Command01" type="Label" parent="S31_SaveForReview/Console" unique_id=1043876945]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 403.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail scene save"
+
+[node name="ResultRule" type="ColorRect" parent="S31_SaveForReview/Console" unique_id=1239914970]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.31764707, 0.2627451, 0.31764707, 1)
+
+[node name="ResultHeading" type="Label" parent="S31_SaveForReview/Console" unique_id=265136889]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S31_SaveForReview/Console" unique_id=1468797058]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 412.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 28
+text = "lighthouse_demo.tscn saved."
+
+[node name="Note" type="Label" parent="S31_SaveForReview" unique_id=1868600801]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 459.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 30
+text = "The next decision is yours."
+
+[node name="Footer" type="Label" parent="S31_SaveForReview" unique_id=58646495]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S31_SaveForReview" unique_id=108904346]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_7prcb")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S31_SaveForReview" unique_id=1642809396]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S31_SaveForReview" unique_id=1190321570]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1510.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 26
+text = "Keep it, adjust it, or try another pass."
+
+[node name="S32_InspectTheResult" type="Control" parent="." unique_id=1517756389]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "agent_read"
+metadata/start_seconds = 336.763
+metadata/end_seconds = 354.96667
+metadata/start = 363.03
+metadata/end = 380.73333
+
+[node name="Background" type="ColorRect" parent="S32_InspectTheResult" unique_id=904444978]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+
+[node name="Wordmark" type="Label" parent="S32_InspectTheResult" unique_id=1651272326]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S32_InspectTheResult" unique_id=1097603267]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="Chapter" type="Label" parent="S32_InspectTheResult" unique_id=1993161996]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 423.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "05 / WORK WITH AN AGENT"
+
+[node name="Title" type="Label" parent="S32_InspectTheResult" unique_id=981887316]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 617.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_ltd7q")
+theme_override_font_sizes/font_size = 61
+text = "Inspect the result."
+
+[node name="Subtitle" type="Label" parent="S32_InspectTheResult" unique_id=826078777]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 551.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 29
+text = "Read the changed light properties."
+
+[node name="Console" type="Control" parent="S32_InspectTheResult" unique_id=961083779]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S32_InspectTheResult/Console" unique_id=1678082901]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.1882353, 0.15294118, 0.2, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S32_InspectTheResult/Console" unique_id=1664794314]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S32_InspectTheResult/Console" unique_id=1283056051]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 388.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "AGENT / RECORDED COMMAND"
+
+[node name="Command01" type="Label" parent="S32_InspectTheResult/Console" unique_id=887254724]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 371.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail node get"
+
+[node name="Command02" type="Label" parent="S32_InspectTheResult/Console" unique_id=155092930]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 293.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "  --node-path Sun"
+
+[node name="Command03" type="Label" parent="S32_InspectTheResult/Console" unique_id=739951203]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 247.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "  --properties"
+
+[node name="Command04" type="Label" parent="S32_InspectTheResult/Console" unique_id=1835348770]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 621.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 26
+text = "  '[\"rotation_degrees\",\"light_color\"]'"
+
+[node name="ResultRule" type="ColorRect" parent="S32_InspectTheResult/Console" unique_id=611203295]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.31764707, 0.2627451, 0.31764707, 1)
+
+[node name="ResultHeading" type="Label" parent="S32_InspectTheResult/Console" unique_id=1126217799]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S32_InspectTheResult/Console" unique_id=922079782]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 543.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 28
+text = "Rotation and colour returned from Sun."
+
+[node name="Note" type="Label" parent="S32_InspectTheResult" unique_id=739998468]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 745.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 30
+text = "Review the commands and the resulting scene."
+
+[node name="Footer" type="Label" parent="S32_InspectTheResult" unique_id=227999861]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_36o75")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S32_InspectTheResult" unique_id=1397477549]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_7prcb")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S32_InspectTheResult" unique_id=822031125]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S32_InspectTheResult" unique_id=381420842]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1440.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_egklx")
+theme_override_font_sizes/font_size = 26
+text = "The changes can be inspected."

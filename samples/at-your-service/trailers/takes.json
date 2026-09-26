@@ -1,0 +1,517 @@
+{
+  "open": {
+    "argv": [
+      "scene",
+      "open",
+      "--path",
+      "res://lighthouse_demo.tscn"
+    ],
+    "command": "swallowtail scene open --path res://lighthouse_demo.tscn",
+    "output": "{\n  \"already_active\": true,\n  \"opened\": false,\n  \"path\": \"res://lighthouse_demo.tscn\"\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "already_active": true,
+      "opened": false,
+      "path": "res://lighthouse_demo.tscn"
+    }
+  },
+  "place": {
+    "argv": [
+      "node",
+      "set",
+      "--node-path",
+      "Dressing/Lighthouse",
+      "--property",
+      "position",
+      "--value",
+      "Vector3(7, 1.08, -7)"
+    ],
+    "command": "swallowtail node set --node-path Dressing/Lighthouse --property position --value Vector3(7, 1.08, -7)",
+    "output": "{\n  \"new_value\": {\n    \"x\": 7.0,\n    \"y\": 1.08000004291534,\n    \"z\": -7.0\n  },\n  \"node\": \"Dressing/Lighthouse\",\n  \"old_value\": {\n    \"x\": 7.0,\n    \"y\": 1.08000004291534,\n    \"z\": -7.0\n  },\n  \"properties\": {\n    \"position\": {\n      \"x\": 7.0,\n      \"y\": 1.08000004291534,\n      \"z\": -7.0\n    }\n  },\n  \"property\": \"position\"\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "new_value": {
+        "x": 7.0,
+        "y": 1.08000004291534,
+        "z": -7.0
+      },
+      "node": "Dressing/Lighthouse",
+      "old_value": {
+        "x": 7.0,
+        "y": 1.08000004291534,
+        "z": -7.0
+      },
+      "properties": {
+        "position": {
+          "x": 7.0,
+          "y": 1.08000004291534,
+          "z": -7.0
+        }
+      },
+      "property": "position"
+    }
+  },
+  "water": {
+    "argv": [
+      "shader",
+      "set-param",
+      "--node-path",
+      "Water",
+      "--param",
+      "wave1_amplitude",
+      "--value",
+      "0.25"
+    ],
+    "command": "swallowtail shader set-param --node-path Water --param wave1_amplitude --value 0.25",
+    "output": "{\n  \"node_path\": \"Water\",\n  \"param\": \"wave1_amplitude\",\n  \"value\": \"0.25\"\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "node_path": "Water",
+      "param": "wave1_amplitude",
+      "value": "0.25"
+    }
+  },
+  "save": {
+    "argv": [
+      "scene",
+      "save"
+    ],
+    "command": "swallowtail scene save",
+    "output": "{\n  \"method\": \"save_scene\",\n  \"path\": \"res://lighthouse_demo.tscn\",\n  \"saved\": true\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "method": "save_scene",
+      "path": "res://lighthouse_demo.tscn",
+      "saved": true
+    }
+  },
+  "check": {
+    "argv": [
+      "check",
+      ".",
+      "--godot",
+      "D:/Engines/Godot/current/godot_console.exe"
+    ],
+    "command": "swallowtail check . --godot D:/Engines/Godot/current/godot_console.exe",
+    "output": "{\n  \"project_path\": \"D:\\\\Tools\\\\godot-mcp-go\\\\samples\\\\at-your-service\",\n  \"log\": \"D:\\\\Tools\\\\godot-mcp-go\\\\samples\\\\at-your-service\\\\.godot\\\\swallowtail-check.log\",\n  \"total\": 4,\n  \"failed\": 0,\n  \"duration_ms\": 182,\n  \"files\": [\n    {\n      \"path\": \"res://camera/fly_camera.gd\",\n      \"ok\": true,\n      \"command\": [\n        \"D:/Engines/Godot/current/godot_console.exe\",\n        \"--headless\",\n        \"--path\",\n        \"D:\\\\Tools\\\\godot-mcp-go\\\\samples\\\\at-your-service\",\n        \"--script\",\n        \"res://camera/fly_camera.gd\",\n        \"--check-only\"\n      ],\n      \"errors\": []\n    },\n    {\n      \"path\": \"res://trailers/film.gd\",\n      \"ok\": true,\n      \"command\": [\n        \"D:/Engines/Godot/current/godot_console.exe\",\n        \"--headless\",\n        \"--path\",\n        \"D:\\\\Tools\\\\godot-mcp-go\\\\samples\\\\at-your-service\",\n        \"--script\",\n        \"res://trailers/film.gd\",\n        \"--check-only\"\n      ],\n      \"errors\": []\n    },\n    {\n      \"path\": \"res://ui/demo_panel.gd\",\n      \"ok\": true,\n      \"command\": [\n        \"D:/Engines/Godot/current/godot_console.exe\",\n        \"--headless\",\n        \"--path\",\n        \"D:\\\\Tools\\\\godot-mcp-go\\\\samples\\\\at-your-service\",\n        \"--script\",\n        \"res://ui/demo_panel.gd\",\n        \"--check-only\"\n      ],\n      \"errors\": []\n    },\n    {\n      \"path\": \"res://water/shervheim_water.gd\",\n      \"ok\": true,\n      \"command\": [\n        \"D:/Engines/Godot/current/godot_console.exe\",\n        \"--headless\",\n        \"--path\",\n        \"D:\\\\Tools\\\\godot-mcp-go\\\\samples\\\\at-your-service\",\n        \"--script\",\n        \"res://water/shervheim_water.gd\",\n        \"--check-only\"\n      ],\n      \"errors\": []\n    }\n  ]\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "project_path": "D:\\Tools\\godot-mcp-go\\samples\\at-your-service",
+      "log": "D:\\Tools\\godot-mcp-go\\samples\\at-your-service\\.godot\\swallowtail-check.log",
+      "total": 4,
+      "failed": 0,
+      "duration_ms": 182,
+      "files": [
+        {
+          "path": "res://camera/fly_camera.gd",
+          "ok": true,
+          "command": [
+            "D:/Engines/Godot/current/godot_console.exe",
+            "--headless",
+            "--path",
+            "D:\\Tools\\godot-mcp-go\\samples\\at-your-service",
+            "--script",
+            "res://camera/fly_camera.gd",
+            "--check-only"
+          ],
+          "errors": []
+        },
+        {
+          "path": "res://trailers/film.gd",
+          "ok": true,
+          "command": [
+            "D:/Engines/Godot/current/godot_console.exe",
+            "--headless",
+            "--path",
+            "D:\\Tools\\godot-mcp-go\\samples\\at-your-service",
+            "--script",
+            "res://trailers/film.gd",
+            "--check-only"
+          ],
+          "errors": []
+        },
+        {
+          "path": "res://ui/demo_panel.gd",
+          "ok": true,
+          "command": [
+            "D:/Engines/Godot/current/godot_console.exe",
+            "--headless",
+            "--path",
+            "D:\\Tools\\godot-mcp-go\\samples\\at-your-service",
+            "--script",
+            "res://ui/demo_panel.gd",
+            "--check-only"
+          ],
+          "errors": []
+        },
+        {
+          "path": "res://water/shervheim_water.gd",
+          "ok": true,
+          "command": [
+            "D:/Engines/Godot/current/godot_console.exe",
+            "--headless",
+            "--path",
+            "D:\\Tools\\godot-mcp-go\\samples\\at-your-service",
+            "--script",
+            "res://water/shervheim_water.gd",
+            "--check-only"
+          ],
+          "errors": []
+        }
+      ]
+    }
+  },
+  "validate": {
+    "argv": [
+      "scene",
+      "validate",
+      "--path",
+      "res://lighthouse_demo.tscn"
+    ],
+    "command": "swallowtail scene validate --path res://lighthouse_demo.tscn",
+    "output": "{\n  \"issue_count\": 0,\n  \"issues\": [],\n  \"note\": \"Checks saved node paths, classes, animation tracks and external resources without opening the scene. Absolute paths depend on the runtime tree and are not checked; use script.validate for script diagnostics.\",\n  \"scene_path\": \"res://lighthouse_demo.tscn\",\n  \"source\": \"disk\",\n  \"valid\": true\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "issue_count": 0,
+      "issues": [],
+      "note": "Checks saved node paths, classes, animation tracks and external resources without opening the scene. Absolute paths depend on the runtime tree and are not checked; use script.validate for script diagnostics.",
+      "scene_path": "res://lighthouse_demo.tscn",
+      "source": "disk",
+      "valid": true
+    }
+  },
+  "play": {
+    "argv": [
+      "scene",
+      "play",
+      "--mode",
+      "main"
+    ],
+    "command": "swallowtail scene play --mode main",
+    "output": "{\n  \"live_reload\": true,\n  \"mode\": \"main\",\n  \"playing\": true\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "live_reload": true,
+      "mode": "main",
+      "playing": true
+    }
+  },
+  "errors": {
+    "argv": [
+      "runtime",
+      "errors"
+    ],
+    "command": "swallowtail runtime errors",
+    "output": "{\n  \"buffered\": 0.0,\n  \"count\": 0.0,\n  \"errors\": [],\n  \"next_seq\": 0.0\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "buffered": 0.0,
+      "count": 0.0,
+      "errors": [],
+      "next_seq": 0.0
+    }
+  },
+  "move": {
+    "argv": [
+      "input",
+      "key",
+      "--keycode",
+      "W",
+      "--pressed",
+      "true"
+    ],
+    "command": "swallowtail input key --keycode W --pressed true",
+    "output": "{\n  \"event\": {\n    \"alt\": false,\n    \"ctrl\": false,\n    \"keycode\": \"W\",\n    \"pressed\": true,\n    \"shift\": false,\n    \"type\": \"key\"\n  },\n  \"sent\": true\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "event": {
+        "alt": false,
+        "ctrl": false,
+        "keycode": "W",
+        "pressed": true,
+        "shift": false,
+        "type": "key"
+      },
+      "sent": true
+    }
+  },
+  "release": {
+    "argv": [
+      "input",
+      "key",
+      "--keycode",
+      "W",
+      "--pressed",
+      "false"
+    ],
+    "command": "swallowtail input key --keycode W --pressed false",
+    "output": "{\n  \"event\": {\n    \"alt\": false,\n    \"ctrl\": false,\n    \"keycode\": \"W\",\n    \"pressed\": false,\n    \"shift\": false,\n    \"type\": \"key\"\n  },\n  \"sent\": true\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "event": {
+        "alt": false,
+        "ctrl": false,
+        "keycode": "W",
+        "pressed": false,
+        "shift": false,
+        "type": "key"
+      },
+      "sent": true
+    }
+  },
+  "swell": {
+    "argv": [
+      "runtime",
+      "eval",
+      "--code",
+      "get_tree().current_scene.get_node(\"Water\").material_override.set_shader_parameter(\"wave1_amplitude\", 0.65)"
+    ],
+    "command": "swallowtail runtime eval --code get_tree().current_scene.get_node(\"Water\").material_override.set_shader_parameter(\"wave1_amplitude\", 0.65)",
+    "output": "{\n  \"output\": []\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "output": []
+    }
+  },
+  "before": {
+    "argv": [
+      "runtime",
+      "eval",
+      "--code",
+      "emit(get_tree().current_scene.get_node(\"Water\").material_override.get_shader_parameter(\"wave1_amplitude\"))"
+    ],
+    "command": "swallowtail runtime eval --code emit(get_tree().current_scene.get_node(\"Water\").material_override.get_shader_parameter(\"wave1_amplitude\"))",
+    "output": "{\n  \"output\": [\n    \"0.65\"\n  ]\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "output": [
+        "0.65"
+      ]
+    }
+  },
+  "adjust": {
+    "argv": [
+      "runtime",
+      "eval",
+      "--code",
+      "get_tree().current_scene.get_node(\"Water\").material_override.set_shader_parameter(\"wave1_amplitude\", 0.18)"
+    ],
+    "command": "swallowtail runtime eval --code get_tree().current_scene.get_node(\"Water\").material_override.set_shader_parameter(\"wave1_amplitude\", 0.18)",
+    "output": "{\n  \"output\": []\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "output": []
+    }
+  },
+  "after": {
+    "argv": [
+      "runtime",
+      "eval",
+      "--code",
+      "emit(get_tree().current_scene.get_node(\"Water\").material_override.get_shader_parameter(\"wave1_amplitude\"))"
+    ],
+    "command": "swallowtail runtime eval --code emit(get_tree().current_scene.get_node(\"Water\").material_override.get_shader_parameter(\"wave1_amplitude\"))",
+    "output": "{\n  \"output\": [\n    \"0.18\"\n  ]\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "output": [
+        "0.18"
+      ]
+    }
+  },
+  "capture": {
+    "argv": [
+      "runtime",
+      "screenshot",
+      "--save-path",
+      "user://lighthouse-playtest.png"
+    ],
+    "command": "swallowtail runtime screenshot --save-path user://lighthouse-playtest.png",
+    "output": "{\n  \"black_frame\": false,\n  \"format\": \"png\",\n  \"hdr_2d\": false,\n  \"height\": 1080.0,\n  \"saved_path\": \"user://lighthouse-playtest.png\",\n  \"width\": 1920.0\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "black_frame": false,
+      "format": "png",
+      "hdr_2d": false,
+      "height": 1080.0,
+      "saved_path": "user://lighthouse-playtest.png",
+      "width": 1920.0
+    }
+  },
+  "stop": {
+    "argv": [
+      "scene",
+      "stop"
+    ],
+    "command": "swallowtail scene stop",
+    "output": "{\n  \"stopped\": true\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "stopped": true
+    }
+  },
+  "agent_help": {
+    "argv": [
+      "shader",
+      "set-param",
+      "--help"
+    ],
+    "command": "swallowtail shader set-param --help",
+    "output": "swallowtail shader set_param: Set a uniform on a node's ShaderMaterial. A string --value is evaluated as an Expression (so 'Vector3(1,0,0)', numbers, etc. work).\n\nParams:\n  --node-path  NodePath  required  Node with a ShaderMaterial.\n  --param      String    required  Uniform name.\n  --value      JSON      optional  Value to set (string is Expression-evaluated; may be null/omitted).",
+    "stderr": "",
+    "exit": 0
+  },
+  "agent_water": {
+    "argv": [
+      "shader",
+      "set-param",
+      "--node-path",
+      "Water",
+      "--param",
+      "wave1_amplitude",
+      "--value",
+      "0.18"
+    ],
+    "command": "swallowtail shader set-param --node-path Water --param wave1_amplitude --value 0.18",
+    "output": "{\n  \"node_path\": \"Water\",\n  \"param\": \"wave1_amplitude\",\n  \"value\": \"0.18\"\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "node_path": "Water",
+      "param": "wave1_amplitude",
+      "value": "0.18"
+    }
+  },
+  "agent_light": {
+    "argv": [
+      "node",
+      "set",
+      "--node-path",
+      "Sun",
+      "--properties",
+      "{\"light_energy\": 1.1, \"light_color\": \"Color(1, 0.75, 0.5)\", \"rotation_degrees\": \"Vector3(-18, -40, 0)\"}"
+    ],
+    "command": "swallowtail node set --node-path Sun --properties {\"light_energy\": 1.1, \"light_color\": \"Color(1, 0.75, 0.5)\", \"rotation_degrees\": \"Vector3(-18, -40, 0)\"}",
+    "output": "{\n  \"node\": \"Sun\",\n  \"properties\": {\n    \"light_color\": {\n      \"a\": 1.0,\n      \"b\": 0.5,\n      \"g\": 0.75,\n      \"html\": \"#ffbf80ff\",\n      \"r\": 1.0\n    },\n    \"light_energy\": 1.10000002384186,\n    \"rotation_degrees\": {\n      \"x\": -18.0,\n      \"y\": -39.9999961853027,\n      \"z\": 0.0\n    }\n  }\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "node": "Sun",
+      "properties": {
+        "light_color": {
+          "a": 1.0,
+          "b": 0.5,
+          "g": 0.75,
+          "html": "#ffbf80ff",
+          "r": 1.0
+        },
+        "light_energy": 1.10000002384186,
+        "rotation_degrees": {
+          "x": -18.0,
+          "y": -39.9999961853027,
+          "z": 0.0
+        }
+      }
+    }
+  },
+  "agent_save": {
+    "argv": [
+      "scene",
+      "save"
+    ],
+    "command": "swallowtail scene save",
+    "output": "{\n  \"method\": \"save_scene\",\n  \"path\": \"res://lighthouse_demo.tscn\",\n  \"saved\": true\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "method": "save_scene",
+      "path": "res://lighthouse_demo.tscn",
+      "saved": true
+    }
+  },
+  "agent_read": {
+    "argv": [
+      "node",
+      "get",
+      "--node-path",
+      "Sun",
+      "--properties",
+      "[\"light_energy\",\"light_color\"]"
+    ],
+    "command": "swallowtail node get --node-path Sun --properties [\"light_energy\",\"light_color\"]",
+    "output": "{\n  \"node_path\": \"Sun\",\n  \"properties\": {\n    \"light_color\": {\n      \"a\": 1.0,\n      \"b\": 0.5,\n      \"g\": 0.75,\n      \"html\": \"#ffbf80ff\",\n      \"r\": 1.0\n    },\n    \"light_energy\": 1.10000002384186\n  },\n  \"type\": \"DirectionalLight3D\"\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "node_path": "Sun",
+      "properties": {
+        "light_color": {
+          "a": 1.0,
+          "b": 0.5,
+          "g": 0.75,
+          "html": "#ffbf80ff",
+          "r": 1.0
+        },
+        "light_energy": 1.10000002384186
+      },
+      "type": "DirectionalLight3D"
+    }
+  },
+  "material_save": {
+    "argv": [
+      "editor",
+      "run-script",
+      "--code",
+      "var w = EditorInterface.get_edited_scene_root().get_node(\"Water\"); emit(ResourceSaver.save(w.material_override, \"res://water/shervheim_water_material.tres\"))",
+      "--allow-unsafe-editor-io"
+    ],
+    "command": "swallowtail editor run-script --code var w = EditorInterface.get_edited_scene_root().get_node(\"Water\"); emit(ResourceSaver.save(w.material_override, \"res://water/shervheim_water_material.tres\")) --allow-unsafe-editor-io",
+    "output": "{\n  \"output\": [\n    \"0\"\n  ]\n}",
+    "stderr": "",
+    "exit": 0,
+    "result": {
+      "output": [
+        "0"
+      ]
+    }
+  },
+  "mcp": {
+    "arguments": {
+      "method": "node.get",
+      "params": {
+        "node_path": "Sun",
+        "property": "light_energy"
+      }
+    },
+    "response": {
+      "id": 2,
+      "jsonrpc": "2.0",
+      "result": {
+        "content": [
+          {
+            "text": "{\"node_path\":\"Sun\",\"properties\":{\"light_energy\":1.10000002384186},\"type\":\"DirectionalLight3D\"}",
+            "type": "text"
+          }
+        ],
+        "isError": false
+      }
+    },
+    "transport": "MCP stdio"
+  }
+}

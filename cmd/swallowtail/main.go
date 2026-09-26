@@ -26,7 +26,7 @@ import (
 // cliVersion is reported to MCP clients in the initialize handshake. Keep it in
 // step with the addon's plugin.cfg version and the CHANGELOG heading at release
 // time; the addon reads its own from plugin.cfg, so this is the only literal.
-const cliVersion = "1.0.1"
+const cliVersion = "1.1.0"
 
 func main() {
 	if strings.EqualFold(strings.TrimSuffix(filepath.Base(os.Args[0]), ".exe"), "godot-mcp") && ui.IsTerminal(os.Stdout) && ui.IsTerminal(os.Stderr) {
@@ -103,6 +103,7 @@ func main() {
 		"status":         runStatus,
 		"doctor":         runDoctor,
 		"automate":       runAutomate,
+		"qa":             runQA,
 		"version":        runVersion,
 	}
 	if fn, ok := localSubs[args[0]]; ok && !routesToAddon(args[0], args[1:]) {
@@ -756,6 +757,7 @@ func usage() {
 		{"status", "editor liveness preflight: running, starting, crashed, or closed (--all lists every live instance)"},
 		{"doctor", "environment preflight: binary, project, addon, port, editor, dotnet"},
 		{"automate", "run a JSON command plan with preflight checks, assertions, and step reports"},
+		{"qa", "release QA runs, GDScript scenarios, frame baselines, and branded PDF reports"},
 		{"version", "print the CLI version (--version does the same)"},
 		{"completion", "generate Bash or PowerShell shell completion"},
 		{"help", "help all, or help <group> [<command>] (live catalog, or project cache offline)"},

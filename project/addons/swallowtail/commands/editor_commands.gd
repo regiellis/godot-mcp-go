@@ -167,8 +167,12 @@ func _errors(params: Dictionary) -> Dictionary:
 			if kids.size() > 2 and kids[2] is RichTextLabel:
 				_collect_panel(kids[2], "SCRIPT ERROR", path, errors)
 
-	# 3. Fallback to the log file when no UI panels were reachable (headless).
-	if errors.is_empty():
+	# 3. Fallback to the log file only when the Output panel was unreachable
+	#    (headless). An empty windowed read is a real verdict: the log under
+	#    user:// is shared by every game run of this project and outlives the
+	#    session, so reading it after a clean panel resurfaced a script error a
+	#    game raised two days earlier (found retesting on 4.8-dev6, 2026-09-19).
+	if rtl == null and errors.is_empty():
 		for line in _scan_log_file(max_lines, ["ERROR", "SCRIPT ERROR"]):
 			if not include_noise and _is_noise(line):
 				suppressed += 1

@@ -96,6 +96,20 @@ func runInstall(args []string) int {
 				fmt.Printf("installed skill  -> %s\n", skillDst)
 				reportSkipped(skillSkipped)
 			}
+			// Release bundles carry the companion QA skill beside the main skill.
+			qaSrc := filepath.Join(filepath.Dir(skillSrc), "swallowtail-qa")
+			qaDst := filepath.Join(root, ".claude", "skills", "swallowtail-qa")
+			if pathExists(filepath.Join(qaSrc, "SKILL.md")) {
+				if pathExists(qaDst) && !*force {
+					fmt.Fprintf(os.Stderr, "install: %q already exists (use --force)\n", qaDst)
+				} else if skipped, err := copyDir(qaSrc, qaDst); err != nil {
+					fmt.Fprintln(os.Stderr, "install: copying QA skill:", err)
+					return 1
+				} else {
+					fmt.Printf("installed skill  -> %s\n", qaDst)
+					reportSkipped(skipped)
+				}
+			}
 		}
 	}
 

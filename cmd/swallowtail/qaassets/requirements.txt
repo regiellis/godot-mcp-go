@@ -1,0 +1,2 @@
+# Run/compare use Python 3.10+ standard library. Required only by qa report/--pdf.
+reportlab>=4.0,<5

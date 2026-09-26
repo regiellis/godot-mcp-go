@@ -1,0 +1,101 @@
+[
+  {
+    "start": 0.6,
+    "text": "[warmly] Hey... welcome to Swallowtail. It's a Godot automation toolkit, and in the next five minutes I'll show you how to install it and put it to work on a project.",
+    "file": "audio/v2/voice_00.mp3",
+    "voice": "PSONA",
+    "voice_id": "bYXvTprZQHr4vlg4TPx7",
+    "model": "eleven_v3",
+    "speed": 1.0
+  },
+  {
+    "start": 14,
+    "text": "[curious] So, Godot already has a command line... why add another one? [conversational] Well, keep using Godot's for imports, scripts, exports, all of that. Swallowtail is for the editor you've actually got open. Look at a scene, change it, play it, and read back what happened. Let me show you on this little stretch of coast.",
+    "file": "audio/v2/voice_01.mp3",
+    "voice": "PSONA",
+    "voice_id": "bYXvTprZQHr4vlg4TPx7",
+    "model": "eleven_v3",
+    "speed": 1.0
+  },
+  {
+    "start": 39,
+    "text": "[conversational] You need two things: the Swallowtail binary, and a Godot install. Inside your project, install the addon, enable it, open the editor... and status tells you if that editor's reachable. [reassuring] And no, you don't have to memorize any of this. Ask for help at any level. Here, node set shows me what it'll accept. And scene tree... that's what's actually in this project right now.",
+    "file": "audio/v2/voice_02.mp3",
+    "voice": "PSONA",
+    "voice_id": "bYXvTprZQHr4vlg4TPx7",
+    "model": "eleven_v3",
+    "speed": 1.0
+  },
+  {
+    "start": 69,
+    "text": "[conversational] Let's move the lighthouse. First I read its position and scale... then push it across the island. Keep an eye on the scene while that value changes... [pleased] and there it is. One more command and the tower's a bit bigger. These are edits to the open scene, so I can click the same nodes in Godot and just keep working by hand.",
+    "file": "audio/v2/voice_03.mp3",
+    "voice": "PSONA",
+    "voice_id": "bYXvTprZQHr4vlg4TPx7",
+    "model": "eleven_v3",
+    "speed": 1.0
+  },
+  {
+    "start": 95,
+    "text": "[conversational] Now, one of these rocks... duplicate it, give the copy a name, pull it in toward the shore, scale it up. Tiny command, and the result's right there. [curious] What about the water? Bump the wave amplitude, and the shoreline gets a little rougher. Happy with it? Save the scene.",
+    "file": "audio/v2/voice_04.mp3",
+    "voice": "PSONA",
+    "voice_id": "bYXvTprZQHr4vlg4TPx7",
+    "model": "eleven_v3",
+    "speed": 1.0
+  },
+  {
+    "start": 123,
+    "text": "[thoughtful] Here's the thing... once a sequence works, keep it. This plan calms the water, puts the daylight back, saves, and validates the scene. I run it from the terminal, the water settles, and every step reports back. Run it again... same settings, same result. That's handy when you're comparing a change, or you just want a known starting point to come back to. And before the next playtest, check the scripts.",
+    "file": "audio/v2/voice_05.mp3",
+    "voice": "PSONA",
+    "voice_id": "bYXvTprZQHr4vlg4TPx7",
+    "model": "eleven_v3",
+    "speed": 1.0
+  },
+  {
+    "start": 164,
+    "text": "[conversational] Alright, let's actually play it. Start the scene, look at the running camera, send it a movement key... and now we're watching the game while it runs. [curious] Honestly, from down here those waves are a bit much. So let's read the real shader value. Point six five. I can change that live and see if it feels better.",
+    "file": "audio/v2/voice_06.mp3",
+    "voice": "PSONA",
+    "voice_id": "bYXvTprZQHr4vlg4TPx7",
+    "model": "eleven_v3",
+    "speed": 1.0
+  },
+  {
+    "start": 190,
+    "text": "[thoughtful] Drop the amplitude to point one eight. Give the water a second to settle... then read it back. [pleased] Yeah, that's closer. Check the runtime errors, grab a frame for later. Now, when I stop, that live tweak is not a saved scene edit. So I set the value I liked in the editor... save... and test again.",
+    "file": "audio/v2/voice_07.mp3",
+    "voice": "PSONA",
+    "voice_id": "bYXvTprZQHr4vlg4TPx7",
+    "model": "eleven_v3",
+    "speed": 1.0
+  },
+  {
+    "start": 219,
+    "text": "[conversational] An agent can run this exact same loop. I give it a task: keep the calmer water, warm the light up a bit. It reads the command help, applies the water setting, adjusts the sun, saves the scene. [confident] And I can see every command it ran and what changed. So I review it. Keep it, tweak it, or ask for another pass. The creative calls are still mine.",
+    "file": "audio/v2/voice_08.mp3",
+    "voice": "PSONA",
+    "voice_id": "bYXvTprZQHr4vlg4TPx7",
+    "model": "eleven_v3",
+    "speed": 1.0
+  },
+  {
+    "start": 259,
+    "text": "[conversational] If your agent talks over M C P, same project, same editor. Here's a real tool call lowering the sun for more of an evening look... and another one reading the rotation back. [confident] Nothing's moved. The terminal's still there, and the project is still plain Godot files.",
+    "file": "audio/v2/voice_09.mp3",
+    "voice": "PSONA",
+    "voice_id": "bYXvTprZQHr4vlg4TPx7",
+    "model": "eleven_v3",
+    "speed": 1.0
+  },
+  {
+    "start": 285,
+    "text": "[warmly] There's a game you want to make. Start with a scene... build from there. [short pause] Swallowtail. At your service.",
+    "file": "audio/v2/voice_10.mp3",
+    "voice": "PSONA",
+    "voice_id": "bYXvTprZQHr4vlg4TPx7",
+    "model": "eleven_v3",
+    "speed": 1.0
+  }
+]

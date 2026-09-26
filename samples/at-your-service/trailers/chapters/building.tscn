@@ -1,0 +1,1930 @@
+[gd_scene format=3 uid="uid://da2ftq84ois56"]
+
+[ext_resource type="Script" uid="uid://c4rxjuskm0rk" path="res://trailers/chapter.gd" id="1_ghtkb"]
+[ext_resource type="FontVariation" path="res://trailers/timeline/display_font.tres" id="2_pbnen"]
+[ext_resource type="FontFile" uid="uid://by75qrvimdas8" path="res://assets/source-code-pro/SourceCodePro-Regular.ttf" id="3_ccoax"]
+[ext_resource type="FontFile" uid="uid://dtbm556602jfo" path="res://assets/inter/Inter-Regular.ttf" id="4_t5stc"]
+[ext_resource type="Texture2D" uid="uid://b8hvet6cfakme" path="res://trailers/brand/swallowtail-seated.png" id="5_lk17d"]
+
+[node name="Building" type="Control" unique_id=1624033091]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+script = ExtResource("1_ghtkb")
+
+[node name="S05_StartWithAScene" type="Control" parent="." unique_id=238680452]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "inspect"
+metadata/start_seconds = 98.33333
+metadata/end_seconds = 106.77533
+metadata/start = 111.63333
+metadata/end = 122.04333
+
+[node name="Background" type="ColorRect" parent="S05_StartWithAScene" unique_id=1951391428]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S05_StartWithAScene" unique_id=72084071]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S05_StartWithAScene" unique_id=806715042]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S05_StartWithAScene" unique_id=1600534360]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "02 / BUILD IN THE EDITOR"
+
+[node name="Title" type="Label" parent="S05_StartWithAScene" unique_id=161279725]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 623.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 61
+text = "Start with a scene."
+
+[node name="Subtitle" type="Label" parent="S05_StartWithAScene" unique_id=1929799018]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 630.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 29
+text = "Read the lighthouse's current transform."
+
+[node name="Console" type="Control" parent="S05_StartWithAScene" unique_id=913856452]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S05_StartWithAScene/Console" unique_id=683811892]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S05_StartWithAScene/Console" unique_id=362559827]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S05_StartWithAScene/Console" unique_id=1244121124]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S05_StartWithAScene/Console" unique_id=181797611]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 371.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail node get"
+
+[node name="Command02" type="Label" parent="S05_StartWithAScene/Console" unique_id=2029263151]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 543.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --node-path Dressing/Lighthouse"
+
+[node name="Command03" type="Label" parent="S05_StartWithAScene/Console" unique_id=808031929]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 606.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --properties '[\"position\",\"scale\"]'"
+
+[node name="ResultRule" type="ColorRect" parent="S05_StartWithAScene/Console" unique_id=587319563]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S05_StartWithAScene/Console" unique_id=1562329437]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S05_StartWithAScene/Console" unique_id=1650251460]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 583.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 28
+text = "Position (-4, 1.08, -7). Scale (0.5, 0.5, 0.5)."
+
+[node name="Note" type="Label" parent="S05_StartWithAScene" unique_id=369790245]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 599.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 30
+text = "Inspect first. Then change one thing."
+
+[node name="Footer" type="Label" parent="S05_StartWithAScene" unique_id=921078587]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S05_StartWithAScene" unique_id=2063924682]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_lk17d")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S05_StartWithAScene" unique_id=209953772]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S05_StartWithAScene" unique_id=1865943134]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1488.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 26
+text = "Before: a smaller tower, farther left."
+
+[node name="S06_GiveItAHome" type="Control" parent="." unique_id=1934713563]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "place"
+metadata/start_seconds = 106.77533
+metadata/end_seconds = 117.23383
+metadata/start = 122.04333
+metadata/end = 128.06333
+
+[node name="Background" type="ColorRect" parent="S06_GiveItAHome" unique_id=1146938367]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S06_GiveItAHome" unique_id=1401915737]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S06_GiveItAHome" unique_id=850342876]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S06_GiveItAHome" unique_id=485689257]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "02 / BUILD IN THE EDITOR"
+
+[node name="Title" type="Label" parent="S06_GiveItAHome" unique_id=470531049]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 504.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 61
+text = "Give it a home."
+
+[node name="Subtitle" type="Label" parent="S06_GiveItAHome" unique_id=1478853859]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 640.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 29
+text = "Move the existing node across the coast."
+
+[node name="Console" type="Control" parent="S06_GiveItAHome" unique_id=554449640]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S06_GiveItAHome/Console" unique_id=237232745]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S06_GiveItAHome/Console" unique_id=1111457467]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S06_GiveItAHome/Console" unique_id=310291332]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S06_GiveItAHome/Console" unique_id=1325650242]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 371.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail node set"
+
+[node name="Command02" type="Label" parent="S06_GiveItAHome/Console" unique_id=1986141284]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 543.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --node-path Dressing/Lighthouse"
+
+[node name="Command03" type="Label" parent="S06_GiveItAHome/Console" unique_id=244901824]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 356.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --property position"
+
+[node name="Command04" type="Label" parent="S06_GiveItAHome/Console" unique_id=1946899540]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 528.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --value 'Vector3(7, 1.08, -7)'"
+
+[node name="ResultRule" type="ColorRect" parent="S06_GiveItAHome/Console" unique_id=390029095]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S06_GiveItAHome/Console" unique_id=161136761]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S06_GiveItAHome/Console" unique_id=996917127]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 377.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 28
+text = "position set to (7, 1.08, -7)."
+
+[node name="Note" type="Label" parent="S06_GiveItAHome" unique_id=261942162]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 653.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 30
+text = "The position changes in the open scene."
+
+[node name="Footer" type="Label" parent="S06_GiveItAHome" unique_id=157945392]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S06_GiveItAHome" unique_id=1774966131]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_lk17d")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S06_GiveItAHome" unique_id=432048511]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S06_GiveItAHome" unique_id=1214091972]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1477.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 26
+text = "Watch the tower move to the right."
+
+[node name="S07_MakeItStandOut" type="Control" parent="." unique_id=1478537697]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "scale"
+metadata/start_seconds = 117.23383
+metadata/end_seconds = 129.6
+metadata/start = 128.06333
+metadata/end = 143.16667
+
+[node name="Background" type="ColorRect" parent="S07_MakeItStandOut" unique_id=2119899766]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S07_MakeItStandOut" unique_id=660410262]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S07_MakeItStandOut" unique_id=1443605404]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S07_MakeItStandOut" unique_id=1036227602]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "02 / BUILD IN THE EDITOR"
+
+[node name="Title" type="Label" parent="S07_MakeItStandOut" unique_id=1911420146]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 601.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 61
+text = "Make it stand out."
+
+[node name="Subtitle" type="Label" parent="S07_MakeItStandOut" unique_id=2065126180]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 641.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 29
+text = "A second edit changes the tower's scale."
+
+[node name="Console" type="Control" parent="S07_MakeItStandOut" unique_id=1344702964]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S07_MakeItStandOut/Console" unique_id=1236753118]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S07_MakeItStandOut/Console" unique_id=979771706]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S07_MakeItStandOut/Console" unique_id=1869298841]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S07_MakeItStandOut/Console" unique_id=757746771]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 371.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail node set"
+
+[node name="Command02" type="Label" parent="S07_MakeItStandOut/Console" unique_id=175149996]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 543.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --node-path Dressing/Lighthouse"
+
+[node name="Command03" type="Label" parent="S07_MakeItStandOut/Console" unique_id=83233633]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 310.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --property scale"
+
+[node name="Command04" type="Label" parent="S07_MakeItStandOut/Console" unique_id=2022939544]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 559.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --value 'Vector3(0.7, 0.7, 0.7)'"
+
+[node name="ResultRule" type="ColorRect" parent="S07_MakeItStandOut/Console" unique_id=260325998]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S07_MakeItStandOut/Console" unique_id=100635285]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S07_MakeItStandOut/Console" unique_id=411549379]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 363.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 28
+text = "scale set to (0.7, 0.7, 0.7)."
+
+[node name="Note" type="Label" parent="S07_MakeItStandOut" unique_id=1622934929]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 644.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 30
+text = "The same node is still editable in Godot."
+
+[node name="Footer" type="Label" parent="S07_MakeItStandOut" unique_id=1480747707]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S07_MakeItStandOut" unique_id=1310375475]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_lk17d")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S07_MakeItStandOut" unique_id=551691172]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S07_MakeItStandOut" unique_id=2130896708]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1443.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 26
+text = "The lighthouse becomes larger."
+
+[node name="S08_BuildOutTheShore" type="Control" parent="." unique_id=1308366220]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "duplicate"
+metadata/start_seconds = 129.6
+metadata/end_seconds = 136.62
+metadata/start = 143.16667
+metadata/end = 151.08667
+
+[node name="Background" type="ColorRect" parent="S08_BuildOutTheShore" unique_id=1217302078]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S08_BuildOutTheShore" unique_id=994105716]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S08_BuildOutTheShore" unique_id=1370199873]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S08_BuildOutTheShore" unique_id=1415914573]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "02 / BUILD IN THE EDITOR"
+
+[node name="Title" type="Label" parent="S08_BuildOutTheShore" unique_id=1494308717]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 649.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 61
+text = "Build out the shore."
+
+[node name="Subtitle" type="Label" parent="S08_BuildOutTheShore" unique_id=1249815137]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 563.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 29
+text = "Reuse a mesh already in the scene."
+
+[node name="Console" type="Control" parent="S08_BuildOutTheShore" unique_id=227104191]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S08_BuildOutTheShore/Console" unique_id=150641681]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S08_BuildOutTheShore/Console" unique_id=201122769]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S08_BuildOutTheShore/Console" unique_id=1824348321]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S08_BuildOutTheShore/Console" unique_id=807401383]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 465.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail node duplicate"
+
+[node name="Command02" type="Label" parent="S08_BuildOutTheShore/Console" unique_id=95203467]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 512.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --node-path Dressing/Scatter0"
+
+[node name="Command03" type="Label" parent="S08_BuildOutTheShore/Console" unique_id=2097088323]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 309.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --name ShoreRock"
+
+[node name="ResultRule" type="ColorRect" parent="S08_BuildOutTheShore/Console" unique_id=567132080]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S08_BuildOutTheShore/Console" unique_id=375194499]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S08_BuildOutTheShore/Console" unique_id=2019082912]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 415.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 28
+text = "Dressing/ShoreRock created."
+
+[node name="Note" type="Label" parent="S08_BuildOutTheShore" unique_id=1258616221]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 486.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 30
+text = "Give the copy a stable name."
+
+[node name="Footer" type="Label" parent="S08_BuildOutTheShore" unique_id=1246682732]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S08_BuildOutTheShore" unique_id=1456025448]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_lk17d")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S08_BuildOutTheShore" unique_id=549249050]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S08_BuildOutTheShore" unique_id=62989769]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1461.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 26
+text = "A copy starts at the original rock."
+
+[node name="S09_PlaceTheNewRock" type="Control" parent="." unique_id=1795326190]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "rock"
+metadata/start_seconds = 136.62
+metadata/end_seconds = 139.02
+metadata/start = 151.08667
+metadata/end = 152.84667
+
+[node name="Background" type="ColorRect" parent="S09_PlaceTheNewRock" unique_id=2034874740]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S09_PlaceTheNewRock" unique_id=413448408]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S09_PlaceTheNewRock" unique_id=1690415332]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S09_PlaceTheNewRock" unique_id=1662801354]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "02 / BUILD IN THE EDITOR"
+
+[node name="Title" type="Label" parent="S09_PlaceTheNewRock" unique_id=899419675]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 643.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 61
+text = "Place the new rock."
+
+[node name="Subtitle" type="Label" parent="S09_PlaceTheNewRock" unique_id=1637450379]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 562.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 29
+text = "Move the copy into the foreground."
+
+[node name="Console" type="Control" parent="S09_PlaceTheNewRock" unique_id=2012311199]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S09_PlaceTheNewRock/Console" unique_id=884185358]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S09_PlaceTheNewRock/Console" unique_id=829595372]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S09_PlaceTheNewRock/Console" unique_id=1741238315]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S09_PlaceTheNewRock/Console" unique_id=1824488259]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 371.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail node set"
+
+[node name="Command02" type="Label" parent="S09_PlaceTheNewRock/Console" unique_id=2102281700]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 527.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --node-path Dressing/ShoreRock"
+
+[node name="Command03" type="Label" parent="S09_PlaceTheNewRock/Console" unique_id=1052083437]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 356.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --property position"
+
+[node name="Command04" type="Label" parent="S09_PlaceTheNewRock/Console" unique_id=36555252]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 512.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --value 'Vector3(12, 0.5, 1)'"
+
+[node name="ResultRule" type="ColorRect" parent="S09_PlaceTheNewRock/Console" unique_id=524395731]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S09_PlaceTheNewRock/Console" unique_id=1989001653]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S09_PlaceTheNewRock/Console" unique_id=779943953]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 364.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 28
+text = "position set to (12, 0.5, 1)."
+
+[node name="Note" type="Label" parent="S09_PlaceTheNewRock" unique_id=1802280941]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 660.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 30
+text = "Small commands, visible scene changes."
+
+[node name="Footer" type="Label" parent="S09_PlaceTheNewRock" unique_id=1149727613]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S09_PlaceTheNewRock" unique_id=1656627008]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_lk17d")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S09_PlaceTheNewRock" unique_id=1807661327]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S09_PlaceTheNewRock" unique_id=1472425231]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1533.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 26
+text = "The new rock moves toward the shore."
+
+[node name="S10_GiveItSomeWeight" type="Control" parent="." unique_id=54953968]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "rock_scale"
+metadata/start_seconds = 139.02
+metadata/end_seconds = 146.05
+metadata/start = 152.84667
+metadata/end = 156.93667
+
+[node name="Background" type="ColorRect" parent="S10_GiveItSomeWeight" unique_id=438250859]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S10_GiveItSomeWeight" unique_id=131245889]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S10_GiveItSomeWeight" unique_id=610861045]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S10_GiveItSomeWeight" unique_id=1460235085]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "02 / BUILD IN THE EDITOR"
+
+[node name="Title" type="Label" parent="S10_GiveItSomeWeight" unique_id=927671061]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 669.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 61
+text = "Give it some weight."
+
+[node name="Subtitle" type="Label" parent="S10_GiveItSomeWeight" unique_id=841011215]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 493.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 29
+text = "Scale the copy independently."
+
+[node name="Console" type="Control" parent="S10_GiveItSomeWeight" unique_id=323205590]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S10_GiveItSomeWeight/Console" unique_id=1208694270]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S10_GiveItSomeWeight/Console" unique_id=687962473]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S10_GiveItSomeWeight/Console" unique_id=475485616]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S10_GiveItSomeWeight/Console" unique_id=970639421]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 371.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail node set"
+
+[node name="Command02" type="Label" parent="S10_GiveItSomeWeight/Console" unique_id=1603938180]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 527.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --node-path Dressing/ShoreRock"
+
+[node name="Command03" type="Label" parent="S10_GiveItSomeWeight/Console" unique_id=1530837474]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 310.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --property scale"
+
+[node name="Command04" type="Label" parent="S10_GiveItSomeWeight/Console" unique_id=381893038]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 465.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --value 'Vector3(2, 2, 2)'"
+
+[node name="ResultRule" type="ColorRect" parent="S10_GiveItSomeWeight/Console" unique_id=1170515473]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S10_GiveItSomeWeight/Console" unique_id=465323212]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S10_GiveItSomeWeight/Console" unique_id=855406715]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 299.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 28
+text = "scale set to (2, 2, 2)."
+
+[node name="Note" type="Label" parent="S10_GiveItSomeWeight" unique_id=1775094799]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 680.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 30
+text = "The original mesh stays available to reuse."
+
+[node name="Footer" type="Label" parent="S10_GiveItSomeWeight" unique_id=1851932083]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S10_GiveItSomeWeight" unique_id=2000339035]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_lk17d")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S10_GiveItSomeWeight" unique_id=1103332456]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S10_GiveItSomeWeight" unique_id=1562593111]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1398.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 26
+text = "The foreground rock grows."
+
+[node name="S11_BringTheWaterUp" type="Control" parent="." unique_id=1444109873]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "waves"
+metadata/start_seconds = 146.05
+metadata/end_seconds = 159.05
+metadata/start = 156.93667
+metadata/end = 165.15667
+
+[node name="Background" type="ColorRect" parent="S11_BringTheWaterUp" unique_id=662659107]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S11_BringTheWaterUp" unique_id=799206779]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S11_BringTheWaterUp" unique_id=1952684310]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S11_BringTheWaterUp" unique_id=687297121]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "02 / BUILD IN THE EDITOR"
+
+[node name="Title" type="Label" parent="S11_BringTheWaterUp" unique_id=1085303542]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 628.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 61
+text = "Bring the water up."
+
+[node name="Subtitle" type="Label" parent="S11_BringTheWaterUp" unique_id=599943583]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 637.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 29
+text = "Change a shader parameter in the editor."
+
+[node name="Console" type="Control" parent="S11_BringTheWaterUp" unique_id=666992263]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S11_BringTheWaterUp/Console" unique_id=721098969]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S11_BringTheWaterUp/Console" unique_id=268424024]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S11_BringTheWaterUp/Console" unique_id=40094016]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S11_BringTheWaterUp/Console" unique_id=294917234]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 496.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail shader set-param"
+
+[node name="Command02" type="Label" parent="S11_BringTheWaterUp/Console" unique_id=552674962]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 325.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --node-path Water"
+
+[node name="Command03" type="Label" parent="S11_BringTheWaterUp/Console" unique_id=1827696465]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 419.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --param wave1_amplitude"
+
+[node name="Command04" type="Label" parent="S11_BringTheWaterUp/Console" unique_id=1120172691]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 247.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "  --value 0.65"
+
+[node name="ResultRule" type="ColorRect" parent="S11_BringTheWaterUp/Console" unique_id=2121183868]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S11_BringTheWaterUp/Console" unique_id=1399618335]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S11_BringTheWaterUp/Console" unique_id=1532106926]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 406.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 28
+text = "wave1_amplitude set to 0.65."
+
+[node name="Note" type="Label" parent="S11_BringTheWaterUp" unique_id=1420875658]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 619.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 30
+text = "Watch the water against the shoreline."
+
+[node name="Footer" type="Label" parent="S11_BringTheWaterUp" unique_id=756322440]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S11_BringTheWaterUp" unique_id=1467740098]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_lk17d")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S11_BringTheWaterUp" unique_id=1468335533]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S11_BringTheWaterUp" unique_id=888799020]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1412.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 26
+text = "More swell. More movement."
+
+[node name="S12_KeepTheSceneEdit" type="Control" parent="." unique_id=2066862407]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "save"
+metadata/start_seconds = 159.05
+metadata/end_seconds = 164.9
+metadata/start = 165.15667
+metadata/end = 173.16667
+
+[node name="Background" type="ColorRect" parent="S12_KeepTheSceneEdit" unique_id=2091455675]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S12_KeepTheSceneEdit" unique_id=708308377]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S12_KeepTheSceneEdit" unique_id=1924928948]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S12_KeepTheSceneEdit" unique_id=649609511]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "02 / BUILD IN THE EDITOR"
+
+[node name="Title" type="Label" parent="S12_KeepTheSceneEdit" unique_id=919785507]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 673.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_pbnen")
+theme_override_font_sizes/font_size = 61
+text = "Keep the scene edit."
+
+[node name="Subtitle" type="Label" parent="S12_KeepTheSceneEdit" unique_id=863007458]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 623.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 29
+text = "Save the work in a normal Godot scene."
+
+[node name="Console" type="Control" parent="S12_KeepTheSceneEdit" unique_id=1362032043]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S12_KeepTheSceneEdit/Console" unique_id=1429284627]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S12_KeepTheSceneEdit/Console" unique_id=326656676]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S12_KeepTheSceneEdit/Console" unique_id=677748871]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S12_KeepTheSceneEdit/Console" unique_id=1108469643]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 403.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail scene save"
+
+[node name="ResultRule" type="ColorRect" parent="S12_KeepTheSceneEdit/Console" unique_id=1120499213]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S12_KeepTheSceneEdit/Console" unique_id=1485747470]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S12_KeepTheSceneEdit/Console" unique_id=1538291307]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 412.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 28
+text = "lighthouse_demo.tscn saved."
+
+[node name="Note" type="Label" parent="S12_KeepTheSceneEdit" unique_id=1377805001]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 630.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 30
+text = "Your project stays ordinary Godot files."
+
+[node name="Footer" type="Label" parent="S12_KeepTheSceneEdit" unique_id=1079545519]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_ccoax")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S12_KeepTheSceneEdit" unique_id=1755353891]
+layout_mode = 0
+offset_left = 797.0
+offset_top = 232.0
+offset_right = 936.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_lk17d")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S12_KeepTheSceneEdit" unique_id=273875254]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S12_KeepTheSceneEdit" unique_id=1601675736]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1431.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_t5stc")
+theme_override_font_sizes/font_size = 26
+text = "The scene changes are saved."

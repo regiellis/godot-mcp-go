@@ -1,0 +1,988 @@
+[gd_scene format=3 uid="uid://dhjn50eaoy1yf"]
+
+[ext_resource type="Script" uid="uid://c4rxjuskm0rk" path="res://trailers/chapter.gd" id="1_2y0sc"]
+[ext_resource type="FontVariation" path="res://trailers/timeline/display_font.tres" id="2_x8r68"]
+[ext_resource type="FontFile" uid="uid://by75qrvimdas8" path="res://assets/source-code-pro/SourceCodePro-Regular.ttf" id="3_rxeng"]
+[ext_resource type="FontFile" uid="uid://dtbm556602jfo" path="res://assets/inter/Inter-Regular.ttf" id="4_80qeg"]
+[ext_resource type="Texture2D" uid="uid://b8hvet6cfakme" path="res://trailers/brand/swallowtail-seated.png" id="5_bbado"]
+
+[node name="Setup" type="Control" unique_id=466496146]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+script = ExtResource("1_2y0sc")
+
+[node name="S01_ConnectTheEditor" type="Control" parent="." unique_id=2003120273]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = ""
+metadata/start_seconds = 61.2
+metadata/end_seconds = 74.481
+metadata/start = 64.9
+metadata/end = 78.98
+
+[node name="Background" type="ColorRect" parent="S01_ConnectTheEditor" unique_id=1283107676]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S01_ConnectTheEditor" unique_id=1921428584]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x8r68")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S01_ConnectTheEditor" unique_id=1403582466]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S01_ConnectTheEditor" unique_id=902180464]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 348.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "01 / GET CONNECTED"
+
+[node name="Title" type="Label" parent="S01_ConnectTheEditor" unique_id=2065802908]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 648.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x8r68")
+theme_override_font_sizes/font_size = 61
+text = "Connect the editor."
+
+[node name="Subtitle" type="Label" parent="S01_ConnectTheEditor" unique_id=980422638]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 505.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 29
+text = "Start inside your Godot project."
+
+[node name="Console" type="Control" parent="S01_ConnectTheEditor" unique_id=1812187899]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S01_ConnectTheEditor/Console" unique_id=1226070355]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S01_ConnectTheEditor/Console" unique_id=1325161892]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S01_ConnectTheEditor/Console" unique_id=921991619]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S01_ConnectTheEditor/Console" unique_id=346166347]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 496.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail install --enable"
+
+[node name="Command02" type="Label" parent="S01_ConnectTheEditor/Console" unique_id=76358762]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 340.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail launch"
+
+[node name="Command03" type="Label" parent="S01_ConnectTheEditor/Console" unique_id=2022039598]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 340.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail status"
+
+[node name="ResultRule" type="ColorRect" parent="S01_ConnectTheEditor/Console" unique_id=339676444]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S01_ConnectTheEditor/Console" unique_id=2128235559]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 373.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / SETUP COMMANDS"
+
+[node name="Result" type="Label" parent="S01_ConnectTheEditor/Console" unique_id=48880786]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 412.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 28
+text = "Addon installed and enabled."
+
+[node name="Note" type="Label" parent="S01_ConnectTheEditor" unique_id=1056750301]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 729.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 30
+text = "Install the CLI for your platform from the docs."
+
+[node name="Footer" type="Label" parent="S01_ConnectTheEditor" unique_id=113809040]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S01_ConnectTheEditor" unique_id=766807083]
+layout_mode = 0
+offset_left = 796.0
+offset_top = 232.0
+offset_right = 935.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_bbado")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S01_ConnectTheEditor" unique_id=500114433]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S01_ConnectTheEditor" unique_id=310743718]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1417.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 26
+text = "One project. One open editor."
+
+[node name="S02_CheckTheConnection" type="Control" parent="." unique_id=478497224]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "status"
+metadata/start_seconds = 74.481
+metadata/end_seconds = 81.1465
+metadata/start = 78.98
+metadata/end = 84.61
+
+[node name="Background" type="ColorRect" parent="S02_CheckTheConnection" unique_id=1660325597]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S02_CheckTheConnection" unique_id=1113980030]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x8r68")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S02_CheckTheConnection" unique_id=604767482]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S02_CheckTheConnection" unique_id=999661283]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 348.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "01 / GET CONNECTED"
+
+[node name="Title" type="Label" parent="S02_CheckTheConnection" unique_id=269079739]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 745.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x8r68")
+theme_override_font_sizes/font_size = 61
+text = "Check the connection."
+
+[node name="Subtitle" type="Label" parent="S02_CheckTheConnection" unique_id=835342921]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 611.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 29
+text = "The next command reaches this editor."
+
+[node name="Console" type="Control" parent="S02_CheckTheConnection" unique_id=738077174]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S02_CheckTheConnection/Console" unique_id=1418582868]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S02_CheckTheConnection/Console" unique_id=1122881430]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S02_CheckTheConnection/Console" unique_id=432402779]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 223.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL"
+
+[node name="Command01" type="Label" parent="S02_CheckTheConnection/Console" unique_id=273165708]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 340.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail status"
+
+[node name="ResultRule" type="ColorRect" parent="S02_CheckTheConnection/Console" unique_id=1087904126]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S02_CheckTheConnection/Console" unique_id=2044402601]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S02_CheckTheConnection/Console" unique_id=1409666395]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 447.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 28
+text = "Editor is running and reachable."
+
+[node name="Note" type="Label" parent="S02_CheckTheConnection" unique_id=1317361164]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 571.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 30
+text = "Status identifies the running editor."
+
+[node name="Footer" type="Label" parent="S02_CheckTheConnection" unique_id=705120226]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S02_CheckTheConnection" unique_id=464707158]
+layout_mode = 0
+offset_left = 796.0
+offset_top = 232.0
+offset_right = 935.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_bbado")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S02_CheckTheConnection" unique_id=870787903]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S02_CheckTheConnection" unique_id=722098338]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1344.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 26
+text = "The editor is reachable."
+
+[node name="S03_AskForHelp" type="Control" parent="." unique_id=433500143]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "help"
+metadata/start_seconds = 81.1465
+metadata/end_seconds = 90.1635
+metadata/start = 84.61
+metadata/end = 97.91
+
+[node name="Background" type="ColorRect" parent="S03_AskForHelp" unique_id=1956406706]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S03_AskForHelp" unique_id=1474868469]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x8r68")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S03_AskForHelp" unique_id=1693353111]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S03_AskForHelp" unique_id=1633844964]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 348.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "01 / GET CONNECTED"
+
+[node name="Title" type="Label" parent="S03_AskForHelp" unique_id=1509917005]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 436.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x8r68")
+theme_override_font_sizes/font_size = 61
+text = "Ask for help."
+
+[node name="Subtitle" type="Label" parent="S03_AskForHelp" unique_id=255948824]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 785.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 29
+text = "Command names and parameters are discoverable."
+
+[node name="Console" type="Control" parent="S03_AskForHelp" unique_id=398558938]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S03_AskForHelp/Console" unique_id=1129222753]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S03_AskForHelp/Console" unique_id=1906955135]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S03_AskForHelp/Console" unique_id=1477465273]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 448.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL / HELP EXCERPT"
+
+[node name="Command01" type="Label" parent="S03_AskForHelp/Console" unique_id=942160843]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 480.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail node set --help"
+
+[node name="Command02" type="Label" parent="S03_AskForHelp/Console" unique_id=900603246]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 29.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+
+[node name="Command03" type="Label" parent="S03_AskForHelp/Console" unique_id=830190229]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 419.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "--node-path   Target node"
+
+[node name="Command04" type="Label" parent="S03_AskForHelp/Console" unique_id=2053971740]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 528.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "--property    Property to change"
+
+[node name="Command05" type="Label" parent="S03_AskForHelp/Console" unique_id=552308899]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 222.0
+offset_right = 389.0
+offset_bottom = 256.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "--value       New value"
+
+[node name="ResultRule" type="ColorRect" parent="S03_AskForHelp/Console" unique_id=1412459999]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S03_AskForHelp/Console" unique_id=323774560]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S03_AskForHelp/Console" unique_id=1922322896]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 642.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 28
+text = "Single-property and batch forms are available."
+
+[node name="Note" type="Label" parent="S03_AskForHelp" unique_id=1484305713]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 713.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 30
+text = "Read the options before changing the scene."
+
+[node name="Footer" type="Label" parent="S03_AskForHelp" unique_id=1176555182]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S03_AskForHelp" unique_id=1719599210]
+layout_mode = 0
+offset_left = 796.0
+offset_top = 232.0
+offset_right = 935.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_bbado")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S03_AskForHelp" unique_id=1687644825]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S03_AskForHelp" unique_id=156249585]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1548.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 26
+text = "Help comes from the command catalog."
+
+[node name="S04_SeeWhat\'sThere" type="Control" parent="." unique_id=809299271]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "tree"
+metadata/start_seconds = 90.1635
+metadata/end_seconds = 98.33333
+metadata/start = 97.91
+metadata/end = 111.63333
+
+[node name="Background" type="ColorRect" parent="S04_SeeWhat\'sThere" unique_id=832475622]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S04_SeeWhat\'sThere" unique_id=511781557]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_x8r68")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S04_SeeWhat\'sThere" unique_id=1243363092]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S04_SeeWhat\'sThere" unique_id=1601536345]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 348.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "01 / GET CONNECTED"
+
+[node name="Title" type="Label" parent="S04_SeeWhat\'sThere" unique_id=807994694]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 585.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_x8r68")
+theme_override_font_sizes/font_size = 61
+text = "See what's there."
+
+[node name="Subtitle" type="Label" parent="S04_SeeWhat\'sThere" unique_id=1168943748]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 553.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 29
+text = "Inspect the scene before editing it."
+
+[node name="Console" type="Control" parent="S04_SeeWhat\'sThere" unique_id=199435183]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S04_SeeWhat\'sThere/Console" unique_id=1254881104]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S04_SeeWhat\'sThere/Console" unique_id=521855372]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S04_SeeWhat\'sThere/Console" unique_id=1725826902]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 448.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "YOUR TERMINAL / TREE EXCERPT"
+
+[node name="Command01" type="Label" parent="S04_SeeWhat\'sThere/Console" unique_id=529597710]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 403.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail scene tree"
+
+[node name="Command02" type="Label" parent="S04_SeeWhat\'sThere/Console" unique_id=1861519574]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 29.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+
+[node name="Command03" type="Label" parent="S04_SeeWhat\'sThere/Console" unique_id=311715507]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 595.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "Sun               DirectionalLight3D"
+
+[node name="Command04" type="Label" parent="S04_SeeWhat\'sThere/Console" unique_id=1291938342]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 532.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "Water             MeshInstance3D"
+
+[node name="Command05" type="Label" parent="S04_SeeWhat\'sThere/Console" unique_id=1149776616]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 222.0
+offset_right = 438.0
+offset_bottom = 256.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "Camera            Camera3D"
+
+[node name="Command06" type="Label" parent="S04_SeeWhat\'sThere/Console" unique_id=912865010]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 258.0
+offset_right = 324.0
+offset_bottom = 292.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 26
+text = "Dressing/Lighthouse"
+
+[node name="ResultRule" type="ColorRect" parent="S04_SeeWhat\'sThere/Console" unique_id=910501241]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S04_SeeWhat\'sThere/Console" unique_id=1399538043]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S04_SeeWhat\'sThere/Console" unique_id=869879827]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 578.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 28
+text = "Scene tree returned from the open editor."
+
+[node name="Note" type="Label" parent="S04_SeeWhat\'sThere" unique_id=1959827100]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 729.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 30
+text = "Use the real node paths in the next command."
+
+[node name="Footer" type="Label" parent="S04_SeeWhat\'sThere" unique_id=590293418]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_rxeng")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="SeatedMascot" type="TextureRect" parent="S04_SeeWhat\'sThere" unique_id=1697669957]
+layout_mode = 0
+offset_left = 796.0
+offset_top = 232.0
+offset_right = 935.0
+offset_bottom = 440.0
+mouse_filter = 2
+texture = ExtResource("5_bbado")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S04_SeeWhat\'sThere" unique_id=785683338]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S04_SeeWhat\'sThere" unique_id=475160238]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1538.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_80qeg")
+theme_override_font_sizes/font_size = 26
+text = "The lighthouse is a normal scene node."
