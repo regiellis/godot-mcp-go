@@ -1,0 +1,912 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Game patterns · Swallowtail</title><meta name="description" content="Buildable patterns mapped to command sequences: movement, game feel vs juice, components, state machines, HUD.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Game patterns · Swallowtail">
+<meta property="og:description" content="Buildable patterns mapped to command sequences: movement, game feel vs juice, components, state machines, HUD.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link active" aria-current="page" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Game patterns</h1>
+<p class="page-desc" data-scope-ccykbmgk>Buildable patterns mapped to command sequences: movement, game feel vs juice, components, state machines, HUD.</p>
+</header>
+<p>How to build games the Godot way, mapped to the CLI. Read <code>gdscript-style.md</code> for
+language idioms. <strong>Verify exact APIs against the live engine</strong> (<code>engine class-info --class CharacterBody2D</code>, <code>engine search --query &#x3C;thing></code>). The patterns below are stable,
+but signatures evolve.</p>
+<h2 id="principles">Principles<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#principles">#</a></h2>
+<ul>
+<li>
+<strong>Compose, don’t centralize</strong>. One small scene per entity/UI piece, instanced into
+levels (<code>scene.instance</code>). Build capability from child nodes, behavior from focused
+scripts. (See SKILL.md “Build with composition, not monoliths”.)</li>
+<li>
+<strong>Components</strong>. Recurring behavior → its own small scene + script (<code>HealthComponent</code>,
+<code>HurtboxComponent</code>), instanced wherever needed. Components expose signals; the owner wires them.</li>
+<li>
+<strong>Data-driven</strong>. Stats/items/config as <code>Resource</code> types (<code>.tres</code>), not hard-coded. See
+<em>Content as data</em> below for when a JSON sidecar registry serves better.</li>
+<li>
+<strong>Decouple with signals</strong>. Emitter announces; listeners react. No per-frame polling
+of other nodes, no reaching across the tree with <code>get_node</code> chains.</li>
+<li>
+<strong>Separate</strong> data (Resources) / logic (scripts on the owning node) / presentation
+(Sprite, AnimationPlayer, UI). Don’t put all three in one script.</li>
+</ul>
+<h2 id="recommended-build-order-for-a-new-game">Recommended build order for a new game<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#recommended-build-order-for-a-new-game">#</a></h2>
+<ol>
+<li>
+<code>project info</code>; set viewport/window via <code>project set-setting</code>.</li>
+<li>
+<strong>Input map first</strong>: <code>input_map set-action</code> for every action (<code>move_left</code>, <code>jump</code>, …).</li>
+<li>
+<strong>Player scene</strong> in its own <code>.tscn</code>, with a movement script and collision.</li>
+<li>
+<strong>One level scene</strong>. Instance the player, then build the world (TileMapLayer / 3D meshes).
+An instanced child’s own subtree is sealed, so tuning a node <em>inside</em> it from the level needs
+editable children first: <code>node set-editable-instance --node-path Player --editable true</code>, and
+<code>node set</code> then reaches <code>Player/Sprite2D</code>.</li>
+<li>
+<strong>Core loop</strong>: enemies, pickups, win/lose, all via component scenes.</li>
+<li>
+<strong>UI/HUD</strong>, Control nodes bound to gameplay by signals.</li>
+<li>
+<strong>Playtest</strong>: <code>scene play</code> → <code>input.*</code> → <code>runtime.get</code>/<code>screenshot</code> → fix → repeat.</li>
+<li>
+<strong>Polish</strong>. Animation, particles, audio, juice (tweens).</li>
+</ol>
+<h2 id="top-down-movement-characterbody2d">Top-down movement (CharacterBody2D)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#top-down-movement-characterbody2d">#</a></h2>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">CharacterBody2D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> speed: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">300.0</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(_delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_vector</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"move_left"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_right"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_up"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_down"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> speed</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">move_and_slide</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Build it:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene create --path res://entities/player.tscn --root-type CharacterBody2D --root-name Player</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene open --path res://entities/player.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type Sprite2D --name Sprite --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type CollisionShape2D --name Col --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add-resource --node-path Col --property shape --resource-type CircleShape2D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script create --path res://entities/player.gd --extends CharacterBody2D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script attach --node-path . --script-path res://entities/player.gd</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene save</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>(Define <code>move_left/right/up/down</code> via <code>input_map set-action</code> first; <code>Input.get_vector</code>
+returns a normalized direction.)</p>
+<h2 id="platformer-movement">Platformer movement<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#platformer-movement">#</a></h2>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">CharacterBody2D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> speed </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">250.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> jump_velocity </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#79B8FF;--1:#005CC5">400.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> gravity: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">ProjectSettings</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_setting</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"physics/2d/default_gravity"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_on_floor</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.y </span><span style="--0:#F97583;--1:#BF3441">+=</span><span style="--0:#E1E4E8;--1:#24292E"> gravity </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">is_action_just_pressed</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"jump"</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_on_floor</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.y </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> jump_velocity</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.x </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_axis</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"move_left"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_right"</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> speed</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">move_and_slide</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Read <code>platformer-2d.md</code> for how the platformer <em>actor and level</em> are assembled: component
+actor, physics-driven <code>AnimationTree</code>, moving platforms, cameras, collision layers, and
+scene-tile blockouts. This file owns the movement code and its feel.</p>
+<h2 id="game-feel-vs-juice-two-different-layers">Game feel vs juice: two different layers<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#game-feel-vs-juice-two-different-layers">#</a></h2>
+<p><strong>They live in different code.</strong> Conflating them is the common mistake.</p>
+<ul>
+<li>
+<strong>Game feel</strong> is the quality of <em>control</em> in the input→avatar loop: responsiveness, weight,
+momentum, camera. It lives in the <strong>movement/simulation code</strong>. Strip every visual effect and
+it’s still there (or still missing); you tune it with physics constants and input handling.</li>
+<li>
+<strong>Juice</strong> is the <em>feedback</em> layer, the avatar→audiovisual reaction fired on events to make an
+action satisfying and legible. It lives in the <strong>presentation layer</strong> (tweens, particles,
+signals→effects). Remove all of it and the mechanics are unchanged.</li>
+</ul>
+<p>One feels good in the <strong>hands</strong>, the other reads well to the <strong>eyes/ears</strong>. Build <strong>game feel
+first</strong> (core mechanics, so it belongs in the designer greybox); add <strong>juice second</strong> (cheap,
+works on grey cubes, right for a stakeholder prototype). See <code>level-design.md</code>
+“Presentation stages”.</p>
+<p><strong>Tier it Big → Medium → Small</strong> (risk order): <strong>Big feel</strong> = movement, jump, camera, combat. Get
+these right first; if they feel bad nothing else matters. <strong>Medium feel</strong> = landing effects, hit
+reactions, camera shake, recoil. <strong>Small feel</strong> = dust, sparks, shell casings, UI flourishes. Big
+feel is mostly <em>game feel</em> (control); Medium/Small are mostly <em>juice</em>. (See <code>level-design.md</code>
+“Big → Medium → Small”.)</p>
+<h3 id="game-feel-makes-the-control-feel-good-movement-code">Game feel makes the control feel good (movement code)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#game-feel-makes-the-control-feel-good-movement-code">#</a></h3>
+<p>Augment the platformer above; all verified against the live engine.</p>
+<p><strong>Weight via acceleration</strong> (instant velocity feels robotic):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">const</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">ACCEL</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1800.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">const</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">FRICTION</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">2200.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_axis</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"move_left"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_right"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> rate </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">ACCEL</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">!=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">else</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">FRICTION</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.x </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">move_toward</span><span style="--0:#E1E4E8;--1:#24292E">(velocity.x, dir </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> speed, rate </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta)</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#99A0A6;--1:#616972"># ... gravity + move_and_slide()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Coyote time + jump buffer + variable height</strong> (forgiving, responsive jumps):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> coyote_time </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.1</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> jump_buffer </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.1</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _coyote </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _buffered </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">_coyote </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> coyote_time </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_on_floor</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">else</span><span style="--0:#E1E4E8;--1:#24292E"> _coyote </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> delta</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">_buffered </span><span style="--0:#F97583;--1:#BF3441">-=</span><span style="--0:#E1E4E8;--1:#24292E"> delta</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">is_action_just_pressed</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"jump"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_buffered </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> jump_buffer</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> _buffered </span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> _coyote </span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">:           </span><span style="--0:#99A0A6;--1:#616972"># buffered press + recently grounded</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.y </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> jump_velocity</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_buffered </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_coyote </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">is_action_just_released</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"jump"</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> velocity.y </span><span style="--0:#F97583;--1:#BF3441">&#x3C;</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.y </span><span style="--0:#F97583;--1:#BF3441">*=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.4</span><span style="--0:#E1E4E8;--1:#24292E">                            </span><span style="--0:#99A0A6;--1:#616972"># variable height: cut the rise short</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Midair (double) jump</strong> (aerial correction that consumes a charge, refilled on landing):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> max_air_jumps </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> air_jump_velocity </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#79B8FF;--1:#005CC5">340.0</span><span style="--0:#E1E4E8;--1:#24292E">   </span><span style="--0:#99A0A6;--1:#616972"># weaker than the ground jump keeps commitment</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _air_jumps </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># inside _physics_process, after the coyote/buffer ground jump:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_on_floor</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_air_jumps </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> max_air_jumps</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">elif</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">is_action_just_pressed</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"jump"</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> _air_jumps </span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.y </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> air_jump_velocity</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_air_jumps </span><span style="--0:#F97583;--1:#BF3441">-=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Layering: <strong>cutoff shapes</strong> the arc (micro), the <strong>midair jump rescues</strong> it (macro), coyote time
+makes the <em>first</em> jump reliable so the second stays a deliberate tool, and the buffer keeps fast
+land→jump→air-jump chains consistent. To preserve high-stakes jumps, constrain it: lower
+<code>air_jump_velocity</code>, one charge, or gate it as a progression unlock (flip <code>max_air_jumps</code> from a
+pickup). Level design: midair jump enables <strong>commit-vs-correct</strong> patterns such as gaps the first
+jump almost clears, layered vertical routes, and rescue ledges under hazards.</p>
+<p><strong>Air control</strong> (steering after takeoff, since a second jump is only fair if you can aim it):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> air_accel </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1100.0</span><span style="--0:#E1E4E8;--1:#24292E">           </span><span style="--0:#99A0A6;--1:#616972"># &#x3C; ground ACCEL: drifty but steerable</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> rate </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> (</span><span style="--0:#79B8FF;--1:#005CC5">ACCEL</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_on_floor</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">else</span><span style="--0:#E1E4E8;--1:#24292E"> air_accel) </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">!=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">else</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">FRICTION</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Asymmetric gravity</strong> (a snappier arc: float up, fall fast):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">velocity.y </span><span style="--0:#F97583;--1:#BF3441">+=</span><span style="--0:#E1E4E8;--1:#24292E"> (fall_gravity </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> velocity.y </span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">else</span><span style="--0:#E1E4E8;--1:#24292E"> rise_gravity) </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Camera that follows with weight</strong>, using built-in smoothing (don’t hand-roll a lerp):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type Camera2D --name Cam --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set --node-path Cam --properties '{"position_smoothing_enabled":true,"position_smoothing_speed":8.0}'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>(<code>position_smoothing_speed</code> confirmed on <code>Camera2D</code>; for lookahead, offset the camera toward the
+<code>velocity.x</code> direction.) Also game feel, not juice: read input every frame, snappy turnarounds,
+sub-pixel movement, low latency. The 3D third-person equivalent is <strong><code>SpringArm3D</code></strong>: parent the
+<code>Camera3D</code> to it and set <code>length</code>. The arm raycasts back from the pivot and shortens when
+geometry intrudes, so the camera never clips walls (<code>margin</code> pads the hit;
+<code>add_excluded_object</code> ignores the player’s own collider).</p>
+<h3 id="juice-makes-the-action-satisfying-presentation-fired-on-events">Juice makes the action satisfying (presentation, fired on events)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#juice-makes-the-action-satisfying-presentation-fired-on-events">#</a></h3>
+<p>None of these need final art, since they work on cubes and spheres. Fire them from gameplay
+<strong>signals</strong>.</p>
+<p><strong>Squash &#x26; stretch</strong> (the workhorse for jump, land, hit, and collect):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">pop</span><span style="--0:#E1E4E8;--1:#24292E">(sx: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">, sy: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">, t :</span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.12</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> tw </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">create_tween</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">tw.</span><span style="--0:#B392F0;--1:#6F42C1">tween_property</span><span style="--0:#E1E4E8;--1:#24292E">(sprite, </span><span style="--0:#9ECBFF;--1:#032F62">"scale"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">(sx, sy), t </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.4</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">tw.</span><span style="--0:#B392F0;--1:#6F42C1">tween_property</span><span style="--0:#E1E4E8;--1:#24292E">(sprite, </span><span style="--0:#9ECBFF;--1:#032F62">"scale"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">ONE</span><span style="--0:#E1E4E8;--1:#24292E">, t </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.6</span><span style="--0:#E1E4E8;--1:#24292E">).</span><span style="--0:#B392F0;--1:#6F42C1">set_trans</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">Tween</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">TRANS_BACK</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># jump: pop(0.7, 1.3)    land: pop(1.3, 0.7)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Combat-VFX shader grammar</strong> (from a shipped commercial deck-builder’s 2D VFX library, the
+system behind every impact/burst/ring effect, built on <code>GPUParticles2D</code> + <code>canvas_item</code> shaders):</p>
+<ul>
+<li>
+<strong>Lifetime drives everything</strong>. In the shader, <code>INSTANCE_CUSTOM.y / INSTANCE_CUSTOM.w</code> is the
+particle’s 0→1 age; sample <strong>authored 1D curve textures</strong> at that value (<code>CurveTexture</code> for
+erosion threshold, flipbook frame, hue shift) instead of hardcoding math, so artists tune
+curves rather than code.</li>
+<li>
+<strong>Grayscale + LUT</strong>. Particle textures are grayscale masks; color comes from
+<code>texture(lut, mask.rr)</code>, so one texture serves every palette, recolored per effect.</li>
+<li>
+<strong>Erosion dissolve</strong>: <code>smoothstep(threshold, threshold + softness, noise.r)</code> with the threshold
+read from the lifetime curve. That is the standard burn-away for smoke/impact sprites.</li>
+<li>
+<strong>Flipbook UVs in-shader</strong> (grid size + frame from lifetime, per-instance offset via
+<code>INSTANCE_CUSTOM.z</code> so instances desync).</li>
+<li>
+<strong>Polar UV remap</strong> (<code>radius, angle</code> from center, optional twist) turns any linear gradient into
+rings and radial shockwaves.</li>
+<li>
+<strong>Screen distortion</strong>: offset <code>hint_screen_texture</code> UVs along the direction to the sprite’s
+center, masked by the particle texture, with intensity riding the particle’s <strong>color alpha</strong>,
+so the particle system animates the shader parameter for free. When a shader must read what was
+drawn <em>below it</em> mid-frame (refraction over a specific region, frosted panels), place a
+<code>BackBufferCopy</code> node above it in draw order, which snapshots the backbuffer (<code>copy_mode</code>
+rect or viewport) so <code>hint_screen_texture</code> reads are defined at that point.</li>
+<li>
+<strong>CanvasGroup</strong> renders its children as one image first: fade a whole multi-sprite character
+with a single <code>self_modulate</code> alpha (no per-part overlap artifacts), or run one outline/
+silhouette shader over the merged shape (pad <code>fit_margin</code> so the outline isn’t clipped).</li>
+</ul>
+<p><strong>Hit-stop</strong> (freeze a few frames on impact, huge for perceived weight):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">hit_stop</span><span style="--0:#E1E4E8;--1:#24292E">(seconds :</span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.08</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">Engine</span><span style="--0:#E1E4E8;--1:#24292E">.time_scale </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#99A0A6;--1:#616972"># 4th arg ignore_time_scale=true so the timer still ticks while frozen (verified signature):</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">await</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">create_timer</span><span style="--0:#E1E4E8;--1:#24292E">(seconds, </span><span style="--0:#79B8FF;--1:#005CC5">true</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">false</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">true</span><span style="--0:#E1E4E8;--1:#24292E">).timeout</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">Engine</span><span style="--0:#E1E4E8;--1:#24292E">.time_scale </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Screen shake</strong> (on a <code>Camera2D</code>, decaying):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _shake </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">add_shake</span><span style="--0:#E1E4E8;--1:#24292E">(amount :</span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">6.0</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">: _shake </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">maxf</span><span style="--0:#E1E4E8;--1:#24292E">(_shake, amount)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_process</span><span style="--0:#E1E4E8;--1:#24292E">(delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">offset </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">randf_range</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">_shake, _shake), </span><span style="--0:#B392F0;--1:#6F42C1">randf_range</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">_shake, _shake))</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">_shake </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">move_toward</span><span style="--0:#E1E4E8;--1:#24292E">(_shake, </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">40.0</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Others, same spirit. <strong>Particle burst</strong>: a <code>GPUParticles2D</code> with <code>one_shot=true</code>,
+<code>emitting=true</code> at the event, freed on finish. <strong>Hit flash</strong> is a shader that mixes albedo→white
+by a uniform you tween 1→0 (plain <code>modulate</code> <em>multiplies</em>, so it can’t turn a textured sprite
+uniformly white). <strong>Screen flash</strong> is a full-rect <code>ColorRect</code> on a top <code>CanvasLayer</code> with alpha
+tweened down. <strong>Floating text</strong> is a <code>Label</code> that tweens up and fades. <strong>Sound on every action</strong>
+counts too, and even a placeholder beep sells the feedback.</p>
+<h3 id="a-reusable-stack-build-once">A reusable stack (build once)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#a-reusable-stack-build-once">#</a></h3>
+<p>A <code>Juice</code> <strong>autoload</strong> exposing <code>hit_stop()</code>, <code>add_shake()</code>, <code>flash()</code>, <code>spawn_text()</code> so any scene
+calls <code>Juice.hit_stop()</code> with no wiring; drive it from signals (<code>HealthComponent.died</code> → shake +
+flash; <code>Coin.collected</code> → pop + particles + sound). Keep <strong>game-feel constants as <code>@export</code>s</strong> on
+the entity so they tune in the inspector. See <code>gdscript-architecture.md</code> for the autoload-service
+pattern and <code>level-design.md</code> for which layer to add when.</p>
+<h2 id="component-pattern-health-example">Component pattern (health example)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#component-pattern-health-example">#</a></h2>
+<p>A reusable <code>HealthComponent</code> scene (root <code>Node</code>, a script), instanced under any entity:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">class_name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">HealthComponent</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Node</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">signal</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">health_changed</span><span style="--0:#E1E4E8;--1:#24292E">(current: </span><span style="--0:#B392F0;--1:#6F42C1">int</span><span style="--0:#E1E4E8;--1:#24292E">, max_health: </span><span style="--0:#B392F0;--1:#6F42C1">int</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">signal</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">died</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> max_health: </span><span style="--0:#B392F0;--1:#6F42C1">int</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">10</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> health: </span><span style="--0:#B392F0;--1:#6F42C1">int</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">health </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> max_health</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">take_damage</span><span style="--0:#E1E4E8;--1:#24292E">(amount: </span><span style="--0:#B392F0;--1:#6F42C1">int</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">health </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">clampi</span><span style="--0:#E1E4E8;--1:#24292E">(health </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> amount, </span><span style="--0:#79B8FF;--1:#005CC5">0</span><span style="--0:#E1E4E8;--1:#24292E">, max_health)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">health_changed.</span><span style="--0:#B392F0;--1:#6F42C1">emit</span><span style="--0:#E1E4E8;--1:#24292E">(health, max_health)</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> health </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">died.</span><span style="--0:#B392F0;--1:#6F42C1">emit</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Instance it under the player/enemy (<code>scene.instance</code> or <code>node.add --type HealthComponent</code>
+once it has a <code>class_name</code>), then wire <code>died</code> to a handler with <code>node.connect</code>. The HUD
+connects to <code>health_changed</code>. Same idea for <code>HurtboxComponent</code> (an <code>Area2D</code> that detects a
+<code>Hitbox</code> and calls <code>take_damage</code>).</p>
+<h2 id="state-machine">State machine<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#state-machine">#</a></h2>
+<p>Simple AI/player states: enum + <code>match</code> in <code>_physics_process</code>.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">enum</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">State</span><span style="--0:#E1E4E8;--1:#24292E"> { </span><span style="--0:#79B8FF;--1:#005CC5">IDLE</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">CHASE</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">ATTACK</span><span style="--0:#E1E4E8;--1:#24292E"> }</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> state: </span><span style="--0:#B392F0;--1:#6F42C1">State</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">State</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">IDLE</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">match</span><span style="--0:#E1E4E8;--1:#24292E"> state:</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#B392F0;--1:#6F42C1">State</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">IDLE</span><span style="--0:#E1E4E8;--1:#24292E">:   </span><span style="--0:#B392F0;--1:#6F42C1">_do_idle</span><span style="--0:#E1E4E8;--1:#24292E">(delta)</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#B392F0;--1:#6F42C1">State</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">CHASE</span><span style="--0:#E1E4E8;--1:#24292E">:  </span><span style="--0:#B392F0;--1:#6F42C1">_do_chase</span><span style="--0:#E1E4E8;--1:#24292E">(delta)</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#B392F0;--1:#6F42C1">State</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">ATTACK</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#B392F0;--1:#6F42C1">_do_attack</span><span style="--0:#E1E4E8;--1:#24292E">(delta)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Three enemy/encounter shapes worth keeping (from shipped-shooter devlogs). <strong>Onboarding aggro</strong>
+has intro enemies idle until provoked (proximity <em>or</em> first shot), giving new players a
+low-pressure window. <strong>Boss phases gated by counts and thresholds, not timers</strong>: “after the
+turret fires 3 times, unlock the blast; below half HP, swap to ramming + homing” reads as
+telegraphed escalation and survives pause/lag where timelines drift. <strong>The charge ultimate</strong>
+takes N seconds of holding to charge, with a massive payoff (screen-wipe) at a real resource
+cost (1 HP), and one authored risk knob: either damage interrupts the charge <em>or</em> charging
+grants invulnerability, never both. Every number here is an <code>@export</code>.</p>
+<p>For complex behavior, go node-based: a <code>StateMachine</code> node with a child <code>Node</code> per state;
+the machine calls <code>enter()/update()/exit()</code> and switches <code>current</code>. The full pattern, with the
+<code>transition</code> signal contract, is in <code>topdown-2d.md</code>. (Godot also has <code>AnimationTree</code> state
+machines for <em>animation</em>, reached with <code>anim_tree.*</code>; expression-driven recipe in
+<code>platformer-2d.md</code>.)</p>
+<h3 id="turn-based-match-loop--cpu-personalities">Turn-based match loop + CPU personalities<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#turn-based-match-loop--cpu-personalities">#</a></h3>
+<p>For alternating-turn games (dice/card duels), the loop is a handful of flags, not a framework:
+<code>_turn</code> (“player”/“cpu”), per-side <code>_done</code> flags recomputed from board state each pass
+(<code>played >= cap or hand empty</code>), one <code>_busy</code> input lock, and a single <code>_advance_turn()</code> that
+resolves when both sides are done. Give the CPU a <strong>personality drawn per match</strong>, an enum of
+<em>picking strategies</em> over a shared <code>gain(piece)</code> function (greedy = max, balanced = median,
+adaptive = smallest that retakes the lead else shed the lowest, gambler = random). Personality
+decides <em>which</em> piece, and the rolls stay pure luck, so the CPU never rigs. Rank by <strong>gain, not
+raw value</strong> (a strike is worth <code>min(strike, their_total)</code>, so never fire a -6 at an empty
+board), and estimate conservatively so the CPU holds its bombs. Gate narration on information: name the
+leader only when the mode doesn’t conceal totals. Full worked example in <code>ui-polish-2d.md</code>’s
+source study; UI feel in that doc’s juice grammar.</p>
+<h2 id="entity-families-standardize-the-root-share-the-hurtbox">Entity families: standardize the root, share the hurtbox<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#entity-families-standardize-the-root-share-the-hurtbox">#</a></h2>
+<p>A war story that repeats across devlogs: enemies prototyped ad hoc end up with mixed roots
+(<code>CharacterBody2D</code> here, <code>Area2D</code> there, <code>StaticBody2D</code> somewhere else) and suddenly damage is
+inconsistent: some never register hits, some take double. Two rules prevent it:</p>
+<ul>
+<li>
+<strong>One root type per family</strong>. Everything that shares behavior (“takes damage”) shares a root
+type and child layout, decided the moment the <em>second</em> variant exists. Prefer <code>Area2D</code> roots
+for enemies that don’t need physics resolution, which is cheaper than <code>CharacterBody2D</code>.</li>
+<li>
+<strong>One generic hurtbox scene</strong> (an <code>Area2D</code> child) that only detects and forwards to the
+root’s <code>take_damage()</code>; the root owns health. One shared script, not N per-enemy copies. It is
+the same hit/hurt/damage component split as <code>topdown-2d.md</code>.
+Prototype fast and messy to find the fun, then run the consistency refactor once patterns
+emerge, and <em>do</em> run it.</li>
+</ul>
+<h2 id="content-as-data-tres-resources-or-json-sidecars">Content as data: <code>.tres</code> resources or JSON sidecars<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#content-as-data-tres-resources-or-json-sidecars">#</a></h2>
+<p>The Principles bullet says stats and items live in data, and <code>Resource</code> types are the Godot-native
+way to do it: <code>class_name EnemyData extends Resource</code> with <code>@export</code> fields, one <code>.tres</code> per
+enemy, edited in the inspector, type-checked at load.</p>
+<p>A shipped alternative is worth knowing: <strong>one JSON sidecar per content item, scanned at boot into
+an id-keyed dictionary, with a factory autoload instantiating from it.</strong> The scan walks a content
+root, parses each <code>.json</code>, resolves any path-valued field to a loaded resource once, and keys the
+record by <code>"&#x3C;type>_&#x3C;id>"</code>. Callers ask the registry by id and never load by string.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Node</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972">## Boot-time scan of the JSON sidecars under content/, keyed by "&#x3C;type>_&#x3C;id>".</span></div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972">## Path-valued fields are resolved to loaded resources once, here, so callers</span></div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972">## never load by string.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">const</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">ROOTS</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> {</span><span style="--0:#9ECBFF;--1:#032F62">"enemy"</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">"res://content/enemies"</span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">const</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">RESOURCE_FIELDS</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> [</span><span style="--0:#9ECBFF;--1:#032F62">"scene"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"icon"</span><span style="--0:#E1E4E8;--1:#24292E">]</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> entries: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> {}</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> type </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">ROOTS</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> path </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_json_files</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">ROOTS</span><span style="--0:#E1E4E8;--1:#24292E">[type]):</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> record: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">JSON</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">parse_string</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">FileAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_file_as_string</span><span style="--0:#E1E4E8;--1:#24292E">(path))</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> record </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">null</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">or</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> record.</span><span style="--0:#B392F0;--1:#6F42C1">has</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"id"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#B392F0;--1:#6F42C1">push_error</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"content sidecar </span><span style="--0:#79B8FF;--1:#005CC5">%s</span><span style="--0:#9ECBFF;--1:#032F62"> has no id"</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">%</span><span style="--0:#E1E4E8;--1:#24292E"> path)</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">continue</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> field </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">RESOURCE_FIELDS</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> record.</span><span style="--0:#B392F0;--1:#6F42C1">has</span><span style="--0:#E1E4E8;--1:#24292E">(field):</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">          </span></span><span style="--0:#E1E4E8;--1:#24292E">record[field] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">load</span><span style="--0:#E1E4E8;--1:#24292E">(record[field])</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">      </span></span><span style="--0:#E1E4E8;--1:#24292E">entries[</span><span style="--0:#9ECBFF;--1:#032F62">"</span><span style="--0:#79B8FF;--1:#005CC5">%s</span><span style="--0:#9ECBFF;--1:#032F62">_</span><span style="--0:#79B8FF;--1:#005CC5">%s</span><span style="--0:#9ECBFF;--1:#032F62">"</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">%</span><span style="--0:#E1E4E8;--1:#24292E"> [type, record[</span><span style="--0:#9ECBFF;--1:#032F62">"id"</span><span style="--0:#E1E4E8;--1:#24292E">]]] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> record</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_record</span><span style="--0:#E1E4E8;--1:#24292E">(uid: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> entries.</span><span style="--0:#B392F0;--1:#6F42C1">get</span><span style="--0:#E1E4E8;--1:#24292E">(uid, {}).</span><span style="--0:#B392F0;--1:#6F42C1">duplicate</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">true</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_json_files</span><span style="--0:#E1E4E8;--1:#24292E">(root: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Array</span><span style="--0:#E1E4E8;--1:#24292E">[</span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">]:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> found: </span><span style="--0:#B392F0;--1:#6F42C1">Array</span><span style="--0:#E1E4E8;--1:#24292E">[</span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> []</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> name </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">DirAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_files_at</span><span style="--0:#E1E4E8;--1:#24292E">(root):</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> name.</span><span style="--0:#B392F0;--1:#6F42C1">ends_with</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">".json"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">      </span></span><span style="--0:#E1E4E8;--1:#24292E">found.</span><span style="--0:#B392F0;--1:#6F42C1">append</span><span style="--0:#E1E4E8;--1:#24292E">(root.</span><span style="--0:#B392F0;--1:#6F42C1">path_join</span><span style="--0:#E1E4E8;--1:#24292E">(name))</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> name </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">DirAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_directories_at</span><span style="--0:#E1E4E8;--1:#24292E">(root):</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">found.</span><span style="--0:#B392F0;--1:#6F42C1">append_array</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">_json_files</span><span style="--0:#E1E4E8;--1:#24292E">(root.</span><span style="--0:#B392F0;--1:#6F42C1">path_join</span><span style="--0:#E1E4E8;--1:#24292E">(name)))</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> found</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>get_record</code> hands back a deep copy, because a caller that mutates a shared record poisons every
+later spawn of that type. A companion factory autoload turns a record into a typed data object
+(<code>EnemyData.new(record)</code>), letting a sidecar name its own class in a <code>"class"</code> field, which is how
+one registry serves content with different behaviour.</p>
+<p><strong>Build (verified live).</strong> Two sidecars, one autoload, read back from the running game:</p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="sh"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">script</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">create</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">res://content/content_db.gd</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--content</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"..."</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">project</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">add-autoload</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">ContentDB</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">res://content/content_db.gd</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">editor</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">reload</span><span style="--0:#E1E4E8;--1:#24292E"> &#x26;&#x26; </span><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">scene</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">play</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--mode</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">main</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">runtime</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">eval</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--code</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'var db = get_node("/root/ContentDB")</span></div></div><div class="ec-line"><div class="code"><span style="--0:#9ECBFF;--1:#032F62">var brute = db.get_record("enemy_brute")</span></div></div><div class="ec-line"><div class="code"><span style="--0:#9ECBFF;--1:#032F62">emit({"keys": db.entries.keys(), "brute_health": brute["stats"]["max_health"],</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#9ECBFF;--1:#032F62">  </span></span><span style="--0:#9ECBFF;--1:#032F62">"scene_is_resource": brute["scene"] is PackedScene})'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># { "keys": ["enemy_brute", "enemy_grunt"], "brute_health": 220, "scene_is_resource": true }</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>The trade, in four axes.</strong> JSON sidecars are git-diffable (a balance change is a readable diff,
+where a <code>.tres</code> diff is noisy), and moddable (a player drops a file in a folder and the scan finds
+it). The cost is that authoring happens in a text editor with no inspector, no dropdowns, and no
+autocompletion of field names, and that nothing is type-checked: a typo in a key is a runtime
+<code>push_error</code> at best and a silent default at worst. <code>.tres</code> inverts all four. Pick sidecars when
+content volume and moddability dominate, <code>.tres</code> when a designer is doing the authoring.</p>
+<p>Either way, validate on load. The scan above rejects a record with no <code>id</code>; a project with many
+fields should check the required ones by name at boot rather than discovering a missing key during
+a fight.</p>
+<h2 id="spawning--projectiles">Spawning &#x26; projectiles<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#spawning--projectiles">#</a></h2>
+<p>A <code>Bullet</code> is its own scene; the shooter instances it at runtime and gives it velocity.
+Don’t pool prematurely: pooling pays off only at hundreds of concurrent projectiles, so pool the
+player’s rapid-fire stream and not the boss’s occasional volley. <strong>Hitscan vs projectile is a feel
+choice</strong>: an instant raycast reads as “a real gun” (miniguns, rifles); a travelling node reads
+as energy/arcing shots.</p>
+<p><strong>Offscreen lifecycle</strong> (APIs verified live): give every projectile/pickup a
+<code>VisibleOnScreenNotifier2D</code> child and <code>queue_free()</code> on its <code>screen_exited</code> signal. That is the
+standard leak-proof despawn, with no manual bounds math. For persistent world objects that should
+<em>sleep</em> offscreen (patrolling enemies, animated props), <code>VisibleOnScreenEnabler2D</code> pauses the
+target’s processing automatically (<code>enable_node_path</code>, mode inherit/always/when-paused), which is
+free culling with no code. The same pair exists as <code>VisibleOnScreenNotifier3D</code>/<code>Enabler3D</code>.</p>
+<p><strong>Specialty 3D physics</strong> (teach-level; all reachable via <code>node.add</code> + <code>node.set</code>, verified):
+<code>VehicleBody3D</code> + one <code>VehicleWheel3D</code> per wheel is a complete arcade car. Per wheel set
+<code>use_as_traction</code>/<code>use_as_steering</code>, <code>wheel_radius</code>, suspension (<code>suspension_travel</code>,
+<code>wheel_friction_slip</code>); drive by writing <code>engine_force</code>/<code>steering</code>/<code>brake</code> on the body each
+frame. <code>SoftBody3D</code> turns a mesh into cloth/jelly: pin anchor vertices with
+<code>set_point_pinned(i, true)</code>, and raise <code>simulation_precision</code> before blaming the solver.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> bullet: </span><span style="--0:#B392F0;--1:#6F42C1">PackedScene</span><span style="--0:#E1E4E8;--1:#24292E">   </span><span style="--0:#99A0A6;--1:#616972"># set in inspector to res://entities/bullet.tscn</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">shoot</span><span style="--0:#E1E4E8;--1:#24292E">(dir: </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> b </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> bullet.</span><span style="--0:#B392F0;--1:#6F42C1">instantiate</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">b.global_position </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> global_position</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">b.velocity </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">600.0</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().current_scene.</span><span style="--0:#B392F0;--1:#6F42C1">add_child</span><span style="--0:#E1E4E8;--1:#24292E">(b)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The bullet <code>queue_free()</code>s on lifetime/collision. For many bullets, <strong>pool</strong> them (keep a
+free-list, hide+reuse instead of instance/free each shot).</p>
+<h2 id="pickups--triggers-area2d">Pickups &#x26; triggers (Area2D)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#pickups--triggers-area2d">#</a></h2>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Area2D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">signal</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">collected</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">body_entered.</span><span style="--0:#B392F0;--1:#6F42C1">connect</span><span style="--0:#E1E4E8;--1:#24292E">(_on_body_entered)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_on_body_entered</span><span style="--0:#E1E4E8;--1:#24292E">(body: </span><span style="--0:#B392F0;--1:#6F42C1">Node</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> body.</span><span style="--0:#B392F0;--1:#6F42C1">is_in_group</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"player"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">collected.</span><span style="--0:#B392F0;--1:#6F42C1">emit</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#B392F0;--1:#6F42C1">queue_free</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Build: <code>node add --type Area2D</code>, add a <code>CollisionShape2D</code> child with a shape. <strong>Make the
+shape generous</strong>, because tiny radii are nearly impossible to hit with simulated input.</p>
+<h2 id="input-setup">Input setup<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#input-setup">#</a></h2>
+<p>Define actions once, drive by action (not raw keys) so remapping/controllers work:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">input_map set-action --action jump --events '[{"type":"key","keycode":"KEY_SPACE"}]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">input_map set-action --action move_left --events '[{"type":"key","keycode":"KEY_A"}]'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Then in playtesting prefer <code>input action --action jump</code> over <code>input key</code>.</p>
+<p>Mobile: <code>TouchScreenButton</code> (a 2D node, not a Control) fires an input-map <code>action</code> from a
+screen region and can multi-press alongside other touches. Set
+<code>visibility_mode = TOUCHSCREEN_ONLY</code> so on-screen controls vanish on desktop. Because it maps
+to actions, the same gameplay code serves both inputs.</p>
+<h2 id="ui--hud-is-signal-bound-never-polling">UI / HUD is signal-bound, never polling<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#ui--hud-is-signal-bound-never-polling">#</a></h2>
+<p><code>CanvasLayer</code> → <code>Control</code> nodes. The HUD listens to gameplay signals and updates; it does
+not read player state every frame.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Control</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@onready</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> bar: </span><span style="--0:#B392F0;--1:#6F42C1">ProgressBar</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">%</span><span style="--0:#79B8FF;--1:#005CC5">HealthBar</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">bind</span><span style="--0:#E1E4E8;--1:#24292E">(hp: </span><span style="--0:#B392F0;--1:#6F42C1">HealthComponent</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">hp.health_changed.</span><span style="--0:#B392F0;--1:#6F42C1">connect</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E">(cur, mx): bar.value </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">(cur) </span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E"> mx </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">100.0</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Lay out with anchors (<code>node set-anchor --preset ...</code>), style with <code>theme.*</code>. For UI motion
+that containers would otherwise stomp, Godot has <code>offset_transform_*</code> on <code>Control</code>
+(confirm with <code>engine class-info --class Control --filter offset_transform</code>).</p>
+<h2 id="groups-for-broadcast">Groups for broadcast<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#groups-for-broadcast">#</a></h2>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">add_to_group</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"enemies"</span><span style="--0:#E1E4E8;--1:#24292E">)            </span><span style="--0:#99A0A6;--1:#616972"># in _ready</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">call_group</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"enemies"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"pause"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> e </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">get_nodes_in_group</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"enemies"</span><span style="--0:#E1E4E8;--1:#24292E">): ...</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Manage via <code>node.set_groups</code> / <code>node.find_in_group</code>.</p>
+<h2 id="timers--cooldowns">Timers &#x26; cooldowns<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#timers--cooldowns">#</a></h2>
+<ul>
+<li>One-shot delay: <code>await get_tree().create_timer(0.5).timeout</code>.</li>
+<li>Repeating/inspectorable: a <code>Timer</code> node with <code>timeout</code> connected.</li>
+<li>Cooldown gate: <code>var _can_fire := true</code> flipped by a timer.</li>
+</ul>
+<h2 id="animation">Animation<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#animation">#</a></h2>
+<ul>
+<li>2D frames / property tracks: <code>AnimationPlayer</code> (<code>animation.*</code>). Spritesheet characters:
+<code>scene2d add-animated-sprite --texture sheet.png --hframes 4 --vframes 4 --autoplay walk --animations '{"walk":{"frames":[0,1,2,3],"fps":8}}'</code>, where one call builds the <code>SpriteFrames</code>
+(frame indices are row-major over the grid).</li>
+<li>Blending/state (idle↔run↔jump): <code>AnimationTree</code> + state machine (<code>anim_tree.*</code>).</li>
+<li>
+<strong>Locomotion blend spaces</strong> are the other <code>AnimationTree</code> tool. A <strong>BlendSpace1D</strong>
+interpolates poses along one axis for speed-based idle→walk→run; a <strong>BlendSpace2D</strong> blends
+across a plane for 8-way top-down locomotion, where <code>blend_position</code> is the movement <code>Vector2</code>.
+Neighbouring clips cross-fade on their own; there are no per-clip transitions to author.
+<ul>
+<li>
+<strong>Build a 2D 8-way blend as the tree root</strong>. The <code>anim_tree</code> group authors blend spaces
+directly (<code>--root-type blend_space_2d</code> on <code>create</code>, then one <code>set-blend-point</code> per clip;
+every call verified live, <code>walk_*</code> clips already on an <code>AnimationPlayer</code>):
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">anim-tree create --node-path . --anim-player AnimationPlayer --name Tree \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--root-type blend_space_2d --sync true --min-space "Vector2(-1,-1)" --max-space "Vector2(1,1)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">anim-tree set-blend-point --node-path Tree --animation idle       --pos-x 0  --pos-y 0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">anim-tree set-blend-point --node-path Tree --animation walk_right  --pos-x 1  --pos-y 0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">anim-tree set-blend-point --node-path Tree --animation walk_up     --pos-x 0  --pos-y -1</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># ...left / down / four diagonals; anim-tree get-structure --node-path Tree reads them back</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene save</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<code>set-blend-point</code> wraps the named clip in an <code>AnimationNodeAnimation</code> at the blend-space
+position (2D: <code>--pos-x</code>/<code>--pos-y</code> or <code>--position "Vector2(x,y)"</code>; 1D: <code>--pos &#x3C;float></code>).
+<code>--sync true</code> sets the <code>AnimationNodeSync</code> flag both blend spaces carry, locking the
+blended clips to one shared playback ratio so a slow walk and a fast run don’t foot-slide;
+2D <code>--auto-triangles</code> (on by default) triangulates the points for you. The <strong>1D</strong> form is
+the same with <code>--root-type blend_space_1d</code> and float <code>--min-space</code>/<code>--max-space</code> (<code>0</code>→top
+speed). <code>remove-blend-point --index N</code> drops one. To nest the blend space inside a state
+machine instead of as the root, <code>add-state --state-type blend_space_2d --state-name Locomotion</code>, then target it with <code>set-blend-point --blend-space-state Locomotion</code>.</li>
+<li>
+<strong>Drive <code>blend_position</code> from velocity</strong> in <code>_physics_process</code>, the one axis a blend space
+exposes as a runtime parameter:
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@onready</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _tree: </span><span style="--0:#B392F0;--1:#6F42C1">AnimationTree</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">Tree</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(_delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_vector</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"move_left"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_right"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_up"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_down"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> speed</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">move_and_slide</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">!=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">ZERO</span><span style="--0:#E1E4E8;--1:#24292E">:                            </span><span style="--0:#99A0A6;--1:#616972"># hold last heading when stopped</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_tree.</span><span style="--0:#B392F0;--1:#6F42C1">set</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"parameters/blend_position"</span><span style="--0:#E1E4E8;--1:#24292E">, dir)    </span><span style="--0:#99A0A6;--1:#616972"># 2D: Vector2</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#99A0A6;--1:#616972"># 1D speed variant: _tree.set("parameters/blend_position", velocity.length())</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+The path is <code>parameters/blend_position</code> when the blend space is the <strong>tree root</strong>. Nest it
+instead as a state named <code>Locomotion</code> in the state machine (so <code>jump</code>/<code>attack</code> still
+transition around it) and it becomes <code>parameters/Locomotion/blend_position</code>. Preview a pose
+at edit time with <code>anim-tree set-parameter --node-path Tree --parameter blend_position --value "Vector2(1,0)"</code>; confirm in-game with <code>runtime eval --code 'emit(get_node("Tree").get("parameters/blend_position"))'</code>.</li>
+</ul>
+</li>
+<li>
+<strong>3D character motion stack</strong> (the <code>SkeletonModifier3D</code> family, children of the
+<code>Skeleton3D</code>, run after animation each frame; all <code>node.add</code> + <code>node.set</code>, APIs verified):
+<code>LookAtModifier3D</code> turns a bone toward a <code>target_node</code> (heads and eyes; set <code>bone_name</code> +
+<code>forward_axis</code>); <code>TwoBoneIK3D</code> plants limbs (indexed settings: <code>setting_count = 1</code>, then
+<code>set_target_node(0, …)</code> + <code>set_pole_node(0, …)</code> for the elbow/knee direction, so one modifier
+can drive several limbs); <code>FABRIK3D</code>/<code>CCDIK3D</code>/<code>SplineIK3D</code> solve longer chains
+(tentacles, spines). <strong>Secondary motion</strong>: <code>SpringBoneSimulator3D</code> makes tails/hair/cloth
+bones lag and jiggle (<code>set_root_bone_name(0, …)</code>/<code>set_end_bone_name(0, …)</code> per chain), with
+<code>SpringBoneCollisionSphere3D/Capsule/Plane</code> children keeping them out of the body.
+<strong>Ragdolls</strong>: <code>PhysicalBoneSimulator3D</code> +  a <code>PhysicalBone3D</code> per major bone (generate via
+the editor’s Skeleton3D toolbar, then tune shapes); flip live with
+<code>physical_bones_start_simulation()</code> / <code>stop</code>, where death = animation off, simulation on.
+Modifier order matters: they apply top-to-bottom, so IK before spring bones.</li>
+<li>Cutout / skeletal 2D (verified live): <code>skeleton create-2d --bones '[{"name":"shoulder","position":[0,0]},{"name":"elbow","parent":"shoulder","position":[96,0]}]'</code> builds the <code>Bone2D</code> chain with rests; <code>skeleton skin-2d --node-path Rig --polygon-path Arm</code> auto-weights a <code>Polygon2D</code> by inverse distance (<code>--max-influences</code>, <code>--falloff</code>; explicit <code>--weights</code> per bone also accepted). Pose bones with plain <code>node.set</code> on <code>rotation_degrees</code>, bake a new bind pose with <code>set_rest_2d</code>, animate bone rotations with <code>animation.*</code> tracks. Chain-tip bones without children warn about length auto-calc, which is expected; set <code>length</code> if it matters.</li>
+<li>Juice (squash/stretch, punches, shake, hit-stop) is built with tweens; see <strong>Game feel vs
+juice</strong> above. Distinct from game feel (the control itself).</li>
+</ul>
+<h2 id="positional-audio-2d--3d">Positional audio (2D &#x26; 3D)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#positional-audio-2d--3d">#</a></h2>
+<p><code>AudioStreamPlayer</code> is flat (music, UI); <strong><code>AudioStreamPlayer2D</code> pans and attenuates by
+distance to the listener</strong> (the current <code>Camera2D</code>, or an <code>AudioListener2D</code>). The knobs that
+matter (verified live): <code>max_distance</code> (beyond it, silent; the default 2000px is small for
+zoomed-out games), <code>attenuation</code> (falloff exponent), <code>panning_strength</code>, <code>bus</code> (route world
+SFX to their own bus for the pause-menu duck, with <code>audio.*</code> commands managing buses), and
+<code>max_polyphony</code> (one player can voice N overlapping shots, so no per-shot player nodes).
+Positional audio is spatial <em>information</em>: an offscreen enemy you can hear approaching is
+gameplay, not polish.</p>
+<p><strong>3D</strong> (<code>AudioStreamPlayer3D</code>) swaps the model: <code>attenuation_model</code> (inverse / inverse-square /
+logarithmic / disabled) with <code>unit_size</code> scaling how fast falloff bites, <code>max_distance</code> as a
+hard cutoff (0 = audible forever, so set it; it’s also a perf cull), and optional
+<code>doppler_tracking</code> for fast movers. Same bus/polyphony discipline as 2D.</p>
+<h2 id="scene-management">Scene management<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#scene-management">#</a></h2>
+<p>A <code>SceneManager</code> autoload that wraps <code>get_tree().change_scene_to_file("res://...")</code> (with
+a fade) centralizes transitions. Register it with <code>project add-autoload</code>.</p>
+<h2 id="save--load">Save / load<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#save--load">#</a></h2>
+<p>Small saves: a <code>Resource</code> or JSON written to <code>user://</code>. Resource approach: a <code>SaveData</code>
+<code>class_name extends Resource</code>, <code>ResourceSaver.save(data, "user://save.tres")</code>.</p>
+<h2 id="networking-over-http-leaderboards-telemetry">Networking over HTTP (leaderboards, telemetry)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#networking-over-http-leaderboards-telemetry">#</a></h2>
+<p><code>HTTPRequest</code> is a <strong>node</strong>, not a blocking call: add one, fire <code>request()</code>, react to the
+<code>request_completed</code> signal. Signature (verified): <code>request_completed(result: int, response_code: int, headers: PackedStringArray, body: PackedByteArray)</code>, and
+<code>request(url, custom_headers, method, body)</code> returns an error you <strong>must</strong> check: a
+malformed URL never reaches the socket, so the signal never fires. Wrap it in a thin autoload
+with a <strong>serial queue</strong> (one request in flight); leaderboard posts and telemetry pings don’t
+need concurrency, and a queue makes ordering and retries trivial:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Node</span><span style="--0:#E1E4E8;--1:#24292E">   </span><span style="--0:#99A0A6;--1:#616972"># autoload "Net"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">signal</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">completed</span><span style="--0:#E1E4E8;--1:#24292E">(tag: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">, ok: </span><span style="--0:#B392F0;--1:#6F42C1">bool</span><span style="--0:#E1E4E8;--1:#24292E">, data: </span><span style="--0:#B392F0;--1:#6F42C1">Variant</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _http: </span><span style="--0:#B392F0;--1:#6F42C1">HTTPRequest</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _queue: </span><span style="--0:#B392F0;--1:#6F42C1">Array</span><span style="--0:#E1E4E8;--1:#24292E">[</span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E">] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> []</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _busy </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">false</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">_http </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">HTTPRequest</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">new</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">_http.use_threads </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">true</span><span style="--0:#E1E4E8;--1:#24292E">            </span><span style="--0:#99A0A6;--1:#616972"># desktop: run the transfer off the main thread</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">_http.timeout </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">10.0</span><span style="--0:#E1E4E8;--1:#24292E">                </span><span style="--0:#99A0A6;--1:#616972"># give up after 10s instead of hanging forever</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">add_child</span><span style="--0:#E1E4E8;--1:#24292E">(_http)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">_http.request_completed.</span><span style="--0:#B392F0;--1:#6F42C1">connect</span><span style="--0:#E1E4E8;--1:#24292E">(_on_completed)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">post_json</span><span style="--0:#E1E4E8;--1:#24292E">(url: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">, payload: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E">, tag :</span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">""</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">_queue.</span><span style="--0:#B392F0;--1:#6F42C1">push_back</span><span style="--0:#E1E4E8;--1:#24292E">({</span><span style="--0:#9ECBFF;--1:#032F62">"url"</span><span style="--0:#E1E4E8;--1:#24292E">: url, </span><span style="--0:#9ECBFF;--1:#032F62">"body"</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#B392F0;--1:#6F42C1">JSON</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">stringify</span><span style="--0:#E1E4E8;--1:#24292E">(payload), </span><span style="--0:#9ECBFF;--1:#032F62">"tag"</span><span style="--0:#E1E4E8;--1:#24292E">: tag})</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">_pump</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_pump</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> _busy </span><span style="--0:#F97583;--1:#BF3441">or</span><span style="--0:#E1E4E8;--1:#24292E"> _queue.</span><span style="--0:#B392F0;--1:#6F42C1">is_empty</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">return</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">_busy </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">true</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> job: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> _queue.</span><span style="--0:#B392F0;--1:#6F42C1">front</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> headers </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">PackedStringArray</span><span style="--0:#E1E4E8;--1:#24292E">([</span><span style="--0:#9ECBFF;--1:#032F62">"Content-Type: application/json"</span><span style="--0:#E1E4E8;--1:#24292E">])</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> err </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> _http.</span><span style="--0:#B392F0;--1:#6F42C1">request</span><span style="--0:#E1E4E8;--1:#24292E">(job[</span><span style="--0:#9ECBFF;--1:#032F62">"url"</span><span style="--0:#E1E4E8;--1:#24292E">], headers, </span><span style="--0:#B392F0;--1:#6F42C1">HTTPClient</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">METHOD_POST</span><span style="--0:#E1E4E8;--1:#24292E">, job[</span><span style="--0:#9ECBFF;--1:#032F62">"body"</span><span style="--0:#E1E4E8;--1:#24292E">])</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> err </span><span style="--0:#F97583;--1:#BF3441">!=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">OK</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#B392F0;--1:#6F42C1">_finish</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">false</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">null</span><span style="--0:#E1E4E8;--1:#24292E">)            </span><span style="--0:#99A0A6;--1:#616972"># never left the socket: drain and move on</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_on_completed</span><span style="--0:#E1E4E8;--1:#24292E">(result: </span><span style="--0:#B392F0;--1:#6F42C1">int</span><span style="--0:#E1E4E8;--1:#24292E">, code: </span><span style="--0:#B392F0;--1:#6F42C1">int</span><span style="--0:#E1E4E8;--1:#24292E">, _headers: </span><span style="--0:#B392F0;--1:#6F42C1">PackedStringArray</span><span style="--0:#E1E4E8;--1:#24292E">, body: </span><span style="--0:#B392F0;--1:#6F42C1">PackedByteArray</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> ok </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> result </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">HTTPRequest</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">RESULT_SUCCESS</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> code </span><span style="--0:#F97583;--1:#BF3441">>=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">200</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> code </span><span style="--0:#F97583;--1:#BF3441">&#x3C;</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">300</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> data: </span><span style="--0:#B392F0;--1:#6F42C1">Variant</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">null</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> ok:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">data </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">JSON</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">parse_string</span><span style="--0:#E1E4E8;--1:#24292E">(body.</span><span style="--0:#B392F0;--1:#6F42C1">get_string_from_utf8</span><span style="--0:#E1E4E8;--1:#24292E">())   </span><span style="--0:#99A0A6;--1:#616972"># null on malformed JSON, so check it</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">_finish</span><span style="--0:#E1E4E8;--1:#24292E">(ok, data)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_finish</span><span style="--0:#E1E4E8;--1:#24292E">(ok: </span><span style="--0:#B392F0;--1:#6F42C1">bool</span><span style="--0:#E1E4E8;--1:#24292E">, data: </span><span style="--0:#B392F0;--1:#6F42C1">Variant</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> job: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> _queue.</span><span style="--0:#B392F0;--1:#6F42C1">pop_front</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">_busy </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">false</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">completed.</span><span style="--0:#B392F0;--1:#6F42C1">emit</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">(job.</span><span style="--0:#B392F0;--1:#6F42C1">get</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"tag"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">""</span><span style="--0:#E1E4E8;--1:#24292E">)), ok, data)</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">_pump</span><span style="--0:#E1E4E8;--1:#24292E">()                             </span><span style="--0:#99A0A6;--1:#616972"># next in line</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Build: <code>project add-autoload --name Net --path res://systems/net.gd</code>, then call
+<code>Net.post_json("https://api.example.com/score", {"name": n, "score": s}, "leaderboard")</code>
+and listen on <code>Net.completed</code>. <strong>HTTPS just works on desktop</strong>. Godot ships Mozilla’s CA
+bundle, so <code>https://</code> validates against system certs with no setup (<code>set_tls_options</code> is only
+for certificate pinning or a private CA). <code>use_threads</code> keeps the transfer off the main
+thread on desktop; on other platforms confirm threading before enabling it.</p>
+<h2 id="measuring-performance-frame-delta-not-a-single-readout">Measuring performance (frame-delta, not a single readout)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#measuring-performance-frame-delta-not-a-single-readout">#</a></h2>
+<p>A single FPS / frame-time sample is noisy and misleading. Measure over a <strong>window</strong>: count
+frames advanced across a known interval and report an average <em>and</em> a worst frame. Be
+explicit about <strong>which world</strong> you’re sampling, because the running game and the editor viewport
+behave differently, and only the game’s number matters for “does it run well.”</p>
+<p><strong>Build (sample the running game over a window):</strong></p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene play --mode main</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># capture_frames already advances N frames at a fixed interval. Use it as the window:</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime capture-frames --count 60 --frame-interval 1</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># read engine timing from inside the game over that window:</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime eval --code '</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">var fps = Engine.get_frames_per_second()</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">var draw = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_DRAW_CALLS_IN_FRAME)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">var prims = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_TOTAL_PRIMITIVES_IN_FRAME)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">emit({"fps": fps, "draw_calls": draw, "primitives": prims})'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene stop</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Sample several times and keep the <strong>worst</strong> frame, not just the mean, because a stutter is what
+players feel. The <code>profiling</code> group exposes deeper monitors; confirm exact names with <code>engine class-info --class Performance</code> / <code>engine search --query RENDERING_INFO</code> against the live build before relying
+on them (the constants evolve between engine releases). Don’t trust the editor viewport’s frame rate
+as the game’s.</p>
+<h2 id="common-mistakes-to-avoid">Common mistakes to avoid<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#common-mistakes-to-avoid">#</a></h2>
+<ul>
+<li>One giant scene + one 1000-line script. Split into entity scenes + components.</li>
+<li>Movement/physics in <code>_process</code> instead of <code>_physics_process</code>.</li>
+<li>Polling another node’s state every frame instead of connecting a signal.</li>
+<li>
+<code>get_node("../../Thing")</code> chains. Use <code>@export</code>/<code>%unique</code>/groups.</li>
+<li>Hard-coding values in <code>_ready()</code> that should be <code>@export</code>s.</li>
+<li>Untyped GDScript.</li>
+<li>Forgetting <code>delta</code> (frame-rate-dependent movement).</li>
+<li>Confusing <strong>game feel</strong> (the control) with <strong>juice</strong> (the feedback), or shipping a prototype
+with neither. Game feel goes in the movement code; juice is fired on signals.</li>
+<li>Trusting remembered API signatures. Confirm against the running engine with <code>engine class-info</code>/<code>search</code>.</li>
+</ul>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/gdscript-style" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>GDScript style</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/project-structure" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Project structure</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#principles" data-toc="principles" data-scope-p33bl5ka>Principles</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#recommended-build-order-for-a-new-game" data-toc="recommended-build-order-for-a-new-game" data-scope-p33bl5ka>Recommended build order for a new game</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#top-down-movement-characterbody2d" data-toc="top-down-movement-characterbody2d" data-scope-p33bl5ka>Top-down movement (CharacterBody2D)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#platformer-movement" data-toc="platformer-movement" data-scope-p33bl5ka>Platformer movement</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#game-feel-vs-juice-two-different-layers" data-toc="game-feel-vs-juice-two-different-layers" data-scope-p33bl5ka>Game feel vs juice: two different layers</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#game-feel-makes-the-control-feel-good-movement-code" data-toc="game-feel-makes-the-control-feel-good-movement-code" data-scope-p33bl5ka>Game feel makes the control feel good (movement code)</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#juice-makes-the-action-satisfying-presentation-fired-on-events" data-toc="juice-makes-the-action-satisfying-presentation-fired-on-events" data-scope-p33bl5ka>Juice makes the action satisfying (presentation, fired on events)</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#a-reusable-stack-build-once" data-toc="a-reusable-stack-build-once" data-scope-p33bl5ka>A reusable stack (build once)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#component-pattern-health-example" data-toc="component-pattern-health-example" data-scope-p33bl5ka>Component pattern (health example)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#state-machine" data-toc="state-machine" data-scope-p33bl5ka>State machine</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#turn-based-match-loop--cpu-personalities" data-toc="turn-based-match-loop--cpu-personalities" data-scope-p33bl5ka>Turn-based match loop + CPU personalities</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#entity-families-standardize-the-root-share-the-hurtbox" data-toc="entity-families-standardize-the-root-share-the-hurtbox" data-scope-p33bl5ka>Entity families: standardize the root, share the hurtbox</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#content-as-data-tres-resources-or-json-sidecars" data-toc="content-as-data-tres-resources-or-json-sidecars" data-scope-p33bl5ka>Content as data: .tres resources or JSON sidecars</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#spawning--projectiles" data-toc="spawning--projectiles" data-scope-p33bl5ka>Spawning &amp; projectiles</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#pickups--triggers-area2d" data-toc="pickups--triggers-area2d" data-scope-p33bl5ka>Pickups &amp; triggers (Area2D)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#input-setup" data-toc="input-setup" data-scope-p33bl5ka>Input setup</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#ui--hud-is-signal-bound-never-polling" data-toc="ui--hud-is-signal-bound-never-polling" data-scope-p33bl5ka>UI / HUD is signal-bound, never polling</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#groups-for-broadcast" data-toc="groups-for-broadcast" data-scope-p33bl5ka>Groups for broadcast</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#timers--cooldowns" data-toc="timers--cooldowns" data-scope-p33bl5ka>Timers &amp; cooldowns</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#animation" data-toc="animation" data-scope-p33bl5ka>Animation</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#positional-audio-2d--3d" data-toc="positional-audio-2d--3d" data-scope-p33bl5ka>Positional audio (2D &amp; 3D)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#scene-management" data-toc="scene-management" data-scope-p33bl5ka>Scene management</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#save--load" data-toc="save--load" data-scope-p33bl5ka>Save / load</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#networking-over-http-leaderboards-telemetry" data-toc="networking-over-http-leaderboards-telemetry" data-scope-p33bl5ka>Networking over HTTP (leaderboards, telemetry)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#measuring-performance-frame-delta-not-a-single-readout" data-toc="measuring-performance-frame-delta-not-a-single-readout" data-scope-p33bl5ka>Measuring performance (frame-delta, not a single readout)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#common-mistakes-to-avoid" data-toc="common-mistakes-to-avoid" data-scope-p33bl5ka>Common mistakes to avoid</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

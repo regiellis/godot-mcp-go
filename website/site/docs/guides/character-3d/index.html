@@ -1,0 +1,570 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D character controllers · Swallowtail</title><meta name="description" content="One camera-relative movement core for FPS, third-person, and platformer, plus the floor contract and rigs.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="3D character controllers · Swallowtail">
+<meta property="og:description" content="One camera-relative movement core for FPS, third-person, and platformer, plus the floor contract and rigs.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link active" aria-current="page" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>3D character controllers</h1>
+<p class="page-desc" data-scope-ccykbmgk>One camera-relative movement core for FPS, third-person, and platformer, plus the floor contract and rigs.</p>
+</header>
+<p>How to build a <code>CharacterBody3D</code> controller the Godot way, driven from swallowtail: one
+movement core shared by all three genres, then the rig and feel that make each distinct.
+Verified live. Jump-<em>feel</em> timers (coyote, buffer, double, cutoff) are the 2D
+ones from <code>game-patterns.md</code>/<code>platformer-2d.md</code> with the vertical sign flipped. This doc
+reuses them rather than re-deriving them. Read <code>spatial</code> discipline in <code>SKILL.md</code> before
+placing anything: seat the body with a raycast, verify numerically, don’t eyeball one frame.</p>
+<h2 id="input-actions-first-never-raw-keys">Input actions first (never raw keys)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#input-actions-first-never-raw-keys">#</a></h2>
+<p>Define the move/jump/interact actions before any movement code, so remapping and gamepads
+work and playtesting can drive <code>input action</code> (SKILL’s rule: actions, not raw keys). One call
+per action (<code>move_back</code>/<code>_left</code>/<code>_right</code>, <code>jump</code>→<code>KEY_SPACE</code>, <code>interact</code>→<code>KEY_E</code> likewise):</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">input_map set-action --action move_forward --events '[{"type":"key","keycode":"KEY_W"}]'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>Input.get_vector("move_left","move_right","move_forward","move_back")</code> returns the normalized
+planar intent; <code>move_back</code> maps to <code>+y</code>, which becomes <code>+Z</code> (backward) below. <code>input_map</code>
+writes <code>project.godot</code>, so revert throwaway actions after tests.</p>
+<p><strong>Name the actions in <code>@export</code>s and check they exist.</strong> A controller that reads an action
+nobody mapped does not error: <code>Input.is_action_pressed("sprint")</code> on a missing action just
+returns <code>false</code> forever, so the character silently never sprints and nothing anywhere says
+why. Take the action names as exported strings and validate them in <code>_ready</code>, disabling the
+feature rather than leaving it mysteriously dead:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> can_sprint </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">true</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> input_sprint </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"sprint"</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> can_sprint </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InputMap</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">has_action</span><span style="--0:#E1E4E8;--1:#24292E">(input_sprint):</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">push_warning</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"No '</span><span style="--0:#79B8FF;--1:#005CC5">%s</span><span style="--0:#9ECBFF;--1:#032F62">' action in the InputMap, sprint disabled."</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">%</span><span style="--0:#E1E4E8;--1:#24292E"> input_sprint)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">can_sprint </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">false</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Exported action names also make the controller reusable across projects whose maps differ,
+and the warning shows up in <code>editor errors</code> / <code>runtime errors</code> instead of costing a debugging
+session. (Brackeys’ CC0 proto controller uses this pattern; copy it into any generated
+controller.)</p>
+<h2 id="the-body-characterbody3d--a-capsule">The body: CharacterBody3D + a capsule<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-body-characterbody3d--a-capsule">#</a></h2>
+<p>The scene root <em>is</em> the body; add the collider under it (a <code>CharacterBody3D</code> root plus a child
+<code>CollisionShape3D</code>, rather than a nested second body):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene create --path res://actors/player.tscn --root-type CharacterBody3D --root-name Player</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene open --path res://actors/player.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type CollisionShape3D --name Col --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add-resource --node-path Col --property shape --resource-type CapsuleShape3D</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The default <code>CapsuleShape3D</code> is <code>radius 0.5</code>, <code>height 2.0</code>, which is humanoid scale; resize by
+editing the shape resource. <code>scene3d add-body --type CharacterBody3D --shape capsule --radius 0.4 --height 1.8</code> is the one-call form for dropping a <em>standalone</em> body into a level (it nests body + sized
+shape under a parent), not for a root that is already the body.</p>
+<p><strong>Why a capsule, not a box.</strong> The rounded bottom slides over small ledges, floor seams, and step
+edges that a box catches on, and its single curved side never snags on a wall corner mid-slide.
+It is the standard collider for anything that walks. <code>height</code> is the <em>full</em> height including
+both caps; the shape centers on the body origin, so raising <code>Col.position</code> to <code>y = height/2</code>
+puts the body origin at the feet, convenient for <code>spatial place_on</code>.</p>
+<p><strong>Two properties set the body’s contract</strong> (both verified on <code>CharacterBody3D</code>):</p>
+<ul>
+<li>
+<code>motion_mode</code> selects the floor model. <code>MOTION_MODE_GROUNDED</code> (<code>0</code>, default) gives you
+<code>is_on_floor()</code>, slopes, snapping, and stairs behavior, which is what anything that walks
+needs. <code>MOTION_MODE_FLOATING</code> (<code>1</code>) drops all floor logic, for swimmers, flyers, and zero-g.</li>
+<li>
+<code>up_direction</code> defaults to <code>Vector3.UP</code>, the axis <code>is_on_floor()</code> and the floor angle measure
+against. Change it only for wall-walking or planet gravity.</li>
+</ul>
+<h2 id="the-movement-core-shared-by-all-three-genres">The movement core (shared by all three genres)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-movement-core-shared-by-all-three-genres">#</a></h2>
+<p>The canonical <code>_physics_process</code>. Read gravity from project settings (never hard-code <code>9.8</code>),
+build a <strong>camera-relative</strong> direction, accelerate with <code>move_toward</code>, then <code>move_and_slide()</code>:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">CharacterBody3D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> speed </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">5.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> accel </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">60.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> friction </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">40.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> jump_velocity </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">5.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@onready</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _cam_yaw: </span><span style="--0:#B392F0;--1:#6F42C1">Node3D</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">CameraPivot</span><span style="--0:#E1E4E8;--1:#24292E">          </span><span style="--0:#99A0A6;--1:#616972"># FPS: use the body itself instead</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _gravity: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">ProjectSettings</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_setting</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"physics/3d/default_gravity"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_on_floor</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.y </span><span style="--0:#F97583;--1:#BF3441">-=</span><span style="--0:#E1E4E8;--1:#24292E"> _gravity </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta                 </span><span style="--0:#99A0A6;--1:#616972"># +Y is up in 3D: gravity is negative</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">is_action_just_pressed</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"jump"</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_on_floor</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.y </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> jump_velocity                      </span><span style="--0:#99A0A6;--1:#616972"># positive = up</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> input </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_vector</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"move_left"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_right"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_forward"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_back"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> _cam_yaw.global_transform.basis </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector3</span><span style="--0:#E1E4E8;--1:#24292E">(input.x, </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, input.y)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">dir.y </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">dir </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> dir.</span><span style="--0:#B392F0;--1:#6F42C1">normalized</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> target </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> speed</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> rate </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> accel </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">!=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector3</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">ZERO</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">else</span><span style="--0:#E1E4E8;--1:#24292E"> friction</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.x </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">move_toward</span><span style="--0:#E1E4E8;--1:#24292E">(velocity.x, target.x, rate </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.z </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">move_toward</span><span style="--0:#E1E4E8;--1:#24292E">(velocity.z, target.z, rate </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta)</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">move_and_slide</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>The classic bug: forward is world <code>-Z</code>, not where the camera looks.</strong> Feeding
+<code>Vector3(input.x, 0, input.y)</code> straight into <code>velocity</code> makes “forward” always drive world <code>-Z</code>
+no matter which way the player faces. Multiply the input by a <strong>basis</strong> to make it relative:</p>
+<ul>
+<li>In an <strong>FPS</strong> the body yaws with the mouse, so use the body’s own basis: `global_transform.basis
+<ul>
+<li>Vector3(input.x, 0, input.y)<code>. </code>dir.y = 0` before normalizing so looking up/down never
+changes ground speed.</li>
+</ul>
+</li>
+<li>In <strong>third-person</strong> the body does <em>not</em> yaw with the camera, so use the <strong>camera pivot’s</strong>
+basis (<code>_cam_yaw</code> above). Movement follows the camera; the body turns to face it separately.</li>
+</ul>
+<p>Keep <code>speed</code>/<code>accel</code>/<code>friction</code> as <code>@export</code>s (inspector data over hard-coded values). Instant
+<code>velocity.x = dir.x * speed</code> feels robotic; <code>move_toward</code> gives weight, and lower <code>accel</code> with
+higher <code>friction</code> reads heavier.</p>
+<h2 id="floor-behavior-slopes-snapping-stairs">Floor behavior: slopes, snapping, stairs<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#floor-behavior-slopes-snapping-stairs">#</a></h2>
+<p>Four <code>CharacterBody3D</code> properties (all verified) shape how the body meets the ground; set them
+in <code>_ready()</code> or the inspector via <code>node set</code>:</p>
+<ul>
+<li>
+<code>floor_max_angle</code> (radians, default <code>deg_to_rad(45)</code>) decides what counts as walkable. Anything
+steeper is a wall. <code>node set --node-path . --property floor_max_angle --value 0.8</code>.</li>
+<li>
+<code>floor_snap_length</code> (default <code>0.1</code>) sets how far below the feet <code>move_and_slide</code> looks for floor
+to stick to. <strong>Raise it (e.g. <code>0.5</code>) to walk <em>down</em> slopes and stairs without launching off
+the crest</strong>; too small and the body ski-jumps every downhill. Snapping is skipped the frame
+you jump.</li>
+<li>
+<code>floor_stop_on_slope</code> (default <code>true</code>) holds position on a slope with no input; turn it off
+for ice.</li>
+<li>
+<code>floor_constant_speed</code> (default <code>false</code>) keeps ground speed constant up/down slopes, since the
+slope otherwise steals horizontal speed; turn it on for a snappy platformer.</li>
+</ul>
+<p><strong>Stairs, honestly.</strong> Vanilla <code>move_and_slide()</code> does <strong>not</strong> step up stairs. The capsule rolls
+over lips smaller than its radius and a generous <code>floor_snap_length</code> keeps you glued going down,
+but a real step taller than the capsule’s curve stops the body dead. Two vanilla-only fixes:
+model stairs as a ramp <code>StaticBody3D</code> under the visual steps (cheapest, most reliable), or add a
+step-up pass built from a shin-height forward <code>RayCast3D</code> that, on a hit with walkable floor
+just above, nudges <code>global_position.y</code> up by the step height before <code>move_and_slide</code>. Don’t
+claim built-in stair-stepping the engine doesn’t have.</p>
+<h2 id="moving-platforms-velocity-inheritance-for-free">Moving platforms: velocity inheritance for free<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#moving-platforms-velocity-inheritance-for-free">#</a></h2>
+<p><code>AnimatableBody3D</code> (the 3D twin of <code>platformer-2d.md</code>’s <code>AnimatableBody2D</code>: a kinematic body
+driven by animation, <code>sync_to_physics = true</code>) carries riders correctly. <code>move_and_slide()</code>
+reads the platform’s motion and adds it to the body automatically, no code on the character. Two
+<code>CharacterBody3D</code> knobs govern the hand-off:</p>
+<ul>
+<li>
+<code>platform_on_leave</code> decides what happens to inherited velocity when you step off: <code>ADD_VELOCITY</code>
+(default; a moving floor flings you naturally), <code>ADD_UPWARD_VELOCITY</code>, or <code>DO_NOTHING</code>.</li>
+<li>
+<code>platform_floor_layers</code> lists which collision layers count as velocity-inheriting floor.</li>
+</ul>
+<p><strong>Build:</strong> author the platform as its own scene, animate its <code>position</code> on an <code>AnimationPlayer</code>
+(or a <code>PathFollow3D</code> + <code>RemoteTransform3D</code>, mirroring the 2D recipe), and instance it into the
+level. Reading <code>velocity</code> off the Player while it rides confirms the inheritance is live.</p>
+<h2 id="fps-rig-head-camera-mouse-look-interaction-ray">FPS rig: head, camera, mouse-look, interaction ray<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#fps-rig-head-camera-mouse-look-interaction-ray">#</a></h2>
+<p>Tree: a <code>Head</code> <code>Node3D</code> at eye height owns pitch; the <code>Camera3D</code> and interaction <code>RayCast3D</code>
+hang under it. The <strong>body</strong> yaws (whole capsule turns) and the <strong>head</strong> pitches. Never pitch the
+body (see Common mistakes).</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type Node3D    --name Head --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set  --node-path Head --property position --value "Vector3(0,1.6,0)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type Camera3D  --name Camera3D --parent-path Head</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type RayCast3D --name InteractRay --parent-path Head/Camera3D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set  --node-path Head/Camera3D/InteractRay --properties '{"target_position":"Vector3(0,0,-3)","enabled":true}'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> sensitivity </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.003</span><span style="--0:#E1E4E8;--1:#24292E">                    </span><span style="--0:#99A0A6;--1:#616972"># exported: a settings menu writes it</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@onready</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _head: </span><span style="--0:#B392F0;--1:#6F42C1">Node3D</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">Head</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@onready</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _ray: </span><span style="--0:#B392F0;--1:#6F42C1">RayCast3D</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">Head/Camera3D/InteractRay</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.mouse_mode </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">MOUSE_MODE_CAPTURED</span><span style="--0:#E1E4E8;--1:#24292E">    </span><span style="--0:#99A0A6;--1:#616972"># hide + lock the cursor to the window</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_unhandled_input</span><span style="--0:#E1E4E8;--1:#24292E">(event: </span><span style="--0:#B392F0;--1:#6F42C1">InputEvent</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> event </span><span style="--0:#F97583;--1:#BF3441">is</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InputEventMouseMotion</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.mouse_mode </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">MOUSE_MODE_CAPTURED</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> mm </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> event </span><span style="--0:#F97583;--1:#BF3441">as</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InputEventMouseMotion</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#B392F0;--1:#6F42C1">rotate_y</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">mm.relative.x </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> sensitivity)                     </span><span style="--0:#99A0A6;--1:#616972"># yaw the body</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_head.</span><span style="--0:#B392F0;--1:#6F42C1">rotate_x</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">mm.relative.y </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> sensitivity)              </span><span style="--0:#99A0A6;--1:#616972"># pitch the head</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_head.rotation.x </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">clampf</span><span style="--0:#E1E4E8;--1:#24292E">(_head.rotation.x, </span><span style="--0:#B392F0;--1:#6F42C1">deg_to_rad</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#79B8FF;--1:#005CC5">89.0</span><span style="--0:#E1E4E8;--1:#24292E">), </span><span style="--0:#B392F0;--1:#6F42C1">deg_to_rad</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">89.0</span><span style="--0:#E1E4E8;--1:#24292E">))</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> event.</span><span style="--0:#B392F0;--1:#6F42C1">is_action_pressed</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"ui_cancel"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.mouse_mode </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">MOUSE_MODE_VISIBLE</span><span style="--0:#E1E4E8;--1:#24292E">               </span><span style="--0:#99A0A6;--1:#616972"># release for menus</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">interact</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:                            </span><span style="--0:#99A0A6;--1:#616972"># called on the "interact" action</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> _ray.</span><span style="--0:#B392F0;--1:#6F42C1">is_colliding</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> hit </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> _ray.</span><span style="--0:#B392F0;--1:#6F42C1">get_collider</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> hit </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> hit.</span><span style="--0:#B392F0;--1:#6F42C1">has_method</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">&#x26;"use"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">            </span></span><span style="--0:#E1E4E8;--1:#24292E">hit.</span><span style="--0:#B392F0;--1:#6F42C1">call</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">&#x26;"use"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>InputEventMouseMotion.relative</code> is the per-frame delta. Clamp pitch to just under ±90° so the
+view never flips. Expose <code>sensitivity</code> and an invert-Y toggle as <code>@export</code>s bound from a settings
+screen (<code>menus-settings.md</code>). The <code>RayCast3D</code> casts along its local <code>-Z</code> toward <code>target_position</code>;
+<code>get_collider()</code> returns the hit node, and a duck-typed <code>use()</code> keeps the door/lever/pickup
+decoupled from the player.</p>
+<h2 id="third-person-rig-pivot-springarm3d-face-the-movement">Third-person rig: pivot, SpringArm3D, face-the-movement<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#third-person-rig-pivot-springarm3d-face-the-movement">#</a></h2>
+<p>Tree: a <code>CameraPivot</code> <code>Node3D</code> at the shoulder (this is the <code>_cam_yaw</code> the movement core reads),
+a <code>SpringArm3D</code> under it, the <code>Camera3D</code> under the arm, and a separate <code>Skin</code> <code>Node3D</code> for the
+visible mesh so the body collider never rotates with the model.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type Node3D     --name CameraPivot --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set  --node-path CameraPivot --property position --value "Vector3(0,1.5,0)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type SpringArm3D --name SpringArm --parent-path CameraPivot</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type Camera3D    --name Camera3D  --parent-path CameraPivot/SpringArm</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type Node3D      --name Skin      --parent-path .</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>game-patterns.md</code> owns the <strong>SpringArm3D</strong> mechanics. It raycasts back from the pivot and
+shortens when geometry intrudes so the camera never clips walls; set <code>spring_length</code> (rest
+distance), <code>margin</code> (pad the hit), and <code>add_excluded_object</code> (a collider <strong>RID</strong>) so the arm
+ignores the player. Don’t re-teach it; wire it:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set --node-path CameraPivot/SpringArm --properties '{"spring_length":4.0,"margin":0.2}'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Exclude the player in <code>_ready()</code> with <code>_spring.add_excluded_object(get_rid())</code>, passing the
+body’s own physics RID from <code>CollisionObject3D.get_rid()</code>. Dropping the player’s layer from
+<code>SpringArm3D.collision_mask</code> works too.</p>
+<p><strong>Mouse orbits the pivot; the character turns to face where it moves</strong> (not where the camera
+looks). Movement is camera-relative via the pivot basis (movement core, third-person branch);
+the skin lerps its yaw toward the velocity heading:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@onready</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _pivot: </span><span style="--0:#B392F0;--1:#6F42C1">Node3D</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">CameraPivot</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@onready</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _skin: </span><span style="--0:#B392F0;--1:#6F42C1">Node3D</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">Skin</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> turn_speed </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">12.0</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_unhandled_input</span><span style="--0:#E1E4E8;--1:#24292E">(event: </span><span style="--0:#B392F0;--1:#6F42C1">InputEvent</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:                 </span><span style="--0:#99A0A6;--1:#616972"># orbit the pivot</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> event </span><span style="--0:#F97583;--1:#BF3441">is</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InputEventMouseMotion</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_pivot.</span><span style="--0:#B392F0;--1:#6F42C1">rotate_y</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">(event </span><span style="--0:#F97583;--1:#BF3441">as</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InputEventMouseMotion</span><span style="--0:#E1E4E8;--1:#24292E">).relative.x </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.005</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#99A0A6;--1:#616972"># ... movement core using _pivot.global_transform.basis, then move_and_slide() ...</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> planar </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector3</span><span style="--0:#E1E4E8;--1:#24292E">(velocity.x, </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, velocity.z)</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> planar.</span><span style="--0:#B392F0;--1:#6F42C1">length</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.1</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> target_yaw </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">atan2</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">planar.x, </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">planar.z)             </span><span style="--0:#99A0A6;--1:#616972"># -Z is the model's forward</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_skin.rotation.y </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">lerp_angle</span><span style="--0:#E1E4E8;--1:#24292E">(_skin.rotation.y, target_yaw, turn_speed </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The <code>atan2(-x, -z)</code> maps a velocity heading to the yaw that points the model’s <code>-Z</code> down it;
+<code>lerp_angle</code> eases the turn and wraps correctly across ±π. Alternative:
+<code>_skin.basis = _skin.basis.slerp(Basis.looking_at(planar, Vector3.UP), turn_speed * delta)</code> (both
+verified to compile).</p>
+<p><strong>Check which way the rig actually faces before trusting <code>-Z</code>.</strong> Kenney’s Blocky Characters and
+Mini Dungeon rigs face <code>+Z</code>, so the snippet above turned them to face the camera and put a
+forward-mounted hit <code>Area3D</code> behind the body (found 2026-09-17 in a sample build).
+For those, <code>atan2(planar.x, planar.z)</code> and a hitbox on local <code>+Z</code>. Read it off the model once
+with <code>spatial bounds</code> or a <code>runtime get</code> of a child’s position after a known move rather than
+assuming. The same packs import every clip as one-shot (<code>loop_mode</code> 0), <code>idle</code> and <code>walk</code>
+included, so set the locomotion clips to <code>Animation.LOOP_LINEAR</code> in <code>_ready</code>.</p>
+<h2 id="3d-platformer-feel">3D platformer feel<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#3d-platformer-feel">#</a></h2>
+<p>The forgiving-jump timers are identical to the 2D versions in <code>game-patterns.md</code> (coyote time,
+jump buffer) and its double-jump / variable-height blocks. <strong>Only the sign flips</strong>: 3D up is
+<code>+Y</code>, so the jump sets <code>velocity.y = +jump_velocity</code> and the cutoff fires while <code>velocity.y > 0.0</code> (rising), the mirror of 2D’s negative-Y up. One <code>_physics_process</code>, all four layers:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> jump_velocity </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">5.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> coyote_time </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.1</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> jump_buffer </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.1</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> max_air_jumps </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _coyote </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _buffered </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _air_jumps </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_on_floor</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.y </span><span style="--0:#F97583;--1:#BF3441">-=</span><span style="--0:#E1E4E8;--1:#24292E"> _gravity </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">_coyote </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> coyote_time </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_on_floor</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">else</span><span style="--0:#E1E4E8;--1:#24292E"> _coyote </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> delta   </span><span style="--0:#99A0A6;--1:#616972"># grace after leaving a ledge</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">_buffered </span><span style="--0:#F97583;--1:#BF3441">-=</span><span style="--0:#E1E4E8;--1:#24292E"> delta</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">is_action_just_pressed</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"jump"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_buffered </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> jump_buffer                                    </span><span style="--0:#99A0A6;--1:#616972"># queue a slightly-early press</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_on_floor</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_air_jumps </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> max_air_jumps                                 </span><span style="--0:#99A0A6;--1:#616972"># refill on landing</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> _buffered </span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> _coyote </span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.y </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> jump_velocity</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_buffered </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">; _coyote </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">elif</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">is_action_just_pressed</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"jump"</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> _air_jumps </span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.y </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> jump_velocity </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.85</span><span style="--0:#E1E4E8;--1:#24292E">                          </span><span style="--0:#99A0A6;--1:#616972"># double jump: a touch weaker</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_air_jumps </span><span style="--0:#F97583;--1:#BF3441">-=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">is_action_just_released</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"jump"</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> velocity.y </span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity.y </span><span style="--0:#F97583;--1:#BF3441">*=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.4</span><span style="--0:#E1E4E8;--1:#24292E">                                          </span><span style="--0:#99A0A6;--1:#616972"># variable height: cut the rise</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#99A0A6;--1:#616972"># ... horizontal move + move_and_slide() ...</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Layering reads the same as 2D: cutoff shapes the arc, the midair jump rescues it, coyote makes
+the first jump reliable, the buffer keeps land→jump chains consistent. Fire a <strong>landing squash</strong>
+on the touchdown edge (<code>was_airborne and is_on_floor()</code>) with a <code>pop(1.2, 0.8)</code> tween on the
+<code>Skin</code>, per the juice grammar in <code>game-patterns.md</code> / <code>ui-polish-2d.md</code>. That is juice, not
+control, so keep it out of the physics.</p>
+<h2 id="verify-by-driving-the-payoff">Verify by driving (the payoff)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#verify-by-driving-the-payoff">#</a></h2>
+<p>Prove the controller works by reading state back, not by one screenshot (SKILL’s playtest
+loop). Arm any signal <em>before</em> awaiting it:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene play --mode main</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime tree                                                        # confirm the rig is live</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime get --node-path Player --properties '["position","velocity"]'   # baseline</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">input action --action move_forward --pressed true</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime capture-frames --count 10 --frame-interval 2                # let it move</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime get --node-path Player --properties '["position","velocity"]'   # position advanced, velocity.z &#x3C; 0?</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">input action --action move_forward --pressed false</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">input action --action jump --pressed true</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime await-signal --node-path Player --signal landed --timeout 3    # if you emit one on touchdown</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime get --node-path Player --properties '["velocity"]'          # velocity.y crossed +→−?</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime eval --code 'emit(get_tree().current_scene.get_node("Player").is_on_floor())'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime screenshot --save-path user://char3d.png                    # visual sanity (works headless)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene stop</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Input is fire-and-forget (<code>sent:true</code> ≠ applied), so confirm every claim (“it moved”, “it
+jumped”, “it’s grounded”) with a <code>runtime get</code>/<code>eval</code> read, never with the input’s own success.
+To prove the movement is camera-relative, yaw the camera, then check that <code>move_forward</code>
+changes the world-space heading of <code>velocity</code>.</p>
+<h2 id="common-mistakes">Common mistakes<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#common-mistakes">#</a></h2>
+<ul>
+<li>
+<strong>World-basis forward</strong>. Raw input into <code>velocity</code> ignores facing, so multiply by the body basis
+(FPS) or camera-pivot basis (third-person). The most common 3D-controller bug.</li>
+<li>
+<strong>Pitching the whole body</strong>. Pitch the <em>head</em> <code>Node3D</code> and yaw the body. <code>rotate_x</code> on the
+<code>CharacterBody3D</code> tilts the collider and gimbals the character.</li>
+<li>
+<strong>Gravity in <code>_process</code></strong>. All movement goes in <code>_physics_process</code> with <code>delta</code>; <code>_process</code> is
+frame-rate-dependent and desyncs from collision.</li>
+<li>
+<strong>Mouse not captured</strong>. Without <code>MOUSE_MODE_CAPTURED</code> the cursor leaves the window and
+mouse-look dies at the edge; restore <code>MOUSE_MODE_VISIBLE</code> for menus.</li>
+<li>
+<strong>SpringArm colliding with the player</strong>. The arm raycasts into the player’s own capsule and
+slams the camera to the face. Fix it with <code>add_excluded_object(get_rid())</code> (the body’s RID),
+or drop its layer.</li>
+<li>
+<strong><code>floor_snap_length</code> too small</strong>. The body launches off every downhill and stair crest; raise
+it until walking down is glued.</li>
+<li>
+<strong>Hard-coded <code>9.8</code></strong> instead of reading <code>physics/3d/default_gravity</code>.</li>
+<li>
+<strong>Remembered signatures</strong>. Confirm properties/methods against the running engine (<code>engine class-info</code>/<code>search</code>)
+before writing, because CharacterBody3D’s floor API has evolved across engine versions.</li>
+</ul>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/level-design" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Level design</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/environment-art" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Environment art</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#input-actions-first-never-raw-keys" data-toc="input-actions-first-never-raw-keys" data-scope-p33bl5ka>Input actions first (never raw keys)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-body-characterbody3d--a-capsule" data-toc="the-body-characterbody3d--a-capsule" data-scope-p33bl5ka>The body: CharacterBody3D + a capsule</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-movement-core-shared-by-all-three-genres" data-toc="the-movement-core-shared-by-all-three-genres" data-scope-p33bl5ka>The movement core (shared by all three genres)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#floor-behavior-slopes-snapping-stairs" data-toc="floor-behavior-slopes-snapping-stairs" data-scope-p33bl5ka>Floor behavior: slopes, snapping, stairs</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#moving-platforms-velocity-inheritance-for-free" data-toc="moving-platforms-velocity-inheritance-for-free" data-scope-p33bl5ka>Moving platforms: velocity inheritance for free</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#fps-rig-head-camera-mouse-look-interaction-ray" data-toc="fps-rig-head-camera-mouse-look-interaction-ray" data-scope-p33bl5ka>FPS rig: head, camera, mouse-look, interaction ray</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#third-person-rig-pivot-springarm3d-face-the-movement" data-toc="third-person-rig-pivot-springarm3d-face-the-movement" data-scope-p33bl5ka>Third-person rig: pivot, SpringArm3D, face-the-movement</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#3d-platformer-feel" data-toc="3d-platformer-feel" data-scope-p33bl5ka>3D platformer feel</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#verify-by-driving-the-payoff" data-toc="verify-by-driving-the-payoff" data-scope-p33bl5ka>Verify by driving (the payoff)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#common-mistakes" data-toc="common-mistakes" data-scope-p33bl5ka>Common mistakes</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

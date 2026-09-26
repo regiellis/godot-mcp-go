@@ -1,0 +1,74 @@
+# Terminal quickstart
+
+Build a visible scene in a fresh project, validate it, and play it from your terminal.
+
+This walkthrough uses the CLI and Godot 4.7.2. No agent or MCP client is required.
+Install a [release bundle](https://regiellis.github.io/godot-mcp-go/docs/installation), put its CLI on PATH, and make sure
+`godot --version` finds your engine. Keep the bundled addon beside the binary.
+The commands work in PowerShell and Bash. In Git Bash on Windows, put the actual
+Godot executable directory on PATH; a PowerShell `.cmd` shim may not resolve.
+
+## 1. Create and open a project
+
+Run from a directory where `hello-godot` does not already exist:
+
+```bash
+swallowtail create --path hello-godot
+cd hello-godot
+swallowtail install --enable --skill=false
+swallowtail doctor
+swallowtail launch
+```
+
+`doctor` may warn that the editor is closed before launch. `launch` starts one
+editor and waits for the addon to answer. Without a display, use
+`swallowtail launch --headless`. Run the remaining commands inside `hello-godot`
+so the CLI discovers its editor automatically.
+
+## 2. Build something visible
+
+```bash
+swallowtail scene create --path res://hello.tscn --root-type Node2D --root-name Hello
+swallowtail node add --type Label --name Greeting --parent-path .
+swallowtail node set --node-path Greeting --property text --value "Hello from the terminal!"
+swallowtail node set --node-path Greeting --property position --value "Vector2(80, 80)"
+swallowtail node get --node-path Greeting --properties '["text","position"]'
+swallowtail scene save
+swallowtail scene tree
+swallowtail scene validate --path res://hello.tscn
+```
+
+The read-back should show the greeting at `(80, 80)`. The scene is saved as
+`hello.tscn`. Node edits support the editor's Undo command.
+
+## 3. Play and verify
+
+Run the saved scene directly, without configuring a main scene:
+
+```bash
+swallowtail scene play --mode res://hello.tscn
+swallowtail runtime tree
+swallowtail runtime get --node-path Greeting --properties '["text","position"]'
+swallowtail scene stop
+```
+
+The game window displays the greeting. Runtime inspection reads the running
+game, so text and position should agree with the editor read-back. In a headless
+session, use that read-back to verify the result.
+
+## 4. Discover your next command
+
+```bash
+swallowtail node add --help
+swallowtail scene --help
+swallowtail engine search --query velocity
+```
+
+Command help comes from the editor. If a connection fails, run `swallowtail doctor`
+and follow its diagnosis. Continue with [validation](https://regiellis.github.io/godot-mcp-go/docs/validation),
+[playtesting](https://regiellis.github.io/godot-mcp-go/docs/playtest-loop), or [Scripting and CI](https://regiellis.github.io/godot-mcp-go/docs/automation).
+[MCP setup](https://regiellis.github.io/godot-mcp-go/docs/mcp-setup) is optional.
+
+> **Before your first export**
+>
+> The addon is development tooling. [Before you ship](https://regiellis.github.io/godot-mcp-go/docs/before-you-ship) has the two steps that keep it out of a build and the scan that proves it.

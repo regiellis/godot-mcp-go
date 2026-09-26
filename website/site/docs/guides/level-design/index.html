@@ -1,0 +1,1251 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Level design · Swallowtail</title><meta name="description" content="Playable greybox levels: the Big to Small risk order, spatial-communication tactics, interiors, exteriors, 2D spaces, and pacing without combat.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Level design · Swallowtail">
+<meta property="og:description" content="Playable greybox levels: the Big to Small risk order, spatial-communication tactics, interiors, exteriors, 2D spaces, and pacing without combat.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link active" aria-current="page" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Level design</h1>
+<p class="page-desc" data-scope-ccykbmgk>Playable greybox levels: the Big to Small risk order, spatial-communication tactics, interiors, exteriors, 2D spaces, and pacing without combat.</p>
+</header>
+<p>How to lay out a <em>space</em> that teaches the player what to do without a word of text, and how
+to <strong>build it</strong> as a playable blockout with the CLI. Distilled from level-design talks aimed at
+<strong>solo / small-team</strong> devs (you do both the design and the art, so do them in that order). The
+other craft files cover entities and systems; this one covers <strong>the space between them</strong>.</p>
+<p>The workflow (Big→Medium→Small, greybox first, the colour/value language, the placement
+discipline) is shared by every kind of level. The <strong>tools</strong> are not, so the second half splits by
+space family: <strong>interior combat</strong>, <strong>exterior and open space</strong>, and <strong>2D</strong>. Read the shared half,
+then the family you’re building. Construction below the design sits elsewhere:
+<code>platformer-2d.md</code> and <code>topdown-2d.md</code> own 2D assembly, <code>environment-art.md</code> owns the art pass.</p>
+<p>These are <strong>patterns to draw from, not a checklist to run end-to-end</strong>, so pick the ones that serve
+the experience you’re after. Each pairs an idea with a <strong>Build:</strong> recipe (real <code>node</code>/<code>scene</code>
+commands); treat the commands as a starting point and adapt them. Verify APIs against the live
+engine (<code>engine class-info --class CSGBox3D</code>). The shapes are stable, but the signatures
+evolve. A level only tells the truth when you <strong>play it</strong>: build rough geometry → <code>scene play</code>
+→ walk it → adjust.</p>
+<h2 id="a-level-is-four-things-at-once">A level is four things at once<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#a-level-is-four-things-at-once">#</a></h2>
+<p>Design for all four. Most weak levels are “a place with some art in it” and nothing else:</p>
+<ul>
+<li>
+<strong>A place</strong>. A coherent space the player reads as somewhere real-enough.</li>
+<li>
+<strong>An experience</strong>. An <em>emotional sequence</em> you pace: encounter → quiet → encounter → puzzle.
+Structure the player’s activities; don’t scatter them.</li>
+<li>
+<strong>A goal</strong>. The player knows what they’re trying to do. Make it obvious, then <strong>hide and
+re-reveal</strong> it (see Tension and release).</li>
+<li>
+<strong>A language</strong>. Consistent with itself and with conventions players know. Break the pattern
+carelessly and the level becomes illegible.</li>
+</ul>
+<p>There are <strong>no universal rules</strong>, only truths of <strong>human psychology</strong>. “Players flow like water”
+(they probe every nook for fear of missing a secret, turning in smooth curves not 90° angles)
+only holds <em>if the game rewards exploring</em>. Teach players the corners are empty and they stop.
+So <strong>make your own rules</strong> and tie each to a <strong>player-experience goal</strong> (achievement,
+legibility, surprise, world-building). Abstract genres (sci-fi, dungeon) are <em>practical</em> because
+they relax real-world plausibility, leaving fewer language constraints to satisfy.</p>
+<h2 id="process--strategy-graybox-first-plan-the-whole-finish-level-one-last">Process &#x26; strategy: graybox first, plan the whole, finish level one last<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#process--strategy-graybox-first-plan-the-whole-finish-level-one-last">#</a></h2>
+<p>Level design is <strong>functionality and gameplay</strong>; environmental art is coherence and looks;
+optimization (culling, streaming) is neither. Keep them in separate stages so you don’t make
+work for yourself:</p>
+<ul>
+<li>
+<strong>Keep iteration cycles short, the prime directive</strong>. Anything that slows down changing the
+level before you <em>know</em> it’s good is the enemy. Beautify before playtesting and every later
+change fights a pile of art. In practice: <strong>build blockouts from CSG primitives colored only
+by the greybox color language</strong> (flat albedo, no textures), and don’t <code>scene.instance</code>
+finished art until the layout is proven.</li>
+<li>
+<strong>Experiment to find the requirements first</strong>. Prototype the core mechanic, learn what a level
+must <em>support</em> (jump height, sightline distances, encounter size), then design levels.</li>
+<li>
+<strong>Plan all levels up front</strong> as a content grid. For each level note: art/environment variant
+(so it isn’t monotonous), dominant theme, where it sits on the <strong>difficulty curve</strong>, and which
+mechanic it introduces. Keep the grid as a doc/comment before you build scenes; it gives you
+the whole game’s flow and pacing at a glance.</li>
+<li>
+<strong>Build the middle first; finish the first level last</strong> (Romero; Mario’s World 1), because you
+can’t design onboarding until you know what you’re onboarding <em>into</em>. So build <code>blockout_03</code> before
+<code>blockout_01</code>.</li>
+<li>
+<strong>Beautiful corner</strong>. To nail art style + asset pipeline without polishing everything, fully
+art-up <strong>one tiny slice</strong> (one room) as a target; the rest stays graybox.</li>
+<li>
+<strong>Budget motivation</strong>. Solo work needs rewarding tasks to sustain it, but keep roughly two or
+three game-needs per one done-for-fun, and if the fun thing is premature polish that slows
+iteration, do something else for fun. A game needs <strong>both</strong> messy experimentation and a structured plan.</li>
+</ul>
+<h2 id="big--medium--small-solve-the-expensive-problems-first">Big → Medium → Small: solve the expensive problems first<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#big--medium--small-solve-the-expensive-problems-first">#</a></h2>
+<p>The art-composition principle doubles as a <strong>risk-reduction workflow</strong>: build in three passes, and at
+each stage ask <strong>“what’s the biggest thing that could still invalidate this work?”</strong> Only invest in
+a pass once the larger decisions above it are stable. Don’t model the coffee cup while cover
+placement might still move; don’t place the desk while the room might resize; don’t build the
+hospital while the layout might change.</p>
+<ul>
+<li>
+<strong>Big (macro) answers the gameplay questions</strong>. Indoors: room sizes, combat spaces, choke points,
+cover, sight lines, routes, spawns, the critical path, with the level literally cube-room /
+cube-hallway / cube-cover. Outdoors: ground shape, ridgelines, landmarks, and the routes between
+them. Question: <em>“is it fun?”</em>, not <em>“does it look like a hospital?”</em></li>
+<li>
+<strong>Medium (structure) defines the space</strong>. What makes it read as the place: doors, windows,
+stairs, elevators, desks, major machinery, bridges; outdoors, the massing that gives a region its
+silhouette. Question: <em>“does this feel like a hospital / a hillside village?”</em>, asked while still
+validating gameplay.</li>
+<li>
+<strong>Small (detail) comes only after the level works</strong>. Clutter, props, signage, decals, monitors,
+particles. Question: <em>“is it believable?”</em></li>
+</ul>
+<p>This is the shape behind every staged process in this doc:</p>
+<ul>
+<li>
+<strong>2D / side-view layout:</strong> Big = platforms/terrain/routes → Medium = doors/bridges/trees/interactables →
+Small = signs/lamps/wires/debris/particles.</li>
+<li>
+<strong>Lighting</strong> (functional → gameplay → mood) and <strong>presentation</strong> (readability → feedback →
+cinematic lighting → atmosphere) are Big→Medium→Small for their domains.</li>
+<li>
+<strong>Game feel</strong> tiers too (see <code>game-patterns.md</code>): Big feel (movement/jump/camera) before Medium
+(landing/shake/recoil) before Small (dust/sparks/UI flourish). If movement feels bad, nobody
+cares about the shell-casing effect.</li>
+</ul>
+<p>Most indie projects stall by <strong>jumping straight to Small</strong>, detailing a space (or a juice effect)
+whose larger decisions aren’t locked, then rebuilding when a playtest moves a wall.</p>
+<h2 id="presentation-stages-designer-vs-stakeholder-greybox">Presentation stages: designer vs stakeholder greybox<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#presentation-stages-designer-vs-stakeholder-greybox">#</a></h2>
+<p>There are <strong>two greyboxes</strong>, answering different questions:</p>
+<ul>
+<li>
+<strong>Designer greybox</strong> is internal and ugly, and proves the <em>mechanics</em> (“does the jump work?”).
+Everything else in this doc serves this one.</li>
+<li>
+<strong>Stakeholder greybox</strong> is shown to a publisher/investor/non-designer to answer “is this <em>fun</em>?”.
+They evaluate what they see (most people can’t picture the finished game from grey cubes), so it
+has to <em>feel</em> alive. A mechanically perfect prototype looks dead if nothing responds to the player.</li>
+</ul>
+<p>This <strong>refines “beautify last,” it doesn’t contradict it.</strong> The mistake is adding <strong>art-specific</strong>
+juice too early. <strong>Game feel is its own pass, before art</strong>, and it’s cheap and reversible (it works
+on cubes), so unlike art it <em>doesn’t</em> slow iteration:</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">Greybox  ->  Game-Feel Pass  ->  Vertical Slice  ->  Art Pass</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>(The <strong>Art Pass</strong>, meaning PBR materials, real lighting, post, and set dressing, is its own
+craft: see <code>environment-art.md</code>. It must preserve the read you built here: re-run the grayscale + 3-second
+tests on the finished scene, and never move locked geometry to fix a look.)</p>
+<p>Add presentation in four layers, in order. Each is worth doing only once the prior holds:</p>
+<ol>
+<li>
+<strong>Readability (required)</strong>. Clear playable surfaces, layer separation, visible character &#x26;
+objectives. Without it nothing else matters (the color + value language below).</li>
+<li>
+<strong>Feedback / juice (required for stakeholders)</strong>. <em>Something happens immediately</em> on move / jump
+/ land / hit / collect / interact: dust puff, squash-&#x26;-stretch, landing impact, button depress,
+collect pop + particle + sound. None of it needs final art, since cubes feel good long before they look good.</li>
+<li>
+<strong>Cinematic lighting (limited)</strong>. Light the <em>actor, not the environment</em> (theatre stage): bright
+gameplay plane, dark background, subtle rim on the player. This is Stage 2 of Greybox lighting
+below, <strong>not</strong> the full mood pass.</li>
+<li>
+<strong>Atmosphere (optional)</strong>. Just enough to sell the fantasy: a few floating particles + soft
+vignette + ambient loop (puzzle); impact flashes + screen shake + trails (action); light fog +
+depth haze + ambient audio (narrative). Cheap, effective, last.</li>
+</ol>
+<p><strong>Reusable prototype stack</strong>. Build once (a <code>Juice</code> autoload + a few component scenes) and every
+greybox inherits “feels polished on grey cubes”: camera damping + screen shake + hitstop; tween
+helpers (squash/stretch, scale punch, glow pulse); a screen-flash and a floating-text node;
+placeholder SFX + an ambient loop; the key/fill/rim light rig. Build the mechanics the Godot way,
+and see <code>game-patterns.md</code> <strong>“Game feel vs juice”</strong> for the verified recipes (squash/stretch, hit-stop,
+screen shake, coyote time/jump buffer) and <code>gdscript-architecture.md</code> for the <code>Juice</code> autoload-service
+pattern. Note the distinction: <strong>game feel</strong> is the control itself (movement code); <strong>juice</strong> is the
+fired-on-event feedback. Build feel first, juice second.</p>
+<h2 id="greybox-color-language-color-as-information-not-art">Greybox color language: color as information, not art<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#greybox-color-language-color-as-information-not-art">#</a></h2>
+<p>In a blockout, <strong>color is an information layer</strong>, not decoration: one color = one rule, used
+consistently so anyone (you, a playtester, a screenshot) instantly reads what a piece <em>does</em>
+before any art exists. The exact hues don’t matter; the <strong>consistency does</strong>. A workable default
+palette (close to common AAA blockout conventions, so it reads to other designers):</p>
+<table>
+<thead>
+<tr>
+<th>Color</th><th>Meaning</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Grey</td><td>Static environment (walls and floors, neutral)</td></tr>
+<tr>
+<td>Blue</td><td>Player-accessible / player-controlled</td></tr>
+<tr>
+<td>Green</td><td>Goals, exits, objectives, interactables</td></tr>
+<tr>
+<td>Yellow / Orange</td><td>Traversal: climbable, cover, routes</td></tr>
+<tr>
+<td>Red</td><td>Hazard / danger / failure / enemy</td></tr>
+<tr>
+<td>Purple</td><td>Scripted event / special mechanic</td></tr>
+</tbody>
+</table>
+<p><strong>Establish this table once at the start of the project</strong> (a <code>greybox-palette</code> note) and <strong>never
+remap a color mid-project</strong>. If red means “danger” for 50 levels then becomes “collectible,”
+players (and you) fight the instinct. Tune the palette to your genre: a puzzle game might use
+blue=movable, green=goal, orange=switch, red=invalid-placement. For clean, readable puzzle styles
+(Hitman GO, etc.), keep the environment neutral grey and let only the <strong>gameplay pieces</strong> carry
+strong color.</p>
+<p><strong>Color a piece (verified recipes):</strong></p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># 2D: set the node's color directly (ColorRect / Polygon2D):</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set --node-path Hazard --properties '{"color":"Color(1, 0, 0, 1)"}'</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># 3D: make a reusable material once, then apply it to any box (CSG, MeshInstance3D, ...):</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">material create --path res://mat/hazard.tres --albedo_color "#ff0000" --roughness 0.9</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">material apply --node-path Hazard --material_path res://mat/hazard.tres</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>(<code>material apply</code> resolves the right slot automatically: CSG shapes get their <code>material</code>
+property, other <code>GeometryInstance3D</code> get <code>material_override</code>; force it with <code>--slot material|override</code>. Apply the <em>same</em> <code>.tres</code> to many boxes to share one material. For a quick
+one-off you can still inline a material with <code>node add-resource --resource-type StandardMaterial3D</code>, but <code>material create</code>/<code>apply</code> is the supported path, and the only one
+that can wire <strong>texture maps</strong> and <strong>triplanar</strong>, which <code>node.set</code>/<code>add-resource</code> can’t.)</p>
+<p><strong>Prototype textures (the recommended skin).</strong> Flat albedo reads function but hides <em>scale and
+surface alignment</em>. A <strong>grid/checker prototype texture</strong> fixes that, because the cells let you judge
+distances and spot stretched/misaligned faces at a glance (this is why Romero changed texture
+when floor height changed). <a href="https://kenney.nl/assets/prototype-textures">Kenney’s <strong>Prototype Textures</strong></a>
+(CC0) are the standard pick and <strong>ship with this tool</strong>. Install them into the project once:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail install-assets --pack kenney_prototype_textures   # -> res://assets/vendor/kenney_prototype_textures/</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># --dest &#x3C;path> to install elsewhere; --list to see bundled packs</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The pack is <strong>per-color folders</strong> (<code>PNG/Dark/</code>, <code>PNG/Light/</code> greys, <code>PNG/Green/</code>, <code>PNG/Orange/</code>,
+<code>PNG/Purple/</code>, <code>PNG/Red/</code>, each <code>texture_01…13.png</code>), so the <em>folder color</em> carries the function
+code and the <em>grid</em> carries scale. Map to the palette: Light/Dark→environment, Green→goals,
+Orange→traversal, Red→hazard, Purple→special (there is no blue variant, so use Light for standard
+floors or tint via <code>albedo_color</code>). Keep the bundled <code>License.txt</code> alongside it (CC0 requires attribution).</p>
+<p>Apply one with <strong>triplanar</strong> tiling so the grid stays square at a fixed world scale even on a
+stretched box. <code>world_triplanar</code> tiles by world units (so scaling the box doesn’t stretch the
+grid) and <code>uv1_scale</code> sets cell density. Two <code>material</code> commands, no <code>run-script</code> needed:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">material create --path res://mat/proto_floor.tres \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--albedo_texture res://assets/vendor/kenney_prototype_textures/PNG/Orange/texture_13.png \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--triplanar true --world_triplanar true --uv1_scale "Vector3(0.5,0.5,0.5)" \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--texture_filter nearest          # crisp grid lines; tune uv1_scale = cells per world unit</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">material apply --node-path Floor --material_path res://mat/proto_floor.tres</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>(<code>material set --path … --uv1_scale …</code> re-tunes density on the saved <code>.tres</code> without rebuilding
+it; <code>material info --node-path Floor</code> reads the applied material back to verify.) Then <code>scene save</code>.</p>
+<h3 id="value-hierarchy-beats-color-for-depth">Value hierarchy beats color for depth<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#value-hierarchy-beats-color-for-depth">#</a></h3>
+<p>Color codes <em>function</em> (the palette above); <strong>value (brightness) codes depth</strong>. For clean,
+readable styles (puzzle, narrative, cozy), lean on a value ladder more than hue. Many great
+games read almost entirely in grayscale, because contrast does the work. It matters most where
+depth is faked (side-view, layered 2D, fixed-camera 3D), and it costs nothing to hold everywhere:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th><th>Brightness</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Background (non-interactive)</td><td>~20%</td></tr>
+<tr>
+<td>Midground décor</td><td>~40%</td></tr>
+<tr>
+<td>Playable surfaces</td><td>~70%</td></tr>
+<tr>
+<td>Interactables</td><td>~90%</td></tr>
+</tbody>
+</table>
+<p>Build it by setting that value as the piece’s color: <code>node set … '{"color":"Color(0.2,0.2,0.2,1)"}'</code>
+for 2D, or a flat <code>albedo_color</code> material for 3D (see building blocks). Genre palettes then layer
+<em>function</em> color <strong>on top of</strong> the value ladder. Take a track-puzzle board: neutral grey board,
+blue track, green destination, red blocked, yellow special; a narrative side-view: grey
+environment, cyan walkable, yellow interaction hotspot, green exit/transition, magenta trigger
+volume.</p>
+<h3 id="the-grayscale-test-actually-run-it">The grayscale test (actually run it)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-grayscale-test-actually-run-it">#</a></h3>
+<p><strong>Strip the color and check the level still reads.</strong> If the playable path vanishes in grayscale,
+it leans on color instead of shape/contrast/composition. Fix the <em>value</em> separation, don’t just
+recolor.</p>
+<ul>
+<li>
+<strong>Lightweight:</strong> take a <code>runtime screenshot</code> and judge whether the playable plane reads by value
+alone (assess the image directly and squint at it).</li>
+<li>
+<strong>Rigorous (3D):</strong> desaturate the whole render via a <code>WorldEnvironment</code>, screenshot,
+then revert:
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type WorldEnvironment --name _GrayTest --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add-resource --node-path _GrayTest --property environment --resource-type Environment \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--resource-properties '{"adjustment_enabled":true,"adjustment_saturation":0.0}'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># scene play -> runtime screenshot -> read it -> then: node delete --node-path _GrayTest</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+(If the scene already has a <code>WorldEnvironment</code>, set <code>adjustment_saturation</code> to 0 on its existing
+<code>Environment</code> instead of adding a second.)</li>
+<li>
+<strong>2D-only:</strong> <code>CanvasModulate</code> <strong>can’t</strong> desaturate (it only multiplies a tint), so use a top
+<code>CanvasLayer</code> → full-rect <code>ColorRect</code> with a small luminance shader sampling <code>hint_screen_texture</code>,
+or just eyeball the screenshot.</li>
+</ul>
+<h2 id="place-by-anchor-not-by-parallel-constants-read-back--raycast--verify">Place by anchor, not by parallel constants (read back · raycast · verify)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#place-by-anchor-not-by-parallel-constants-read-back--raycast--verify">#</a></h2>
+<p>You can’t perceive 3D from one screenshot and you’re bad at absolute-coordinate math, so the way
+you <em>place</em> the blocks below matters as much as which ones. The failure mode: computing every part
+of a composite from the same constants (<code>board_x</code>, <code>rim_x = board_x - 1.2</code>, <code>net_x = board_x - 1.2</code>).
+Nothing is anchored to what actually landed, so one error floats a piece or sinks it into the
+floor, and a single camera angle calls it done. The fix is the same “let the engine tell you” reflex
+the <code>SKILL.md</code> golden rule preaches, applied to space:</p>
+<p>Use the <strong><code>spatial</code> group</strong>, which does the math (3D, meters, global space; returns <code>"Vector3(…)"</code> you
+feed straight back into <code>node set --property global_position</code>):</p>
+<ul>
+<li>
+<strong>Build composites by chaining off realized bounds</strong>. Place the anchor, <code>spatial bounds</code> it, derive
+the next piece from <em>those</em> numbers, <code>bounds</code> that, and so on (post → board → rim → net):
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial bounds --node-path Post            # -> center/size/min/max of what ACTUALLY landed</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># …compute the board off Post's measured top, place it, then:</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial relate --node-path Board --other Post   # center_delta, centered{x,y,z}, gap, overlaps</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<code>node set --property position</code> is <strong>local to the parent</strong>, while <code>spatial align</code>/<code>place_on</code>/<code>distribute</code>
+write <code>global_position</code> for you. (Under the hood <code>bounds</code> is <code>VisualInstance3D.get_aabb()</code> ×
+<code>global_transform</code>; reach it via <code>editor run-script</code> for any shape <code>spatial</code> doesn’t cover.)</li>
+<li>
+<strong>Seat props on uneven greybox terrain</strong> (the “Build on uneven terrain” section below) instead of
+hand-computing <code>y</code>. Three tiers, cheapest first. Climb only when the cheaper one is too coarse:
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># Tier 1: flat ground, no colliders needed (mesh-AABB; one height under the footprint):</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial place_on --node-path Lamp --surface-from Floor</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># Tier 2: uneven ground / overhang risk: a footprint bundle of parallel down-rays.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">#   Seats on the HIGHEST contact (never clips), and tells you if it's stable:</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial place_on --node-path Crate --samples 3 --conform</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">#   -> hits/misses (misses>0 ⇒ part hangs off an edge), unevenness (0=flat), avg_normal;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">#      --conform also tilts the prop to match the slope's normal.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">#   The SURFACE needs use_collision; the PROP must not have one, or the bundle hits the prop's</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">#   own top face and seats it on itself (seated_on names the prop, misses 0, unevenness 0;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">#   a healthy-looking wrong answer). Seat first, switch use_collision on after.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># Tier 3: exact corner/edge alignment (the scriptable vertex-snap analog; no collider):</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial snap --node-path Bolt --to Beam --mode vertex   # mover's anchor -> nearest real vertex</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial snap --node-path Decal --to Wall --mode face --axes yz   # nearest point on nearest face</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># one-off exact ray hit + normal (orient a prop to a ramp), when you don't want to move it:</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial raycast --from "Vector3(4,30,-6)" --to "Vector3(4,-30,-6)"</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+Greybox CSG with <code>use_collision:true</code> <strong>registers collision in the editor’s physics space, so the
+edit-time Tier-2 bundle and <code>raycast</code> work</strong> (verified, and not only at runtime). Picking a tier:
+<code>place_on</code> (no samples) when the ground is flat; <code>--samples N</code> when it’s sloped/stepped or a piece
+might overhang (let <code>misses</code>/<code>unevenness</code> flag a bad seat before a screenshot does); <code>snap</code> when you
+need a prop <em>aligned to actual geometry</em> (a bolt on a beam corner, trim flush to a wall) rather than
+merely resting on top. A <strong>cone</strong> of rays would be the wrong tool for seating: a cone samples a
+<em>viewpoint</em> (line-of-sight), while seating samples a <em>footprint</em>, which is why Tier 2 fires a
+parallel bundle, not a fan.</li>
+<li>
+<strong>Mirror, don’t rebuild, for symmetric layouts</strong>. Build one verified unit (a hoop, a guard post),
+read its realized <code>global_position</code>, then place the twin by negating one axis and flipping the yaw
+(<code>spatial look_at</code> or a <code>node set --property rotation_degrees</code>). The math guarantees the symmetry
+you’d otherwise eyeball wrong across two independent builds.</li>
+<li>
+<strong>Face things with <code>spatial look_at --target &#x3C;node></code> (or <code>--point</code>), never Euler</strong>. Hand-computed
+<code>rotation_degrees</code> for “aim at” is reliably ~20° off.</li>
+<li>
+<strong>Verify numerically + from multiple vantages</strong>. <code>spatial relate</code> after a placement, <code>spatial lint --check-floating</code> after a set (catches coincident duplicates and unsupported/sunk pieces); then
+teleport the camera (<code>editor set-camera</code>) or player (<code>runtime set global_position</code>) to several spots
+and screenshot each. One frame hides the error. This is the placement-side of the <strong>3-second
+screenshot test</strong>.</li>
+</ul>
+<p>(<code>spatial</code> is the ergonomic layer over these reflective primitives; its design rationale and the
+edit-time-vs-runtime physics split are in <code>docs/spatial-and-discovery-transfer.md</code>.)</p>
+<h2 id="blockout-building-blocks-the-recipes-every-tactic-reuses">Blockout building blocks (the recipes every tactic reuses)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#blockout-building-blocks-the-recipes-every-tactic-reuses">#</a></h2>
+<p>Make these once; the tactics below compose them. CSG shapes carry their own collision via
+<code>use_collision</code>, so <strong>no separate <code>StaticBody3D</code> + <code>CollisionShape3D</code> is needed</strong> for static
+geometry (confirmed on <code>CSGShape3D</code>). Apply the <strong>color language</strong> above (one color per
+function) so the space reads at a glance.</p>
+<p><strong>Walkable surface / wall / platform / ramp</strong> is a CSG box that you can stand on and that blocks:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type CSGBox3D --name Floor --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set --node-path Floor --properties '{"size":"Vector3(40, 1, 40)","position":"Vector3(0,0,0)","use_collision":true}'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># a wall: thin on one axis, raised; a ramp: rotate it, e.g. "rotation_degrees":"Vector3(0,0,20)"</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>(<code>csg add --type CSGBox3D --size "Vector3(40,1,40)" --use-collision true --position "Vector3(0,0,0)" does the same in one call, with </code>—operation<code>for booleans and</code>—rotation` in degrees.)</p>
+<p>A <strong>goal beacon</strong> is tall, lit, and visible from far off (the “lighthouse”):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type CSGCylinder3D --name Goal --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set --node-path Goal --properties '{"radius":1.5,"height":20,"position":"Vector3(0,10,-60)"}'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type OmniLight3D --name Beacon --parent-path Goal</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set --node-path Goal/Beacon --properties '{"position":"Vector3(0,12,0)","omni_range":50,"light_energy":4}'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>A <strong>trigger volume</strong> fires when the player enters (goal reveals, encounter starts, doors open):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type Area3D --name Trigger --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type CollisionShape3D --name Col --parent-path Trigger</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add-resource --node-path Trigger/Col --property shape --resource-type BoxShape3D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set --node-path Trigger/Col --properties '{"position":"Vector3(0,1,0)"}'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node connect --source-path Trigger --signal-name body_entered --target-path &#x3C;handler> --method-name &#x3C;fn></span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>A <strong>fatal drop / killzone</strong> is a flat trigger far below the play space that respawns the player:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># build a wide Trigger (above) at y=-10, then in its handler:</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">#   func _on_kill(body): if body.is_in_group("player"): body.global_position = $SpawnPoint.global_position</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The same node, with its respawn target set to a <strong>lower recovery platform</strong> instead of the
+start, becomes a <strong>safety net</strong> (below).</p>
+<p>An <strong>attention light</strong> is an <code>OmniLight3D</code> / <code>SpotLight3D</code> over the feature you want noticed
+(light raises contrast, and contrast is what actually draws the eye; see Attract attention).</p>
+<p>An <strong>animated attractor</strong> is an <code>AnimationPlayer</code> rotating a fan or swaying a door; movement pulls
+attention (<code>animation.*</code> to author the track).</p>
+<p><strong>Label intent</strong> with a <code>Label3D</code> reading “LOCKED”, “OBJECTIVE”, “CLIMBABLE” on a box is legit
+blockout communication, not shipped art.</p>
+<p><strong>The loop after any build:</strong></p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene play --mode current</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime screenshot --save-path user://shot.png    # what does the player actually SEE here?</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime set --node-path Player --properties '{"global_position":"Vector3(0,1,-20)"}'  # teleport to a spot, re-screenshot</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor set-camera ...                              # or frame a specific juncture to judge a sightline</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">input action --action move_forward --pressed true  # actually DRIVE the character (needs an InputMap action)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Note: <code>input move</code> is <strong>mouse motion</strong>, not walking, so drive the character with <code>input action</code>
+(or <code>input key</code>) against your InputMap actions, and read the result back with <code>runtime get --node-path Player --properties '["global_position"]'</code> (input is fire-and-forget). To inspect a
+sightline without driving, <strong>teleport</strong> the player via <code>runtime set</code> or move the camera.</p>
+<h2 id="greybox-lighting-answers-gameplay-questions-not-art-questions">Greybox lighting answers gameplay questions, not art questions<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#greybox-lighting-answers-gameplay-questions-not-art-questions">#</a></h2>
+<p>Light a greybox to make it <strong>readable</strong>, not pretty. Tuning bloom/fog/shadows/grading before the
+level is proven is wasted effort and slows iteration. Add lighting in three stages, gated on the
+work (this is the lighting view of Presentation stages above):</p>
+<p><strong>Stage 1: Functional (always).</strong> Maximum readability, like a CAD model: one <code>DirectionalLight3D</code>,
+ambient fill high enough that shadows never go black, <strong>no</strong> post/fog/bloom, neutral color.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type DirectionalLight3D --name Key --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set --node-path Key --properties '{"rotation_degrees":"Vector3(-50, -40, 0)","light_energy":1.0}'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type WorldEnvironment --name Env --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add-resource --node-path Env --property environment --resource-type Environment \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--resource-properties '{"ambient_light_source":2,"ambient_light_color":"Color(0.6,0.6,0.65,1)","ambient_light_energy":0.6}'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>(<code>ambient_light_source</code> 2 = “Color”; confirm the enum with <code>engine class-info --class Environment</code>.)
+Then sanity-check the four questions on a <code>runtime screenshot</code>: can I instantly see <strong>the player</strong>,
+<strong>interactables</strong>, <strong>which layer is playable</strong>, and <strong>understand the level</strong> from the still?</p>
+<p><strong>Stage 2: Gameplay (once mechanics work).</strong> Light to <em>guide</em>: bright = go here, dark =
+non-essential, <code>SpotLight3D</code> = important object, light beam = exit. Players subconsciously follow
+the brightest path, which is the lit form of “Attract attention” below. Let unimportant space fall dark.</p>
+<p><strong>Stage 3: Mood (only after gameplay is proven).</strong> Rim/colored lights, fog, bloom, volumetrics,
+and post. Now the question is “does it <em>feel</em> right?”, not “can I understand this?”. This is art
+polish; it waits (Presentation-stages layer 4).</p>
+<p><strong>Side-view / 2.5D rig (enough for most prototypes):</strong> key <code>DirectionalLight3D</code> + ambient fill + an
+optional <strong>back/rim light</strong> behind the player, which is a <em>second light node</em> rather than a
+material trick, so it survives on grey geometry. A subtle rim lifts the character silhouette
+off a grey background.
+Lighting is also a way to build the <strong>depth value hierarchy</strong> above: light each layer toward its
+target value (background dim → player brightest) instead of, or alongside, material albedo value.</p>
+<h2 id="spatial-communication-teaches-the-player-without-text">Spatial communication teaches the player without text<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#spatial-communication-teaches-the-player-without-text">#</a></h2>
+<p>These tactics are the shared vocabulary: they hold indoors, outdoors, and in 2D, and only the tool
+changes. Each is one idea plus the commands that build and prove it.</p>
+<h3 id="give-the-player-a-clear-goal-beat-blank-canvas-syndrome">Give the player a clear goal (beat blank-canvas syndrome)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#give-the-player-a-clear-goal-beat-blank-canvas-syndrome">#</a></h3>
+<p>Place the <strong>player</strong> and a <strong>visible goal</strong> first; then you only build the <em>gap between them</em>,
+and you have a landmark to compose every sightline around. A clear goal makes the player move
+<strong>deliberately</strong> instead of meandering. <strong>Reiterate the goal</strong> along the path, since each
+re-framing re-orients them (pinch points control those shots).</p>
+<p><strong>Build:</strong> drop a player start and a <strong>goal beacon</strong> (building blocks) at opposite ends, then
+fill between. <code>scene play</code> and confirm the beacon is visible from spawn with <code>runtime screenshot</code>; if not, raise it or clear the sightline.</p>
+<h3 id="motivate-movement-by-blocking-sightlines">Motivate movement by blocking sightlines<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#motivate-movement-by-blocking-sightlines">#</a></h3>
+<p>A room that reveals everything at once is dead, because there is no reason to move. <strong>Block
+sightlines</strong> so the player circles to gather info from new angles and assembles the map in their
+head. Aim for <strong>no single vantage</strong> that shows the whole room.</p>
+<p><strong>Build:</strong> add <strong>wall/box blockers</strong> (building blocks) between the entrance and the exit/secrets,
+meaning pillars and machinery-sized boxes mid-room. Test: <code>scene play</code>, then <code>runtime set</code> the
+player (or camera) to the entry and each corner, <code>runtime screenshot</code> at each. <strong>If any one screenshot shows
+the whole room and its exit, add another blocker.</strong></p>
+<h3 id="block-the-player-creatively-tearing-down-walls">Block the player creatively (“tearing down walls”)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#block-the-player-creatively-tearing-down-walls">#</a></h3>
+<p>Don’t fence with flat walls. Block in ways that are interesting <em>and</em> functional: a torn-open
+wall over a <strong>fatal drop</strong> seals escape as surely as a wall but reads better, and the opening
+lets you frame the goal through it.</p>
+<p><strong>Build:</strong> instead of a tall solid wall, place a low broken parapet (a short box) at the edge and
+a <strong>killzone</strong> (building blocks) in the void beyond. Frame the goal through the gap with <code>editor set-camera</code>.</p>
+<h3 id="tension-and-release">Tension and release<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#tension-and-release">#</a></h3>
+<p>Lead the player to a <strong>dead end</strong> (two locked doors) so they <strong>backtrack</strong>, then reveal the real
+path from the new angle on the way back (a route that was sightline-blocked before). The pocket
+of “where do I go?” releases into “it was behind me.” At level scale: <strong>lose sight of the goal</strong>
+(route through a tunnel/woods), let them get briefly lost, then <strong>pinch them into a spot where
+the goal reappears</strong>.</p>
+<p><strong>Build:</strong> put two non-opening doors (boxes, <code>Label3D</code> “LOCKED”) at a path’s end; place the true
+exit behind a blocker that’s only visible when facing back toward the entrance. For the level beat:
+run the path through a corridor of tall boxes that occlude the goal beacon, ending at a pinch point
+(below) that re-frames it. Verify both with walk-through screenshots.</p>
+<h3 id="one-way-valves-nudge-forward-and-keep-it-manageable">One-way valves nudge forward and keep it manageable<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#one-way-valves-nudge-forward-and-keep-it-manageable">#</a></h3>
+<p>A drop the player can’t climb back up gently pushes them on and <strong>caps how far they wander
+backward</strong>, so a big space stays digestible. Use one before opening into a larger area. Always
+pair with a <strong>shortcut</strong> so earlier space isn’t sealed forever.</p>
+<p><strong>Build:</strong> a height delta <strong>bigger than the player’s jump height</strong> with no ramp on the far side.
+That is pure layout, no special node. Verify: after <code>scene play</code>, drive the player back toward it
+with <code>input action</code> + jump and confirm via <code>runtime get --node-path Player --properties '["global_position"]'</code> that they <strong>can’t</strong> remount.</p>
+<h3 id="privileged-perspective-lets-them-plan-before-they-commit">Privileged perspective lets them plan before they commit<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#privileged-perspective-lets-them-plan-before-they-commit">#</a></h3>
+<p>Before a combat/stealth space, enter from <strong>above / a safe vantage</strong> so the player reads the
+layout and forms a plan without the duress, then advances at their own pace.</p>
+<p><strong>Build:</strong> put the entrance on a raised platform (a box at height) overlooking the encounter area,
+with stairs/ramp down. Confirm the overview reads: <code>editor set-camera</code> to the entry viewpoint,
+then <code>runtime screenshot</code>. The player should see the threats and the routes from up there.</p>
+<h3 id="make-a-space-feel-larger-with-the-illusion-of-choice">Make a space feel larger with the illusion of choice<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#make-a-space-feel-larger-with-the-illusion-of-choice">#</a></h3>
+<p>Offer <strong>several routes that converge on one point</strong>. The player can’t take them all, so any route
+they skip leaves unknown (therefore infinite-feeling) space. Cheap depth: three short alternate
+paths through <em>one</em> space, not three spaces.</p>
+<p><strong>Build:</strong> from a hub box-room, cut three openings to three short corridors that all rejoin at the
+next trigger/door. Keep each corridor a few boxes long, because it’s the <em>branching</em>, not the
+length, that sells size.</p>
+<h3 id="attract-attention-draw-the-eye-down-a-chosen-route">Attract attention: draw the eye down a chosen route<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#attract-attention-draw-the-eye-down-a-chosen-route">#</a></h3>
+<p>When routes are many, lead the eye:</p>
+<ul>
+<li>
+<strong>Light = contrast, not moth-to-flame</strong>. A lit feature is <em>easier to read</em>, so it reads as
+important. <strong>Build:</strong> put an <strong>attention light</strong> (building blocks) on the thing you want noticed.</li>
+<li>
+<strong>Movement / noise</strong> pull attention. <strong>Build:</strong> an <strong>animated attractor</strong> (a rotating fan box, a
+swaying door) via <code>animation.*</code>.</li>
+<li>
+<strong>Affordances communicate function</strong>. A <em>doorway/arch</em> says “pass through,” <em>steps</em> say “climb,”
+a <em>window</em> says “climb through” (players are cat burglars). <strong>Build:</strong> shape the opening like the
+action you want: an arch box for passage, stepped boxes for climbing. Curve stairs out of sight
+to add <strong>mystery</strong>.</li>
+<li>
+<strong>Parallax / layered geometry / fog</strong> give <strong>depth cues</strong> a flat screen loses. <strong>Build (3D):</strong>
+stagger boxes at different depths; add a <code>WorldEnvironment</code> with fog. <strong>Build (2D):</strong>
+<code>Parallax2D</code> / <code>CanvasLayer</code> layers.</li>
+</ul>
+<h3 id="create-mystery-by-seeding-not-showing">Create mystery by seeding, not showing<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#create-mystery-by-seeding-not-showing">#</a></h3>
+<p>Make the player <strong>assume something exists</strong> but discover <em>what</em>. Think of a door ajar, swaying,
+with light bleeding around it. They can’t see behind it but know it opens.</p>
+<p><strong>Build:</strong> a partly-open door (a box rotated to a gap) with an <strong>attention light</strong> behind it and a
+<strong>trigger</strong> just past it, so the reveal lands when they push through. Don’t show what’s behind in
+any earlier sightline.</p>
+<h3 id="build-a-vocabulary-you-can-pay-off-or-subvert">Build a vocabulary you can pay off or subvert<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#build-a-vocabulary-you-can-pay-off-or-subvert">#</a></h3>
+<p>Reuse a <strong>recognizable usable element</strong> (the talk’s climbable pipes, used to escape, then again
+at a bridge, then near the end). Once taught, the player makes their own plans; then <strong>pay it off</strong>
+(it works, which vindicates them) or <strong>subvert it</strong> (the path goes elsewhere, which surprises them).</p>
+<p><strong>Build:</strong> pick one climbable motif (e.g. a <code>CSGCylinder3D</code> “pipe” in a fixed color) and place it
+identically each time it’s usable. <strong>Consistency is the contract</strong>. Never reuse that color/shape
+for non-climbable geometry, or the language breaks.</p>
+<h3 id="communicate-blockage-honestly-match-affordance-to-intent">Communicate blockage honestly: match affordance to intent<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#communicate-blockage-honestly-match-affordance-to-intent">#</a></h3>
+<p>Every blocker says something; make it say the right thing.</p>
+<ul>
+<li>
+<strong>Bars</strong> read “not meant to go here”, so they block <em>and</em> signal intent. A <strong>gap</strong>, after you’ve
+taught the player to jump gaps, reads “jump here”, which makes a too-wide gap used as a wall a
+lie that makes them fail an invited jump. <strong>Use the blocker whose <em>meaning</em> matches your intent.</strong></li>
+<li>
+<strong>Things they can’t use must look unusable</strong>. A door they can’t open shouldn’t look openable from
+afar. <strong>Build:</strong> barricade it with furniture boxes, or just <strong>delete it</strong>, since an
+unrealistic-clear space beats a realistic-frustrating one (<code>node delete</code>).</li>
+</ul>
+<h3 id="shortcuts-shrink-the-world-and-respect-the-players-time">Shortcuts shrink the world and respect the player’s time<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#shortcuts-shrink-the-world-and-respect-the-players-time">#</a></h3>
+<p>After a valve or a cleared challenge, open a <strong>shortcut back</strong> to earlier space. It re-connects
+the level, makes it feel smaller, and lets a proven challenge be skipped on repeat traversal.</p>
+<p><strong>Build:</strong> add a door/opening (a <strong>trigger</strong> that swaps a wall box out, or a kicked-open gate) from
+the new area straight into a previously-visited room. Repurpose old <strong>dead ends</strong> as the shortcut’s
+mouths.</p>
+<h3 id="pinch-points-control-the-shot-without-taking-control">Pinch points control the shot without taking control<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#pinch-points-control-the-shot-without-taking-control">#</a></h3>
+<p>Funnel the player through a <strong>narrow doorway</strong>. You know exactly where they are, so you know where
+the <strong>camera</strong> is. Compose a reveal (re-frame the goal) <strong>without cutting away or seizing
+control</strong>.</p>
+<p><strong>Build:</strong> narrow the path to a one-box-wide opening; just past it, place the goal beacon / vista
+in view. Pre-frame with <code>editor get-camera</code>/<code>set-camera</code>, then <code>scene play</code> + <code>runtime screenshot</code>
+from the doorway to confirm the reveal lands.</p>
+<h3 id="safety-nets-let-failure-happen-without-breaking-flow">Safety nets let failure happen without breaking flow<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#safety-nets-let-failure-happen-without-breaking-flow">#</a></h3>
+<p>A failed jump shouldn’t mean a game-over and restart, which breaks flow. Give failure a <strong>soft
+landing</strong> the player climbs back from, without removing the challenge (they still must make the
+jump).</p>
+<p><strong>Build:</strong> under a platforming gap, place a <strong>lower recovery platform</strong> with a ramp/stairs back up,
+or a <strong>killzone</strong> whose handler respawns them at a checkpoint just before the jump, not at level
+start. Verify by <strong>failing the jump on purpose</strong> during <code>scene play</code> and confirming you recover in
+the flow.</p>
+<h3 id="problem-solution-ordering-gates-the-information">Problem-solution ordering gates the information<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#problem-solution-ordering-gates-the-information">#</a></h3>
+<p>The player must <strong>meet the problem before the solution</strong>, or the solution is meaningless (find the
+key before the locked gate and the gate feels already-open). <strong>Make the problem unavoidable, route
+the solution behind it.</strong></p>
+<p><strong>Build:</strong> sequence with <strong>triggers</strong>. Put the locked gate on the main path so it’s hit first; place
+the key behind a barrier that only the act of reaching the gate opens (a trigger at the gate drops a
+crate/ramp that unlocks the route to the key). Test the <em>order</em> by walking it: you should be unable
+to reach the key first.</p>
+<h2 id="build-on-uneven-terrain-get-off-the-grid">Build on uneven terrain: get off the grid<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#build-on-uneven-terrain-get-off-the-grid">#</a></h2>
+<p>Flat on-grid boxes yield dull levels. Place <strong>start</strong> and <strong>end</strong>, then build a <strong>mess of uneven
+terrain between</strong> and make architecture comply with the contours. Buildings cut into a hillside
+give a ground entrance that drops to a storage level that opens onto ground again: natural
+elevation and vantage points. Rooms can be internally gridded; just not all on the <em>same</em> grid.</p>
+<p><strong>Build:</strong> vary <code>position.y</code> and <code>rotation_degrees</code> across your floor/platform boxes; stack and
+embed boxes at different heights rather than tiling one plane. Stairs/ramps (rotated boxes) connect
+the levels.</p>
+<h2 id="interior-combat-spaces-arenas-cover-and-greybox-ai">Interior combat spaces: arenas, cover, and greybox AI<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#interior-combat-spaces-arenas-cover-and-greybox-ai">#</a></h2>
+<p>Combat interiors are one family, and the cube-room / cube-hallway / cube-cover vocabulary belongs
+to it. Everything above applies unchanged; a fight adds a size contract with the weapons, a cover
+language, and enemies smart enough to test the space.</p>
+<p><strong>Size the arena from the weapons</strong>, against the ranges the mechanic prototype proved. A pistol
+fight in a 60 m hall is a walk; a sniper in a 12 m room is a shotgun. A clear diagonal means every
+entrant is visible to every defender from the first frame. Break it, or choose it deliberately.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial bounds --node-path ArenaFloor      # size.x / size.z = the real fight box, in meters</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial raycast --from "Vector3(-18,1.6,-18)" --to "Vector3(18,1.6,18)"   # the diagonal</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Cover is a height language.</strong> Three tiers, fixed for the project and coded with the traversal
+colour: <strong>full</strong> (~2.2 m, blocks sight and shots), <strong>half</strong> (~1.1 m, crouch behind, shoot over),
+<strong>low</strong> (~0.5 m, breaks the silhouette only). Space pieces so crossing between two costs a dash.
+Prove the height with a ray pair, one at standing eye height and one crouched. Both missing means
+the box is decoration, both hitting means it’s a wall wearing the cover colour:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">csg add --type CSGBox3D --name Cover_A --parent-path Arena --size "Vector3(2,1.1,0.6)" \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--position "Vector3(0,0.55,0)" --use-collision true      # y = half the height: base on the floor</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># …Cover_B, Cover_C the same, then space and colour them:</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial distribute --nodes '["Arena/Cover_A","Arena/Cover_B","Arena/Cover_C"]' --axis x --span 14</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">material apply --node-path Arena/Cover_A --material_path res://mat/traversal.tres</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial raycast --from "Vector3(-14,1.6,0)" --to "Vector3(14,1.6,0)"   # standing: clear (exposed)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial raycast --from "Vector3(-14,0.9,0)" --to "Vector3(14,0.9,0)"   # crouched: hits a cover box</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>distribute</code> anchors on the <strong>first</strong> node and spreads forward, so a <code>--span 14</code> off <code>Cover_A</code> at
+x=0 lands the line at 0/7/14, not centred on the room. Put the first piece where the line should
+start (x=-7 for a centred trio) and read the centres back with <code>spatial bounds</code> on each.</p>
+<h3 id="greybox-the-ai-too-big--medium--small">Greybox the AI too (Big → Medium → Small)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#greybox-the-ai-too-big--medium--small">#</a></h3>
+<p>Don’t pair a proven level with a dumb walk-at-player enemy and discover months later it breaks under
+real AI. Greybox the AI alongside the level. The guiding idea: <strong>greybox AI tests the level, it
+doesn’t win the game</strong>. If it can reliably break your pathing / cover / sight lines / encounter
+flow, it’s doing its job; if it stands around, you’re testing half the game. The archetypes below
+are shooter-native; the genre shorthand at the end is the version for everything else, and
+<code>ai-steering.md</code> covers the movement itself.</p>
+<ul>
+<li>
+<strong>Big AI is archetypes as questions</strong>. Each is a coloured capsule (<code>CharacterBody2D/3D</code> +
+<code>NavigationAgent</code>, one material per type), not a finished enemy: <strong>Rusher</strong> (combat space big
+enough? cover meaningful?), <strong>Flanker</strong> (enough routes? too linear?), <strong>Sniper</strong> (are sight lines
+interesting?), <strong>Defender</strong> (does objective play work?). Build the navmesh with the <code>navigation</code>
+group; drive the pawn with a <code>NavigationAgent</code>.</li>
+<li>
+<strong>Medium AI is tactical</strong>. Cover use, retreat, grouping, search/patrol. Tests “does this space
+support <em>intelligent</em> behaviour?”, since a room that works against Rushers often fails the moment
+enemies use cover.</li>
+<li>
+<strong>Small AI is personality</strong>. Voice, animation, gestures, abilities. Immersion, not gameplay
+proof, and it comes last.</li>
+</ul>
+<p><strong>Reusable AI test pawn:</strong> one capsule with an <code>@export</code> mode enum (Rush / Flee / Patrol / Defend /
+Flank / Wander) switchable in the inspector, and <strong>loud debug visuals</strong> (target, nav path, aggro
+radius, vision cone, chosen cover). Greybox AI should be <em>extremely</em> visible. For stakeholder demos,
+build <strong>fake-smart</strong> AI, not smart AI: an enemy that visibly takes cover, peeks, and reacts reads
+as smarter than a sophisticated AI you can’t observe. The genre shorthand runs the same way. In a
+puzzle game, Big asks whether the AI reaches the goal, Medium whether it avoids obstacles, Small
+whether it looks smart. In a narrative game, Big is moving through scenes, Medium is reacting to
+state, Small is facial and idle micro-behaviour.</p>
+<h2 id="exterior-and-open-space-landmarks-distance-and-terrain">Exterior and open space: landmarks, distance, and terrain<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#exterior-and-open-space-landmarks-distance-and-terrain">#</a></h2>
+<p>Indoors, walls block sight, force routes, set scale, and mark progress. Outdoors there are no
+walls, so those jobs move to <strong>landmarks, terrain, haze, and distance</strong>, and an interior workflow
+applied to a field produces a big flat nothing. The tactics above hold; the tools change.</p>
+<h3 id="landmarks-navigate-signage-doesnt">Landmarks navigate, signage doesn’t<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#landmarks-navigate-signage-doesnt">#</a></h3>
+<p>A tall, uniquely-silhouetted object visible from most of the map is the goal beacon at world scale.
+Players orient off silhouettes, so two landmarks that read alike are worse than one. The working
+rule: <strong>every point on the critical path sees at least one landmark</strong>, proven by ray rather than by
+your memory of a screenshot. Read the answer off the <code>collider</code>: the landmark itself (or no hit at
+all, when the landmark carries no collision) means the line is clear; any other name is the hill or
+building that ate it.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">csg add --type CSGCylinder3D --name Spire --radius 4 --height 90 \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--position "Vector3(0,45,-320)" --use-collision true</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial bounds --node-path Spire                                    # take max.y for the aim point</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial raycast --from "Vector3(0,2,120)" --to "Vector3(0,80,-320)" # from spawn, eye height</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor set-camera --position "Vector3(0,2,120)" --look-at "Vector3(0,80,-320)" --fov 60</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor screenshot --save-path user://landmark_from_spawn.png</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h3 id="compose-the-long-sightline">Compose the long sightline<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#compose-the-long-sightline">#</a></h3>
+<p>A vista is a shot: edges that frame, something at mid-distance carrying scale, the draw at the end.
+Overlap, size falloff, and atmospheric haze do the work a wall does indoors, and haze is honest
+information. It says “far”, the exterior’s version of a corridor saying “this way”.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type WorldEnvironment --name Env --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add-resource --node-path Env --property environment --resource-type Environment \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--resource-properties '{"fog_enabled":true,"fog_mode":1,"fog_depth_begin":60,"fog_depth_end":900,"fog_aerial_perspective":0.6}'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor set-camera --position "Vector3(0,26,140)" --look-at "Vector3(0,40,-320)" --fov 55</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor screenshot --save-path user://vista_01.png</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>(<code>fog_mode</code> 1 is depth fog, where <code>fog_depth_begin</code>/<code>end</code> apply. Confirm it with <code>engine docs --class Environment --member FogMode</code>, which returns <code>FOG_MODE_DEPTH = 1</code> and its description.
+<code>engine class-info</code> reports only <code>fog_mode: int</code> and cannot tell you which integer is which.)
+Scale <code>fog_depth_end</code> to the map, not to the number above: at 900 m it barely touches geometry
+440 m out, while pulling it to 250 m washes the ridges pale and swallows a 90 m spire whole. That
+is also the diagnosis when a landmark disappears. It is usually fog, since <code>Camera3D.far</code> defaults
+to 4000 m (<code>engine defaults --class Camera3D</code>), so a clipped draw means someone lowered it. Re-run
+the <strong>3-second screenshot test</strong> from the vista.</p>
+<h3 id="terrain-paces-what-walls-pace-indoors">Terrain paces what walls pace indoors<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#terrain-paces-what-walls-pace-indoors">#</a></h3>
+<p>Elevation is the outdoor pinch point, valve, and reveal line at once. A saddle between two hills is
+a chokepoint with no wall. Rising ground reads as effort and falling ground as release, so the hard
+beat goes at the top. A crest is a reveal line, which makes it the best place in an open map to
+hide the next landmark. Greybox terrain is a few big plates and rotated wedges, not a heightmap:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">csg add --type CSGBox3D --name Ground --size "Vector3(800,2,800)" --use-collision true --position "Vector3(0,-1,0)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">csg add --type CSGBox3D --name Ridge_W --size "Vector3(120,40,18)" --use-collision true \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--position "Vector3(-70,8,-40)" --rotation "Vector3(0,0,-6)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># …Ridge_E mirrored at +70 with rotation "Vector3(0,0,6)", then prove the funnel:</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial raycast --from "Vector3(0,2,40)"   --to "Vector3(0,2,-140)"    # the saddle: clear</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial raycast --from "Vector3(-70,2,40)" --to "Vector3(-70,2,-140)"  # the flank: hits Ridge_W</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Seat anything on sloped plates with <code>spatial place_on --samples 3 --conform</code> instead of computing
+Y. Outdoor ground is never flat, so the footprint bundle earns its keep here more than anywhere.
+Add the prop with <code>--use-collision false</code>, seat it, then switch collision on: a prop that already
+carries a collider seats on its own top face and reports a clean success (see the Tier-2 note
+above). On a rotated plate, read the seat off <code>place_on</code>’s own <code>surface_top_y</code> and <code>avg_normal</code>
+rather than <code>spatial relate</code>. Relate compares world AABBs, and a tilted 120 m plate has an AABB
+tall enough to report <code>overlaps: true</code> against a prop resting on its surface.</p>
+<h3 id="region-transitions-read-at-the-border">Region transitions read at the border<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#region-transitions-read-at-the-border">#</a></h3>
+<p>With no door to walk through, a region change has to be legible from geometry: <strong>change two things
+at once</strong> (ground value plus dominant silhouette) and put the change where the player already
+looks: a crest, a bridge, a bend. Massing gives a region its silhouette long before art exists; the
+boxes read as a forest’s density, not as trees.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">material create --path res://mat/region_north.tres --albedo_color "#6a7a58" --roughness 0.95</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">material apply --node-path Ground_North --material_path res://mat/region_north.tres</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scatter populate --on Ground_North --mesh-type BoxMesh --count 140 --align-to-normal true \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--scale-min 0.8 --scale-max 2.4 --seed 3 --name Massing_North</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>pcg scatter --on Ground_North --noise-threshold 0.6 --emit multimesh --mesh-from TreeProto</code> does
+the same with clumping, so density thins toward the border instead of stopping on a line. Both seat
+by down-ray onto <code>use_collision</code> geometry, so scatter after the terrain.</p>
+<h3 id="scale-discipline-meters-per-beat">Scale discipline: meters per beat<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#scale-discipline-meters-per-beat">#</a></h3>
+<p>Indoor spacing is counted in rooms; outdoor spacing is counted in <strong>walk seconds</strong>, and that is
+where exterior blockouts fail. Fix the travel budget first (20-30 s between beats on the critical
+path is a common starting point), then lay the map to it, because no set dressing shortens a walk.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial relate --node-path Beat_01 --other Beat_02   # raw meters between beats</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene play --mode current</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime move-to --target Beat_02 --player-path Player --timeout 60   # walk it; elapsed_time is the number</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>move_to</code> guesses <code>/root/Main/Player</code> when <code>--player-path</code> is omitted and errors naming that path,
+so pass the path <code>runtime tree</code> shows. Its <code>--timeout</code> defaults to 15 s, which a 180 m leg
+overruns; raise it past the budget you are measuring. The returned <code>elapsed_time</code> matches the wall
+clock, so either reads as the design number.</p>
+<p>Measure the character’s walk and run speed once (<code>character-3d.md</code> has the verify-by-driving loop)
+and every later spacing decision is arithmetic on that number.</p>
+<h2 id="2d-level-design-screens-scroll-and-rooms">2D level design: screens, scroll, and rooms<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#2d-level-design-screens-scroll-and-rooms">#</a></h2>
+<p>2D is its own discipline. Depth is faked, so <strong>the camera decides what the player knows</strong>, and the
+questions that were about volume become questions about frame, value, and layer order.
+Construction sits in the sibling docs: <code>platformer-2d.md</code> for the side-view actor, tilemap
+blockouts, and trip-line camera limits; <code>topdown-2d.md</code> for the <code>TileMapLayer</code> stack and terrain
+painting. This section owns the spatial design above them.</p>
+<h3 id="decide-which-build-problem-25d-is">Decide which build problem “2.5D” is<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#decide-which-build-problem-25d-is">#</a></h3>
+<ul>
+<li>
+<strong>3D geometry, constrained camera</strong> (side-on or fixed ortho, Trine/Ori-like, or diorama
+puzzles à la Hitman GO). Build with the CSG <strong>building blocks</strong>, then lock the camera
+(<code>node set --node-path Camera3D --properties '{"projection":1,"size":12}'</code> for orthographic).
+Depth separation is <em>real</em>, so use Z position, and this doc’s 3D tactics apply directly.</li>
+<li>
+<strong>Layered 2D</strong> (sprites/quads stacked with parallax). Build with <code>ColorRect</code>/<code>Polygon2D</code> on
+ordered <code>CanvasLayer</code> / <code>Parallax2D</code> layers. Depth is <em>faked</em> by draw order + parallax, so
+separating the playable plane from décor is entirely on you (<code>Parallax2D.scroll_scale</code> is the
+depth dial; <code>environment-art.md</code> has the verified recipe).</li>
+</ul>
+<p>Either way a side-view greybox validates six things: <strong>layer separation</strong> (background vs playable
+vs foreground unmistakable), <strong>path clarity</strong>, <strong>jump distances</strong>, <strong>interaction points</strong>,
+<strong>character readability</strong> (the silhouette never lost against the background), and <strong>camera framing</strong>.</p>
+<h3 id="pick-the-space-unit-screen-or-scroll">Pick the space unit: screen or scroll<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#pick-the-space-unit-screen-or-scroll">#</a></h3>
+<p><strong>Screen-based</strong> (one room = one screen) makes the screen the design unit: every beat resolves
+inside one frame and the reveal happens at the <em>transition</em>, so entrances carry what sightlines
+carry in 3D. <strong>Scrolling</strong> makes the camera a moving aperture: the player holds a fraction of the
+level and pacing is what enters and leaves frame. Decide before laying anything out, and measure
+the aperture in world units first. The returned <code>Vector2</code> is one screenful, and every room, gap,
+and reveal below is sized against it:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene2d add-camera --name Camera2D --zoom "Vector2(2,2)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene play --mode current</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime eval --code 'var c = get_tree().current_scene.get_node("Camera2D")</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">emit(get_viewport().get_visible_rect().size / c.zoom)'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h3 id="sightlines-become-the-camera-window">Sightlines become the camera window<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#sightlines-become-the-camera-window">#</a></h3>
+<p>“What can they see from here” becomes “what is on screen, and when”. <code>limit_*</code> fences the camera to
+a room; the drag margins set the dead zone the player crosses before the camera follows. A wide
+dead zone hides what’s ahead and rewards committing, a tight one shows the threat early and rewards
+planning. Margins are fractions of the half-viewport, so <code>0.3</code> is roughly a third of the screen
+either side. Per-room limits belong on trip-line areas (<code>platformer-2d.md</code>), so the level owns the
+framing:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set --node-path Camera2D --properties '{"limit_enabled":true,"limit_left":0,"limit_top":0,</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">"limit_right":3840,"limit_bottom":1080,"limit_smoothed":true,</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">"position_smoothing_enabled":true,"position_smoothing_speed":6.0}'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set --node-path Camera2D --properties '{"drag_horizontal_enabled":true,</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">"drag_left_margin":0.3,"drag_right_margin":0.3,"drag_vertical_enabled":false}'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h3 id="vertical-slice-pacing-for-side-view">Vertical-slice pacing for side-view<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#vertical-slice-pacing-for-side-view">#</a></h3>
+<p>Side-view paces on two axes at once: forward motion carries the challenge cadence, vertical
+position carries risk and reward (up is treasure, down is danger, in most established vocabularies).
+Compose a column that reads top to bottom, then a sequence of columns reading left to right. The
+unit is the character’s <strong>measured</strong> jump arc:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene play --mode current</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">input action --action move_right --pressed true</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">input action --action jump --pressed true</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime monitor --node-path Player --properties '["global_position"]' --frame-count 70 --frame-interval 2</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">input action --action jump --pressed false</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">input action --action move_right --pressed false</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>runtime monitor</code> is the sampler: it returns the position series the arc is read from.
+<code>runtime capture-frames</code> returns PNG frames, not numbers. Hold a direction across the whole arc,
+or the jump is vertical and the reach reads zero.</p>
+<p>Peak height is the launch <code>y</code> minus the smallest <code>y</code> in the series; horizontal reach is the <code>x</code>
+travelled between launch and the sample where <code>y</code> settles back to the ground value. Derive every
+gap, ledge, and ceiling from those two numbers. A gap at 100% of measured reach is a failure the
+player blames on you; ~70% is a jump they feel good about clearing.</p>
+<h3 id="room-graph-design-for-top-down">Room-graph design for top-down<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#room-graph-design-for-top-down">#</a></h3>
+<p>A top-down level is a graph before it is tiles: rooms are nodes, doors are edges, and the layout
+question is the graph’s shape. The critical path is a spine and loops that rejoin it are the
+shortcuts; a lock is an edge condition and its key a room hung off the spine (problem-solution
+ordering decides which comes first along the walk); dead ends have to pay, because backtracking
+costs attention the player spent on the map. Build one scene per room and compose from instances,
+so the graph is editable without a level rebuild:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene create --path res://rooms/room_03.tscn --root-type Node2D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene open --path res://levels/wing_west.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene instance --scene-path res://rooms/room_03.tscn --parent-path Rooms --name Room03</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set-meta --node-path Rooms/Room03 --key graph_edges --value '["Room02","Room04"]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene tree                                  # the graph, read back from the level</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Doors are the <code>Area2D</code> sensors <code>topdown-2d.md</code> describes; the metadata makes the graph auditable
+without opening every room scene.</p>
+<h2 id="pacing-without-combat">Pacing without combat<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#pacing-without-combat">#</a></h2>
+<p>Threat is one pressure. Curiosity, comprehension, routine, and revelation are others, and each
+paces on its own clock. The Big→Medium→Small order, the greybox discipline, and the tactics above
+hold; “encounter → quiet → encounter” is replaced by the beat that genre runs on.</p>
+<ul>
+<li>
+<strong>Exploration</strong>: the beat is a <strong>reveal</strong>, and the dial is how far apart reveals sit. Too close
+and the map is a corridor of gifts, too far and the walk is a chore. Mark intended reveals and
+read the spacing back rather than trusting how it feels in the editor.
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">doc note --action add --category pacing --at "Vector3(40,2,-90)" --text "first ruin, seen from the ridge"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">doc note --action list --category pacing</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">spatial relate --node-path Beat_01 --other Beat_02</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+A second note in the same category keeps a readable name (<code>Note_Pacing2</code>); pass <code>--name</code> when a
+specific handle matters. (<code>doc note --action add --at</code> drops a <code>Marker3D</code>, so a 2D scene is
+refused. Write the same beats there with <code>node set-meta</code> on the room nodes, then read them back
+with <code>doc note --action list</code>, which walks a 2D scene too.)</li>
+<li>
+<strong>Puzzle</strong>: the beat is <strong>comprehension</strong>, built as teach, test, twist. One mechanic per room,
+the twist only after the test proved the rule landed, gated with triggers as problem-solution
+ordering describes. Validate by walking the order; a puzzle reachable early is a puzzle spoiled.</li>
+<li>
+<strong>Farming / sim</strong>: the beat is the <strong>loop</strong>, and distance is the dial. Hub-to-field walking time
+tunes tedium and rhythm together, so measure it. Space plots with <code>spatial distribute</code> (or the
+tilemap grid in 2D), time one full loop with <code>scene play</code> plus sampled <code>runtime get</code> positions,
+then tune the distance rather than the walk speed.</li>
+<li>
+<strong>Narrative</strong>: the beat is a <strong>shot</strong>, the room is a frame, the pinch point is the cut. Compose
+before dressing anything (<code>editor set-camera --position … --look-at …</code>, then <code>editor screenshot</code>)
+and keep the frames beside the script. Sightline blocking becomes reveal timing; the safety net
+becomes “never lose the player between beats”.</li>
+</ul>
+<h2 id="checklist-when-laying-out-a-blockout">Checklist when laying out a blockout<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#checklist-when-laying-out-a-blockout">#</a></h2>
+<ul>
+<li>
+<strong>Space family named first</strong> (interior arena / exterior open / 2D screen or scroll). The tactics
+are shared, the tools and the scale discipline are not.</li>
+<li>Player start + <strong>visible goal beacon</strong> placed first; goal <strong>reiterated</strong> along the path.</li>
+<li>
+<strong>No single vantage</strong> reveals the whole space, with blockers added until walk-through screenshots
+prove it.</li>
+<li>Boundaries are <strong>interesting and honest</strong> (fatal drops/bars, not flat walls); each blocker’s
+<em>look</em> matches its intent.</li>
+<li>A <strong>usable-element vocabulary</strong> is taught early, kept consistent, and reused (paid off or subverted).</li>
+<li>
+<strong>One-way valves</strong> keep big spaces manageable; <strong>shortcuts</strong> keep them interconnected.</li>
+<li>Hard spaces get a <strong>privileged perspective</strong>; failures get a <strong>safety net</strong> (checkpoint, not restart).</li>
+<li>
+<strong>Pinch points</strong> placed where you direct attention without seizing control.</li>
+<li>Problems met <strong>before</strong> their solutions (trigger-gated); multiple routes <strong>converge</strong> to feel large.</li>
+<li>Terrain is <strong>uneven / off-grid</strong>; rooms sized with temp furniture for final scale.</li>
+<li>
+<strong>Color-coded, not art-finished</strong>: CSG + the greybox color language (one color = one rule,
+fixed for the whole project); no textures/props until the layout is proven.</li>
+<li>Layers separated by <strong>value</strong> (not just hue), proven by running the <strong>grayscale test</strong> to confirm
+the playable path still reads.</li>
+<li>
+<strong>Combat interiors:</strong> arena size checked against weapon range; cover proven by a standing/crouched
+ray pair; greybox AI archetypes run against the space before it’s called done.</li>
+<li>
+<strong>Exteriors:</strong> a landmark raycast-visible from every beat on the critical path; the travel budget
+between beats fixed in seconds and actually walked; region borders change two things at once.</li>
+<li>
+<strong>2D:</strong> the camera window measured in world units before anything is sized to it; jump reach
+measured by driving the character; the room graph drawn before a tile is painted.</li>
+<li>
+<strong>Non-combat:</strong> the pacing pressure named (curiosity / comprehension / routine / reveal) and its
+beats spaced deliberately, not left to the walk.</li>
+<li>
+<strong>Lighting answers gameplay questions</strong>: functional first (player/ground/hazards/interactables
+instantly legible); mood/post saved for after the level is proven.</li>
+<li>
+<strong>3-second screenshot test:</strong> one <code>runtime screenshot</code> should convey the level’s purpose to a
+fresh viewer in ~3s. If not, the gap is composition / contrast / lighting, <strong>not</strong> missing art.</li>
+<li>
+<strong>Walk it</strong> every iteration: <code>scene play</code> → <code>runtime screenshot</code> (teleport with <code>runtime set</code>
+or drive with <code>input action</code>) → <code>runtime get</code> to read state back → adjust.</li>
+</ul>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/tile-constraint" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Constraint tiling</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/character-3d" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>3D character controllers</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#a-level-is-four-things-at-once" data-toc="a-level-is-four-things-at-once" data-scope-p33bl5ka>A level is four things at once</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#process--strategy-graybox-first-plan-the-whole-finish-level-one-last" data-toc="process--strategy-graybox-first-plan-the-whole-finish-level-one-last" data-scope-p33bl5ka>Process &amp; strategy: graybox first, plan the whole, finish level one last</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#big--medium--small-solve-the-expensive-problems-first" data-toc="big--medium--small-solve-the-expensive-problems-first" data-scope-p33bl5ka>Big → Medium → Small: solve the expensive problems first</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#presentation-stages-designer-vs-stakeholder-greybox" data-toc="presentation-stages-designer-vs-stakeholder-greybox" data-scope-p33bl5ka>Presentation stages: designer vs stakeholder greybox</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#greybox-color-language-color-as-information-not-art" data-toc="greybox-color-language-color-as-information-not-art" data-scope-p33bl5ka>Greybox color language: color as information, not art</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#value-hierarchy-beats-color-for-depth" data-toc="value-hierarchy-beats-color-for-depth" data-scope-p33bl5ka>Value hierarchy beats color for depth</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#the-grayscale-test-actually-run-it" data-toc="the-grayscale-test-actually-run-it" data-scope-p33bl5ka>The grayscale test (actually run it)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#place-by-anchor-not-by-parallel-constants-read-back--raycast--verify" data-toc="place-by-anchor-not-by-parallel-constants-read-back--raycast--verify" data-scope-p33bl5ka>Place by anchor, not by parallel constants (read back · raycast · verify)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#blockout-building-blocks-the-recipes-every-tactic-reuses" data-toc="blockout-building-blocks-the-recipes-every-tactic-reuses" data-scope-p33bl5ka>Blockout building blocks (the recipes every tactic reuses)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#greybox-lighting-answers-gameplay-questions-not-art-questions" data-toc="greybox-lighting-answers-gameplay-questions-not-art-questions" data-scope-p33bl5ka>Greybox lighting answers gameplay questions, not art questions</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#spatial-communication-teaches-the-player-without-text" data-toc="spatial-communication-teaches-the-player-without-text" data-scope-p33bl5ka>Spatial communication teaches the player without text</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#give-the-player-a-clear-goal-beat-blank-canvas-syndrome" data-toc="give-the-player-a-clear-goal-beat-blank-canvas-syndrome" data-scope-p33bl5ka>Give the player a clear goal (beat blank-canvas syndrome)</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#motivate-movement-by-blocking-sightlines" data-toc="motivate-movement-by-blocking-sightlines" data-scope-p33bl5ka>Motivate movement by blocking sightlines</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#block-the-player-creatively-tearing-down-walls" data-toc="block-the-player-creatively-tearing-down-walls" data-scope-p33bl5ka>Block the player creatively (“tearing down walls”)</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#tension-and-release" data-toc="tension-and-release" data-scope-p33bl5ka>Tension and release</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#one-way-valves-nudge-forward-and-keep-it-manageable" data-toc="one-way-valves-nudge-forward-and-keep-it-manageable" data-scope-p33bl5ka>One-way valves nudge forward and keep it manageable</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#privileged-perspective-lets-them-plan-before-they-commit" data-toc="privileged-perspective-lets-them-plan-before-they-commit" data-scope-p33bl5ka>Privileged perspective lets them plan before they commit</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#make-a-space-feel-larger-with-the-illusion-of-choice" data-toc="make-a-space-feel-larger-with-the-illusion-of-choice" data-scope-p33bl5ka>Make a space feel larger with the illusion of choice</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#attract-attention-draw-the-eye-down-a-chosen-route" data-toc="attract-attention-draw-the-eye-down-a-chosen-route" data-scope-p33bl5ka>Attract attention: draw the eye down a chosen route</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#create-mystery-by-seeding-not-showing" data-toc="create-mystery-by-seeding-not-showing" data-scope-p33bl5ka>Create mystery by seeding, not showing</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#build-a-vocabulary-you-can-pay-off-or-subvert" data-toc="build-a-vocabulary-you-can-pay-off-or-subvert" data-scope-p33bl5ka>Build a vocabulary you can pay off or subvert</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#communicate-blockage-honestly-match-affordance-to-intent" data-toc="communicate-blockage-honestly-match-affordance-to-intent" data-scope-p33bl5ka>Communicate blockage honestly: match affordance to intent</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#shortcuts-shrink-the-world-and-respect-the-players-time" data-toc="shortcuts-shrink-the-world-and-respect-the-players-time" data-scope-p33bl5ka>Shortcuts shrink the world and respect the player’s time</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#pinch-points-control-the-shot-without-taking-control" data-toc="pinch-points-control-the-shot-without-taking-control" data-scope-p33bl5ka>Pinch points control the shot without taking control</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#safety-nets-let-failure-happen-without-breaking-flow" data-toc="safety-nets-let-failure-happen-without-breaking-flow" data-scope-p33bl5ka>Safety nets let failure happen without breaking flow</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#problem-solution-ordering-gates-the-information" data-toc="problem-solution-ordering-gates-the-information" data-scope-p33bl5ka>Problem-solution ordering gates the information</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#build-on-uneven-terrain-get-off-the-grid" data-toc="build-on-uneven-terrain-get-off-the-grid" data-scope-p33bl5ka>Build on uneven terrain: get off the grid</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#interior-combat-spaces-arenas-cover-and-greybox-ai" data-toc="interior-combat-spaces-arenas-cover-and-greybox-ai" data-scope-p33bl5ka>Interior combat spaces: arenas, cover, and greybox AI</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#greybox-the-ai-too-big--medium--small" data-toc="greybox-the-ai-too-big--medium--small" data-scope-p33bl5ka>Greybox the AI too (Big → Medium → Small)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#exterior-and-open-space-landmarks-distance-and-terrain" data-toc="exterior-and-open-space-landmarks-distance-and-terrain" data-scope-p33bl5ka>Exterior and open space: landmarks, distance, and terrain</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#landmarks-navigate-signage-doesnt" data-toc="landmarks-navigate-signage-doesnt" data-scope-p33bl5ka>Landmarks navigate, signage doesn’t</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#compose-the-long-sightline" data-toc="compose-the-long-sightline" data-scope-p33bl5ka>Compose the long sightline</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#terrain-paces-what-walls-pace-indoors" data-toc="terrain-paces-what-walls-pace-indoors" data-scope-p33bl5ka>Terrain paces what walls pace indoors</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#region-transitions-read-at-the-border" data-toc="region-transitions-read-at-the-border" data-scope-p33bl5ka>Region transitions read at the border</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#scale-discipline-meters-per-beat" data-toc="scale-discipline-meters-per-beat" data-scope-p33bl5ka>Scale discipline: meters per beat</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#2d-level-design-screens-scroll-and-rooms" data-toc="2d-level-design-screens-scroll-and-rooms" data-scope-p33bl5ka>2D level design: screens, scroll, and rooms</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#decide-which-build-problem-25d-is" data-toc="decide-which-build-problem-25d-is" data-scope-p33bl5ka>Decide which build problem “2.5D” is</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#pick-the-space-unit-screen-or-scroll" data-toc="pick-the-space-unit-screen-or-scroll" data-scope-p33bl5ka>Pick the space unit: screen or scroll</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#sightlines-become-the-camera-window" data-toc="sightlines-become-the-camera-window" data-scope-p33bl5ka>Sightlines become the camera window</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#vertical-slice-pacing-for-side-view" data-toc="vertical-slice-pacing-for-side-view" data-scope-p33bl5ka>Vertical-slice pacing for side-view</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#room-graph-design-for-top-down" data-toc="room-graph-design-for-top-down" data-scope-p33bl5ka>Room-graph design for top-down</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#pacing-without-combat" data-toc="pacing-without-combat" data-scope-p33bl5ka>Pacing without combat</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#checklist-when-laying-out-a-blockout" data-toc="checklist-when-laying-out-a-blockout" data-scope-p33bl5ka>Checklist when laying out a blockout</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

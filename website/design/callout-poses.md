@@ -1,6 +1,6 @@
 # Butler callout poses
 
-Generated with built-in image_gen on 2026-09-06 from the character sheet. PNG masters live in `../public/brand/callouts/`; the shared Callout component renders optimized 152px WebP assets at 76px (48px on narrow screens).
+Generated with built-in image_gen on 2026-09-06 from the character sheet. PNG masters live in `../site/brand/callouts/`; the static callout markup displays optimized 152px WebP assets at 76px (48px on narrow screens).
 
 | Type | Expression / gesture |
 | --- | --- |

@@ -1,0 +1,215 @@
+# Use with an AI client
+
+Run swallowtail as an MCP server so Claude, Cursor, VS Code, or Codex can drive Godot.
+
+`swallowtail serve` gives an MCP client the same complete workflow as the CLI: discover the live engine, build in the open editor, run and play the game, observe state, debug failures, fix them, and verify the result. It runs as a [Model Context Protocol](https://modelcontextprotocol.io) server over stdio. Clients that speak **streamable HTTP** can skip the binary and [connect straight to the editor](#or-connect-straight-to-the-editor-streamable-http), which hosts its own MCP endpoint.
+
+## Two tool modes
+
+> **The typed list costs about 52,000 tokens**
+>
+> The full typed surface measures ~332 tools and ~52,000 tokens of schemas, sized for big-context frontier models, which carry it comfortably with prompt caching. The single-tool mode measures ~470 tokens. Measurements, per-group breakdown, and the reasoning behind the default: [What the tool surface costs](https://regiellis.github.io/godot-mcp-go/docs/context-cost).
+
+By default, `serve` exposes each documented command as a typed MCP tool, such as
+`node_add`, with required parameters and a description. Definitions come from the
+live addon, including [project-local commands](https://regiellis.github.io/godot-mcp-go/docs/extending), and refresh as
+described below. The generic `godot_run` tool accepts the dotted method name and
+its parameters:
+
+```json
+{"method": "node.add", "params": {"type": "Node2D", "name": "Player"}}
+```
+
+For clients that cap the number of tools, run `serve --typed=false` to expose only `godot_run`. One tool still reaches all 332 registered commands while keeping the model's context lean: the model discovers the live 4.7 API with `engine.search` / `engine.class_info`, then acts, instead of carrying every tool schema into the session. Both modes are deliberate: typed for schema-guided calls, single-tool for context economy.
+
+> **Tip**
+>
+> To drive a **standalone running game with no editor open**, `godot_run` accepts `game: true`, and the typed `runtime_*` / `input_*` tools carry an optional `game` parameter that routes the call to the game's own server. See the [direct-to-player channel](https://regiellis.github.io/godot-mcp-go/docs/playtest-loop#direct-to-player-channel).
+
+## Write the config automatically
+
+`swallowtail configure` writes an MCP-server entry for a supported client, merging without clobbering your other servers:
+
+```bash
+swallowtail configure claude --project /path/to/your/project
+swallowtail configure cursor
+swallowtail configure vscode
+swallowtail configure codex --global
+```
+
+Add `--print` to emit the snippet without writing (the safe path for uncertain global targets).
+
+`--project` must name a real Godot project, meaning the directory holding `project.godot` or anywhere inside it. Configure refuses a directory that is in no project: the config it would write leaves the server unable to resolve a project root, so it falls back to port 9080 and skips the check that the answering editor is the right one.
+
+When the Godot project sits in a subdirectory of a larger repo, `--config-dir` puts the config where the client reads it while the server still drives the project:
+
+```bash
+swallowtail configure claude --project ./game --config-dir .
+```
+
+## Or configure by hand
+
+```json
+{
+  "mcpServers": {
+    "swallowtail": {
+      "command": "swallowtail",
+      "args": ["serve", "--project", "/path/to/your/project"]
+    }
+  }
+}
+```
+
+The Godot editor must be open with the plugin enabled, exactly as for the CLI. `--project` sets where the server discovers the addon port, so it survives an editor restart.
+
+## Editor restarts and catalog changes
+
+The stdio server refreshes tool definitions when the client lists tools, before a
+typed call, and after a successful generic editor call. Added or removed commands
+and changed schemas emit `notifications/tools/list_changed`. An identical catalog
+emits no notification. If the editor goes offline, the list falls back to
+`godot_run`; the same stdio process discovers the tools again when it reconnects.
+The same holds when the editor is down at connect time: `serve` starts with
+`godot_run` alone and adds the typed tools once the editor answers.
+
+## Progress and cancellation
+
+A stdio client requests progress by putting a string or integer `progressToken`
+in the tool call's `_meta`, alongside `name` and `arguments`:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 42,
+  "method": "tools/call",
+  "params": {
+    "name": "script_validate",
+    "arguments": {"all": true},
+    "_meta": {"progressToken": "validation-42"}
+  }
+}
+```
+
+`notifications/progress` carries that token and an increasing `progress` value.
+Validation batches and imports count completed files; scenarios count completed
+steps. These updates include `total` when the count is known. Clients decide how
+to display them.
+
+To cancel request 42, send:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "notifications/cancelled",
+  "params": {"requestId": 42, "reason": "Stopped by user"}
+}
+```
+
+Cancellation stops remaining scenario steps, script validations, or asset imports
+at a safe boundary. Timed scenario waits can stop early. Completed edits and
+inputs stay in place, and a playing game stays running until `scene stop`.
+A native compile/import or game command already underway may finish. Cancelled
+requests send no result or further progress; ping stays responsive during work.
+
+Progress and cancellation currently apply to stdio. The HTTP endpoint below
+continues to return ordinary request results.
+
+## Or connect straight to the editor (streamable HTTP)
+
+The addon hosts a **streamable-HTTP MCP endpoint inside the editor** at `POST /mcp` on `127.0.0.1`, so an MCP client that speaks streamable HTTP connects with **no external process at all**:
+
+```json
+{
+  "mcpServers": {
+    "swallowtail": {
+      "url": "http://127.0.0.1:9100/mcp"
+    }
+  }
+}
+```
+
+The endpoint picks the first free port in **9100-9115** and records it as `http_port` in `<project>/.godot/swallowtail.json`; pin a fixed one with the `swallowtail/network/http_port` project setting (Project → Project Settings → Swallowtail) or the `SWALLOWTAIL_HTTP_PORT` environment variable.
+
+The tool surface mirrors `serve`: the generic `godot_run` plus every documented command as a typed tool, dispatched through the same command router with the same safety guards. Two settings tune it:
+
+| Setting | Default | Effect |
+| --- | --- | --- |
+| `swallowtail/network/mcp_http` | `true` | turns the endpoint on or off |
+| `swallowtail/network/http_typed` | `true` | `false` lists only `godot_run`, the `serve --typed=false` role for tool-limited clients |
+
+The endpoint listens on loopback **and** checks the `Origin` header, so a web page you happen to have open cannot reach it: requests carrying no `Origin` (every native MCP client) or an origin whose host is `localhost`, `::1`, or a loopback address are served, anything else gets `403`, and the CORS header echoes the allowed origin rather than `*`. A browser-based MCP client running on `http://localhost:<port>` works unchanged. The WebSocket transport cannot be gated the same way. [The threat model](https://regiellis.github.io/godot-mcp-go/docs/how-it-works#threat-model) covers what that does and does not mean.
+
+### Reach an editor on another machine
+
+Both servers bind loopback and never listen on a network address. To drive an editor that runs on a different computer, forward the port over SSH. The request arrives on the editor's own loopback with no `Origin`, so the gate passes, and your client config keeps the same `http://127.0.0.1:9100/mcp` URL.
+
+Pin the port on the editor machine first, so it does not move between launches: set `swallowtail/network/http_port` to `9100` in that project. Then, on the machine running the client, open the tunnel and leave it running.
+
+
+**Bash**
+
+```bash
+# forward local 9100 to the editor machine's loopback 9100 (-f backgrounds it)
+ssh -f -N -L 9100:127.0.0.1:9100 you@devbox
+curl -s -X POST http://127.0.0.1:9100/mcp -H 'Content-Type: application/json' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | jq '.result.tools | length'
+```
+
+
+**PowerShell**
+
+```powershell
+# Windows 10 and 11 ship an OpenSSH client (C:\Windows\System32\OpenSSH\ssh.exe)
+Start-Process ssh -ArgumentList '-N','-L','9100:127.0.0.1:9100','you@devbox' -WindowStyle Hidden
+$body = '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+(Invoke-RestMethod http://127.0.0.1:9100/mcp -Method Post -ContentType 'application/json' -Body $body).result.tools.Count
+```
+
+
+When the editor machine can reach the client machine but not the other way round, open the tunnel from the editor side with a remote forward instead: `ssh -N -R 9100:127.0.0.1:9100 you@laptop`. Either way, keep the forwarded end on loopback, which is the default; `-g` or a `0.0.0.0:` bind address would expose the editor to that machine's network.
+
+A stdio client can skip the port entirely and run `serve` on the editor machine through SSH. This needs `swallowtail` on the remote `PATH`, key-based login that never prompts, and a remote shell that prints nothing on login, because stdout is the MCP transport and a stray banner corrupts it:
+
+```json
+{
+  "mcpServers": {
+    "swallowtail": {
+      "command": "ssh",
+      "args": ["-o", "BatchMode=yes", "you@devbox", "swallowtail", "serve", "--project", "/home/you/game"]
+    }
+  }
+}
+```
+
+The CLI itself belongs on the machine with the project: `ssh you@devbox` and run `swallowtail` there. A tunnel extends the trust described in the [threat model](https://regiellis.github.io/godot-mcp-go/docs/how-it-works#threat-model): anyone who can reach the forwarded port on the client machine can drive the editor.
+
+> **Note**
+>
+> stdio (`swallowtail serve`) remains the right choice for clients without streamable-HTTP support, and it adds the `godot://` resources, the MCP prompts below, and the `game: true` routing to a standalone player. The HTTP endpoint's strength is zero-install reach: if the editor is running, the server is running.
+
+## Read-only resources
+
+Beyond the tools, the server advertises read-only **MCP resources** under the `godot://` scheme, so a client can pull context without spending a tool turn:
+
+| Resource | Contents |
+| --- | --- |
+| `godot://project/info` | project metadata |
+| `godot://project/tree` | the project file tree |
+| `godot://scene/tree` | the open scene's node tree |
+| `godot://engine/singletons` | registered singletons |
+| `godot://editor/errors` | recent editor errors |
+
+## Prompts
+
+`serve` also ships the durable playbooks as first-class **MCP prompts**, so a client can pull them with `prompts/get`, even when the editor is down:
+
+| Prompt | What it teaches |
+| --- | --- |
+| `discover-then-drive` | ground on the live engine API (`engine.search` / `engine.class_info`) before acting, and the durable editor rules |
+| `spatial-placement` | anchor, read real bounds back, seat with a raycast, verify numerically (optional `target` argument) |
+| `launch-recovery` | recover an unreachable editor from its discovery verdict instead of relaunching blindly |
+| `bug-hunt` | treat surprising results as tool bugs: root-cause, verify by reading state back |
+
+> **Tip**
+>
+> The `initialize` reply also carries an `instructions` string with the same discover-then-drive and spatial-placement steer in compressed form, so the guidance rides along at every connect even without the skill installed.

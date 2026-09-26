@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/website/public/brand/swallowtail-butler.png" width="160" alt="Swallowtail butler mascot">
+  <img src="https://raw.githubusercontent.com/regiellis/godot-mcp-go/main/website/site/brand/swallowtail-butler.png" width="160" alt="Swallowtail butler mascot">
 </p>
 
 # Swallowtail

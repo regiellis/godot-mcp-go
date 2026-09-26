@@ -1,0 +1,563 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shaders and VFX · Swallowtail</title><meta name="description" content="gdshader authoring and wiring, the 2D VFX kit, and a programmatic compile-verification loop.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Shaders and VFX · Swallowtail">
+<meta property="og:description" content="gdshader authoring and wiring, the 2D VFX kit, and a programmatic compile-verification loop.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link active" aria-current="page" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Shaders and VFX</h1>
+<p class="page-desc" data-scope-ccykbmgk>gdshader authoring and wiring, the 2D VFX kit, and a programmatic compile-verification loop.</p>
+</header>
+<p>Authoring <code>.gdshader</code> code and wiring it to nodes for game VFX. <code>game-patterns.md</code> holds the
+<strong>combat-VFX grammar</strong> (the aesthetic recipe of lifetime curves, LUT recolor, erosion, polar remaps);
+this file is the <strong>machinery under it</strong>: shader types, the wiring path agents get wrong, uniforms, a
+tested 2D VFX kit, and how to <em>verify shader code compiles</em> (which <code>script validate</code> cannot). Every
+snippet was compiled live via the orphan-<code>Shader</code> probe in the last section. <code>lighting-2d.md</code>
+owns <code>texture_sdf</code>/emissive/glow; <code>environment-art.md</code> owns decals, fog, and trails.</p>
+<h2 id="the-shader-types">The shader types<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-shader-types">#</a></h2>
+<p><code>shader_type</code> on line 1 picks the pipeline and the built-ins available. <code>shader create --path res://fx/x.gdshader --shader-type &#x3C;type></code> writes a stub for any of them (default <code>spatial</code>).</p>
+<ul>
+<li>
+<strong><code>canvas_item</code></strong> is 2D. Writes <code>COLOR</code> (rgba); reads <code>TEXTURE</code>/<code>UV</code>/<code>SCREEN_UV</code>/<code>TEXTURE_PIXEL_SIZE</code>.
+Every 2D sprite, UI, and particle.</li>
+<li>
+<strong><code>spatial</code></strong> is 3D. Writes <code>ALBEDO</code>/<code>ALPHA</code>/<code>EMISSION</code>/<code>NORMAL</code>… in <code>fragment()</code>, moves geometry in
+<code>vertex()</code>; reads <code>NORMAL</code>/<code>VIEW</code>/<code>VERTEX</code>/<code>UV</code>/<code>TIME</code>.</li>
+<li>
+<strong><code>particles</code></strong> takes over the GPU particle system when <code>ParticleProcessMaterial</code> runs out. <code>start()</code>
+seeds a particle, <code>process()</code> steps it; writes <code>TRANSFORM</code>/<code>VELOCITY</code>/<code>COLOR</code>, reads
+<code>DELTA</code>/<code>LIFETIME</code>/<code>INDEX</code>.</li>
+<li>
+<strong><code>sky</code></strong> / <strong><code>fog</code></strong> drive a <code>Sky</code>’s shader (<code>sky()</code> writes <code>COLOR</code>) and a <code>FogVolume</code>’s
+density/color (<code>fog()</code> writes <code>DENSITY</code>/<code>ALBEDO</code>). Both are niche: procedural skies, volumetric fog.</li>
+</ul>
+<p><strong>Render modes worth knowing</strong> (line 2, <code>render_mode a, b;</code>, verified compiling):</p>
+<ul>
+<li>
+<code>unshaded</code> skips all lighting; the pixel is exactly what you write. Base for emitters, UI, flats.</li>
+<li>
+<code>blend_add</code> is additive (brightens what’s behind). <code>render_mode unshaded, blend_add;</code> is the glow-ish
+sprite: muzzle flashes, lasers, energy. (2D real bloom needs <code>hdr_2d</code>, covered in <code>lighting-2d.md</code>.)</li>
+<li>
+<code>cull_disabled</code> (spatial) draws back faces too, for flat/thin geometry (grass cards, capes).
+<code>blend_mix</code> (default), <code>blend_sub</code>, <code>blend_mul</code>, and <code>depth_prepass_alpha</code> (spatial) round out
+the common set (all compile-verified live).</li>
+</ul>
+<h2 id="wiring-a-shader-with-the-cli-the-part-agents-get-wrong">Wiring a shader with the CLI (the part agents get wrong)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#wiring-a-shader-with-the-cli-the-part-agents-get-wrong">#</a></h2>
+<p>A shader is code; a <strong><code>ShaderMaterial</code></strong> carries it; a node holds the material. Three steps:</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">shader create --path res://fx/hit_flash.gdshader --shader-type canvas_item --content '&#x3C;code>'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">shader assign-material --node-path Sprite --shader-path res://fx/hit_flash.gdshader</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">shader set-param --node-path Sprite --param flash_amount --value 0.5</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<ul>
+<li>
+<code>shader assign-material</code> <strong>builds a fresh <code>ShaderMaterial</code></strong> and picks the slot: <code>CanvasItem.material</code>,
+<code>MeshInstance3D.material_override</code>, else a <code>material</code> property. One per call, so each node gets its own.</li>
+<li>
+<strong>Uniforms live on the material, not the node</strong>. <code>shader set-param</code> calls
+<code>material.set_shader_parameter(name, value)</code>; the path is <code>shader_parameter/&#x3C;name></code> <strong>on the
+<code>ShaderMaterial</code></strong> (verified round-trip on an orphan material). So <code>node set --property shader_parameter/amt</code> does <strong>nothing</strong>, because the node has no such property. Drive the material
+in a script (below), or read back with <code>shader get-params</code>.</li>
+<li>After <code>shader edit</code>, the addon hot-reloads the cached shader and registers the file, so open
+materials update with no <code>editor reload</code>.</li>
+</ul>
+<p><strong>The driver</strong>. An animated uniform is what makes it VFX. Tween the material’s property (the path is
+the material’s, so tween the material object) from a small script on the node:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">flash</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> mat </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> material </span><span style="--0:#F97583;--1:#BF3441">as</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">ShaderMaterial</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">mat.</span><span style="--0:#B392F0;--1:#6F42C1">set_shader_parameter</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"flash_amount"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">create_tween</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">tween_property</span><span style="--0:#E1E4E8;--1:#24292E">(mat, </span><span style="--0:#9ECBFF;--1:#032F62">"shader_parameter/flash_amount"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.15</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The <code>set_shader_parameter</code> <em>before</em> the tween is load-bearing, not style: a parameter that has
+never been set reads back <code>null</code> (the shader’s default doesn’t count), and a tween whose start
+value is <code>null</code> <strong>dies silently</strong>, with nothing animated and no error. Verified live: tweening a fresh
+material did nothing; the same tween after one explicit set ran perfectly. Always seed the
+parameter, then tween.</p>
+<h2 id="uniforms-instance-uniforms-and-globals">Uniforms, instance uniforms, and globals<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#uniforms-instance-uniforms-and-globals">#</a></h2>
+<ul>
+<li>
+<strong><code>uniform</code></strong> is a per-material knob, set from CLI/code/inspector. Hints shape it: <code>uniform float x : hint_range(0.0, 1.0) = 0.2;</code> (a slider), <code>uniform vec4 c : source_color;</code> (a color picker, the
+current name for the old <code>hint_color</code>), <code>uniform sampler2D t : filter_nearest, repeat_enable;</code>. Always
+give a default, since an unset uniform reads as zero.</li>
+<li>
+<strong><code>instance uniform</code></strong> gives per-<em>node</em> variation on <strong>one shared material</strong>, no duplication.
+<code>instance uniform vec4 tint : source_color = vec4(1.0);</code>, then set it per node via the node’s own
+method, <code>set_instance_shader_parameter("tint", …)</code>. That method lives on <strong>both</strong>
+<code>GeometryInstance3D</code> (3D) and <code>CanvasItem</code> (2D), so instance uniforms are <em>not</em> spatial-only
+(verified live); unavailable in <code>particles</code>/<code>sky</code>/<code>fog</code>. Reach the setter with <code>editor run-script</code>;
+they don’t enumerate in <code>get_shader_uniform_list</code>.</li>
+<li>
+<strong><code>global uniform</code></strong> is one value shared by every shader project-wide (wind, time-of-day, player
+position). <strong>It will not compile until registered</strong>: <code>global uniform world_wind;</code> on an
+unregistered global errors <code>Global uniform 'world_wind' does not exist. Create it in Project Settings.</code> (verified live). Register it <em>first</em>, never by hand-editing <code>project.godot</code>:</li>
+</ul>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">shader global-add --name world_wind --type vec4 --value "Color(1,0,0,0)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">shader global-set --name world_wind --value "Color(0,0,1,0)"     # live-updates open shaders</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">shader global-list</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>shader global-*</code> persists <code>shader_globals/&#x3C;name></code> into <code>project.godot</code>. Clear throwaways with <code>shader global-remove</code>.</p>
+<h2 id="the-standard-2d-vfx-kit-tested">The standard 2D VFX kit (tested)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-standard-2d-vfx-kit-tested">#</a></h2>
+<p>Five <code>canvas_item</code> shaders that cover most 2D game feel. Each: the code, the attach, the driver.</p>
+<p><strong>Hit-flash</strong> mixes the sprite to white by a uniform (<code>modulate</code> only multiplies, so it can’t whiten a
+textured sprite). Drive <code>flash_amount</code> 1→0 with the tween above, fired from a <code>hurt</code>/<code>died</code> signal.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="glsl"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">shader_type canvas_item;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">vec4</span><span style="--0:#E1E4E8;--1:#24292E"> flash_color : source_color </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">vec4</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">);</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> flash_amount : </span><span style="--0:#B392F0;--1:#6F42C1">hint_range</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">void</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">fragment</span><span style="--0:#E1E4E8;--1:#24292E">() {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">vec4 tex </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(TEXTURE, UV);</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">COLOR </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">vec4</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">mix</span><span style="--0:#E1E4E8;--1:#24292E">(tex.rgb, flash_color.rgb, flash_amount </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> tex.a), tex.a);</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Dissolve</strong> uses a noise texture + threshold to burn the sprite away with a glowing edge; the
+threshold <em>is</em> the driver (tween 0→1 to dissolve out).</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="glsl"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">shader_type canvas_item;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">sampler2D</span><span style="--0:#E1E4E8;--1:#24292E"> noise_tex : repeat_enable;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> threshold : </span><span style="--0:#B392F0;--1:#6F42C1">hint_range</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> edge_width : </span><span style="--0:#B392F0;--1:#6F42C1">hint_range</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.2</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.05</span><span style="--0:#E1E4E8;--1:#24292E">;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">vec4</span><span style="--0:#E1E4E8;--1:#24292E"> edge_color : source_color </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">vec4</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.6</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.1</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">);</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">void</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">fragment</span><span style="--0:#E1E4E8;--1:#24292E">() {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">vec4 tex </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(TEXTURE, UV);</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> n </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(noise_tex, UV).r;</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> (n </span><span style="--0:#F97583;--1:#BF3441">&#x3C;</span><span style="--0:#E1E4E8;--1:#24292E"> threshold) { discard; }</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> edge </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">smoothstep</span><span style="--0:#E1E4E8;--1:#24292E">(threshold, threshold </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> edge_width, n);</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">COLOR </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">vec4</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">mix</span><span style="--0:#E1E4E8;--1:#24292E">(edge_color.rgb, tex.rgb, edge), tex.a);</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Feed the noise: <code>shader set-param --node-path X --param noise_tex --value res://fx/noise.tres</code> (a <code>NoiseTexture2D</code>).</p>
+<p><strong>Outline</strong> samples the four neighbors and draws where the sprite is transparent but a neighbor opaque.
+<code>TEXTURE_PIXEL_SIZE</code> is one texel in UV (no size uniform needed); the sprite region needs transparent
+padding or the outline clips.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="glsl"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">shader_type canvas_item;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">vec4</span><span style="--0:#E1E4E8;--1:#24292E"> outline_color : source_color </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">vec4</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">);</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> thickness : </span><span style="--0:#B392F0;--1:#6F42C1">hint_range</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">8.0</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">void</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">fragment</span><span style="--0:#E1E4E8;--1:#24292E">() {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">vec4 tex </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(TEXTURE, UV);</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">vec2 px </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> TEXTURE_PIXEL_SIZE </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> thickness;</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> a </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(TEXTURE, UV </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">vec2</span><span style="--0:#E1E4E8;--1:#24292E">(px.x, </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">)).a </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(TEXTURE, UV </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">vec2</span><span style="--0:#E1E4E8;--1:#24292E">(px.x, </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">)).a</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(TEXTURE, UV </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">vec2</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, px.y)).a </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(TEXTURE, UV </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">vec2</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, px.y)).a;</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> outline </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">min</span><span style="--0:#E1E4E8;--1:#24292E">(a, </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> (</span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> tex.a);</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">COLOR </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">mix</span><span style="--0:#E1E4E8;--1:#24292E">(tex, outline_color, outline);</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Leave static for a selection highlight, or pulse <code>thickness</code> with a looping tween.</p>
+<p><strong>UV scroll</strong> offsets UVs by <code>TIME</code> for conveyors, water, lava, and scrolling backgrounds; <code>TIME</code>
+drives it for free. The texture must import with <strong>Repeat</strong> on (or <code>repeat_enable</code> on a sampler variant).</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="glsl"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">shader_type canvas_item;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">vec2</span><span style="--0:#E1E4E8;--1:#24292E"> scroll_speed </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">vec2</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.1</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">);</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">void</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">fragment</span><span style="--0:#E1E4E8;--1:#24292E">() {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">vec2 uv </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> UV </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> TIME </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> scroll_speed;</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">COLOR </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(TEXTURE, uv);</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Palette swap (LUT)</strong> indexes a 1-D palette texture by the sprite’s red channel; one grayscale sprite
+recolors to any palette by swapping the LUT (the 2D cousin of <code>game-patterns.md</code>’s grayscale + LUT trick).</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="glsl"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">shader_type canvas_item;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">sampler2D</span><span style="--0:#E1E4E8;--1:#24292E"> palette : filter_nearest;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">void</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">fragment</span><span style="--0:#E1E4E8;--1:#24292E">() {</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> index </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(TEXTURE, UV).r;</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">vec4 lut </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(palette, </span><span style="--0:#B392F0;--1:#6F42C1">vec2</span><span style="--0:#E1E4E8;--1:#24292E">(index, </span><span style="--0:#79B8FF;--1:#005CC5">0.5</span><span style="--0:#E1E4E8;--1:#24292E">));</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">COLOR </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">vec4</span><span style="--0:#E1E4E8;--1:#24292E">(lut.rgb, </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(TEXTURE, UV).a);</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Point <code>palette</code> at a different LUT to swap teams/rarities, with no per-variant art.</p>
+<h2 id="3d-quick-hits">3D quick hits<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#3d-quick-hits">#</a></h2>
+<p><strong>Fresnel rim</strong> is a glow at grazing angles (shields, selection, ghosts); <code>EMISSION</code> so it ignores lighting.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="glsl"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">shader_type spatial;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">vec4</span><span style="--0:#E1E4E8;--1:#24292E"> rim_color : source_color </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">vec4</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.3</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.6</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">);</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> rim_power : </span><span style="--0:#B392F0;--1:#6F42C1">hint_range</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">8.0</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">3.0</span><span style="--0:#E1E4E8;--1:#24292E">;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">void</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">fragment</span><span style="--0:#E1E4E8;--1:#24292E">() {</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> fresnel </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">pow</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">clamp</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">dot</span><span style="--0:#E1E4E8;--1:#24292E">(NORMAL, VIEW), </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">), rim_power);</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">EMISSION </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> rim_color.rgb </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> fresnel;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Vertex sway (wind)</strong> displaces geometry in <code>vertex()</code>, masked by height so roots stay planted (grass, foliage, banners).</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="glsl"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">shader_type spatial;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> wind_strength : </span><span style="--0:#B392F0;--1:#6F42C1">hint_range</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.1</span><span style="--0:#E1E4E8;--1:#24292E">;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> wind_speed </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">2.0</span><span style="--0:#E1E4E8;--1:#24292E">;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">void</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">vertex</span><span style="--0:#E1E4E8;--1:#24292E">() {</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> mask </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> UV.y;</span><span style="--0:#99A0A6;--1:#616972">              // top of the texture sways, bottom is anchored</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">VERTEX.x </span><span style="--0:#F97583;--1:#BF3441">+=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">sin</span><span style="--0:#E1E4E8;--1:#24292E">(TIME </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> wind_speed </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> VERTEX.y) </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> wind_strength </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> mask;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Feed direction from a <code>global uniform</code> (register it first) so every plant sways as one.</p>
+<p><strong>Triplanar</strong> is <em>not</em> hand-written here. It is a <code>StandardMaterial3D</code> flag set via the
+<code>material</code> group (<code>material set … --triplanar</code>), the supported way to skin greybox without UVs (see
+<code>level-design.md</code> / <code>environment-art.md</code>). Write a <code>spatial</code> shader only when a <code>StandardMaterial3D</code>
+can’t express the math.</p>
+<h2 id="screen-space-effects">Screen-space effects<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#screen-space-effects">#</a></h2>
+<p>Read the rendered frame with a <strong>screen-texture sampler</strong>, the replacement for the removed
+<code>SCREEN_TEXTURE</code>. Hint a sampler <code>hint_screen_texture</code> and sample it at <code>SCREEN_UV</code> (verified in <code>canvas_item</code>):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="glsl"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">shader_type canvas_item;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">sampler2D</span><span style="--0:#E1E4E8;--1:#24292E"> screen_tex : hint_screen_texture, filter_linear_mipmap;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> amount : </span><span style="--0:#B392F0;--1:#6F42C1">hint_range</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.02</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.005</span><span style="--0:#E1E4E8;--1:#24292E">;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">void</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">fragment</span><span style="--0:#E1E4E8;--1:#24292E">() {</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">vec2 offset </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">vec2</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">sin</span><span style="--0:#E1E4E8;--1:#24292E">(SCREEN_UV.y </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">40.0</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> TIME) </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> amount, </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">);</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">COLOR </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">texture</span><span style="--0:#E1E4E8;--1:#24292E">(screen_tex, SCREEN_UV </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> offset);</span><span style="--0:#99A0A6;--1:#616972">   // heat-haze / refraction</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>hint_screen_texture</code> samplers are auto-bound and do <strong>not</strong> enumerate in <code>get_shader_uniform_list</code>
+(verified), so don’t treat their absence as a compile error.</p>
+<ul>
+<li>
+<strong>Full-screen effect</strong>: assign the shader to a <code>ColorRect</code> on a top <code>CanvasLayer</code> stretched to the
+viewport, and it post-processes everything below (vignette / grade / chromatic aberration).</li>
+<li>
+<strong><code>BackBufferCopy</code></strong>: the screen sampler reads the frame <em>as of the last backbuffer copy</em>. To read
+what was drawn <strong>below a node mid-frame</strong> (frosted glass, refraction), put a <code>BackBufferCopy</code> above
+it in draw order to snapshot first. That is the node <code>game-patterns.md</code>’s screen-distortion recipe
+leans on.</li>
+</ul>
+<h2 id="particles--shaders">Particles + shaders<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#particles--shaders">#</a></h2>
+<p>When <code>ParticleProcessMaterial</code>’s knobs run out (custom attractor fields, non-radial emission,
+per-particle logic on <code>CUSTOM</code>), drop to a <code>particles</code> shader on the emitter’s <code>process_material</code>:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="glsl"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">shader_type particles;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">uniform</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">float</span><span style="--0:#E1E4E8;--1:#24292E"> spread </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">2.0</span><span style="--0:#E1E4E8;--1:#24292E">;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">void</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">start</span><span style="--0:#E1E4E8;--1:#24292E">() { VELOCITY </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">vec3</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">4.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">); }</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">void</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">process</span><span style="--0:#E1E4E8;--1:#24292E">() { VELOCITY.y </span><span style="--0:#F97583;--1:#BF3441">-=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">9.8</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> DELTA; }</span><span style="--0:#99A0A6;--1:#616972">   // custom gravity</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>INDEX</code>/<code>RESTART</code>/<code>LIFETIME</code>/<code>CUSTOM</code> give per-particle control; write <code>TRANSFORM</code>/<code>VELOCITY</code>/<code>COLOR</code>.
+For authored trails, attractors, and collision, <code>environment-art.md</code> covers the node-level path first.</p>
+<h2 id="visualshader-artist-handoff">VisualShader (artist handoff)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#visualshader-artist-handoff">#</a></h2>
+<p><code>shader create-visual --path res://fx/x.tres --mode canvas_item</code> writes an <strong>empty <code>VisualShader</code>
+resource</strong>, a node-graph shader authored in the editor’s visual graph, not text. Use it for an artist
+who will own and tweak the effect without reading code. <strong>For agents, code shaders are the default</strong>:
+they diff, review, and verify (below) cleanly, where a <code>VisualShader</code> is opaque; <code>create-visual</code> is for the handoff.</p>
+<h2 id="verify-shader-code-compiles-script-validate-cannot">Verify shader code compiles (script validate cannot)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#verify-shader-code-compiles-script-validate-cannot">#</a></h2>
+<p><code>script validate</code> compiles <strong>GDScript only</strong>, with nothing for <code>.gdshader</code>. But shader compile errors
+<em>are</em> detectable: assigning code to an orphan <code>Shader</code> compiles it synchronously, and two signals
+report the result (both established live). Run it before attaching, with no scene and no file:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor run-script --code 'var s := Shader.new(); s.code = "&#x3C;SHADER CODE>";</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">emit(s.get_shader_uniform_list(false).size())'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor errors</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<ol>
+<li>
+<strong><code>get_shader_uniform_list</code></strong> reflects the parsed shader. A shader that declares uniforms but
+fails to compile returns an <strong>empty</strong> list (parse aborts). Include a plain <code>uniform</code> canary; a
+count matching your declarations means it compiled, <code>0</code> means it failed.</li>
+<li>
+<strong><code>editor errors</code></strong> carries the reason with a line, e.g. <code>:3 - Unknown identifier 'zzz'</code> then
+<code>Shader compilation failed.</code> Read the <em>tail</em>, because <strong><code>editor clear-output</code> does not reset it</strong>
+(it accumulates), so a cleared-then-empty check won’t work.</li>
+</ol>
+<p>Caveats: <code>hint_screen_texture</code> samplers, <code>instance uniform</code>s, and <code>global uniform</code>s don’t count toward
+the list (canary on a plain <code>uniform</code>). Visual fallback: <code>assign-material</code> then <code>editor</code>/<code>runtime screenshot</code>, since a shader that compiles but looks wrong only shows on screen.</p>
+<h2 id="common-mistakes">Common mistakes<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#common-mistakes">#</a></h2>
+<ul>
+<li>
+<strong>Tweening a never-set parameter</strong>. <code>tween_property(mat, "shader_parameter/x", …)</code> starts from
+the current value, which is <code>null</code> until the parameter has been explicitly set once, and a
+null-start tween dies silently. Seed with <code>set_shader_parameter</code> first (verified live).</li>
+<li>
+<strong>Editing <code>project.godot</code> for global uniforms</strong>. Use <code>shader global-add</code>/<code>global-set</code>, since a
+<code>global uniform</code> won’t compile until the global is registered (verified error above). Same for setting a
+uniform via <code>node set --property shader_parameter/x</code>: it’s a <em>material</em> property, so use <code>shader set-param</code>.</li>
+<li>
+<strong><code>uniform</code> vs <code>varying</code></strong>. <code>uniform</code> = a knob set from outside (constant across the draw);
+<code>varying</code> = a value passed <strong>vertex → fragment</strong>, interpolated per pixel. Using a uniform to move
+data between stages is the classic mix-up.</li>
+<li>
+<strong>Forgetting the screen sampler</strong>. No <code>hint_screen_texture</code> sampler means no frame to read; <code>SCREEN_UV</code>
+alone is just coordinates.</li>
+<li>
+<strong>Shared <code>.tres</code> material across instances</strong>. A uniform set on a shared <code>ShaderMaterial</code> changes
+<em>every</em> node using it, so <code>duplicate()</code> it or use an <code>instance uniform</code>. (<code>assign-material</code> already
+gives each node its own; this bites when you <code>load</code> one onto many.)</li>
+<li>
+<strong><code>COLOR</code> vs <code>ALBEDO</code></strong>. <code>canvas_item</code> writes <code>COLOR</code> (rgba); <code>spatial</code> writes <code>ALBEDO</code> (rgb) +
+<code>ALPHA</code>; <code>particles</code> writes <code>TRANSFORM</code>/<code>VELOCITY</code>/<code>COLOR</code>. Copying a snippet across types fails on
+the wrong output name, so check <code>shader_type</code> first.</li>
+</ul>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/audio-music" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Audio and music</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/save-systems" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Save systems</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-shader-types" data-toc="the-shader-types" data-scope-p33bl5ka>The shader types</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#wiring-a-shader-with-the-cli-the-part-agents-get-wrong" data-toc="wiring-a-shader-with-the-cli-the-part-agents-get-wrong" data-scope-p33bl5ka>Wiring a shader with the CLI (the part agents get wrong)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#uniforms-instance-uniforms-and-globals" data-toc="uniforms-instance-uniforms-and-globals" data-scope-p33bl5ka>Uniforms, instance uniforms, and globals</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-standard-2d-vfx-kit-tested" data-toc="the-standard-2d-vfx-kit-tested" data-scope-p33bl5ka>The standard 2D VFX kit (tested)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#3d-quick-hits" data-toc="3d-quick-hits" data-scope-p33bl5ka>3D quick hits</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#screen-space-effects" data-toc="screen-space-effects" data-scope-p33bl5ka>Screen-space effects</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#particles--shaders" data-toc="particles--shaders" data-scope-p33bl5ka>Particles + shaders</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#visualshader-artist-handoff" data-toc="visualshader-artist-handoff" data-scope-p33bl5ka>VisualShader (artist handoff)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#verify-shader-code-compiles-script-validate-cannot" data-toc="verify-shader-code-compiles-script-validate-cannot" data-scope-p33bl5ka>Verify shader code compiles (script validate cannot)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#common-mistakes" data-toc="common-mistakes" data-scope-p33bl5ka>Common mistakes</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

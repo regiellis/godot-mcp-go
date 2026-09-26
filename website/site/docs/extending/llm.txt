@@ -1,0 +1,111 @@
+# Add your own commands
+
+Extend the MCP with project-local commands, no fork of the addon required.
+
+You can add project-specific commands without forking the addon: drop a `.gd` file into a **`res://mcp_commands/`** folder in your project. On plugin enable the addon scans that folder and registers your commands next to the built-ins, so they appear everywhere the built-ins do: the CLI, nested help (`swallowtail <group> --help`), `swallowtail engine commands`, and, over MCP, as a [typed tool](https://regiellis.github.io/godot-mcp-go/docs/mcp-setup) with its own schema. No Go or addon changes.
+
+## The shape of a command file
+
+A command file instantiates to a Node and exposes `get_commands() -> {"group.command": Callable}`. Extending the addon's `base_command.gd` gives you the `success()` / `error()` / `require_string()` helpers; a plain `extends Node` works too if you build the result dicts yourself. Optionally expose `get_command_docs()` so your commands get a real param table in nested help and a full schema as an MCP tool, exactly like the built-ins.
+
+```gdscript
+@tool
+extends "res://addons/swallowtail/commands/base_command.gd"
+
+func get_commands() -> Dictionary:
+    return {
+        "custom.ping": _ping,
+        "custom.echo": _echo,
+    }
+
+func _ping(_params: Dictionary) -> Dictionary:
+    return success({"pong": true})
+
+func _echo(params: Dictionary) -> Dictionary:
+    var r := require_string(params, "message")
+    if r[1] != null:
+        return r[1]
+    return success({"message": r[0]})
+```
+
+Save this as `res://mcp_commands/example_commands.gd`, restart the editor, and the commands are live:
+
+```bash
+swallowtail custom ping
+swallowtail custom echo --message hi
+```
+
+## Something worth writing
+
+A ping proves the wiring; the hook earns its place on a chore the project actually has. This one
+reports every `res://` reference in the project's text files that no longer resolves, such as a
+dangling texture path in a scene or a script that moved, and gives the file and line it sits on.
+
+```gdscript
+@tool
+extends "res://addons/swallowtail/commands/base_command.gd"
+
+const SCANNED_EXTS := ["tscn", "tres", "gd", "gdshader", "import", "cfg", "json", "godot"]
+
+func get_commands() -> Dictionary:
+    return {"custom.broken_refs": _broken_refs}
+
+func get_command_docs() -> Dictionary:
+    return {
+        "custom.broken_refs": {
+            "description": "Report res:// references that no longer resolve.",
+            "params": [doc_param("path", "String", false, "Directory to scan (default res://).")],
+        },
+    }
+
+func _broken_refs(params: Dictionary) -> Dictionary:
+    var root := normalize_project_path(optional_string(params, "path", "res://"))
+    var quoted := RegEx.create_from_string("\"[^\"]*\"|'[^']*'")
+    var broken: Array = []
+    for file_path: String in _scan(root):
+        var line_no := 0
+        for line: String in FileAccess.get_file_as_string(file_path).split("\n"):
+            line_no += 1
+            for m: RegExMatch in quoted.search_all(line):
+                var value := m.get_string().substr(1, m.get_string().length() - 2)
+                var at := value.find("res://")
+                if at < 0:
+                    continue
+                var ref := value.substr(at)
+                # prose, a path built at runtime, or a bare prefix
+                if ref.contains(" ") or ref.contains("%") or ref.get_file().get_extension().is_empty():
+                    continue
+                if not FileAccess.file_exists(ref) and not FileAccess.file_exists(ref + ".import"):
+                    broken.append({"file": file_path, "line": line_no, "ref": ref})
+    return success({"broken_count": broken.size(), "broken": broken})
+
+func _scan(dir: String) -> Array:
+    var out: Array = []
+    for f: String in DirAccess.get_files_at(dir):
+        if SCANNED_EXTS.has(f.get_extension().to_lower()):
+            out.append(dir.path_join(f))
+    for d: String in DirAccess.get_directories_at(dir):
+        if not d.begins_with(".") and d != "addons":
+            out.append_array(_scan(dir.path_join(d)))
+    return out
+```
+
+```bash
+swallowtail custom broken-refs
+swallowtail custom broken-refs --help    # the param table comes from get_command_docs()
+```
+
+Two details carry most of the value. **References are read out of quoted spans only, then
+shape-checked**: matching the bare `res://` scheme instead reports the prose of every comment that
+mentions it, and a quoted span still has to look like a path before it counts. And a path the game
+assembles at runtime cannot be checked from source, so it is skipped rather than called broken.
+
+A command that *writes* takes two more precautions: run every caller-supplied path through
+`guard_project_path()` before touching a file, and plan the whole edit before performing any of it,
+so a refusal partway through cannot leave the project half changed.
+
+## Rules
+
+- **Built-ins win**. A command name that collides with a built-in is skipped, so you can't override the shipped surface.
+- **A bad file is skipped, not fatal**. A file that fails to load or lacks `get_commands()` is skipped with a warning; it never breaks the plugin.
+- **Editing needs an editor restart**. Reloading the plugin re-runs registration but doesn't re-parse changed scripts, so recompiling a command file takes a full editor restart.

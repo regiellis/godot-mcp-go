@@ -1,0 +1,434 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Constraint tiling · Swallowtail</title><meta name="description" content="The Townscaper/Bad North PCG family: the dual-grid fix, Wave Function Collapse from an example, variant buckets.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Constraint tiling · Swallowtail">
+<meta property="og:description" content="The Townscaper/Bad North PCG family: the dual-grid fix, Wave Function Collapse from an example, variant buckets.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link active" aria-current="page" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Constraint tiling</h1>
+<p class="page-desc" data-scope-ccykbmgk>The Townscaper/Bad North PCG family: the dual-grid fix, Wave Function Collapse from an example, variant buckets.</p>
+</header>
+<p>Constraint tile-assembly, the <em>other</em> procedural generation</p>
+<p>There are <strong>two families</strong> of procedural generation, and they solve different problems. Reach for the right one:</p>
+<table>
+<thead>
+<tr>
+<th></th><th><strong>Point-scatter</strong> (<code>pcg</code>, <code>scatter</code>)</th><th><strong>Constraint tile-assembly</strong> (<code>wfc</code>, <code>gridmap</code>, <code>mesh</code>)</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Question</td><td>“Put N things over a surface”</td><td>“Assemble handmade modules so neighbours fit”</td></tr>
+<tr>
+<td>Output</td><td>Instances (trees, rocks, debris) on terrain</td><td>A coherent built structure (towns, dungeons, terrain tiles)</td></tr>
+<tr>
+<td>Driver</td><td>Sample → filter → place</td><td>Neighbour constraints decide each cell’s module + rotation</td></tr>
+<tr>
+<td>Examples</td><td>Foliage, set dressing, crowds</td><td>Townscaper, Bad North, dungeon layouts</td></tr>
+</tbody>
+</table>
+<p>This file is the buildable playbook for the <strong>second</strong> family, the technique from Oscar Stålberg’s “How One Guy FIXED Procedural Generation”. The first family lives in <code>level-design.md</code>/<code>environment-art.md</code>.</p>
+<p><strong><code>wfc.*</code>, <code>gridmap.*</code>, and <code>mesh deform-lattice</code> all operate on a GridMap, which is a 3D node</strong>, so every recipe below assembles 3D modules. None of them reach a <code>TileMapLayer</code>; <em>The 2D case</em> at the end covers what a canvas project has instead.</p>
+<p>Every recipe below was driven against a live editor. Set up a GridMap first (<code>node add --type GridMap --parent . --name Grid</code>); paint with item ids, then assign a real MeshLibrary (<code>gridmap meshlibrary_from_scene</code> → <code>node set mesh_library</code>) once the logic works.</p>
+<hr>
+<ol>
+<li>The dual-grid fix: type corners, not cells</li>
+</ol>
+<p>The naive approach types whole cells (land or water), then each cell needs a mesh based on its 4 neighbours, which is 2⁸ = 256 cases, and shared corners between cells fight over whether they’re convex or concave.</p>
+<p><strong>The fix:</strong> type the grid’s <strong>corners</strong> instead. Each cell reads its own 4 corners (2⁴ = 16 configs), which collapse <strong>under rotation</strong> to just <strong>6 distinct tiles</strong>. Modeling corners <em>inside</em> a tile kills the convex/concave conflict for free.</p>
+<p>Get the canonical table, then author one mesh per tile in its <code>steps=0</code> orientation:</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail wfc case_table --states 2</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">→ 6 tiles: empty, outer_corner, edge, diagonal, inner_corner, full</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">+ a mapping from every 4-corner config to {tile, rotation steps}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Build a dual-grid island:</strong> paint a per-corner type field (1 = land, 0 = water), then solve. Corners are addressed in corner space; a main cell at (cx,cz) owns corners (cx,cz),(cx+1,cz),(cx+1,cz+1),(cx,cz+1).</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">water everywhere, then a land blob in the middle</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail wfc set-corner --node-path Grid --from "0,0" --to "8,8" --state 0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail wfc set-corner --node-path Grid --from "2,2" --to "6,6" --state 1</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">map each canonical tile -> a MeshLibrary item id (-1 = place nothing), then solve</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail wfc solve-dual --node-path Grid \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--rules '{"0":-1,"1":11,"2":12,"3":13,"4":14,"5":15}'</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">→ sets each cell to the right tile + GridMap orientation (rotation handled for you)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Notes that save debugging:</p>
+<ul>
+<li>
+<p>GridMap orientations are the 24 <strong>proper</strong> rotations, with no reflections, which is <em>why</em> dual-grid canonicalization is rotation-only (and why binary gives exactly 6 tiles). Author meshes to the documented winding (SW,SE,NE,NW, CCW from above); if a tile faces the wrong way, add <code>--cw</code> to flip the rotation direction rather than re-modeling.</p>
+</li>
+<li>
+<p><code>set_corner</code> stores the field as GridMap metadata, so you can paint incrementally (the click-to-toggle workflow) and re-solve. Or pass a whole field inline with <code>solve_dual --corners '{"x,z":state,…}'</code>.</p>
+<ol start="2">
+<li>Kill repetition with variant buckets</li>
+</ol>
+</li>
+</ul>
+<p>Author several mesh variants for a tile, hand them all to the solver, and identical-looking neighbours stop forming. The pick is a deterministic <code>(cell, seed)</code> hash, so re-runs converge.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">a tile id in the rules can be an ARRAY of variants:</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail wfc solve-dual --node-path Grid --seed 7 \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--rules '{"0":-1,"1":11,"2":[20,21,22],"4":40,"5":[30,31]}'</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">or paint a single cell from a candidate set directly:</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail gridmap set-cell-variant --node-path Grid --cell "Vector3i(4,0,4)" \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--variants '[20,21,22]' --seed 7</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<ol start="3">
+<li>Full-auto layouts with Wave Function Collapse</li>
+</ol>
+<p>When you don’t want to paint corners by hand, <strong>learn</strong> the rules from a small authored example and let WFC fill a region. This is the “simple tiled model”: author a few cells showing what may touch what, then collapse.</p>
+<p><strong>Build:</strong> author an example (here a water│sand│grass gradient where water never touches grass), learn its adjacency, collapse a fresh region.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">author the example on a second GridMap</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail gridmap fill --node-path Example --from "0,0,0" --to "1,0,5" --item 1     water</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail gridmap fill --node-path Example --from "2,0,0" --to "3,0,5" --item 2     sand</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail gridmap fill --node-path Example --from "4,0,0" --to "5,0,5" --item 3     grass</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">learn adjacency + weights → a rules file</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail wfc rules-from-example --node-path Example --output-path res://rules.json</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">collapse an 8×8 region (single layer); seed makes it reproducible</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail wfc collapse --node-path Grid --from "Vector3i(0,0,0)" --to "Vector3i(7,0,7)" \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--rules-path res://rules.json --seed 5 --respect-existing=false</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The payoff is <strong>mixed constraints</strong>: pre-paint anchor cells and collapse around them, and the solver bridges them legally.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail gridmap fill --node-path Grid --from "0,0,0" --to "0,0,5" --item 1     water wall</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail gridmap fill --node-path Grid --from "6,0,0" --to "6,0,5" --item 3     grass wall</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail wfc collapse --node-path Grid --from "Vector3i(0,0,0)" --to "Vector3i(6,0,5)" \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--rules-path res://rules.json --seed 5</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">→ existing cells are pinned; the solver fills the gap with sand:  1 2 2 2 2 2 3</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<ul>
+<li>
+<p><code>collapse</code> is single-layer (<code>from.y == to.y</code>) and <strong>retries</strong> on contradiction (<code>--max_retries</code>, default 12). A persistent contradiction means the example can’t tile that region, so loosen it or add tiles.</p>
+</li>
+<li>
+<p><code>--respect-existing</code> (default true) and <code>--fixed '{"x,z":item}'</code> are how player/agent edits constrain the solve. Pass <code>--respect-existing=false</code> (and <code>gridmap clear</code> first) for a fresh unconstrained fill.</p>
+<ol start="4">
+<li>Special pieces, the Townscaper moment</li>
+</ol>
+</li>
+</ul>
+<p>A “special piece” is a multi-cell pattern that, when it appears, gets swapped for something bespoke (4 grass cells touching → a fountain). The match is rotation-aware, and matched cells are consumed so pieces never overlap.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">replace every 2×2 of item 5 with a special piece (10) at the origin, clearing the rest</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail wfc match-pattern --node-path Grid \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--pattern '{"match":{"0,0":5,"1,0":5,"0,1":5,"1,1":5},"replace":{"0,0":10,"1,0":-1,"0,1":-1,"1,1":-1}}'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>In <code>match</code>, item <code>-1</code> means “require empty”; in <code>replace</code>, <code>-1</code> clears the cell. <code>--rotate</code> (default on) tries all 4 orientations and orients the placed piece to match; <code>--limit</code> caps placements.</p>
+<ol start="5">
+<li>Organic, non-grid layouts</li>
+</ol>
+<p>A square grid reads as a grid. For the Townscaper “irregular but tileable” look, generate an all-quad mesh from a jittered triangular lattice (random triangle-pair merge → subdivide-to-quads → relax).</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail wfc stalberg-grid --width 8 --depth 8 --seed 1 \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--relax-iterations 12 --emit markers --name Town</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">→ quad corner lists (and Marker3D nodes at each quad centre to see the layout)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Tune with <code>--jitter</code> (off-grid push), <code>--relax-iterations</code> (smoothing; boundary stays fixed), <code>--spacing</code>. The relaxation primitive is also exposed standalone as <code>pcg relax --points … --edges …</code>, for de-clumping any point set.</p>
+<p><strong>Conform a square module to an irregular cell.</strong> The quads above aren’t square, so warp each module to fit: store every vertex as a % of the module’s AABB, rebuild from the cell’s 8 displaced corners.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">handles = 8 AABB corners by bit (x=i&#x26;1, y=(i>>1)&#x26;1, z=(i>>2)&#x26;1);</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">bottom face = 0,1,4,5  top = 2,3,6,7. Move corners to the target cell's corners.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail mesh deform-lattice --node-path Module \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--handles '["Vector3(-1,-0.5,-1)","Vector3(1,-0.5,-1)","Vector3(-0.5,0.5,-0.5)","Vector3(0.5,0.5,-0.5)","Vector3(-1,-0.5,1)","Vector3(1,-0.5,1)","Vector3(-0.5,0.5,0.5)","Vector3(0.5,0.5,0.5)"]'</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">normals are recomputed from the deformed faces. --mesh-path saves a reusable .mesh.</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<ol start="6">
+<li>The 2D case: terrains today, WFC by hand</li>
+</ol>
+<p><strong>The dual-grid insight is dimension-free.</strong> Typing corners instead of cells in 2D is marching squares: 4 corners, 16 configs, 6 tiles under rotation, the same collapse derived in section 1. Godot ships that idea as the TileSet <strong>terrain</strong> system, where peering bits are the corner types and the autotiler picks the matching tile, so the 2D counterpart of <code>wfc solve-dual</code> is <code>tilemap set-terrain</code>. Author the terrain in the TileSet editor (peering bits are visual work), paint it from the CLI. <code>topdown-2d.md</code> carries the recipe and the island-tile gotcha that makes isolated cells place nothing.</p>
+<p><strong>WFC has no 2D command.</strong> <code>wfc collapse</code> writes GridMap cells and there is no <code>TileMapLayer</code> counterpart, so the solve is yours to run. Both halves of the write are available:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">solve and write in one editor call: fast over a large region, and not undoable</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail editor run-script --code '</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">var layer = EditorInterface.get_edited_scene_root().get_node("Ground")</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">for cell in solved:            solved: {Vector2i cell: Vector2i atlas_coords}</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">layer.set_cell(cell, 0, solved[cell])</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">'</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">or keep the solve outside and issue one undoable write per cell</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail tilemap set-cell --node-path Ground --x 4 --y 2 --source-id 0 --atlas-x 1 --atlas-y 0</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The adjacency table, entropy pick, and propagation are a few dozen lines of GDScript. Read the result back with <code>tilemap get-used-cells</code>, not a screenshot. That is the same rule the 3D loop below follows with <code>gridmap get_used_cells</code>.</p>
+<hr>
+<p>The shape of a build</p>
+<p>Constraint tile-assembly composes, like the rest of the toolset. Your command sequence <strong>is</strong> the generator:</p>
+<ol>
+<li>
+<strong>Kit</strong>. Author modules in the editor (or <code>csg</code> blockouts → <code>csg bake</code>), then run <code>gridmap meshlibrary_from_scene</code> → assign with <code>node set mesh_library</code>.</li>
+<li>
+<strong>Logic</strong>. Paint item ids and run <code>wfc solve_dual</code> / <code>collapse</code> until the topology is right (read it back with <code>gridmap get_used_cells</code>, not a screenshot).</li>
+<li>
+<strong>Variety</strong> comes from variant buckets plus <code>match_pattern</code> for special pieces.</li>
+<li>
+<strong>Organic</strong>: <code>stalberg_grid</code> for the layout, <code>mesh deform_lattice</code> to fit modules to irregular cells.</li>
+</ol>
+<p>Wrap risky runs in <code>authoring checkpoint --action capture</code> so a bad seed is one <code>restore</code> away.</p>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/lighting-2d" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>2D lighting</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/level-design" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Level design</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="true" data-scope-p33bl5ka>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

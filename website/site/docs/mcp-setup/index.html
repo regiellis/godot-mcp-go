@@ -1,0 +1,511 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Use with an AI client · Swallowtail</title><meta name="description" content="Run swallowtail as an MCP server so Claude, Cursor, VS Code, or Codex can drive Godot.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Use with an AI client · Swallowtail">
+<meta property="og:description" content="Run swallowtail as an MCP server so Claude, Cursor, VS Code, or Codex can drive Godot.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<style>.shell-tabs[data-scope-rs4ffo3c]{margin:1rem 0 1.25rem}.st-bar[data-scope-rs4ffo3c]{border-bottom:1px solid var(--border);gap:.25rem;display:flex}.st-tab[data-scope-rs4ffo3c]{font-family:var(--font-mono);color:var(--text-muted);cursor:pointer;background:0 0;border:none;border-bottom:2px solid #0000;margin-bottom:-1px;padding:.35rem .65rem;font-size:.8rem;font-weight:560;transition:color .15s,border-color .15s}.st-tab[data-scope-rs4ffo3c]:hover{color:var(--text)}.st-tab[data-scope-rs4ffo3c].active{color:var(--text);border-bottom-color:var(--primary)}.st-panel[data-scope-rs4ffo3c]{display:none}.st-panel[data-scope-rs4ffo3c].active{display:block}
+</style><link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link active" aria-current="page" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Use with an AI client</h1>
+<p class="page-desc" data-scope-ccykbmgk>Run swallowtail as an MCP server so Claude, Cursor, VS Code, or Codex can drive Godot.</p>
+</header>
+<p><code>swallowtail serve</code> gives an MCP client the same complete workflow as the CLI: discover the live engine, build in the open editor, run and play the game, observe state, debug failures, fix them, and verify the result. It runs as a <a href="https://modelcontextprotocol.io">Model Context Protocol</a> server over stdio. Clients that speak <strong>streamable HTTP</strong> can skip the binary and <a href="#or-connect-straight-to-the-editor-streamable-http">connect straight to the editor</a>, which hosts its own MCP endpoint.</p>
+<h2 id="two-tool-modes">Two tool modes<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#two-tool-modes">#</a></h2>
+<aside class="callout" data-type="warning" role="note">
+<span class="callout-mascot" aria-hidden="true"><img src="/godot-mcp-go/brand/callouts/warning.webp" width="152" height="152" alt="" loading="lazy" decoding="async"></span><div class="callout-body">
+<div class="callout-kind">warning</div>
+<div class="callout-title">The typed list costs about 52,000 tokens</div>
+<p>The full typed surface measures ~332 tools and ~52,000 tokens of schemas, sized for big-context frontier models, which carry it comfortably with prompt caching. The single-tool mode measures ~470 tokens. Measurements, per-group breakdown, and the reasoning behind the default: <a href="/godot-mcp-go/docs/context-cost">What the tool surface costs</a>.</p>
+</div>
+</aside>
+<p>By default, <code>serve</code> exposes each documented command as a typed MCP tool, such as
+<code>node_add</code>, with required parameters and a description. Definitions come from the
+live addon, including <a href="/godot-mcp-go/docs/extending">project-local commands</a>, and refresh as
+described below. The generic <code>godot_run</code> tool accepts the dotted method name and
+its parameters:</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css"/>
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;node.add&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;params&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;type&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;Node2D&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;name&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;Player&quot;</span><span style="--0:#E1E4E8;--1:#24292E">}}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>For clients that cap the number of tools, run <code>serve --typed=false</code> to expose only <code>godot_run</code>. One tool still reaches all 332 registered commands while keeping the model’s context lean: the model discovers the live 4.7 API with <code>engine.search</code> / <code>engine.class_info</code>, then acts, instead of carrying every tool schema into the session. Both modes are deliberate: typed for schema-guided calls, single-tool for context economy.</p>
+<aside class="callout" data-type="tip" role="note">
+<span class="callout-mascot" aria-hidden="true"><img src="/godot-mcp-go/brand/callouts/tip.webp" width="152" height="152" alt="" loading="lazy" decoding="async"></span><div class="callout-body">
+<div class="callout-kind">tip</div>
+<p>To drive a <strong>standalone running game with no editor open</strong>, <code>godot_run</code> accepts <code>game: true</code>, and the typed <code>runtime_*</code> / <code>input_*</code> tools carry an optional <code>game</code> parameter that routes the call to the game’s own server. See the <a href="/godot-mcp-go/docs/playtest-loop#direct-to-player-channel">direct-to-player channel</a>.</p>
+</div>
+</aside>
+<h2 id="write-the-config-automatically">Write the config automatically<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#write-the-config-automatically">#</a></h2>
+<p><code>swallowtail configure</code> writes an MCP-server entry for a supported client, merging without clobbering your other servers:</p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">configure</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">claude</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--project</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">/path/to/your/project</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">configure</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">cursor</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">configure</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">vscode</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">configure</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">codex</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--global</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Add <code>--print</code> to emit the snippet without writing (the safe path for uncertain global targets).</p>
+<p><code>--project</code> must name a real Godot project, meaning the directory holding <code>project.godot</code> or anywhere inside it. Configure refuses a directory that is in no project: the config it would write leaves the server unable to resolve a project root, so it falls back to port 9080 and skips the check that the answering editor is the right one.</p>
+<p>When the Godot project sits in a subdirectory of a larger repo, <code>--config-dir</code> puts the config where the client reads it while the server still drives the project:</p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">configure</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">claude</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--project</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">./game</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--config-dir</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">.</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="or-configure-by-hand">Or configure by hand<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#or-configure-by-hand">#</a></h2>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;mcpServers&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">&quot;swallowtail&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#79B8FF;--1:#005CC5">&quot;command&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;swallowtail&quot;</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#79B8FF;--1:#005CC5">&quot;args&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: [</span><span style="--0:#9ECBFF;--1:#032F62">&quot;serve&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">&quot;--project&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">&quot;/path/to/your/project&quot;</span><span style="--0:#E1E4E8;--1:#24292E">]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The Godot editor must be open with the plugin enabled, exactly as for the CLI. <code>--project</code> sets where the server discovers the addon port, so it survives an editor restart.</p>
+<h2 id="editor-restarts-and-catalog-changes">Editor restarts and catalog changes<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#editor-restarts-and-catalog-changes">#</a></h2>
+<p>The stdio server refreshes tool definitions when the client lists tools, before a
+typed call, and after a successful generic editor call. Added or removed commands
+and changed schemas emit <code>notifications/tools/list_changed</code>. An identical catalog
+emits no notification. If the editor goes offline, the list falls back to
+<code>godot_run</code>; the same stdio process discovers the tools again when it reconnects.
+The same holds when the editor is down at connect time: <code>serve</code> starts with
+<code>godot_run</code> alone and adds the typed tools once the editor answers.</p>
+<h2 id="progress-and-cancellation">Progress and cancellation<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#progress-and-cancellation">#</a></h2>
+<p>A stdio client requests progress by putting a string or integer <code>progressToken</code>
+in the tool call’s <code>_meta</code>, alongside <code>name</code> and <code>arguments</code>:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;jsonrpc&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;2.0&quot;</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;id&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#79B8FF;--1:#005CC5">42</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;tools/call&quot;</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;params&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">&quot;name&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;script_validate&quot;</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">&quot;arguments&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;all&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#79B8FF;--1:#005CC5">true</span><span style="--0:#E1E4E8;--1:#24292E">},</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">&quot;_meta&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;progressToken&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;validation-42&quot;</span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>notifications/progress</code> carries that token and an increasing <code>progress</code> value.
+Validation batches and imports count completed files; scenarios count completed
+steps. These updates include <code>total</code> when the count is known. Clients decide how
+to display them.</p>
+<p>To cancel request 42, send:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;jsonrpc&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;2.0&quot;</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;notifications/cancelled&quot;</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;params&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;requestId&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#79B8FF;--1:#005CC5">42</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;reason&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;Stopped by user&quot;</span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Cancellation stops remaining scenario steps, script validations, or asset imports
+at a safe boundary. Timed scenario waits can stop early. Completed edits and
+inputs stay in place, and a playing game stays running until <code>scene stop</code>.
+A native compile/import or game command already underway may finish. Cancelled
+requests send no result or further progress; ping stays responsive during work.</p>
+<p>Progress and cancellation currently apply to stdio. The HTTP endpoint below
+continues to return ordinary request results.</p>
+<h2 id="or-connect-straight-to-the-editor-streamable-http">Or connect straight to the editor (streamable HTTP)<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#or-connect-straight-to-the-editor-streamable-http">#</a></h2>
+<p>The addon hosts a <strong>streamable-HTTP MCP endpoint inside the editor</strong> at <code>POST /mcp</code> on <code>127.0.0.1</code>, so an MCP client that speaks streamable HTTP connects with <strong>no external process at all</strong>:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;mcpServers&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">&quot;swallowtail&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#79B8FF;--1:#005CC5">&quot;url&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;http://127.0.0.1:9100/mcp&quot;</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The endpoint picks the first free port in <strong>9100-9115</strong> and records it as <code>http_port</code> in <code>&lt;project&gt;/.godot/swallowtail.json</code>; pin a fixed one with the <code>swallowtail/network/http_port</code> project setting (Project → Project Settings → Swallowtail) or the <code>SWALLOWTAIL_HTTP_PORT</code> environment variable.</p>
+<p>The tool surface mirrors <code>serve</code>: the generic <code>godot_run</code> plus every documented command as a typed tool, dispatched through the same command router with the same safety guards. Two settings tune it:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Setting</th><th>Default</th><th>Effect</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>swallowtail/network/mcp_http</code></td><td><code>true</code></td><td>turns the endpoint on or off</td></tr>
+<tr>
+<td><code>swallowtail/network/http_typed</code></td><td><code>true</code></td><td><code>false</code> lists only <code>godot_run</code>, the <code>serve --typed=false</code> role for tool-limited clients</td></tr>
+</tbody>
+</table>
+</div>
+<p>The endpoint listens on loopback <strong>and</strong> checks the <code>Origin</code> header, so a web page you happen to have open cannot reach it: requests carrying no <code>Origin</code> (every native MCP client) or an origin whose host is <code>localhost</code>, <code>::1</code>, or a loopback address are served, anything else gets <code>403</code>, and the CORS header echoes the allowed origin rather than <code>*</code>. A browser-based MCP client running on <code>http://localhost:&lt;port&gt;</code> works unchanged. The WebSocket transport cannot be gated the same way. <a href="/godot-mcp-go/docs/how-it-works#threat-model">The threat model</a> covers what that does and does not mean.</p>
+<h3 id="reach-an-editor-on-another-machine">Reach an editor on another machine<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#reach-an-editor-on-another-machine">#</a></h3>
+<p>Both servers bind loopback and never listen on a network address. To drive an editor that runs on a different computer, forward the port over SSH. The request arrives on the editor’s own loopback with no <code>Origin</code>, so the gate passes, and your client config keeps the same <code>http://127.0.0.1:9100/mcp</code> URL.</p>
+<p>Pin the port on the editor machine first, so it does not move between launches: set <code>swallowtail/network/http_port</code> to <code>9100</code> in that project. Then, on the machine running the client, open the tunnel and leave it running.</p>
+<div class="shell-tabs" data-shell-tabs data-scope-rs4ffo3c>
+<div class="st-bar" role="tablist" aria-label="Shell" data-scope-rs4ffo3c>
+<button class="st-tab" type="button" role="tab" data-shell="bash" data-scope-rs4ffo3c>bash</button><button class="st-tab" type="button" role="tab" data-shell="ps" data-scope-rs4ffo3c>PowerShell</button></div>
+<div class="st-panel" data-shell="bash" data-scope-rs4ffo3c>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># forward local 9100 to the editor machine&#39;s loopback 9100 (-f backgrounds it)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">ssh</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">-f</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">-N</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">-L</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">9100:127.0.0.1:9100</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">you@devbox</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">curl</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">-s</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">-X</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">POST</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">http://127.0.0.1:9100/mcp</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">-H</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&#39;Content-Type: application/json&#39;</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">\</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">-d</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quot;:&quot;tools/list&quot;}&#39;</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">jq</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&#39;.result.tools | length&#39;</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+</div>
+<div class="st-panel" data-shell="ps" data-scope-rs4ffo3c>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="powershell"><code><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># Windows 10 and 11 ship an OpenSSH client (C:\Windows\System32\OpenSSH\ssh.exe)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#79B8FF;--1:#005CC5">Start-Process</span><span style="--0:#E1E4E8;--1:#24292E"> ssh </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">ArgumentList </span><span style="--0:#9ECBFF;--1:#032F62">&#39;-N&#39;</span><span style="--0:#F97583;--1:#BF3441">,</span><span style="--0:#9ECBFF;--1:#032F62">&#39;-L&#39;</span><span style="--0:#F97583;--1:#BF3441">,</span><span style="--0:#9ECBFF;--1:#032F62">&#39;9100:127.0.0.1:9100&#39;</span><span style="--0:#F97583;--1:#BF3441">,</span><span style="--0:#9ECBFF;--1:#032F62">&#39;you@devbox&#39;</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">WindowStyle </span><span style="--0:#F97583;--1:#BF3441">Hidden</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">$body </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quot;:&quot;tools/list&quot;}&#39;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">Invoke-RestMethod</span><span style="--0:#E1E4E8;--1:#24292E"> http:</span><span style="--0:#F97583;--1:#BF3441">//</span><span style="--0:#79B8FF;--1:#005CC5">127.0</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">0.1</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#79B8FF;--1:#005CC5">9100</span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E">mcp </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">Method Post </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">ContentType </span><span style="--0:#9ECBFF;--1:#032F62">&#39;application/json&#39;</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">Body $body).result.tools.Count</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+</div>
+</div>
+<script type="module" src="/godot-mcp-go/assets/shell-tabs.js"></script>
+<p>When the editor machine can reach the client machine but not the other way round, open the tunnel from the editor side with a remote forward instead: <code>ssh -N -R 9100:127.0.0.1:9100 you@laptop</code>. Either way, keep the forwarded end on loopback, which is the default; <code>-g</code> or a <code>0.0.0.0:</code> bind address would expose the editor to that machine’s network.</p>
+<p>A stdio client can skip the port entirely and run <code>serve</code> on the editor machine through SSH. This needs <code>swallowtail</code> on the remote <code>PATH</code>, key-based login that never prompts, and a remote shell that prints nothing on login, because stdout is the MCP transport and a stray banner corrupts it:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;mcpServers&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">&quot;swallowtail&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#79B8FF;--1:#005CC5">&quot;command&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;ssh&quot;</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#79B8FF;--1:#005CC5">&quot;args&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: [</span><span style="--0:#9ECBFF;--1:#032F62">&quot;-o&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">&quot;BatchMode=yes&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">&quot;you@devbox&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">&quot;swallowtail&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">&quot;serve&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">&quot;--project&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">&quot;/home/you/game&quot;</span><span style="--0:#E1E4E8;--1:#24292E">]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The CLI itself belongs on the machine with the project: <code>ssh you@devbox</code> and run <code>swallowtail</code> there. A tunnel extends the trust described in the <a href="/godot-mcp-go/docs/how-it-works#threat-model">threat model</a>: anyone who can reach the forwarded port on the client machine can drive the editor.</p>
+<aside class="callout" data-type="note" role="note">
+<span class="callout-mascot" aria-hidden="true"><img src="/godot-mcp-go/brand/callouts/note.webp" width="152" height="152" alt="" loading="lazy" decoding="async"></span><div class="callout-body">
+<div class="callout-kind">note</div>
+<p>stdio (<code>swallowtail serve</code>) remains the right choice for clients without streamable-HTTP support, and it adds the <code>godot://</code> resources, the MCP prompts below, and the <code>game: true</code> routing to a standalone player. The HTTP endpoint’s strength is zero-install reach: if the editor is running, the server is running.</p>
+</div>
+</aside>
+<h2 id="read-only-resources">Read-only resources<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#read-only-resources">#</a></h2>
+<p>Beyond the tools, the server advertises read-only <strong>MCP resources</strong> under the <code>godot://</code> scheme, so a client can pull context without spending a tool turn:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Resource</th><th>Contents</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>godot://project/info</code></td><td>project metadata</td></tr>
+<tr>
+<td><code>godot://project/tree</code></td><td>the project file tree</td></tr>
+<tr>
+<td><code>godot://scene/tree</code></td><td>the open scene’s node tree</td></tr>
+<tr>
+<td><code>godot://engine/singletons</code></td><td>registered singletons</td></tr>
+<tr>
+<td><code>godot://editor/errors</code></td><td>recent editor errors</td></tr>
+</tbody>
+</table>
+</div>
+<h2 id="prompts">Prompts<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#prompts">#</a></h2>
+<p><code>serve</code> also ships the durable playbooks as first-class <strong>MCP prompts</strong>, so a client can pull them with <code>prompts/get</code>, even when the editor is down:</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Prompt</th><th>What it teaches</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>discover-then-drive</code></td><td>ground on the live engine API (<code>engine.search</code> / <code>engine.class_info</code>) before acting, and the durable editor rules</td></tr>
+<tr>
+<td><code>spatial-placement</code></td><td>anchor, read real bounds back, seat with a raycast, verify numerically (optional <code>target</code> argument)</td></tr>
+<tr>
+<td><code>launch-recovery</code></td><td>recover an unreachable editor from its discovery verdict instead of relaunching blindly</td></tr>
+<tr>
+<td><code>bug-hunt</code></td><td>treat surprising results as tool bugs: root-cause, verify by reading state back</td></tr>
+</tbody>
+</table>
+</div>
+<aside class="callout" data-type="tip" role="note">
+<span class="callout-mascot" aria-hidden="true"><img src="/godot-mcp-go/brand/callouts/tip.webp" width="152" height="152" alt="" loading="lazy" decoding="async"></span><div class="callout-body">
+<div class="callout-kind">tip</div>
+<p>The <code>initialize</code> reply also carries an <code>instructions</code> string with the same discover-then-drive and spatial-placement steer in compressed form, so the guidance rides along at every connect even without the skill installed.</p>
+</div>
+</aside>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/migration" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Migrating to Swallowtail</span></a><a class="pager-link next" href="/godot-mcp-go/docs/context-cost" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>What the tool surface costs</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#two-tool-modes" data-toc="two-tool-modes" data-scope-p33bl5ka>Two tool modes</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#write-the-config-automatically" data-toc="write-the-config-automatically" data-scope-p33bl5ka>Write the config automatically</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#or-configure-by-hand" data-toc="or-configure-by-hand" data-scope-p33bl5ka>Or configure by hand</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#editor-restarts-and-catalog-changes" data-toc="editor-restarts-and-catalog-changes" data-scope-p33bl5ka>Editor restarts and catalog changes</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#progress-and-cancellation" data-toc="progress-and-cancellation" data-scope-p33bl5ka>Progress and cancellation</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#or-connect-straight-to-the-editor-streamable-http" data-toc="or-connect-straight-to-the-editor-streamable-http" data-scope-p33bl5ka>Or connect straight to the editor (streamable HTTP)</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#reach-an-editor-on-another-machine" data-toc="reach-an-editor-on-another-machine" data-scope-p33bl5ka>Reach an editor on another machine</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#read-only-resources" data-toc="read-only-resources" data-scope-p33bl5ka>Read-only resources</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#prompts" data-toc="prompts" data-scope-p33bl5ka>Prompts</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

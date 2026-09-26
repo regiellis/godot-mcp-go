@@ -1,0 +1,937 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Videos and trailers · Swallowtail</title><meta name="description" content="Filming the game with the engine itself: duration and delivery profiles from a 15 s hook to 9:16 vertical, a director scene, the movie writer, the render matrix.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Videos and trailers · Swallowtail">
+<meta property="og:description" content="Filming the game with the engine itself: duration and delivery profiles from a 15 s hook to 9:16 vertical, a director scene, the movie writer, the render matrix.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link active" aria-current="page" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Videos and trailers</h1>
+<p class="page-desc" data-scope-ccykbmgk>Filming the game with the engine itself: duration and delivery profiles from a 15 s hook to 9:16 vertical, a director scene, the movie writer, the render matrix.</p>
+</header>
+<p>How an agent plans, stages, films, and cuts trailers and feature videos for a Godot game across
+multiple lengths and delivery formats. The same rig should be able to produce a 15 to 30 second
+hook, a 30 to 60 second store trailer, a 60 to 90 second extended cut, or a 2 to 3 minute
+feature/gameplay trailer, then restage that cut for landscape, near-square, feed portrait, square,
+or full vertical delivery.</p>
+<p>The game renders its own footage: Godot’s <strong>movie writer</strong> runs the project offline at a fixed
+frame rate and writes every frame plus the master audio bus to a file, so the capture is
+frame-perfect however slow the machine is. Screen-recording software is the wrong tool here,
+because it films a game fighting for frames and cannot be re-run when a line of dialogue changes.</p>
+<p>Because the film is rendered rather than captured, a trailer here is a <strong>deterministic scene,
+re-authored and re-rendered at will</strong>. Duration, aspect ratio, camera framing, UI placement,
+dialogue layout, title-card typography, and even which version of a shot is used are all inputs
+to that scene.</p>
+<p>The engine behaviour and the commands below were checked against <strong>Godot 4.7.2</strong> on 2026-08-09; the
+staging patterns come from a two-film rig built with this CLI. Each idea pairs with a <strong>Build:</strong>
+recipe; adapt them rather than running them end to end.</p>
+<p>The division of labour: the <strong>director scene</strong> decides what happens on camera, the <strong>movie writer</strong>
+records it, <strong>ffmpeg</strong> encodes it, and <strong>swallowtail</strong> drives the iteration loop between takes so a
+render is spent only on footage already known to be right.</p>
+<p>The finished output is a matrix:</p>
+<ul>
+<li>
+<strong>Editorial cut</strong>: short hook, store trailer, extended trailer, or 2 to 3 minute feature.</li>
+<li>
+<strong>Delivery profile</strong>: 16:9, 5:4, 4:5, 1:1, 9:16, or another explicitly supported viewport.</li>
+<li>
+<strong>Quality profile</strong>: fast review render, final working render, or final encode.</li>
+<li>
+<strong>Language/version profile</strong>: optional alternate dialogue, localized cards, ratings card, or CTA.</li>
+</ul>
+<p>The director owns editorial intent. The delivery profile owns composition. The render script owns
+resolution and filenames. Keeping those concerns separate is what lets the same trailer concept
+survive a move from a desktop store page to a phone without becoming a blind center-crop.</p>
+<h2 id="the-film-is-decided-before-the-rig-exists">The film is decided before the rig exists<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-film-is-decided-before-the-rig-exists">#</a></h2>
+<p>Write the shot list first, as a file in the repo, and make it the source of record. The director
+script is built <em>to</em> the shot list, and a change to the film starts there rather than in the code.</p>
+<p>What separates a trailer that works from a screen tour:</p>
+<ul>
+<li>
+<strong>The hook is a character or a verb inside four seconds</strong>, not a logo. Somebody talks trash, a
+body falls, a door opens. A title card that opens on nothing spends the only seconds a viewer
+reliably gives.</li>
+<li>
+<strong>One continuous story beats a feature list</strong>. Taunt, bluff, win the round, rival tilts, rematch.
+Modes and systems then appear as <em>escalations of that story</em>, so the film never stops to
+enumerate anything.</li>
+<li>
+<strong>Say it in the game’s own voice</strong>. Dialogue through the game’s real speech system reads as the
+game; a caption reads as marketing.</li>
+<li>
+<strong>A text card is its own beat, never an overlay</strong>. Parked over a live screen it lands on a button
+and looks like a mistake. Cut to the card on an opaque cover, hold it, cut back.</li>
+<li>
+<strong>Cut to the music</strong>. Compose or pick the bed first, mark its hits, and place the cuts on them.
+Shot lengths are then a consequence of the track rather than a guess.</li>
+<li>
+<strong>Every word on camera is the script’s</strong>. Spontaneous chatter, tutorial nudges, and hint systems
+all have to be silenced for the take, or the film says something nobody wrote.</li>
+</ul>
+<p><strong>Plan each length as its own film.</strong> A 30 second trailer and a 3 minute trailer should not be
+the same shot list with different amounts cut out. The longer film has room for
+setup, contrast, explanation, and recovery beats that would kill the pace of a short promo.</p>
+<h2 id="plan-by-duration-profile">Plan by duration profile<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#plan-by-duration-profile">#</a></h2>
+<p>These are starting structures. The track and the game bend them:</p>
+<table>
+<thead>
+<tr>
+<th>Profile</th><th>Typical job</th><th>Editorial shape</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hook</strong> (15 to 30 s)</td><td>short-form promo, teaser, announcement</td><td>one idea, one escalation, one payoff</td></tr>
+<tr>
+<td><strong>Store</strong> (30 to 60 s)</td><td>store page, launch trailer, compact social cut</td><td>hook → premise → core loop → escalation → close</td></tr>
+<tr>
+<td><strong>Extended</strong> (60 to 90 s)</td><td>feature-heavy trailer, publisher/social post</td><td>hook → premise → loop → depth → payoff → close</td></tr>
+<tr>
+<td><strong>Feature</strong> (120 to 180 s)</td><td>gameplay overview, feature trailer, longer showcase</td><td>hook → setup → loop → depth → variation → climax → close</td></tr>
+</tbody>
+</table>
+<p>A useful timing sketch:</p>
+<p><strong>15 to 30 seconds</strong></p>
+<ul>
+<li>0 to 3 s: immediate hook.</li>
+<li>3 to 10 s: establish the verb, threat, character, or fantasy.</li>
+<li>10 to 22 s: one or two escalating beats.</li>
+<li>final 3 to 6 s: payoff and end card.</li>
+</ul>
+<p><strong>30 to 60 seconds</strong></p>
+<ul>
+<li>0 to 4 s: hook.</li>
+<li>4 to 15 s: premise and visual identity.</li>
+<li>15 to 40 s: core loop shown through a continuous mini-story.</li>
+<li>40 to 52 s: escalation, surprise, or strongest feature.</li>
+<li>final 6 to 10 s: payoff, title, CTA.</li>
+</ul>
+<p><strong>60 to 90 seconds</strong></p>
+<ul>
+<li>0 to 5 s: hook.</li>
+<li>5 to 20 s: premise.</li>
+<li>20 to 50 s: core loop with enough continuity to understand cause and effect.</li>
+<li>50 to 72 s: systems, variation, rival/character beat, or secondary mechanic.</li>
+<li>final 10 to 18 s: climax and close.</li>
+</ul>
+<p><strong>120 to 180 seconds</strong></p>
+<ul>
+<li>0 to 8 s: hook that earns the longer watch.</li>
+<li>8 to 35 s: world, goal, stakes, or player fantasy.</li>
+<li>35 to 85 s: core loop shown clearly enough that the viewer understands what they do.</li>
+<li>85 to 135 s: depth through variation, progression, secondary systems, characters, modes, or a change of pace.</li>
+<li>135 to 160 s: strongest escalation or showcase sequence.</li>
+<li>final 10 to 20 s: release of tension, title, CTA, platform/date information.</li>
+</ul>
+<p><strong>The long form needs breathing room.</strong> Do not turn three minutes into a three-minute montage. Let
+a few shots run long enough for an action to begin, resolve, and produce a consequence. The viewer
+of a feature trailer has opted into explanation; use that permission.</p>
+<p><strong>The short form needs the opposite discipline.</strong> If a 20-second cut needs a paragraph of context
+before the interesting action makes sense, it is probably the wrong shot for that cut.</p>
+<h2 id="write-the-shot-list-as-data">Write the shot list as data<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#write-the-shot-list-as-data">#</a></h2>
+<p>The shot-list file should carry enough information for both duration and aspect-ratio variants:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th><th>Purpose</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td><td>stable shot name used by the director</td></tr>
+<tr>
+<td><code>time</code> / <code>duration</code></td><td>intended film-time range</td></tr>
+<tr>
+<td><code>beat</code></td><td>hook, setup, loop, escalation, climax, end card</td></tr>
+<tr>
+<td><code>action</code></td><td>what actually happens</td></tr>
+<tr>
+<td><code>dialogue</code></td><td>exact authored line, if any</td></tr>
+<tr>
+<td><code>audio</code></td><td>music hit, SFX priority, silence, or transition</td></tr>
+<tr>
+<td><code>landscape</code></td><td>framing notes for 16:9 / 5:4</td></tr>
+<tr>
+<td><code>portrait</code></td><td>framing notes for 4:5 / 9:16</td></tr>
+<tr>
+<td><code>short_cut</code></td><td>whether/how the shot appears in 15 to 60 s versions</td></tr>
+<tr>
+<td><code>long_cut</code></td><td>whether/how the shot expands in 60 to 180 s versions</td></tr>
+<tr>
+<td><code>exit</code></td><td>visual/audio condition that makes the cut safe</td></tr>
+</tbody>
+</table>
+<p>A shot can therefore be the same event without being the same composition. The winning throw may
+be a wide two-character shot in 16:9, a tighter two-shot in 5:4, and an over-the-shoulder or
+single-character composition in 9:16.</p>
+<p><strong>Build:</strong> write <code>trailers/script.md</code>, then create the rig beside it.</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail fs mkdir --path res://trailers</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail scene create --path res://trailers/trailer.tscn --root-type Control</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail scene open --path res://trailers/trailer.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail script create --path res://trailers/trailer_director.gd --extends Control</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail script attach --node-path . --script-path res://trailers/trailer_director.gd</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="the-director-scene">The director scene<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-director-scene">#</a></h2>
+<p>One scene plus one script per film. It is dev-only tooling and never ships: add <code>trailers/*</code> to
+every export preset’s <code>exclude_filter</code>, beside whatever holds the project’s other tools. A second
+film gets its own scene and script rather than a shared base class. Keeping a finished film
+byte-identical outranks avoiding duplication, and a shared helper puts every later change to film
+two into film one’s render path.</p>
+<p>The spine is a list of awaited shots and a quit:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">_guard</span><span style="--0:#E1E4E8;--1:#24292E">()            </span><span style="--0:#99A0A6;--1:#616972"># fixtures in memory, nothing of the developer's touched</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">_build_overlay</span><span style="--0:#E1E4E8;--1:#24292E">()    </span><span style="--0:#99A0A6;--1:#616972"># the cover and the card layer</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">_start_music</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">await</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_shot_cold_open</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">await</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_shot_the_turn</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">await</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_shot_end_card</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">quit</span><span style="--0:#E1E4E8;--1:#24292E">()   </span><span style="--0:#99A0A6;--1:#616972"># quitting is what finalises the movie file</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The quit is load-bearing. The writer keeps recording until the engine exits, so a director that
+falls off the end of its shot list produces a film that runs until somebody closes the window.</p>
+<h2 id="one-editorial-cut-multiple-delivery-profiles">One editorial cut, multiple delivery profiles<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#one-editorial-cut-multiple-delivery-profiles">#</a></h2>
+<p>A film can have several delivery profiles without becoming several unrelated trailers. Keep the
+story beats stable and let the director select explicit composition values for the target viewport.</p>
+<p>Do not make aspect ratio an accidental side effect of <code>get_viewport_rect()</code>. Name it:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">enum</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">DeliveryProfile</span><span style="--0:#E1E4E8;--1:#24292E"> {</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">LANDSCAPE_16_9</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">LANDSCAPE_5_4</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">PORTRAIT_4_5</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">SQUARE_1_1</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">VERTICAL_9_16</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> delivery_profile </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">DeliveryProfile</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">LANDSCAPE_16_9</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> editorial_profile </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">&#x26;"store_60"</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The render wrapper can pass those values through project metadata, command-line user arguments, a
+small JSON manifest, or a dedicated exported property; any of them works. The rule is that <strong>the
+director knows the intended output before it stages frame one.</strong></p>
+<p>Inside each shot, branch only where composition really changes:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_shot_the_turn</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">match</span><span style="--0:#E1E4E8;--1:#24292E"> delivery_profile:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">DeliveryProfile</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">VERTICAL_9_16</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#B392F0;--1:#6F42C1">_stage_turn_vertical</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">DeliveryProfile</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">PORTRAIT_4_5</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#B392F0;--1:#6F42C1">_stage_turn_portrait</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">_</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#B392F0;--1:#6F42C1">_stage_turn_landscape</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">await</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_play_turn</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The event <code>_play_turn()</code> stays the same. Only staging changes. That keeps the film honest while
+avoiding five copies of gameplay logic.</p>
+<p>For a finished film, prefer local profile tables inside that film’s director over a shared global
+trailer framework. The original reason for one scene/script per film still applies: changing film
+two must not silently change a finished film one’s render path.</p>
+<h2 id="five-rules-that-keep-a-render-honest">Five rules that keep a render honest<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#five-rules-that-keep-a-render-honest">#</a></h2>
+<ol>
+<li>
+<strong>Never write the developer’s saves.</strong> Progress, stats, and settings singletons get their
+persist flags turned off and their state driven from an in-memory fixture. A film that unlocks
+everything to shoot a roster must not leave the machine that way.</li>
+<li>
+<strong>Never go fullscreen.</strong> The take is unattended and a fullscreen window is hostile to whoever is
+at the keyboard. Force windowed in <code>_enter_tree</code>, before the first frame.</li>
+<li>
+<strong>Drive the real handlers.</strong> Call <code>_on_die_clicked</code>, <code>_select_mode</code>, the same entry points a
+player’s input reaches, rather than writing the resulting state. What is filmed is then what a
+player gets. Where a handler cannot produce the frame the shot is about, replay that handler’s
+own branch call for call instead of faking its result.</li>
+<li>
+<strong>Rig the randomness, do not remove it.</strong> Seed the RNG, or load a scripted deck between
+<code>instantiate()</code> and <code>add_child()</code> so the dealt cards land on known faces. The shot list can then
+name a score, and the film matches it every render.</li>
+<li>
+<strong>No wait may strand the render.</strong> Poll a predicate over frames with a ceiling, and treat a
+ceiling that fires as a wrong predicate rather than a slow game.</li>
+</ol>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972">## Poll `cond` over frames with a wall-clock ceiling, so a surprised game cannot hang a render.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_until</span><span style="--0:#E1E4E8;--1:#24292E">(cond: </span><span style="--0:#B392F0;--1:#6F42C1">Callable</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> deadline </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Time</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_ticks_msec</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">int</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">WAIT_CEILING</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1000.0</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">while</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Time</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_ticks_msec</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">&#x3C;</span><span style="--0:#E1E4E8;--1:#24292E"> deadline:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> cond.</span><span style="--0:#B392F0;--1:#6F42C1">call</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#F97583;--1:#BF3441">return</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">await</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().process_frame</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">push_warning</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"trailer: a wait hit its ceiling, footage may be off"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Predicates read the game’s own idle state (not busy, player’s turn, match not over), and anything
+that animates gets polled per object. A fixed sleep after a staggered deal still races the last
+tumble, which is how a die clicked as a 4 lands on a 3 on film.</p>
+<h2 id="what-rides-film-time-and-what-rides-the-wall-clock">What rides film time, and what rides the wall clock<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#what-rides-film-time-and-what-rides-the-wall-clock">#</a></h2>
+<p><code>--write-movie</code> forces <code>--fixed-fps</code>, which makes the reported delta identical every frame
+regardless of how long that frame took to render. The whole rig is paced on that:</p>
+<ul>
+<li>
+<strong>Tweens, <code>SceneTreeTimer</code>, <code>AnimationPlayer</code>, and anything driven by <code>delta</code> measure film
+seconds.</strong> A 0.35 s fade is 0.35 s of footage at any render speed. Pace the film with these.</li>
+<li>
+<strong><code>Time.get_ticks_msec()</code> measures real elapsed time</strong>, which during an offline render runs far
+behind the film. Measured on this machine: 3.05 s of 60 fps footage took about 12 s of wall clock
+to write. Use the wall clock only for safety ceilings, never for timing a beat.</li>
+<li>
+<strong><code>Engine.time_scale</code> scales the whole simulation together</strong>, so it is the dial for making the
+game do slow work quickly while nobody is looking.</li>
+</ul>
+<h2 id="cutting-the-cover-and-the-world-running-backstage">Cutting: the cover, and the world running backstage<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#cutting-the-cover-and-the-world-running-backstage">#</a></h2>
+<p>A cut is a fade through an opaque rectangle on a high <code>CanvasLayer</code>, and the space behind it is
+where the next shot is built. While the cover is up, run <code>Engine.time_scale</code> at 8 to 10 and mute
+the SFX bus: the next screen deals, animates, and settles into position in a fifth of the film time
+and none of it is heard. Restore both before anything is revealed.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_backstage</span><span style="--0:#E1E4E8;--1:#24292E">(on: </span><span style="--0:#B392F0;--1:#6F42C1">bool</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">Engine</span><span style="--0:#E1E4E8;--1:#24292E">.time_scale </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">10.0</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> on </span><span style="--0:#F97583;--1:#BF3441">else</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> bus </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">AudioServer</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_bus_index</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">&#x26;"SFX"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> bus </span><span style="--0:#F97583;--1:#BF3441">>=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">AudioServer</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">set_bus_mute</span><span style="--0:#E1E4E8;--1:#24292E">(bus, on)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Anything that has to look right must happen at <code>time_scale</code> 1.0.</strong> A click issued at the
+backstage clock reads a face the object has not landed on yet, and a tween started there strands
+mid-size. Drop to 1.0 for the moment that matters, then speed back up.</p>
+<p><strong>Build:</strong> the cover must size itself from the active viewport. A fixed 16:9 rectangle is not
+enough once the same director can render 1080×1920.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail node add --type CanvasLayer --parent-path . --name CoverLayer</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail node set --node-path CoverLayer --property layer --value 80</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail node add --type ColorRect --parent-path CoverLayer --name Cover</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail node set --node-path CoverLayer/Cover --property mouse_filter --value 2</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Then size it in the director with a margin beyond every edge:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_size_cover</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> margin </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">96.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">96.0</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> viewport_size </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_viewport_rect</span><span style="--0:#E1E4E8;--1:#24292E">().size</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">CoverLayer/Cover</span><span style="--0:#E1E4E8;--1:#24292E">.position </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">margin</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">CoverLayer/Cover</span><span style="--0:#E1E4E8;--1:#24292E">.size </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> viewport_size </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> margin </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">2.0</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Call <code>_size_cover()</code> before the first reveal. The movie viewport is fixed for a take, so it does
+not need to be recomputed every frame.</p>
+<h2 id="words-and-sound">Words and sound<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#words-and-sound">#</a></h2>
+<p><strong>Speak through the game’s own dialogue path.</strong> Calling the real “say this line” entry point gets
+the real bubble, the real anchor, and the speaker’s head animating; a Label dropped on top gets
+none of it. Silence the spontaneous layer first so the scripted lines are the only ones that fire,
+and give scripted lines a priority no game event can preempt.</p>
+<p>A screen with no dialogue system of its own (a title, an end card) builds the bubble directly and
+dresses it to match. Bubble placement geometry usually assumes a speaker sitting outside the
+placement boxes, so a speaker standing inside one gets no legal candidate and the bubble lands on
+their face: call the normal path for the build and entrance, then write the body position and tail
+by hand for that page.</p>
+<p><strong>Text layout is delivery-profile specific.</strong> A line that is elegant in a 1920×1080 card can become
+three ugly lines at 1080×1920. Give title cards and scripted bubbles explicit per-profile maximum
+widths, line breaks, and anchor positions rather than relying on automatic wrapping. In vertical
+cuts, reserve top and bottom breathing room for platform chrome by keeping critical copy toward the
+interior of the frame; exact platform overlays can change, so the film should not depend on text
+touching an edge.</p>
+<p><strong>Sound:</strong> the movie writer records the master bus, so the mix in the file is the mix the game
+makes. The usual arrangement is the trailer’s own music bed played by the director, the game’s
+music bus muted, and the game’s SFX left live on camera and muted only backstage.</p>
+<h2 id="rendering">Rendering<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#rendering">#</a></h2>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail run res://trailers/trailer.tscn --write-movie out/trailer.avi --fixed-fps 60</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>A render ends when the scene quits, so <code>run</code> waits for the process instead of returning at spawn,
+and reports the exit code plus whether the film actually landed. The engine’s output goes to
+<code>&#x3C;project>/.godot/swallowtail-run.log</code>. Raise <code>--timeout</code> past the length of the cut: the default is
+60 seconds and a long render is killed at it. The raw form, for a machine with no CLI installed, is
+<code>godot --path . res://trailers/trailer.tscn --write-movie out/trailer.avi --fixed-fps 60</code>.</p>
+<ul>
+<li>
+<code>--write-movie &#x3C;file></code> forces <code>--fixed-fps</code>; passing <code>--fixed-fps</code> as well sets the film’s frame
+rate (<code>editor/movie_writer/fps</code>, default 60, is the fallback).</li>
+<li>
+<code>--quit-after &#x3C;frames></code> bounds the render for a test cut. Verified: <code>--quit-after 60</code> at
+<code>--fixed-fps 60</code> produced exactly 1.000 s. <code>run</code> has no flag of its own for it, so pass it
+through: <code>--extra "--quit-after 60"</code>.</li>
+<li>
+<code>--disable-vsync</code> speeds up writing.</li>
+</ul>
+<p>The file extension picks the writer:</p>
+<table>
+<thead>
+<tr>
+<th>Extension</th><th>Video</th><th>Audio</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.ogv</code></td><td>Theora</td><td>Vorbis</td><td>Lossy, medium size, fast. Theora encoding is available in editor binaries only.</td></tr>
+<tr>
+<td><code>.avi</code></td><td>MJPEG</td><td>uncompressed PCM</td><td>Lossy, medium size, fast. No transparency, 4 GB file cap.</td></tr>
+<tr>
+<td><code>.png</code></td><td>PNG sequence</td><td>WAV beside it</td><td>Lossless, large, slow. Meant to be encoded afterwards.</td></tr>
+</tbody>
+</table>
+<p>Quality dials live in project settings. Read the live defaults on 4.7.2 before touching any of
+them:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail project settings --section editor/movie_writer</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># fps 60 · video_quality 0.75 · mix_rate 48000 · audio_bit_depth 16 · speaker_mode 0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># disable_vsync false · movie_file "" · ogv/audio_quality 0.5 · ogv/encoding_speed 4</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># ogv/keyframe_interval 64</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="the-films-resolution-is-a-project-setting-not-the-window">The film’s resolution is a project setting, not the window<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-films-resolution-is-a-project-setting-not-the-window">#</a></h2>
+<p><code>display/window/size/viewport_width</code> and <code>viewport_height</code> decide the recorded resolution.
+Resizing the window from the director does not move it, and neither does <code>--resolution</code>: a project
+whose viewport is 2560×1440, filmed in a window forced to 1280×720 with <code>--resolution 1280x720</code>
+passed as well, still wrote a 2560×1440 film. The same scene in a project whose viewport is
+1280×720 wrote 720p. So set the viewport to the delivery resolution and let the window be whatever
+is convenient.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail project settings --key display/window/size/viewport_width</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail project set-setting --key display/window/size/viewport_width --value 1920</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail project set-setting --key display/window/size/viewport_height --value 1080</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>That write persists to <code>project.godot</code>, so a film rendered at a resolution the game does not
+normally use means changing the setting, rendering, and changing it back.</p>
+<h2 id="delivery-profiles-are-real-viewports">Delivery profiles are real viewports<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#delivery-profiles-are-real-viewports">#</a></h2>
+<p>Do not render one giant 16:9 master and assume every other version can be extracted from it. The
+director should be staged and rendered at the actual delivery aspect ratio.</p>
+<p>Useful profiles:</p>
+<table>
+<thead>
+<tr>
+<th>Profile</th><th>Example viewport</th><th>Use</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>16:9</td><td>1920×1080 or 2560×1440</td><td>desktop/store/video landscape</td></tr>
+<tr>
+<td>5:4</td><td>1350×1080</td><td>near-square landscape/feed placement</td></tr>
+<tr>
+<td>4:5</td><td>1080×1350</td><td>portrait feed</td></tr>
+<tr>
+<td>1:1</td><td>1080×1080</td><td>square feed/card</td></tr>
+<tr>
+<td>9:16</td><td>1080×1920</td><td>Shorts/Reels/TikTok-style full-screen vertical</td></tr>
+<tr>
+<td>3:4</td><td>1080×1440</td><td>optional portrait intermediary</td></tr>
+</tbody>
+</table>
+<p><strong>5:4 and 4:5 are different products.</strong> Keep both names explicit in scripts and filenames so a
+near-square landscape render is never confused with a portrait-feed render.</p>
+<p>For each profile, decide these before the shot runs:</p>
+<ul>
+<li>camera position, target, and FOV/zoom;</li>
+<li>whether the shot stays a two-shot or becomes a single-subject composition;</li>
+<li>where dialogue bubbles and HUD elements may live;</li>
+<li>title-card width and line breaks;</li>
+<li>whether environmental decoration needs to move inward;</li>
+<li>whether an action needs a different entrance direction;</li>
+<li>whether the shot should be replaced entirely because its idea does not read in that shape.</li>
+</ul>
+<h2 id="compose-do-not-crop">Compose, do not crop<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#compose-do-not-crop">#</a></h2>
+<p>A vertical cut is a re-render with a vertical viewport, not a crop. Cropping a 16:9 frame can
+remove the reacting character, the target of a throw, a HUD dependency, or the visual cause of the
+next beat. Restaging is not optional when the composition depends on width.</p>
+<p>Some shots can share staging across profiles. Classify them:</p>
+<ul>
+<li>
+<strong>aspect-safe</strong>: the important action already lives near center and survives every profile;</li>
+<li>
+<strong>reframe</strong>: same event, different camera/zoom/anchors;</li>
+<li>
+<strong>relayout</strong>: same game camera, but UI/dialogue/card positions change;</li>
+<li>
+<strong>replace</strong>: the landscape shot’s visual idea does not work vertically, so use another shot.</li>
+</ul>
+<p>Put that classification in <code>script.md</code>. It prevents the vertical pass from turning into a late
+list of surprises.</p>
+<h2 id="keep-an-internal-safe-composition-region">Keep an internal safe composition region<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#keep-an-internal-safe-composition-region">#</a></h2>
+<p>Do not confuse a safe composition region with a crop guide. The output still uses the whole frame.
+The region is simply where information that must survive every platform treatment should prefer to
+live.</p>
+<p>For example, a 9:16 shot may use the full 1080×1920 image for environment and motion while keeping
+faces, subtitles, interactable objects, and the key hit inside a more conservative interior area.
+Decorative particles, sky, floor, and secondary motion can extend to the edges.</p>
+<h2 id="render-a-matrix-not-one-movie">Render a matrix, not one movie<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#render-a-matrix-not-one-movie">#</a></h2>
+<p>A simple render manifest can make the expected outputs explicit:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">"film"</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">"launch"</span><span style="--0:#E1E4E8;--1:#24292E">,</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">"cuts"</span><span style="--0:#E1E4E8;--1:#24292E">: [</span><span style="--0:#9ECBFF;--1:#032F62">"hook_20"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"store_60"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"feature_150"</span><span style="--0:#E1E4E8;--1:#24292E">],</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">"profiles"</span><span style="--0:#E1E4E8;--1:#24292E">: {</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">"16x9"</span><span style="--0:#E1E4E8;--1:#24292E">: [</span><span style="--0:#79B8FF;--1:#005CC5">1920</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1080</span><span style="--0:#E1E4E8;--1:#24292E">],</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">"5x4"</span><span style="--0:#E1E4E8;--1:#24292E">: [</span><span style="--0:#79B8FF;--1:#005CC5">1350</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1080</span><span style="--0:#E1E4E8;--1:#24292E">],</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">"4x5"</span><span style="--0:#E1E4E8;--1:#24292E">: [</span><span style="--0:#79B8FF;--1:#005CC5">1080</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1350</span><span style="--0:#E1E4E8;--1:#24292E">],</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">"1x1"</span><span style="--0:#E1E4E8;--1:#24292E">: [</span><span style="--0:#79B8FF;--1:#005CC5">1080</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1080</span><span style="--0:#E1E4E8;--1:#24292E">],</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">"9x16"</span><span style="--0:#E1E4E8;--1:#24292E">: [</span><span style="--0:#79B8FF;--1:#005CC5">1080</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1920</span><span style="--0:#E1E4E8;--1:#24292E">]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Not every cut needs every aspect ratio. The manifest should list only products that will actually
+ship.</p>
+<p>The wrapper’s job is:</p>
+<ol>
+<li>remember the game’s normal viewport;</li>
+<li>set the requested trailer viewport;</li>
+<li>launch the director with the chosen editorial and delivery profile;</li>
+<li>wait for the movie writer to finish;</li>
+<li>encode to a uniquely named deliverable;</li>
+<li>restore the original project viewport even if the render fails.</li>
+</ol>
+<p>Name outputs so there is no ambiguity:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">out/launch_store_60__16x9_1920x1080.mp4</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">out/launch_store_60__9x16_1080x1920.mp4</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">out/launch_feature_150__16x9_1920x1080.mp4</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">out/launch_feature_150__4x5_1080x1350.mp4</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="the-encode-and-the-render-script">The encode, and the render script<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-encode-and-the-render-script">#</a></h2>
+<p>MJPEG in an AVI is a working file, not a deliverable. Encode to H.264 for a store page:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">ffmpeg -y -i out/trailer.avi -c:v libx264 -preset slow -crf 18 -pix_fmt yuv420p `</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">-c:a aac -b:a 192k -movflags +faststart out/trailer.mp4</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>yuv420p</code> is what makes the file play everywhere, and <code>+faststart</code> moves the index to the front so
+it streams. Wrap both steps in one script that takes the scene as a parameter and names the output
+after it, so two films cannot overwrite each other. If that script is PowerShell, keep it ASCII:
+<code>powershell.exe</code> 5 reads an unmarked file as ANSI, and a UTF-8 em dash inside a string is a parse
+error.</p>
+<h2 id="verify-before-spending-a-render">Verify before spending a render<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#verify-before-spending-a-render">#</a></h2>
+<p>A render costs minutes and an unattended window. The editor loop costs seconds, so prove the
+staging there first.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail scene play --mode res://trailers/trailer.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail runtime screenshot --save-path user://t.png       # repeat along the timeline</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail runtime capture-frames --count 8 --frame-interval 30</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<ul>
+<li>
+<strong>The game writes those PNGs, so <code>user://</code> is the game’s user-data dir</strong>
+(<code>%APPDATA%\Godot\app_userdata\&#x3C;ProjectName>\</code> on Windows,
+<code>~/.local/share/godot/app_userdata/&#x3C;ProjectName>/</code> on Linux). Look for the stills there, not
+under the project folder.</li>
+<li>
+<strong>Screenshot the shot, not the film.</strong> Play the director scene, grab frames at the moments the
+shot list names, and look at what is actually on screen: a bubble on a face, a card over a
+button, a hand frozen over dead space.</li>
+<li>
+<strong>To catch a sub-second beat, drive <code>Engine.time_scale</code> from <code>runtime eval</code>.</strong> A CLI round trip
+is around a second, so a 0.3 s flight is over before the next command lands. Slow the game,
+sample, restore, and put the whole sequence in one invocation.</li>
+<li>
+<strong>Review every delivery profile, not just the landscape master.</strong> A shot that is perfect in
+16:9 can hide a reaction, clip a bubble, or become visually empty in 9:16.</li>
+<li>
+<strong>Review short and long editorial profiles independently.</strong> The 150-second version can contain
+explanatory pauses that are correct there but fatal if they accidentally leak into a 30-second
+cut.</li>
+</ul>
+<p>After the render, measure it. Duration against the shot list, then extract frames and look:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">ffprobe -v error -show_entries format=duration -of default=nw=1 out/trailer.mp4</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">ffmpeg -i out/trailer.mp4 -vf fps=1/5 out/frame_%02d.png</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>A film that runs long usually has a wait ceiling in it. Find the frame the footage stalled on
+before blaming pacing.</p>
+<h2 id="filming-a-performance-instead-of-scripting-one">Filming a performance instead of scripting one<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#filming-a-performance-instead-of-scripting-one">#</a></h2>
+<p>Some footage is easier played than written: a fight, a platforming line, a drag across a map.
+Record a real take through the CLI, then replay the events inside the film.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail scene play</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail runtime start-recording</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># play the take by hand</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail runtime stop-recording        # returns {events: [...], duration_ms: N}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Each event is a plain dict carrying <code>time_ms</code> and its shape (<code>key</code>, <code>mouse_button</code>,
+<code>mouse_motion</code>, <code>action</code>). Save the array beside the director as JSON and let the director replay
+it, paced against film time rather than the wall clock:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_replay</span><span style="--0:#E1E4E8;--1:#24292E">(events: </span><span style="--0:#B392F0;--1:#6F42C1">Array</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> elapsed </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> data: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> events:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> at </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">(data.</span><span style="--0:#B392F0;--1:#6F42C1">get</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"time_ms"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0</span><span style="--0:#E1E4E8;--1:#24292E">)) </span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1000.0</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">while</span><span style="--0:#E1E4E8;--1:#24292E"> elapsed </span><span style="--0:#F97583;--1:#BF3441">&#x3C;</span><span style="--0:#E1E4E8;--1:#24292E"> at:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">      </span></span><span style="--0:#E1E4E8;--1:#24292E">elapsed </span><span style="--0:#F97583;--1:#BF3441">+=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_process_delta_time</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#F97583;--1:#BF3441">await</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().process_frame</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> event </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_rebuild</span><span style="--0:#E1E4E8;--1:#24292E">(data)   </span><span style="--0:#99A0A6;--1:#616972"># InputEventKey / MouseButton / Action from the dict</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> event </span><span style="--0:#F97583;--1:#BF3441">!=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">null</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">parse_input_event</span><span style="--0:#E1E4E8;--1:#24292E">(event)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>runtime replay</code> exists for driving a live game and paces off <code>Time.get_ticks_msec()</code>, which
+stretches a performance across a render. It also needs the editor’s game channel, which a render
+process launched from the command line does not have. Record with the CLI, replay from the
+director.</p>
+<h2 id="delivery">Delivery<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#delivery">#</a></h2>
+<p>A trailer campaign is a set of deliberate renders, not one master plus emergency crops.</p>
+<p><strong>Landscape.</strong> 16:9 is the main desktop/store/video version. 5:4 is a useful near-square variant
+when a placement gives more height than 16:9 but still expects a landscape composition.</p>
+<p><strong>Feed.</strong> 4:5 gives a portrait feed version without committing to full-screen vertical. 1:1 is
+useful where a square card or feed placement is still required.</p>
+<p><strong>Full-screen mobile.</strong> 9:16 is its own composition. Treat it as a phone-native film, not a
+desktop trailer viewed through a slit.</p>
+<p>The same editorial idea can exist in all of them, but the shot count does not have to be
+identical. If a wide reveal only works in 16:9, the 9:16 cut can reach the same story beat with
+two faster shots: subject first, consequence second.</p>
+<p><strong>Long-form structure.</strong> For a 2 to 3 minute feature trailer, preserve continuity across several
+beats:</p>
+<ol>
+<li>establish what the player is trying to do;</li>
+<li>show the basic loop resolving at least once;</li>
+<li>introduce variation or pressure;</li>
+<li>show depth only after the base action is understood;</li>
+<li>build to a sequence that could not have appeared in the opening 20 seconds;</li>
+<li>give the ending room to land.</li>
+</ol>
+<p>That structure also makes shorter derivatives easier. A 60-second cut can often take the hook, one
+resolved loop, one depth beat, and the climax. A 20-second cut may take only the hook, a single
+escalation, and the payoff.</p>
+<p><strong>Pull stills from the actual render.</strong> Pull store capsules, social stills, and thumbnails from
+extracted frames of the delivery render they belong to rather than taking a fresh screenshot. The
+still then matches the framing, state, lighting, and UI the viewer actually sees. For vertical
+marketing art, extract from the vertical render; do not pull a 16:9 frame and crop it after the
+fact unless the shot was explicitly marked aspect-safe.</p>
+<h2 id="what-goes-wrong">What goes wrong<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#what-goes-wrong">#</a></h2>
+<ul>
+<li>
+<strong>The film never ends.</strong> The director fell off its shot list without <code>get_tree().quit()</code>; the
+writer records until the engine exits.</li>
+<li>
+<strong>The film is the wrong size.</strong> The viewport project setting decides it, not the window and not
+<code>--resolution</code>.</li>
+<li>
+<strong>The vertical version looks like a crop.</strong> The director reused landscape staging instead of a
+vertical composition branch.</li>
+<li>
+<strong>The 4:5 and 5:4 outputs were swapped.</strong> The profile name was ambiguous; encode orientation and
+dimensions into both the manifest and filename.</li>
+<li>
+<strong>The title card wraps differently on mobile.</strong> Automatic wrapping was allowed to make an
+editorial decision. Set per-profile width and authored line breaks.</li>
+<li>
+<strong>The short cut feels slow even though the long cut works.</strong> A setup or recovery beat intended
+for the 2 to 3 minute version leaked into the short editorial profile.</li>
+<li>
+<strong>The film runs long and a screen sits idle in it.</strong> A wait predicate is wrong and burned its
+ceiling. Check the stalled frame.</li>
+<li>
+<strong>An object was read before it settled.</strong> A fixed sleep after a staggered animation races the
+last one. Poll per object.</li>
+<li>
+<strong>A tween strands mid-animation on camera.</strong> It started at the backstage <code>time_scale</code>. Anything
+filmed runs at 1.0.</li>
+<li>
+<strong>Unscripted lines appear.</strong> The spontaneous dialogue, tutorial, or hint layer was not silenced
+in the fixture.</li>
+<li>
+<strong>The developer’s save file changed after a render.</strong> A persist flag was left on.</li>
+<li>
+<strong>The rig shipped.</strong> <code>trailers/*</code> was missing from a new export preset’s <code>exclude_filter</code>.</li>
+<li>
+<strong>The render script fails to parse.</strong> A UTF-8 dash in an ANSI-read PowerShell file.</li>
+</ul>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/shipping-export" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Shipping and export</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/event-deck-games" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Event / decision games</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-film-is-decided-before-the-rig-exists" data-toc="the-film-is-decided-before-the-rig-exists" data-scope-p33bl5ka>The film is decided before the rig exists</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#plan-by-duration-profile" data-toc="plan-by-duration-profile" data-scope-p33bl5ka>Plan by duration profile</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#write-the-shot-list-as-data" data-toc="write-the-shot-list-as-data" data-scope-p33bl5ka>Write the shot list as data</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-director-scene" data-toc="the-director-scene" data-scope-p33bl5ka>The director scene</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#one-editorial-cut-multiple-delivery-profiles" data-toc="one-editorial-cut-multiple-delivery-profiles" data-scope-p33bl5ka>One editorial cut, multiple delivery profiles</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#five-rules-that-keep-a-render-honest" data-toc="five-rules-that-keep-a-render-honest" data-scope-p33bl5ka>Five rules that keep a render honest</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#what-rides-film-time-and-what-rides-the-wall-clock" data-toc="what-rides-film-time-and-what-rides-the-wall-clock" data-scope-p33bl5ka>What rides film time, and what rides the wall clock</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#cutting-the-cover-and-the-world-running-backstage" data-toc="cutting-the-cover-and-the-world-running-backstage" data-scope-p33bl5ka>Cutting: the cover, and the world running backstage</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#words-and-sound" data-toc="words-and-sound" data-scope-p33bl5ka>Words and sound</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#rendering" data-toc="rendering" data-scope-p33bl5ka>Rendering</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-films-resolution-is-a-project-setting-not-the-window" data-toc="the-films-resolution-is-a-project-setting-not-the-window" data-scope-p33bl5ka>The film’s resolution is a project setting, not the window</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#delivery-profiles-are-real-viewports" data-toc="delivery-profiles-are-real-viewports" data-scope-p33bl5ka>Delivery profiles are real viewports</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#compose-do-not-crop" data-toc="compose-do-not-crop" data-scope-p33bl5ka>Compose, do not crop</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#keep-an-internal-safe-composition-region" data-toc="keep-an-internal-safe-composition-region" data-scope-p33bl5ka>Keep an internal safe composition region</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#render-a-matrix-not-one-movie" data-toc="render-a-matrix-not-one-movie" data-scope-p33bl5ka>Render a matrix, not one movie</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-encode-and-the-render-script" data-toc="the-encode-and-the-render-script" data-scope-p33bl5ka>The encode, and the render script</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#verify-before-spending-a-render" data-toc="verify-before-spending-a-render" data-scope-p33bl5ka>Verify before spending a render</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#filming-a-performance-instead-of-scripting-one" data-toc="filming-a-performance-instead-of-scripting-one" data-scope-p33bl5ka>Filming a performance instead of scripting one</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#delivery" data-toc="delivery" data-scope-p33bl5ka>Delivery</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#what-goes-wrong" data-toc="what-goes-wrong" data-scope-p33bl5ka>What goes wrong</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

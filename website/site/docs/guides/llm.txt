@@ -1,0 +1,53 @@
+# Building the Godot way
+
+Knowing the commands is not enough. These craft references teach an agent to build like a Godot developer, each concept paired with a real swallowtail recipe verified against the live engine.
+
+Two rules thread through all of them: **decouple with signals**, not polling or `get_node("../../")` chains, and **never trust a remembered API signature**. Confirm it against 4.7 with `engine class-info` or `engine search` before you write it.
+
+## Foundations
+
+- [GDScript style](https://regiellis.github.io/godot-mcp-go/docs/guides/gdscript-style/): Idioms a competent Godot dev ships: static typing, signals over polling, Resources for data.
+- [Game patterns](https://regiellis.github.io/godot-mcp-go/docs/guides/game-patterns/): Buildable patterns mapped to command sequences: movement, game feel vs juice, components, state machines, HUD.
+- [Project structure](https://regiellis.github.io/godot-mcp-go/docs/guides/project-structure/): How a shipped project is laid out to scale: code/asset separation, feature slices, data/view split, composition.
+- [GDScript architecture](https://regiellis.github.io/godot-mcp-go/docs/guides/gdscript-architecture/): Large-scale runtime architecture: autoload tiering, service locator, path-addressed stores, scene routing.
+
+## 2D
+
+- [2D platformers](https://regiellis.github.io/godot-mcp-go/docs/guides/platformer-2d/): The component actor, an intent API, physics-expression AnimationTree transitions, codeless moving platforms.
+- [Top-down 2D](https://regiellis.github.io/godot-mcp-go/docs/guides/topdown-2d/): Layered TileMapLayer stacks, gameplay as terrain painting, a component library, the one-clock day/night pattern.
+- [2D UI polish](https://regiellis.github.io/godot-mcp-go/docs/guides/ui-polish-2d/): Comp-faithful UI: a design-token class, drawn controls, the screen-builder traps that silently swallow writes.
+- [2D lighting](https://regiellis.github.io/godot-mcp-go/docs/guides/lighting-2d/): The full 2D lighting stack: the CanvasModulate/PointLight2D/occluder triad, emissive exemptions, real glow, SDF.
+- [Constraint tiling](https://regiellis.github.io/godot-mcp-go/docs/guides/tile-constraint/): The Townscaper/Bad North PCG family: the dual-grid fix, Wave Function Collapse from an example, variant buckets.
+
+## 3D and spatial
+
+- [Level design](https://regiellis.github.io/godot-mcp-go/docs/guides/level-design/): Playable greybox levels: the Big to Small risk order, spatial-communication tactics, interiors, exteriors, 2D spaces, and pacing without combat.
+- [3D character controllers](https://regiellis.github.io/godot-mcp-go/docs/guides/character-3d/): One camera-relative movement core for FPS, third-person, and platformer, plus the floor contract and rigs.
+- [Environment art](https://regiellis.github.io/godot-mcp-go/docs/guides/environment-art/): The art pass after the greybox is proven: PBR materials, real lighting, post restraint, set dressing, the paper diorama.
+
+## Systems
+
+- [Steering and agent movement](https://regiellis.github.io/godot-mcp-go/docs/guides/ai-steering/): Movement that reads as a creature rather than a cursor: arrive, flee, pursue and separation as summable forces, blending vs priority.
+- [Menus and settings](https://regiellis.github.io/godot-mcp-go/docs/guides/menus-settings/): The meta-game screens: pause done right, the settings widget family, ConfigFile persistence, input remapping.
+- [Audio and music](https://regiellis.github.io/godot-mcp-go/docs/guides/audio-music/): Bus architecture, SFX variation, interactive music, sidechain ducking, spectrum-driven visuals, loop points.
+- [Shaders and VFX](https://regiellis.github.io/godot-mcp-go/docs/guides/shaders-vfx/): gdshader authoring and wiring, the 2D VFX kit, and a programmatic compile-verification loop.
+- [Save systems](https://regiellis.github.io/godot-mcp-go/docs/guides/save-systems/): Authoritative vs derived state, the persist-group collector, the five-format tradeoff, atomic autosave.
+- [Multiplayer](https://regiellis.github.io/godot-mcp-go/docs/guides/multiplayer-patterns/): Scene-tree replication, ENet, authority gates, @rpc arguments, the co-op skeleton, intent RPCs vs synced state.
+- [Mobile and touch](https://regiellis.github.io/godot-mcp-go/docs/guides/mobile-touch/): Index-keyed multitouch, on-screen controls, pinch/pan gestures, safe-area HUD insets.
+- [Rhythm games](https://regiellis.github.io/godot-mcp-go/docs/guides/rhythm-games/): The corrected audio clock pushed down the tree, beatmap data, notes as functions of time, windowed judging.
+- [In-game docs](https://regiellis.github.io/godot-mcp-go/docs/guides/in-game-docs/): Gyms, zoos, and museums: document the game in-game with doc.* recipes so it never goes stale.
+- [Shipping and export](https://regiellis.github.io/godot-mcp-go/docs/guides/shipping-export/): The release pipeline across desktop, Android, web, macOS, and iOS: dev tooling out of the pck, encryption, and verifying by receipts.
+- [Videos and trailers](https://regiellis.github.io/godot-mcp-go/docs/guides/game-trailers/): Filming the game with the engine itself: duration and delivery profiles from a 15 s hook to 9:16 vertical, a director scene, the movie writer, the render matrix.
+
+## Genres
+
+- [Event / decision games](https://regiellis.github.io/godot-mcp-go/docs/guides/event-deck-games/): Reigns-like architecture: immutable cards plus a mutable overlay that is the save, weighted selection, condition DSLs.
+- [Run-based / roguelite](https://regiellis.github.io/godot-mcp-go/docs/guides/run-based-games/): The reactive data blackboard, wave assembly under a weight budget, seeded staged worldgen with a self-audit.
+- [Deckbuilders](https://regiellis.github.io/godot-mcp-go/docs/guides/deckbuilder-patterns/): The logic layer: an action queue, a hook pipeline for powers and relics, data-driven cards, event-sourced history.
+- [Narrative / visual novel](https://regiellis.github.io/godot-mcp-go/docs/guides/narrative-game-patterns/): Both families (Ink and graph dialogue) plus the manifest-driven product shell: boot flow, versioned saves, chapter select.
+
+## Interop
+
+- [Unreal import cleanup](https://regiellis.github.io/godot-mcp-go/docs/guides/unreal-import-cleanup/): Fixing a scene exported from Unreal: env, lights, junk, imports order, and why it comes in washed out.
+- [Porting between Godot versionsbeta](https://regiellis.github.io/godot-mcp-go/docs/guides/porting-godot-versions/): Moving a 4.x project up to 4.7 with evidence on both sides: a replayable baseline drive, the per-minor break list, and a measured noise floor to read the after numbers against.
+- [C# in Godot](https://regiellis.github.io/godot-mcp-go/docs/guides/csharp-godot/): C#-in-Godot idioms for editing a C# project. Pair with the csharp group: setup scaffolds the solution, build compiles with structured diagnostics.

@@ -18,7 +18,7 @@ Working reference created 2026-09-06 with built-in image_gen. Side and back view
 
 Attach this sheet plus the closest existing pose. Describe only the new action, viewpoint, canvas, and contact points. Explicitly request the same proportions, costume, hair silhouette, palette, and matte finish. Inspect the result against the established assets before use.
 
-References: ../public/brand/swallowtail-butler.png, ../public/brand/swallowtail-sitting.png, ../public/brand/swallowtail-peeking.png.
+References: ../site/brand/swallowtail-butler.png, ../site/brand/swallowtail-sitting.png, ../site/brand/swallowtail-peeking.png.
 
 ## Generation prompt
 

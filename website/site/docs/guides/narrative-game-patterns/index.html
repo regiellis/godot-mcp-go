@@ -1,0 +1,592 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Narrative / visual novel · Swallowtail</title><meta name="description" content="Both families (Ink and graph dialogue) plus the manifest-driven product shell: boot flow, versioned saves, chapter select.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Narrative / visual novel · Swallowtail">
+<meta property="og:description" content="Both families (Ink and graph dialogue) plus the manifest-driven product shell: boot flow, versioned saves, chapter select.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link active" aria-current="page" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Narrative / visual novel</h1>
+<p class="page-desc" data-scope-ccykbmgk>Both families (Ink and graph dialogue) plus the manifest-driven product shell: boot flow, versioned saves, chapter select.</p>
+</header>
+<p>The systems a story-driven game needs: branching script, on-screen dialogue, scripted
+commands woven into prose, choices, chapter flow, and data-driven in-world content (a fake
+phone/social-media OS). Reverse-engineered from a shipped commercial Godot narrative game
+(real GDScript source), plus a studied graph-dialogue addon for the node-graph family and
+the VN quality-of-life layer. Patterns are durable and language-agnostic in spirit; build
+them via the CLI (<code>script.create</code>, <code>scene.*</code>, <code>project.add_autoload</code>). Read
+<code>gdscript-architecture.md</code> first, because narrative leans on its Store/Service/Index spine.</p>
+<p>The core idea: <strong>keep the story in a branching-script format, keep effects in code, and
+bridge them with two narrow seams</strong>. The seams are <em>external functions</em> (script ↔ game state)
+and a <em>command bus</em> (script → game actions). Everything else hangs off them.</p>
+<h2 id="run-branching-script-with-ink-or-an-equivalent-runner">Run branching script with Ink (or an equivalent runner)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#run-branching-script-with-ink-or-an-equivalent-runner">#</a></h2>
+<p>The game authors story in <strong>Ink</strong> (inkle’s narrative language), compiles to <code>.inkb</code>, and
+runs it through a GDExtension runner. The pattern, independent of which runner you pick:</p>
+<ul>
+<li>Story files keyed hierarchically (<code>1.1a</code>, <code>2.3.flashback</code>) resolving to
+<code>id.inkb</code> / <code>id/_main.inkb</code>. <strong>Localized</strong> files live under <code>locales/&#x3C;lang>/…</code> and the
+loader falls back to the default locale when a translation is missing.</li>
+<li>A <code>Story</code> autoload owns runner creation, caching, and a tiny API: advance lines, read
+choices, read <strong>tags</strong>.</li>
+</ul>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> story </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InkStory</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">open</span><span style="--0:#E1E4E8;--1:#24292E">(file)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> runner </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InkRunner</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">from_ink_story</span><span style="--0:#E1E4E8;--1:#24292E">(story)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">runner.</span><span style="--0:#B392F0;--1:#6F42C1">can_continue</span><span style="--0:#E1E4E8;--1:#24292E">(); runner.</span><span style="--0:#B392F0;--1:#6F42C1">advance</span><span style="--0:#E1E4E8;--1:#24292E">(); runner.</span><span style="--0:#B392F0;--1:#6F42C1">get_choices</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">runner.</span><span style="--0:#B392F0;--1:#6F42C1">choose_choice_index</span><span style="--0:#E1E4E8;--1:#24292E">(i); runner.</span><span style="--0:#B392F0;--1:#6F42C1">get_global_tags</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Pattern: story-as-data in a runner.</strong> Branching/state logic lives in the script language;
+GDScript only drives the runner and renders output. (If not Ink: any line-emitting branching
+format works, and the rest of this file is runner-agnostic.)</p>
+<h3 id="seam-1-external-functions-script--game-state">Seam 1: external functions (script ↔ game state)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#seam-1-external-functions-script--game-state">#</a></h3>
+<p>Ink calls back into GDScript through <strong>bound external functions</strong>, which the game wires to
+the Store. Reflect over methods with a prefix and auto-bind them:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">class</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">StoryExternalFunctions</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">const</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">FUNC_PREFIX</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"__"</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">bind</span><span style="--0:#E1E4E8;--1:#24292E">(runner):</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> m </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_method_list</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent">            </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> m.name.</span><span style="--0:#B392F0;--1:#6F42C1">begins_with</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">FUNC_PREFIX</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">                </span></span><span style="--0:#E1E4E8;--1:#24292E">runner.</span><span style="--0:#B392F0;--1:#6F42C1">bind_external_function</span><span style="--0:#E1E4E8;--1:#24292E">(m.name.</span><span style="--0:#B392F0;--1:#6F42C1">trim_prefix</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">FUNC_PREFIX</span><span style="--0:#E1E4E8;--1:#24292E">), </span><span style="--0:#B392F0;--1:#6F42C1">Callable</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#F97583;--1:#BF3441">self</span><span style="--0:#E1E4E8;--1:#24292E">, m.name))</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">__get_bool</span><span style="--0:#E1E4E8;--1:#24292E">(path, default): </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Store</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_value</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">_state_path</span><span style="--0:#E1E4E8;--1:#24292E">(path)) </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> ... </span><span style="--0:#F97583;--1:#BF3441">else</span><span style="--0:#E1E4E8;--1:#24292E"> default</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">__set_int</span><span style="--0:#E1E4E8;--1:#24292E">(path, v): </span><span style="--0:#B392F0;--1:#6F42C1">Store</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">set_value</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">_state_path</span><span style="--0:#E1E4E8;--1:#24292E">(path), v); </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">true</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>So Ink can read/write persistent state (<code>__set_bool</code>, <code>__is_fb_post_liked</code>, …) without
+knowing about Godot. <strong>Pattern: a thin, auto-bound bridge from the script VM to your state
+store.</strong></p>
+<h3 id="substory-type-routing-from-tags">Substory-type routing from tags<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#substory-type-routing-from-tags">#</a></h3>
+<p>The runner’s <strong>global tags</strong> carry a header (<code>type: "chat"</code>, <code>characters</code>, <code>player</code>,
+<code>color</code>…). A factory reads the header and returns the right presentation object:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">match</span><span style="--0:#E1E4E8;--1:#24292E"> header.type:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#9ECBFF;--1:#032F62">"chat"</span><span style="--0:#E1E4E8;--1:#24292E">:     </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Conversation</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">new</span><span style="--0:#E1E4E8;--1:#24292E">(id, runner, header, ctx)  </span><span style="--0:#99A0A6;--1:#616972"># messaging UI</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#9ECBFF;--1:#032F62">"dialogue"</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Dialogue</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">new</span><span style="--0:#E1E4E8;--1:#24292E">(id, runner, header, ctx)      </span><span style="--0:#99A0A6;--1:#616972"># speech bubbles + choices</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#79B8FF;--1:#005CC5">_</span><span style="--0:#E1E4E8;--1:#24292E">:          </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Substory</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">new</span><span style="--0:#E1E4E8;--1:#24292E">(id, runner, header, ctx)      </span><span style="--0:#99A0A6;--1:#616972"># plain narrative</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Pattern: declare presentation mode in the story header</strong>, then route to a handler. One story
+format carries several on-screen treatments.</p>
+<h2 id="a-line-format--a-command-bus-the-heart-of-scripted-scenes">A line format + a command bus (the heart of scripted scenes)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#a-line-format--a-command-bus-the-heart-of-scripted-scenes">#</a></h2>
+<p>Each line the runner emits is classified by regex and routed:</p>
+<ul>
+<li>
+<code>$ command args --flags</code> → a <strong>Command</strong> (do something in the game)</li>
+<li>
+<code>char_key(duration): text</code> → a <strong>dialogue line</strong> (show a speech bubble)</li>
+<li>
+<code>:  text</code> → an inner thought (thought bubble)</li>
+<li>
+<code>sender: message</code> → a chat message</li>
+</ul>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># Constants</span></div></div><div class="ec-line"><div class="code"><span style="--0:#79B8FF;--1:#005CC5">REGEX_COMMAND</span><span style="--0:#E1E4E8;--1:#24292E">  :</span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"</span><span style="--0:#79B8FF;--1:#005CC5">\\</span><span style="--0:#9ECBFF;--1:#032F62">$</span><span style="--0:#79B8FF;--1:#005CC5">\\</span><span style="--0:#9ECBFF;--1:#032F62">s+([a-zA-Z0-9._-]+)</span><span style="--0:#79B8FF;--1:#005CC5">\\</span><span style="--0:#9ECBFF;--1:#032F62">s*(.*)</span><span style="--0:#79B8FF;--1:#005CC5">\\</span><span style="--0:#9ECBFF;--1:#032F62">s*"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#79B8FF;--1:#005CC5">REGEX_DIALOGUE</span><span style="--0:#E1E4E8;--1:#24292E"> :</span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"(?'char_key'[</span><span style="--0:#79B8FF;--1:#005CC5">\\</span><span style="--0:#9ECBFF;--1:#032F62">w:-]+)</span><span style="--0:#79B8FF;--1:#005CC5">\\</span><span style="--0:#9ECBFF;--1:#032F62">s*(?:</span><span style="--0:#79B8FF;--1:#005CC5">\\</span><span style="--0:#9ECBFF;--1:#032F62">((?'duration'.+)</span><span style="--0:#79B8FF;--1:#005CC5">\\</span><span style="--0:#9ECBFF;--1:#032F62">))?</span><span style="--0:#79B8FF;--1:#005CC5">\\</span><span style="--0:#9ECBFF;--1:#032F62">:</span><span style="--0:#79B8FF;--1:#005CC5">\\</span><span style="--0:#9ECBFF;--1:#032F62">s*(?'text'.+)"</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h3 id="command-bus--chain-of-responsibility">Command bus = chain of responsibility<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#command-bus--chain-of-responsibility">#</a></h3>
+<p>Commands are <strong>not</strong> a giant <code>match</code> in one file. Any component can register a handler;
+<code>Story.run_command</code> walks the handlers and the <strong>first to return a non-sentinel result
+wins</strong> (a <code>CMD_RETURN_NONE</code> constant is the “not handled” signal). Handlers
+register/unregister with tree lifecycle:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_enter_tree</span><span style="--0:#E1E4E8;--1:#24292E">(): </span><span style="--0:#B392F0;--1:#6F42C1">Story</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">add_command_handler</span><span style="--0:#E1E4E8;--1:#24292E">(_run_command)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_exit_tree</span><span style="--0:#E1E4E8;--1:#24292E">():  </span><span style="--0:#B392F0;--1:#6F42C1">Story</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">remove_command_handler</span><span style="--0:#E1E4E8;--1:#24292E">(_run_command)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_run_command</span><span style="--0:#E1E4E8;--1:#24292E">(cmd):</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">match</span><span style="--0:#E1E4E8;--1:#24292E"> cmd.name:</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#9ECBFF;--1:#032F62">"play_sound_persist"</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#B392F0;--1:#6F42C1">_play</span><span style="--0:#E1E4E8;--1:#24292E">(cmd.params[</span><span style="--0:#79B8FF;--1:#005CC5">0</span><span style="--0:#E1E4E8;--1:#24292E">]); </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">true</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#79B8FF;--1:#005CC5">_</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Constants</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">CMD_RETURN_NONE</span><span style="--0:#E1E4E8;--1:#24292E">     </span><span style="--0:#99A0A6;--1:#616972"># let someone else handle it</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>In the shipped game dozens of components self-register: <code>DialogueHandler</code> owns <code>say</code>,
+<code>StateContainer</code> owns flag/dict commands (<code>F</code>, <code>D</code>), <code>AudioUtils</code> owns sound commands, the
+scene manager owns <code>start_skit</code>, and <code>Story</code> owns global ones (<code>wait</code>, <code>change_scene</code>,
+<code>unlock_ach</code>…). <strong>Pattern: a command bus with chain-of-responsibility handlers.</strong> Adding a
+new <code>$ verb</code> means a component registering a handler, never editing a central dispatcher.
+This is the narrative-game analogue of the deck-builder’s hook pipeline.</p>
+<h3 id="commands-embedded-inside-dialogue-text">Commands embedded inside dialogue text<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#commands-embedded-inside-dialogue-text">#</a></h3>
+<p>Beyond whole-line commands, dialogue text carries inline directives processed during the
+character-by-character reveal: <code>[....]</code> (pauses), <code>[$ emit paused]</code> (run a command mid-line),
+<code>[>2.0]</code> (speed multiplier). <strong>Pattern: inline markup for fine-grained narrative timing.</strong></p>
+<h2 id="presenting-dialogue-state-machine-bubbles--an-event-bus">Presenting dialogue: state-machine bubbles + an event bus<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#presenting-dialogue-state-machine-bubbles--an-event-bus">#</a></h2>
+<p>A <code>SpeechBubble</code> is driven by a small <strong>state machine</strong> (Hidden → RevealText →
+PendingAdvance → Hidden; a parallel RevealChoices → PendingChoice branch). It resolves
+<em>where</em> to appear by asking the <code>Index</code> for the character’s <code>SpeechBubblePivot</code> by alias
+(3D-unprojected or 2D), and adapts to stay on-screen.</p>
+<p>Choices flow back into the runner: <code>runner.get_choices()</code> → render → player picks →
+<code>runner.choose_choice_index(i)</code> → continue. <strong>Timed choices</strong> push a countdown with a
+fallback index for time-pressure beats.</p>
+<p>Story-wide coordination uses a tiny <strong>event bus</strong> on the <code>Story</code> autoload: <code>Story.emit(name)</code>
+and <code>await Story.wait_for(name)</code>, so a scene can block until a narrative beat fires without
+direct references. <strong>Pattern: dialogue UI as a state machine + a story event bus for
+loosely-coupled sequencing.</strong></p>
+<h3 id="skits-embedded-interactive-scenes">Skits: embedded interactive scenes<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#skits-embedded-interactive-scenes">#</a></h3>
+<p>A <code>SkitContainer</code> (with an <code>id</code>, indexed) runs a sub-story scoped to its own subtree, resolving
+pivots and commands locally unless allowed global access. Triggered from script
+(<code>$ start_skit --wait WakeUp</code>), it emits <code>skit_started</code>/<code>skit_finished</code>. <strong>Pattern: scope a
+sub-story to a container</strong> so the same dialogue machinery drives small in-world vignettes.</p>
+<h2 id="the-graph-dialogue-family-when-you-dont-want-a-script-language">The graph-dialogue family (when you don’t want a script language)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-graph-dialogue-family-when-you-dont-want-a-script-language">#</a></h2>
+<p>The alternative to Ink: dialogue as a <strong>JSON node graph</strong> of typed nodes keyed by id, each
+carrying <code>next</code> (or a <code>branches</code> map), interpreted by a walker. Same two seams as above, just
+wearing different clothes. Distilled from a studied dialogue addon; core verified against the live engine.</p>
+<p><strong>The graph is data; the interpreter is a <code>match</code>.</strong> Flow control ships as <em>node types</em>, not
+code: <code>show_message</code> (text per language: <code>{"ENG": ...}</code>, optional <code>choices</code>),
+<code>condition_branch</code> (<code>branches: {True, False}</code>), <code>chance_branch</code> (weighted),
+<code>random_branch</code>, <code>repeat</code> (loop N times via a counter dict, exit to <code>next_done</code>), <code>wait</code>,
+<code>set_local_variable</code>, <code>action</code>. The walker is ~10 lines:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> node: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> nodes[next_id]</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">match</span><span style="--0:#E1E4E8;--1:#24292E"> node.type:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#9ECBFF;--1:#032F62">"show_message"</span><span style="--0:#E1E4E8;--1:#24292E">:     </span><span style="--0:#B392F0;--1:#6F42C1">show_message</span><span style="--0:#E1E4E8;--1:#24292E">(node)          </span><span style="--0:#99A0A6;--1:#616972"># sets next from node.next or a choice</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#9ECBFF;--1:#032F62">"condition_branch"</span><span style="--0:#E1E4E8;--1:#24292E">: next_id </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> node.branches[</span><span style="--0:#9ECBFF;--1:#032F62">"True"</span><span style="--0:#E1E4E8;--1:#24292E">] </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">evaluate</span><span style="--0:#E1E4E8;--1:#24292E">(node.condition) </span><span style="--0:#F97583;--1:#BF3441">else</span><span style="--0:#E1E4E8;--1:#24292E"> node.branches[</span><span style="--0:#9ECBFF;--1:#032F62">"False"</span><span style="--0:#E1E4E8;--1:#24292E">]</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#9ECBFF;--1:#032F62">"action"</span><span style="--0:#E1E4E8;--1:#24292E">:           </span><span style="--0:#B392F0;--1:#6F42C1">execute_action</span><span style="--0:#E1E4E8;--1:#24292E">(node.action_name, node.</span><span style="--0:#B392F0;--1:#6F42C1">get</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"params"</span><span style="--0:#E1E4E8;--1:#24292E">, {})); next_id </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> node.next</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Writers get non-linearity (chance/repeat/conditions) without touching code, and the format is
+diffable, generatable, and migratable. <strong>Version the format</strong>: a <code>version</code> field, per-node
+converters that upgrade old files on load, and a migration tool. Dialogue data outlives code.</p>
+<p><strong>Seam A: a safe evaluator, not <code>eval</code>.</strong> Conditions and <code>@var@</code> text interpolation go through
+Godot’s <code>Expression</code> class with an allowlisted context (the dialogue’s local variables plus a
+few globals), so writers get <code>gold >= 10 and not met_guide</code> and never arbitrary code:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> expression </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Expression</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">new</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">expression.</span><span style="--0:#B392F0;--1:#6F42C1">parse</span><span style="--0:#E1E4E8;--1:#24292E">(input, </span><span style="--0:#B392F0;--1:#6F42C1">PackedStringArray</span><span style="--0:#E1E4E8;--1:#24292E">(context.</span><span style="--0:#B392F0;--1:#6F42C1">keys</span><span style="--0:#E1E4E8;--1:#24292E">()))</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> result: </span><span style="--0:#B392F0;--1:#6F42C1">Variant</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> expression.</span><span style="--0:#B392F0;--1:#6F42C1">execute</span><span style="--0:#E1E4E8;--1:#24292E">(context.</span><span style="--0:#B392F0;--1:#6F42C1">values</span><span style="--0:#E1E4E8;--1:#24292E">(), </span><span style="--0:#F97583;--1:#BF3441">self</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Seam B: an action registry.</strong> Dialogue triggers game effects only by name through registered
+callables; namespaced <em>variable providers</em> (<code>"player"</code> → callable answering <code>"health"</code>) expose
+game state read-only. The graceful-degradation detail worth copying: an <strong>unregistered</strong> action
+emits <code>action_requested(name, params)</code> instead of erroring, so a scene can handle one-off
+actions by signal without registering globally. This is the graph-family’s command bus.</p>
+<p><strong>VN quality-of-life is a small, separable layer</strong> (players expect all four):</p>
+<ul>
+<li>
+<strong>Skip</strong>: hold-to-skip that only fast-forwards <em>visited</em> nodes. Keep a
+<code>"path:node_id"</code> visited set, and never skip through choices.</li>
+<li>
+<strong>Auto-advance</strong>: arm a one-shot timer only when the message finished revealing <em>and</em> no
+choice is pending; cancel on any manual input.</li>
+<li>
+<strong>Backlog</strong>: a capped ring buffer of typed entries (message vs choice, speaker, node id),
+searchable; feed it from the same place that shows messages.</li>
+<li>
+<strong>Resume</strong>: a <code>DialogueState</code> Resource (current path + node id, variables, flags, visited,
+repeat counters). With it, <code>resume_from_state()</code> is just “load file, <code>next_id = saved</code>, step”.</li>
+</ul>
+<p><strong>Presentation: one Message contract, N skins.</strong> Box (bottom panel) and Bubble (speech balloon)
+both implement <code>show_new_message(text)</code> / <code>finish_message()</code> + <code>started/finished</code> signals; each
+node picks its skin (<code>is_box</code>), a global override forces one. Mechanics worth stealing:</p>
+<ul>
+<li>
+<strong>World-anchored bubbles</strong>: 2D follows <code>speaker.get_global_transform_with_canvas().origin</code>;
+3D follows <code>camera.unproject_position(speaker.global_position)</code>. Same bubble, both worlds.</li>
+<li>
+<strong>Typewriter over BBCode</strong>: pair an invisible <code>Label</code> (gets the tag-stripped text, drives
+layout) with a <code>RichTextLabel</code> (gets the BBCode), and advance <code>visible_characters</code> on both.</li>
+<li>
+<strong>Measure-then-wrap</strong>: show the bubble with autowrap off, wait one frame, and only if it
+exceeds max width flip autowrap on and clamp, so short lines get tight bubbles.</li>
+<li>
+<strong>Conditional choices stay visible but disabled</strong>, with the unmet condition as tooltip.
+Players see the door they couldn’t open.</li>
+<li>A per-character <code>CharacterData</code> Resource (portraits by emotion, name/text colors, voice
+blip pitch, preferred skin) in a <code>CharacterDatabase</code> keeps styling out of the graph.</li>
+</ul>
+<h2 id="chapter-flow-via-a-scene-directory">Chapter flow via a scene directory<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#chapter-flow-via-a-scene-directory">#</a></h2>
+<p>Scenes are keyed (<code>"1.1a"</code>) and chained through a JSON <code>SceneDirectory</code> (chapters → ordered
+scenes, per-playthrough variants, hidden/unlocked). <code>to_next_scene()</code> follows the chain;
+crossing a chapter boundary shows a chapter title. See <code>gdscript-architecture.md</code> “Game
+orchestrator”. <strong>Pattern: author the macro-flow as data</strong>, not as <code>change_scene</code> calls
+scattered through scenes.</p>
+<h2 id="data-driven-in-world-apps-the-fake-phonepc-os">Data-driven in-world apps (the fake phone/PC OS)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#data-driven-in-world-apps-the-fake-phonepc-os">#</a></h2>
+<p>The social feed, web browser, email, and forum are <strong>entirely data-driven</strong> off the Store’s
+JSON databases, with no bespoke code per post.</p>
+<ul>
+<li>
+<p><strong>Domain objects are live JSON proxies</strong>. A class wraps a dict from the Store; its
+properties get/set straight into that dict, so mutations persist with no explicit save:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> liked: </span><span style="--0:#B392F0;--1:#6F42C1">bool</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">set</span><span style="--0:#E1E4E8;--1:#24292E">(v): _dict.liked </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> v      </span><span style="--0:#99A0A6;--1:#616972"># writes through to the Store-backed dict</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">get</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> _dict.</span><span style="--0:#B392F0;--1:#6F42C1">get</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"liked"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">false</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+</li>
+<li>
+<p><strong>UI binds from data</strong>. A feed screen reads <code>Store.get_value("fb://posts/&#x3C;id>")</code>,
+wraps it in a domain object, instances a view per item. A like button just flips the
+proxy property; a dirty-checker re-renders.</p>
+</li>
+<li>
+<p><strong>References as strings</strong> (<code>author_ref = "fb://profiles/alice"</code>) model the social graph
+and lazy-load via the Store, which buys circular relationships without deep copies.</p>
+</li>
+<li>
+<p><strong>URLs parse to Store paths</strong> (<code>https://site/2014/11/article</code> → a nested lookup), so a
+“web” is just addressable data, and a <code>content_type</code> field selects which view scene to
+instance (text / picture / album / video) through one pipeline.</p>
+</li>
+</ul>
+<p>Player actions mutate the proxies → the Store diffs them per scene (see the two-tier save
+in <code>gdscript-architecture.md</code>), so the world <em>remembers</em> what you liked or read.
+<strong>Pattern: in-world apps = JSON databases + proxy domain objects + view-per-item binding.</strong>
+Content authors add posts/emails by editing JSON, not code.</p>
+<h2 id="the-product-shell-everything-around-the-story">The product shell (everything around the story)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-product-shell-everything-around-the-story">#</a></h2>
+<p>Mined from a VN engine’s starter game; the save/settings core validated against the live engine.
+The shell (boot, title, saves, settings, extras) is where “demo” and “shippable” diverge, and it
+generalizes far beyond VNs. The organizing idea: <strong>the shell is data-driven from manifests</strong>,
+so re-skinning the product never touches code.</p>
+<ul>
+<li>
+<strong>One project manifest</strong> (a TOML file: <code>[project]</code>, <code>[boot]</code>, <code>[title]</code>, <code>[window]</code>) drives
+the whole shell: window title, splash entries, which scenes are title/settings/extras, music.
+A ~100-line TOML-subset parser (sections, scalars, flat arrays) is all it takes; parse once
+at boot and stash on the tree (<code>get_tree().set_meta</code>) for every screen to read.</li>
+<li>
+<strong>Boot flow</strong>: play splash images/videos from the manifest. With none configured, fall back to
+<em>procedural text cards</em> built from the project’s own metadata (studio name, title), so the flow
+is complete on day one. Fade in → wait-or-skip → fade out → a short <strong>black dwell</strong> between
+cards (cuts without it read as flashes). Skip is one flag checked by every wait.</li>
+<li>
+<strong>Saves: version + wrap, never introspect</strong>. The payload is
+<code>{version, slot_id, saved_at_unix, snapshot_json, custom_state, custom_meta}</code> where
+<code>snapshot_json</code> is the story runner’s own <strong>opaque</strong> state export, so the save system never
+knows story internals. External systems register as <em>providers</em> contributing custom state
+under namespaced keys (with key-collision detection). Before overwriting a slot, copy it to
+<code>.bak</code>; loads that fail fall back to the backup, and every failure path returns a <em>named
+reason</em> (<code>slot_not_found</code>, <code>backup_write_failed</code>) surfaced by signal, never a crash. Slot UI
+is powered by <code>list_slots_metadata()</code>: enumerate, validate, sort by recency.</li>
+<li>
+<strong>Settings are a table, not a screen of code</strong>. Each setting is one registration row
+(<code>key, control, kind, options, default, section</code>); load/apply/persist (<code>ConfigFile</code>) iterate
+the table. Four tabs is the shipped shape: General, Display, Sound, <strong>Accessibility</strong>
+(subtitle size/background, colorblind overlay, QTE-off). Plan the a11y tab from the start.</li>
+<li>
+<strong>Chapter select and extras read TOML too</strong>: <code>episodes.toml</code>/<code>chapters.toml</code> feed the episode
+carousel + scene gallery; <code>extras.toml</code> is a card grid (thumbnail, badge, lock state, target
+scene or URL). Content unlocks are data rows, not screens.</li>
+<li>Give every screen a tiny <code>ScreenBase</code> (fade-in, back navigation, manifest access) so screens
+stay declarative.</li>
+</ul>
+<h2 id="localize-narrative-content-not-just-ui-strings">Localize narrative content, not just UI strings<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#localize-narrative-content-not-just-ui-strings">#</a></h2>
+<p>Two layers: Godot <code>tr()</code> + <code>.translation</code> files for chrome (menus, settings), and
+<strong>per-locale data files</strong> for narrative, meaning localized <code>.inkb</code> under <code>locales/&#x3C;lang>/</code> and
+localized JSON DBs (<code>state_ja.json</code>, <code>fb_ja.json</code>), each falling back to the default
+locale. A <code>locale_changed</code> signal makes the store <strong>reload all databases</strong> live. Remember
+<strong>font remapping</strong> per locale for CJK. <strong>Pattern: localize the data layer with
+default-locale fallback</strong>, and reload state on locale change.</p>
+<h2 id="transferable-rules">Transferable rules<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#transferable-rules">#</a></h2>
+<ol>
+<li>Author branching story in a script language (Ink) run through a runner; GDScript only drives + renders.</li>
+<li>Bridge script→state with <strong>auto-bound external functions</strong> into a central store.</li>
+<li>Declare presentation mode in the <strong>story header tags</strong>; route to a handler per mode.</li>
+<li>Classify emitted lines by regex into <strong>commands vs. dialogue vs. chat vs. thought</strong>.</li>
+<li>Dispatch <code>$ commands</code> through a <strong>chain-of-responsibility bus</strong>; components self-register handlers.</li>
+<li>Allow <strong>inline command markup</strong> in dialogue text for reveal timing.</li>
+<li>Drive dialogue UI with a <strong>state machine</strong>; resolve speaker anchors via the node <strong>Index</strong>.</li>
+<li>Coordinate beats with a <strong>story event bus</strong> (<code>emit</code>/<code>await wait_for</code>), not direct refs.</li>
+<li>Author chapter macro-flow as a <strong>keyed scene directory</strong>, not scattered <code>change_scene</code> calls.</li>
+<li>Build in-world apps as <strong>JSON data + proxy objects + view-per-item</strong>; localize the data layer with fallback.</li>
+<li>Or skip the script language: dialogue as a <strong>versioned JSON node graph</strong> + a <code>match</code> interpreter; flow control as node types.</li>
+<li>Gate writer-facing logic behind a <strong>safe <code>Expression</code> evaluator</strong> and an <strong>action registry</strong> (unhandled → signal, never error).</li>
+<li>Ship the VN QoL layer: visited-gated skip, choice-aware auto-advance, backlog, resumable <code>DialogueState</code>. It’s small and players expect it.</li>
+<li>One <strong>Message contract, N skins</strong> (box/bubble); anchor bubbles via canvas transform (2D) or <code>unproject_position</code> (3D).</li>
+<li>Drive the product shell from <strong>manifests</strong> (project/episodes/extras as TOML); saves wrap an opaque story snapshot with version + <code>.bak</code> fallback + named failure reasons; settings are a registration table with an Accessibility tab from day one.</li>
+</ol>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/deckbuilder-patterns" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Deckbuilders</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/unreal-import-cleanup" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Unreal import cleanup</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#run-branching-script-with-ink-or-an-equivalent-runner" data-toc="run-branching-script-with-ink-or-an-equivalent-runner" data-scope-p33bl5ka>Run branching script with Ink (or an equivalent runner)</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#seam-1-external-functions-script--game-state" data-toc="seam-1-external-functions-script--game-state" data-scope-p33bl5ka>Seam 1: external functions (script ↔ game state)</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#substory-type-routing-from-tags" data-toc="substory-type-routing-from-tags" data-scope-p33bl5ka>Substory-type routing from tags</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#a-line-format--a-command-bus-the-heart-of-scripted-scenes" data-toc="a-line-format--a-command-bus-the-heart-of-scripted-scenes" data-scope-p33bl5ka>A line format + a command bus (the heart of scripted scenes)</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#command-bus--chain-of-responsibility" data-toc="command-bus--chain-of-responsibility" data-scope-p33bl5ka>Command bus = chain of responsibility</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#commands-embedded-inside-dialogue-text" data-toc="commands-embedded-inside-dialogue-text" data-scope-p33bl5ka>Commands embedded inside dialogue text</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#presenting-dialogue-state-machine-bubbles--an-event-bus" data-toc="presenting-dialogue-state-machine-bubbles--an-event-bus" data-scope-p33bl5ka>Presenting dialogue: state-machine bubbles + an event bus</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#skits-embedded-interactive-scenes" data-toc="skits-embedded-interactive-scenes" data-scope-p33bl5ka>Skits: embedded interactive scenes</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-graph-dialogue-family-when-you-dont-want-a-script-language" data-toc="the-graph-dialogue-family-when-you-dont-want-a-script-language" data-scope-p33bl5ka>The graph-dialogue family (when you don’t want a script language)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#chapter-flow-via-a-scene-directory" data-toc="chapter-flow-via-a-scene-directory" data-scope-p33bl5ka>Chapter flow via a scene directory</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#data-driven-in-world-apps-the-fake-phonepc-os" data-toc="data-driven-in-world-apps-the-fake-phonepc-os" data-scope-p33bl5ka>Data-driven in-world apps (the fake phone/PC OS)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-product-shell-everything-around-the-story" data-toc="the-product-shell-everything-around-the-story" data-scope-p33bl5ka>The product shell (everything around the story)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#localize-narrative-content-not-just-ui-strings" data-toc="localize-narrative-content-not-just-ui-strings" data-scope-p33bl5ka>Localize narrative content, not just UI strings</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#transferable-rules" data-toc="transferable-rules" data-scope-p33bl5ka>Transferable rules</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>
