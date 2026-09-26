@@ -1,0 +1,546 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Save systems · Swallowtail</title><meta name="description" content="Authoritative vs derived state, the persist-group collector, the five-format tradeoff, atomic autosave.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Save systems · Swallowtail">
+<meta property="og:description" content="Authoritative vs derived state, the persist-group collector, the five-format tradeoff, atomic autosave.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link active" aria-current="page" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Save systems</h1>
+<p class="page-desc" data-scope-ccykbmgk>Authoritative vs derived state, the persist-group collector, the five-format tradeoff, atomic autosave.</p>
+</header>
+<p>The unifying reference for persistence. Four other docs cover a <em>slice</em> of saving from their
+genre’s angle. This one owns the shared architecture and the format decisions. <strong>Verify exact
+APIs against the live engine</strong> (<code>engine class-info --class FileAccess</code>) before writing: the
+serializer flags below came from that check, but signatures evolve.</p>
+<p>Where to jump instead of reading here:</p>
+<ul>
+<li>
+<strong><code>gdscript-architecture.md</code></strong> covers the big game with bulk mutable state: the <em>two-tier save</em>
+(small checksummed Resource header + JSON-diff-per-checkpoint), for when bulk state dwarfs the delta.</li>
+<li>
+<strong><code>topdown-2d.md</code></strong> is the component game, where saveables carry a <code>SaveDataComponent</code> holding a
+<em>polymorphic Resource</em>; adding a saveable type = a new Resource subclass, no central switch.</li>
+<li>
+<strong><code>narrative-game-patterns.md</code></strong> is the story game, whose save <em>wraps an opaque story snapshot</em>
+(<code>{version, slot_id, snapshot_json, ...}</code>) with a <code>.bak</code> fallback and never introspects it.</li>
+<li>
+<strong><code>menus-settings.md</code></strong> handles <em>settings</em> (audio, video, keybinds), which persist to
+<code>user://settings.cfg</code> via <code>ConfigFile</code>. Keep them out of the save game; the two have different
+lifetimes.</li>
+</ul>
+<h2 id="what-to-save-authoritative-state-not-derived-state">What to save: authoritative state, not derived state<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#what-to-save-authoritative-state-not-derived-state">#</a></h2>
+<p>Save the <strong>inputs to your simulation, not its outputs.</strong> Player position, inventory, quest
+flags, RNG seed, current scene key are <em>authoritative</em>. Health bars, pathfinding results,
+particle state are <em>derived</em> and recomputed on load. Saving derived state bloats the file and
+rots the moment the derivation changes.</p>
+<ul>
+<li>
+<strong>The “everything in one dict” trap</strong>. Dumping <code>get_tree()</code> into one nested Dictionary feels
+fast and rots fast: private fields leak into the format, a refactor breaks old saves, and you
+can’t reason about what a slot holds. Save a <em>deliberate</em> per-type projection of each entity.</li>
+<li>
+<strong>Granularity</strong>. Persist at the coarsest unit that still reloads correctly. A puzzle game
+saves “level N, moves so far”; an open-world game saves per-region deltas. Finer is wasted
+bytes and migration surface; coarser loses progress players expect kept.</li>
+</ul>
+<h2 id="the-collector-pattern-the-flagship">The collector pattern (the flagship)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-collector-pattern-the-flagship">#</a></h2>
+<p>Each saveable node joins a <code>"persist"</code> group and exposes <code>save_state() -> Dictionary</code> /
+<code>load_state(d)</code>. A <code>SaveManager</code> autoload sweeps the group, keys each record by a stable
+identity, and never knows an entity’s internals, because each owns its own shape.</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># on each saveable node (player, chest, door, enemy)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">add_to_group</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"persist"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">save_state</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> {</span><span style="--0:#9ECBFF;--1:#032F62">"pos"</span><span style="--0:#E1E4E8;--1:#24292E">: [position.x, position.y], </span><span style="--0:#9ECBFF;--1:#032F62">"hp"</span><span style="--0:#E1E4E8;--1:#24292E">: health}   </span><span style="--0:#99A0A6;--1:#616972"># Vector2 flattened for JSON</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">load_state</span><span style="--0:#E1E4E8;--1:#24292E">(d: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> p: </span><span style="--0:#B392F0;--1:#6F42C1">Array</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> d.</span><span style="--0:#B392F0;--1:#6F42C1">get</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"pos"</span><span style="--0:#E1E4E8;--1:#24292E">, [</span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.0</span><span style="--0:#E1E4E8;--1:#24292E">])</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">position </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">(p[</span><span style="--0:#79B8FF;--1:#005CC5">0</span><span style="--0:#E1E4E8;--1:#24292E">], p[</span><span style="--0:#79B8FF;--1:#005CC5">1</span><span style="--0:#E1E4E8;--1:#24292E">])</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">health </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> d.</span><span style="--0:#B392F0;--1:#6F42C1">get</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"hp"</span><span style="--0:#E1E4E8;--1:#24292E">, max_health)                          </span><span style="--0:#99A0A6;--1:#616972"># tolerate a missing key</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># SaveManager autoload: keys each record by scene_file_path + node path</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">collect</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> nodes </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> {}</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> node </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">get_nodes_in_group</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"persist"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> node.</span><span style="--0:#B392F0;--1:#6F42C1">has_method</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"save_state"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#F97583;--1:#BF3441">continue</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> path </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">str</span><span style="--0:#E1E4E8;--1:#24292E">(node.</span><span style="--0:#B392F0;--1:#6F42C1">get_path</span><span style="--0:#E1E4E8;--1:#24292E">())</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">nodes[</span><span style="--0:#9ECBFF;--1:#032F62">"</span><span style="--0:#79B8FF;--1:#005CC5">%s</span><span style="--0:#9ECBFF;--1:#032F62">::</span><span style="--0:#79B8FF;--1:#005CC5">%s</span><span style="--0:#9ECBFF;--1:#032F62">"</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">%</span><span style="--0:#E1E4E8;--1:#24292E"> [node.scene_file_path, path]] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> {</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#9ECBFF;--1:#032F62">"scene"</span><span style="--0:#E1E4E8;--1:#24292E">: node.scene_file_path,             </span><span style="--0:#99A0A6;--1:#616972"># to re-instance if it was spawned</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#9ECBFF;--1:#032F62">"path"</span><span style="--0:#E1E4E8;--1:#24292E">: path,</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#9ECBFF;--1:#032F62">"parent"</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#B392F0;--1:#6F42C1">str</span><span style="--0:#E1E4E8;--1:#24292E">(node.</span><span style="--0:#B392F0;--1:#6F42C1">get_parent</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">get_path</span><span style="--0:#E1E4E8;--1:#24292E">()),</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#9ECBFF;--1:#032F62">"state"</span><span style="--0:#E1E4E8;--1:#24292E">: node.</span><span style="--0:#B392F0;--1:#6F42C1">save_state</span><span style="--0:#E1E4E8;--1:#24292E">(),</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> {</span><span style="--0:#9ECBFF;--1:#032F62">"version"</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#79B8FF;--1:#005CC5">VERSION</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"nodes"</span><span style="--0:#E1E4E8;--1:#24292E">: nodes}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Be honest about the respawned-node identity problem.</strong> Keying by <code>scene_file_path</code> +
+node path is stable <em>only for nodes authored into the scene</em>. The moment something is
+<code>queue_free()</code>d (an enemy dies) or <code>instantiate()</code>d at runtime (a dropped item, a spawned
+pickup), that identity breaks: a freed node has no state to patch, a runtime-spawned one has no
+authored path to match. A “patch each node’s state” loop silently loses both. Store <strong>spawn
+records, not just state patches</strong>: the collector keeps each record’s <code>scene</code> + <code>parent</code>, so
+restore <em>re-instantiates</em> what isn’t already in the tree. Record deaths too (a “dead” set, or
+free-on-load anything the save omits), or they resurrect.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">restore</span><span style="--0:#E1E4E8;--1:#24292E">(data: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> tree </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> key </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> data.</span><span style="--0:#B392F0;--1:#6F42C1">get</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"nodes"</span><span style="--0:#E1E4E8;--1:#24292E">, {}):</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> rec: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> data[</span><span style="--0:#9ECBFF;--1:#032F62">"nodes"</span><span style="--0:#E1E4E8;--1:#24292E">][key]</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> node </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> tree.root.</span><span style="--0:#B392F0;--1:#6F42C1">get_node_or_null</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">NodePath</span><span style="--0:#E1E4E8;--1:#24292E">(rec[</span><span style="--0:#79B8FF;--1:#005CC5">"path"</span><span style="--0:#E1E4E8;--1:#24292E">]))</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> node </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">null</span><span style="--0:#E1E4E8;--1:#24292E">:                                    </span><span style="--0:#99A0A6;--1:#616972"># was spawned at runtime, so re-create it</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> parent </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> tree.root.</span><span style="--0:#B392F0;--1:#6F42C1">get_node_or_null</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">NodePath</span><span style="--0:#E1E4E8;--1:#24292E">(rec[</span><span style="--0:#79B8FF;--1:#005CC5">"parent"</span><span style="--0:#E1E4E8;--1:#24292E">]))</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> parent </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">null</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">or</span><span style="--0:#E1E4E8;--1:#24292E"> rec.</span><span style="--0:#B392F0;--1:#6F42C1">get</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"scene"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">""</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">""</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">continue</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">      </span></span><span style="--0:#E1E4E8;--1:#24292E">node </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> (</span><span style="--0:#B392F0;--1:#6F42C1">load</span><span style="--0:#E1E4E8;--1:#24292E">(rec[</span><span style="--0:#9ECBFF;--1:#032F62">"scene"</span><span style="--0:#E1E4E8;--1:#24292E">]) </span><span style="--0:#F97583;--1:#BF3441">as</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">PackedScene</span><span style="--0:#E1E4E8;--1:#24292E">).</span><span style="--0:#B392F0;--1:#6F42C1">instantiate</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">      </span></span><span style="--0:#E1E4E8;--1:#24292E">parent.</span><span style="--0:#B392F0;--1:#6F42C1">add_child</span><span style="--0:#E1E4E8;--1:#24292E">(node)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">node.</span><span style="--0:#B392F0;--1:#6F42C1">load_state</span><span style="--0:#E1E4E8;--1:#24292E">(rec[</span><span style="--0:#9ECBFF;--1:#032F62">"state"</span><span style="--0:#E1E4E8;--1:#24292E">])</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Build:</strong> <code>script create</code> + <code>project add-autoload --name SaveManager --path res://systems/save_manager.gd</code>; each saveable gets <code>add_to_group("persist")</code> + the two methods.
+<code>save_to_slot</code>/<code>load_from_slot</code> wrap collect/restore over the format and slot helpers below.</p>
+<h2 id="format-tradeoffs-pick-per-need-honestly">Format tradeoffs (pick per need, honestly)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#format-tradeoffs-pick-per-need-honestly">#</a></h2>
+<table>
+<thead>
+<tr>
+<th>Format</th><th>Types preserved</th><th>Human-readable</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ConfigFile</code></td><td>Variants (typed)</td><td>yes (INI)</td><td><strong>Settings only</strong> (see <code>menus-settings.md</code>). Not save games.</td></tr>
+<tr>
+<td><code>JSON</code></td><td>no (numbers/strings/arrays/dicts)</td><td>yes, diffable</td><td>Portable, tool-friendly. <strong>Vectors/floats need care</strong> (below).</td></tr>
+<tr>
+<td><code>var_to_str</code>/<code>str_to_var</code></td><td>full Variant incl. Vector2/Color</td><td>yes</td><td>Text <em>and</em> type-faithful. Godot-only reader.</td></tr>
+<tr>
+<td><code>FileAccess.store_var</code>/<code>get_var</code></td><td>full Variant</td><td>no (binary)</td><td>Fast, compact, opaque.</td></tr>
+<tr>
+<td><code>Resource</code> + <code>ResourceSaver</code> (<code>.tres</code>)</td><td>typed, <code>@export</code>ed</td><td><code>.tres</code> yes / <code>.res</code> no</td><td>Editor-inspectable. <strong>Security caveat below.</strong></td></tr>
+</tbody>
+</table>
+<ul>
+<li>
+<strong>JSON is the portable default but loses types</strong>. <code>JSON.parse_string</code> returns every number as
+a <code>float</code> and has no <code>Vector2</code>/<code>Color</code>, so a naive <code>Vector2(10, 20)</code> errors on read. Two fixes:
+(a) <strong>serialize helpers</strong> that flatten to arrays out and rebuild in (<code>[v.x, v.y]</code> /
+<code>Vector2(a[0], a[1])</code>), the pattern the collector uses; (b) <code>JSON.from_native(v, false)</code> /
+<code>JSON.to_native(j, false)</code> tag engine types into a JSON-safe structure and back.</li>
+<li>
+<strong><code>var_to_str</code> is the underrated middle</strong>. It writes <code>Vector2(10, 20)</code> as literal text and
+<code>str_to_var</code> reads it back with the Vector intact. That is full Variant fidelity, still
+diffable and hand-editable, with no serialize helpers. Cost: only Godot reads it.</li>
+<li>
+<strong>Binary <code>store_var</code>/<code>get_var</code> is fastest and smallest</strong>, opaque on disk. Pass
+<code>store_var(data, false)</code> / <code>get_var(false)</code>, where the <code>false</code> keeps arbitrary object
+instantiation out of the reader (same risk as below).</li>
+<li>
+<strong><code>Resource</code> + <code>ResourceSaver</code> is inspectable but unsafe for untrusted saves</strong>. A <code>@export</code>ed
+<code>SaveData extends Resource</code> saved via <code>ResourceSaver.save(data, "user://save.tres")</code> is typed
+and inspector-editable, which is great for <em>authored</em> data. But <strong>loading a <code>.tres</code>/<code>.res</code> instantiates
+whatever types and scripts the file declares</strong>, so a tampered save can run code on load.
+<code>FileAccess.get_var</code> and <code>JSON.to_native</code> gate this behind an <code>allow_objects</code> flag;
+<code>ResourceLoader.load</code> has <strong>none</strong>. Standing community guidance: <strong>never <code>load()</code> a save a
+player could swap</strong>. Use JSON or <code>store_var(..., false)</code> there, and reserve Resource saves for
+shipped content and local headers. (<code>open_encrypted_with_pass</code> only obfuscates: the key ships
+in your binary.)</li>
+</ul>
+<h2 id="encrypting-a-save-vs-validating-one">Encrypting a save vs validating one<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#encrypting-a-save-vs-validating-one">#</a></h2>
+<p>They solve different problems, and encryption alone is often sold as both.</p>
+<p><strong>Encryption stops casual editing.</strong> <code>FileAccess.open_encrypted</code> takes a binary key,
+<code>open_encrypted_with_pass</code> a passphrase, and <code>ConfigFile</code> mirrors both
+(<code>save_encrypted</code>/<code>load_encrypted</code> plus the <code>_pass</code> variants, all confirmed on the live 4.7
+build). The same honesty as pck encryption applies: the key ships in the binary, so this deters a
+player with a text editor, not one with a debugger. Worth it when a visible plaintext save invites
+fiddling; decorative against anything determined.</p>
+<p><strong>Validation detects tampering, including by someone who found the key.</strong> Store an HMAC beside the
+payload and compare on load: <code>Crypto.new().hmac_digest(HashingContext.HASH_SHA256, key, payload)</code>
+(live-verified signature: <code>hmac_digest(hash_type, key, msg) -> PackedByteArray</code>). A mismatch means
+the file changed outside the game, so treat it as corrupt and fall into the backup-fallback path
+rather than crashing. The same caveat about shipped keys applies to the HMAC key; for a single-player
+game that is fine, because the goal is catching accidents and casual edits, not defeating an
+adversary. Anything that must survive a hostile player belongs on a server, which is a
+<code>multiplayer-patterns.md</code> concern.</p>
+<p>Neither replaces the rule above: a save a player could swap never goes through <code>load()</code>.</p>
+<h2 id="versioning-and-migration">Versioning and migration<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#versioning-and-migration">#</a></h2>
+<p>Put a <strong><code>version</code> int in every save</strong> from day one. One int, and the next format change has
+something to branch on.
+On load, run a migration ladder that upgrades stepwise, and read every optional field through
+<code>dict.get(key, default)</code> so a missing key is a default, not a crash.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">migrate</span><span style="--0:#E1E4E8;--1:#24292E">(data: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> v: </span><span style="--0:#B392F0;--1:#6F42C1">int</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> data.</span><span style="--0:#B392F0;--1:#6F42C1">get</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"version"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> v </span><span style="--0:#F97583;--1:#BF3441">&#x3C;</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">2</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">data[</span><span style="--0:#9ECBFF;--1:#032F62">"gold"</span><span style="--0:#E1E4E8;--1:#24292E">] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> data.</span><span style="--0:#B392F0;--1:#6F42C1">get</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"coins"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0</span><span style="--0:#E1E4E8;--1:#24292E">)   </span><span style="--0:#99A0A6;--1:#616972"># v1->v2 renamed coins->gold</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">data.</span><span style="--0:#B392F0;--1:#6F42C1">erase</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"coins"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">v </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">2</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> v </span><span style="--0:#F97583;--1:#BF3441">&#x3C;</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">3</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">data[</span><span style="--0:#9ECBFF;--1:#032F62">"difficulty"</span><span style="--0:#E1E4E8;--1:#24292E">] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"normal"</span><span style="--0:#E1E4E8;--1:#24292E">          </span><span style="--0:#99A0A6;--1:#616972"># v2->v3 added a field</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">v </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">3</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">data[</span><span style="--0:#9ECBFF;--1:#032F62">"version"</span><span style="--0:#E1E4E8;--1:#24292E">] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> v</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> data</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Stepwise (each <code>if v &#x3C; N</code> upgrades one version) migrates a v1 save 1→2→3 in one pass, with no
+v1→v3 jump. <code>gdscript-architecture.md</code>’s Resource header does the same with <code>match save.version</code>.</p>
+<p><strong>Relocating the save file is a migration step like any other.</strong> A portable or storefront build
+often wants its data beside the executable instead of under <code>user://</code>, so the whole install copies
+to a stick and keeps its progress. Run it on the same ladder: detect the old location, create the
+new directory, copy the file across if the new one is absent, then record the resolved path in the
+one place the rest of the code reads. <code>OS.get_executable_path().get_base_dir().path_join("data")</code>
+is the destination on desktop; every step needs its return value checked, because a failed
+<code>make_dir</code> or <code>copy</code> must leave the old path in force rather than pointing the game at a file that
+does not exist. Keep the old file until a launch from the new one has saved successfully. The
+editor runs from the engine binary’s directory, so gate this on a build check or an exported
+setting rather than letting it fire during development.</p>
+<h2 id="slots-and-metadata">Slots and metadata<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#slots-and-metadata">#</a></h2>
+<p>Lay out <code>user://saves/slot_N/</code> with the payload plus a <strong>sidecar meta</strong> the load menu reads
+<em>without</em> deserializing the whole game: timestamp, playtime, a thumbnail.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">slot_dir</span><span style="--0:#E1E4E8;--1:#24292E">(slot: </span><span style="--0:#B392F0;--1:#6F42C1">int</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"user://saves/slot_</span><span style="--0:#79B8FF;--1:#005CC5">%d</span><span style="--0:#9ECBFF;--1:#032F62">"</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">%</span><span style="--0:#E1E4E8;--1:#24292E"> slot</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">write_meta</span><span style="--0:#E1E4E8;--1:#24292E">(slot: </span><span style="--0:#B392F0;--1:#6F42C1">int</span><span style="--0:#E1E4E8;--1:#24292E">, playtime: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">DirAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">make_dir_recursive_absolute</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">slot_dir</span><span style="--0:#E1E4E8;--1:#24292E">(slot))</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> meta </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> {</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#9ECBFF;--1:#032F62">"saved_at"</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#B392F0;--1:#6F42C1">Time</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_datetime_string_from_system</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">false</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">true</span><span style="--0:#E1E4E8;--1:#24292E">),  </span><span style="--0:#99A0A6;--1:#616972"># local, space-separated</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#9ECBFF;--1:#032F62">"unix"</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#B392F0;--1:#6F42C1">Time</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_unix_time_from_system</span><span style="--0:#E1E4E8;--1:#24292E">(),                        </span><span style="--0:#99A0A6;--1:#616972"># sort key</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#9ECBFF;--1:#032F62">"playtime_s"</span><span style="--0:#E1E4E8;--1:#24292E">: playtime,</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> f </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">FileAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">open</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">slot_dir</span><span style="--0:#E1E4E8;--1:#24292E">(slot) </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"/meta.json"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#B392F0;--1:#6F42C1">FileAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">WRITE</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">f.</span><span style="--0:#B392F0;--1:#6F42C1">store_string</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">JSON</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">stringify</span><span style="--0:#E1E4E8;--1:#24292E">(meta, </span><span style="--0:#9ECBFF;--1:#032F62">"</span><span style="--0:#79B8FF;--1:#005CC5">\t</span><span style="--0:#9ECBFF;--1:#032F62">"</span><span style="--0:#E1E4E8;--1:#24292E">))</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">f.</span><span style="--0:#B392F0;--1:#6F42C1">close</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">write_thumb</span><span style="--0:#E1E4E8;--1:#24292E">(slot: </span><span style="--0:#B392F0;--1:#6F42C1">int</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> img </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_viewport</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">get_texture</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">get_image</span><span style="--0:#E1E4E8;--1:#24292E">()   </span><span style="--0:#99A0A6;--1:#616972"># last rendered frame</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">img.</span><span style="--0:#B392F0;--1:#6F42C1">resize</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">320</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">180</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">img.</span><span style="--0:#B392F0;--1:#6F42C1">save_png</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">slot_dir</span><span style="--0:#E1E4E8;--1:#24292E">(slot) </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"/thumb.png"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">list_slots</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Array</span><span style="--0:#E1E4E8;--1:#24292E">:                               </span><span style="--0:#99A0A6;--1:#616972"># for the load screen</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">DirAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">dir_exists_absolute</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"user://saves"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> []</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Array</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">DirAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_directories_at</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"user://saves"</span><span style="--0:#E1E4E8;--1:#24292E">)).</span><span style="--0:#B392F0;--1:#6F42C1">filter</span><span style="--0:#E1E4E8;--1:#24292E">(</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E">(n): </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> n.</span><span style="--0:#B392F0;--1:#6F42C1">begins_with</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"slot_"</span><span style="--0:#E1E4E8;--1:#24292E">))</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Build the menu from the tiny meta files alone (sort by <code>unix</code> for “most recent”); the full
+slot loads only on click.</p>
+<h2 id="async-and-threaded-saves">Async and threaded saves<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#async-and-threaded-saves">#</a></h2>
+<p>Most saves are a small Dictionary that finishes <strong>sub-frame</strong>, so write them synchronously.
+<strong>Don’t thread until a save visibly hitches</strong> (large worlds, thumbnail encode, big blobs):</p>
+<ul>
+<li>
+<strong><code>WorkerThreadPool</code></strong> runs the write off the main thread. <code>add_task</code> returns an id; poll
+<code>is_task_completed</code>, then <code>wait_for_task_completion</code> to reclaim it (required, even when done).
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">save_async</span><span style="--0:#E1E4E8;--1:#24292E">(path: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">, text: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">_task_id </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">WorkerThreadPool</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">add_task</span><span style="--0:#E1E4E8;--1:#24292E">(_write_worker.</span><span style="--0:#B392F0;--1:#6F42C1">bind</span><span style="--0:#E1E4E8;--1:#24292E">(path, text), </span><span style="--0:#79B8FF;--1:#005CC5">false</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"save"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_write_worker</span><span style="--0:#E1E4E8;--1:#24292E">(path: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">, text: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> f </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">FileAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">open</span><span style="--0:#E1E4E8;--1:#24292E">(path, </span><span style="--0:#B392F0;--1:#6F42C1">FileAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">WRITE</span><span style="--0:#E1E4E8;--1:#24292E">); f.</span><span style="--0:#B392F0;--1:#6F42C1">store_string</span><span style="--0:#E1E4E8;--1:#24292E">(text); f.</span><span style="--0:#B392F0;--1:#6F42C1">close</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_process</span><span style="--0:#E1E4E8;--1:#24292E">(_dt) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> _task_id </span><span style="--0:#F97583;--1:#BF3441">!=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#79B8FF;--1:#005CC5">1</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">and</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">WorkerThreadPool</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">is_task_completed</span><span style="--0:#E1E4E8;--1:#24292E">(_task_id):</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">WorkerThreadPool</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">wait_for_task_completion</span><span style="--0:#E1E4E8;--1:#24292E">(_task_id); _task_id </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#79B8FF;--1:#005CC5">1</span><span style="--0:#E1E4E8;--1:#24292E">; saved.</span><span style="--0:#B392F0;--1:#6F42C1">emit</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<strong>Build the snapshot on the main thread</strong>, hand the worker only plain data (the serialized
+string / a duplicated dict). Never touch the scene tree from a worker.</li>
+<li>
+<strong>Simpler alternative: <code>call_deferred</code> + chunking</strong>. Serialize a slice per idle callback so no
+single frame does all the work, with no thread and no data-race surface. Enough for
+big-but-not-huge.</li>
+</ul>
+<h2 id="autosave-and-crash-safe-writes">Autosave and crash-safe writes<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#autosave-and-crash-safe-writes">#</a></h2>
+<ul>
+<li>
+<strong>Trigger on checkpoints, plus a low-frequency timer</strong> (a <code>Timer</code> node firing every ~120 s).
+<strong>Never autosave mid-combat</strong>: a save that captures a half-resolved fight reloads broken, so
+gate it (<code>if _in_combat: return</code>) and let the next checkpoint catch it.</li>
+<li>
+<strong>Write atomically: temp then rename</strong>. A crash <em>during</em> a write leaves a truncated, wiped
+slot. Write to <code>save.json.tmp</code>, <code>close()</code>, then <code>DirAccess.rename_absolute(tmp, final)</code>. The
+rename is atomic on every desktop filesystem, so the slot is only ever the last <em>complete</em>
+write. Keep a <code>.bak</code> of the prior slot too (as the other two docs’ headers do).</li>
+</ul>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">write_atomic</span><span style="--0:#E1E4E8;--1:#24292E">(path: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">, text: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> tmp </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> path </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">".tmp"</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> f </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">FileAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">open</span><span style="--0:#E1E4E8;--1:#24292E">(tmp, </span><span style="--0:#B392F0;--1:#6F42C1">FileAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">WRITE</span><span style="--0:#E1E4E8;--1:#24292E">); f.</span><span style="--0:#B392F0;--1:#6F42C1">store_string</span><span style="--0:#E1E4E8;--1:#24292E">(text); f.</span><span style="--0:#B392F0;--1:#6F42C1">close</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">DirAccess</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">rename_absolute</span><span style="--0:#E1E4E8;--1:#24292E">(tmp, path)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="verify-by-driving-prove-the-round-trip-in-a-playing-game">Verify by driving (prove the round-trip in a playing game)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#verify-by-driving-prove-the-round-trip-in-a-playing-game">#</a></h2>
+<p>A save that returns <code>OK</code> is not a save that <em>round-trips</em>. Prove it against the live game:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene play --mode main</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime eval --code 'SaveManager.save_to_slot(0); emit(FileAccess.file_exists("user://saves/slot_0/save.json"))'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime set --node-path Player --property position --value "Vector2(999,999)"   # corrupt live state</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime eval --code 'SaveManager.load_from_slot(0); emit(get_node("Player").position)'   # expect the SAVED pos, not 999</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene stop</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The load must restore the <em>saved</em> position, not the corrupted one, which proves the write,
+format, and <code>load_state</code> agree. Extend it: kill an enemy, save, reload, confirm it stays dead; bump
+<code>version</code>, reload an old slot, confirm <code>migrate</code> ran. <code>runtime eval</code> runs in the game’s own
+process, so it reads the real <code>user://</code> and autoloads, not the editor’s.</p>
+<h2 id="common-mistakes">Common mistakes<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#common-mistakes">#</a></h2>
+<ul>
+<li>
+<strong>Floats/Vectors through raw JSON</strong>. Use serialize helpers, <code>JSON.from_native</code>, or <code>var_to_str</code>.</li>
+<li>
+<strong><code>load()</code>ing an untrusted Resource save</strong> runs embedded scripts; use JSON / <code>store_var(..., false)</code>.</li>
+<li>
+<strong>Saving node references</strong>. Save <em>data</em> (path, id, scene string) and rebuild the node on load.</li>
+<li>
+<strong>Patching state without spawn records</strong>: freed/spawned nodes desync; store <code>scene</code> + <code>parent</code>.</li>
+<li>
+<strong>No <code>version</code> field</strong>, so the first format change orphans every existing save.</li>
+<li>
+<strong>Non-atomic writes</strong>. A crash mid-write corrupts the slot. Temp-then-rename, keep a <code>.bak</code>.</li>
+<li>
+<strong>Autosaving mid-combat</strong>, or threading a save that was already sub-frame. Risk, no win.</li>
+<li>
+<strong>Trusting remembered API signatures</strong>. Confirm against the running engine with <code>engine class-info</code>/<code>search</code>.</li>
+</ul>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/shaders-vfx" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Shaders and VFX</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/multiplayer-patterns" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Multiplayer</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#what-to-save-authoritative-state-not-derived-state" data-toc="what-to-save-authoritative-state-not-derived-state" data-scope-p33bl5ka>What to save: authoritative state, not derived state</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-collector-pattern-the-flagship" data-toc="the-collector-pattern-the-flagship" data-scope-p33bl5ka>The collector pattern (the flagship)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#format-tradeoffs-pick-per-need-honestly" data-toc="format-tradeoffs-pick-per-need-honestly" data-scope-p33bl5ka>Format tradeoffs (pick per need, honestly)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#encrypting-a-save-vs-validating-one" data-toc="encrypting-a-save-vs-validating-one" data-scope-p33bl5ka>Encrypting a save vs validating one</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#versioning-and-migration" data-toc="versioning-and-migration" data-scope-p33bl5ka>Versioning and migration</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#slots-and-metadata" data-toc="slots-and-metadata" data-scope-p33bl5ka>Slots and metadata</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#async-and-threaded-saves" data-toc="async-and-threaded-saves" data-scope-p33bl5ka>Async and threaded saves</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#autosave-and-crash-safe-writes" data-toc="autosave-and-crash-safe-writes" data-scope-p33bl5ka>Autosave and crash-safe writes</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#verify-by-driving-prove-the-round-trip-in-a-playing-game" data-toc="verify-by-driving-prove-the-round-trip-in-a-playing-game" data-scope-p33bl5ka>Verify by driving (prove the round-trip in a playing game)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#common-mistakes" data-toc="common-mistakes" data-scope-p33bl5ka>Common mistakes</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

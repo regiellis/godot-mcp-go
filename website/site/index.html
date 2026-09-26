@@ -1,0 +1,371 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Swallowtail · Godot automation. Your game. Your workflow.</title><meta name="description" content="An automation toolkit for Godot. Inspect scenes, edit projects, run checks, and playtest from your terminal, scripts, or agents. CLI first; MCP optional.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Swallowtail · Godot automation. Your game. Your workflow.">
+<meta property="og:description" content="An automation toolkit for Godot. Inspect scenes, edit projects, run checks, and playtest from your terminal, scripts, or agents. CLI first; MCP optional.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/home.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<main id="main">
+<section class="st-hero st-wrap">
+<div class="st-hero-copy">
+<p class="st-eyebrow">AUTOMATION FOR GODOT</p>
+<h1>Swallowtail<span>At your service.</span></h1>
+<p class="st-lede">Build, inspect, and playtest your game. Put the repetitive work in a script. Keep the creative decisions yours.</p>
+<p class="st-audience">Your game. Your workflow.</p>
+<div class="st-actions">
+<a class="st-button" href="/godot-mcp-go/docs/quickstart">Start building <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a><a class="st-link" href="https://github.com/regiellis/godot-mcp-go">Explore the source <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a></div>
+<p class="st-command-note">Run <code>swallowtail</code> from your terminal. <a href="/godot-mcp-go/docs/migration">Upgrading from godot-mcp?</a></p>
+<p class="st-requirements">Windows, macOS, Linux · Godot 4.7 target<br>Godot 4.3 through 4.8 compatibility in beta · <a href="/godot-mcp-go/docs/installation">Installation &amp; requirements</a></p>
+</div>
+<div class="st-hero-stage">
+<div class="st-hero-terminal">
+<div class="term" data-scope-kenkipkp>
+<div class="term-bar" data-scope-kenkipkp>
+<span class="term-dots" data-scope-kenkipkp><i data-scope-kenkipkp></i><i data-scope-kenkipkp></i><i data-scope-kenkipkp></i></span><span class="term-title" data-scope-kenkipkp>your project · your terminal</span></div>
+<pre class="term-body" data-scope-kenkipkp><code data-scope-kenkipkp><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail scene tree
+</span><span class="tl out" data-scope-kenkipkp>Hello (Node2D) .
+</span><span class="tl out" data-scope-kenkipkp>└─ Greeting (Label) Greeting
+</span><span class="tl out" data-scope-kenkipkp>
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail check .
+</span></code></pre></div>
+</div>
+<button type="button" class="mascot-trigger st-hero-mascot" data-mascot-topic="anime" data-pose="hero" aria-label="Let Swallowtail tell you about butlers in anime" aria-controls="mascot-bubble" aria-expanded="false" aria-haspopup="dialog" data-scope-nc4tnjkm><img src="/godot-mcp-go/brand/swallowtail-presenting.png" width="1024" height="1536" alt="" loading="eager" fetchpriority="high" decoding="async" data-scope-nc4tnjkm><span class="mascot-invitation" aria-hidden="true" data-scope-nc4tnjkm><span data-scope-nc4tnjkm>•••</span><span class="mascot-invitation-copy" data-scope-nc4tnjkm>A little story?</span></span></button></div>
+</section>
+<section class="st-band">
+<div class="st-wrap st-showcase" data-workflow-showcase data-scope-mlc5jbab>
+<div class="sc-intro" data-scope-mlc5jbab>
+<h2 data-scope-mlc5jbab>Same toolkit.<br data-scope-mlc5jbab>Your way of working.</h2>
+<div class="sc-tabs" role="tablist" aria-label="Ways to work with Swallowtail" aria-orientation="vertical" data-scope-mlc5jbab>
+<div class="sc-tab-item" role="presentation" data-selected data-scope-mlc5jbab>
+<span class="sc-progress" aria-hidden="true" data-scope-mlc5jbab><span class="sc-progress-fill" data-scope-mlc5jbab></span></span><button type="button" class="sc-tab" role="tab" id="sc-tab-0" aria-controls="sc-panel-0" aria-selected="true" tabindex="0" data-scope-mlc5jbab><span class="sc-tab-title" data-scope-mlc5jbab>Run commands</span><span class="sc-tab-desc" data-scope-mlc5jbab>Inspect the open scene, change a property, check the result. The editor answers from your terminal.</span></button><a class="sc-tab-link" href="/godot-mcp-go/docs/quickstart" data-scope-mlc5jbab>Start with the quickstart <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+<div class="sc-tab-item" role="presentation" data-scope-mlc5jbab>
+<span class="sc-progress" aria-hidden="true" data-scope-mlc5jbab><span class="sc-progress-fill" data-scope-mlc5jbab></span></span><button type="button" class="sc-tab" role="tab" id="sc-tab-1" aria-controls="sc-panel-1" aria-selected="false" tabindex="-1" data-scope-mlc5jbab><span class="sc-tab-title" data-scope-mlc5jbab>Automate</span><span class="sc-tab-desc" data-scope-mlc5jbab>Save a plan, run it, check every result. JSON in, JSON out, exit codes you can build on.</span></button><a class="sc-tab-link" href="/godot-mcp-go/docs/automation#run-a-command-plan" data-scope-mlc5jbab>Scripting and CI <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+<div class="sc-tab-item" role="presentation" data-scope-mlc5jbab>
+<span class="sc-progress" aria-hidden="true" data-scope-mlc5jbab><span class="sc-progress-fill" data-scope-mlc5jbab></span></span><button type="button" class="sc-tab" role="tab" id="sc-tab-2" aria-controls="sc-panel-2" aria-selected="false" tabindex="-1" data-scope-mlc5jbab><span class="sc-tab-title" data-scope-mlc5jbab>Custom commands</span><span class="sc-tab-desc" data-scope-mlc5jbab>Add project commands in GDScript. They show up in the CLI, in help, and as MCP tools.</span></button><a class="sc-tab-link" href="/godot-mcp-go/docs/extending" data-scope-mlc5jbab>Add your own commands <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+<div class="sc-tab-item" role="presentation" data-scope-mlc5jbab>
+<span class="sc-progress" aria-hidden="true" data-scope-mlc5jbab><span class="sc-progress-fill" data-scope-mlc5jbab></span></span><button type="button" class="sc-tab" role="tab" id="sc-tab-3" aria-controls="sc-panel-3" aria-selected="false" tabindex="-1" data-scope-mlc5jbab><span class="sc-tab-title" data-scope-mlc5jbab>Connect tools</span><span class="sc-tab-desc" data-scope-mlc5jbab>Point an agent or an MCP client at the same commands. You choose the client, the task, and what to keep.</span></button><a class="sc-tab-link" href="/godot-mcp-go/docs/mcp-setup" data-scope-mlc5jbab>Use with an AI client <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+</div>
+</div>
+<div class="sc-stage" data-scope-mlc5jbab>
+<div class="sc-panel" role="tabpanel" id="sc-panel-0" aria-labelledby="sc-tab-0" tabindex="0" data-active data-scope-mlc5jbab>
+<div class="term" data-scope-kenkipkp>
+<div class="term-bar" data-scope-kenkipkp>
+<span class="term-dots" data-scope-kenkipkp><i data-scope-kenkipkp></i><i data-scope-kenkipkp></i><i data-scope-kenkipkp></i></span><span class="term-title" data-scope-kenkipkp>your project · your terminal</span></div>
+<pre class="term-body" data-scope-kenkipkp><code data-scope-kenkipkp><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail scene tree
+</span><span class="tl out" data-scope-kenkipkp>Player (CharacterBody2D) .
+</span><span class="tl out" data-scope-kenkipkp>├─ Col (CollisionShape2D) Col
+</span><span class="tl out" data-scope-kenkipkp>└─ Body (ColorRect) Body
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail node add --type Camera2D --name Cam --parent Player
+</span><span class="tl out" data-scope-kenkipkp>╭─ node.add ───────────╮
+</span><span class="tl out" data-scope-kenkipkp>  index      2
+</span><span class="tl out" data-scope-kenkipkp>  name       Cam
+</span><span class="tl out" data-scope-kenkipkp>  node_path  Cam
+</span><span class="tl out" data-scope-kenkipkp>  type       Camera2D
+</span><span class="tl out" data-scope-kenkipkp>╰──────────────────────╯
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail node set --node-path Player/Cam --property zoom --value &quot;Vector2(2, 2)&quot;
+</span><span class="tl out" data-scope-kenkipkp>╭─ node.set ──────────────────────────────╮
+</span><span class="tl out" data-scope-kenkipkp>  new_value   {&quot;x&quot;:2.0,&quot;y&quot;:2.0}
+</span><span class="tl out" data-scope-kenkipkp>  node        Cam
+</span><span class="tl out" data-scope-kenkipkp>  old_value   {&quot;x&quot;:1.0,&quot;y&quot;:1.0}
+</span><span class="tl out" data-scope-kenkipkp>  property    zoom
+</span><span class="tl out" data-scope-kenkipkp>╰─────────────────────────────────────────╯
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail scene save
+</span><span class="tl out" data-scope-kenkipkp>╭─ scene.save ────────────────────────╮
+</span><span class="tl out" data-scope-kenkipkp>  path    res://player.tscn
+</span><span class="tl out" data-scope-kenkipkp>  saved   true
+</span><span class="tl out" data-scope-kenkipkp>╰─────────────────────────────────────╯
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail scene tree
+</span><span class="tl out" data-scope-kenkipkp>Player (CharacterBody2D) .
+</span><span class="tl out" data-scope-kenkipkp>├─ Col (CollisionShape2D) Col
+</span><span class="tl out" data-scope-kenkipkp>├─ Body (ColorRect) Body
+</span><span class="tl out" data-scope-kenkipkp>└─ Cam (Camera2D) Cam
+</span></code></pre></div>
+</div>
+<div class="sc-panel" role="tabpanel" id="sc-panel-1" aria-labelledby="sc-tab-1" tabindex="0" data-scope-mlc5jbab>
+<div class="term" data-scope-kenkipkp>
+<div class="term-bar" data-scope-kenkipkp>
+<span class="term-dots" data-scope-kenkipkp><i data-scope-kenkipkp></i><i data-scope-kenkipkp></i><i data-scope-kenkipkp></i></span><span class="term-title" data-scope-kenkipkp>your project · your terminal</span></div>
+<pre class="term-body" data-scope-kenkipkp><code data-scope-kenkipkp><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>cat plan.json
+</span><span class="tl out" data-scope-kenkipkp>{&quot;steps&quot;: [
+</span><span class="tl out" data-scope-kenkipkp>  {&quot;method&quot;: &quot;engine.version&quot;, &quot;expect&quot;: {&quot;/version/major&quot;: 4}},
+</span><span class="tl out" data-scope-kenkipkp>  {&quot;method&quot;: &quot;scene.validate&quot;, &quot;params&quot;: {&quot;path&quot;: &quot;res://player.tscn&quot;},
+</span><span class="tl out" data-scope-kenkipkp>   &quot;expect&quot;: {&quot;/valid&quot;: true}},
+</span><span class="tl out" data-scope-kenkipkp>  {&quot;method&quot;: &quot;script.validate&quot;, &quot;params&quot;: {&quot;path&quot;: &quot;res://player.gd&quot;},
+</span><span class="tl out" data-scope-kenkipkp>   &quot;expect&quot;: {&quot;/valid&quot;: true}},
+</span><span class="tl out" data-scope-kenkipkp>  {&quot;method&quot;: &quot;project.info&quot;, &quot;expect&quot;: {&quot;/godot_version/minor&quot;: 7}}
+</span><span class="tl out" data-scope-kenkipkp>]}
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail automate --file plan.json | jq -r &#39;.steps[] | [.status, .method] | @tsv&#39;
+</span><span class="tl out" data-scope-kenkipkp>passed	engine.version
+</span><span class="tl out" data-scope-kenkipkp>passed	scene.validate
+</span><span class="tl out" data-scope-kenkipkp>passed	script.validate
+</span><span class="tl out" data-scope-kenkipkp>passed	project.info
+</span><span class="tl comment" data-scope-kenkipkp># a wrong expectation stops the plan, and the exit code says so
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail automate --file strict.json &gt; report.json; echo $?
+</span><span class="tl out" data-scope-kenkipkp>1
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>jq -c &#39;.steps[] | {method, status, error: .error.kind}&#39; report.json
+</span><span class="tl out" data-scope-kenkipkp>{&quot;method&quot;:&quot;scene.validate&quot;,&quot;status&quot;:&quot;failed&quot;,&quot;error&quot;:&quot;assertion&quot;}
+</span><span class="tl out" data-scope-kenkipkp>{&quot;method&quot;:&quot;scene.save&quot;,&quot;status&quot;:&quot;skipped&quot;,&quot;error&quot;:null}
+</span></code></pre></div>
+</div>
+<div class="sc-panel" role="tabpanel" id="sc-panel-2" aria-labelledby="sc-tab-2" tabindex="0" data-scope-mlc5jbab>
+<div class="term" data-scope-kenkipkp>
+<div class="term-bar" data-scope-kenkipkp>
+<span class="term-dots" data-scope-kenkipkp><i data-scope-kenkipkp></i><i data-scope-kenkipkp></i><i data-scope-kenkipkp></i></span><span class="term-title" data-scope-kenkipkp>your project · your terminal</span></div>
+<pre class="term-body" data-scope-kenkipkp><code data-scope-kenkipkp><span class="tl comment" data-scope-kenkipkp># two files in res://mcp_commands/ add four project commands
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail custom --help
+</span><span class="tl out" data-scope-kenkipkp>swallowtail custom: 4 commands (addon catalog):
+</span><span class="tl out" data-scope-kenkipkp>
+</span><span class="tl out" data-scope-kenkipkp>  broken_refs  Report res:// paths and uid:// ids that no longer resolve.
+</span><span class="tl out" data-scope-kenkipkp>  echo         Echo --message back to the caller.
+</span><span class="tl out" data-scope-kenkipkp>  ping         Health check: returns {pong: true}.
+</span><span class="tl out" data-scope-kenkipkp>  replace_ref  Repoint every reference from one resource to another, uid included.
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail custom broken-refs --help
+</span><span class="tl out" data-scope-kenkipkp>Params:
+</span><span class="tl out" data-scope-kenkipkp>  --path            String  optional  Directory to scan (default res://).
+</span><span class="tl out" data-scope-kenkipkp>  --include-addons  bool    optional  Scan addons/ too (default false).
+</span><span class="tl out" data-scope-kenkipkp>  --limit           int     optional  Max findings per list (default 200).
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail custom broken-refs
+</span><span class="tl out" data-scope-kenkipkp>╭─ custom.broken_refs ──────────────────────────────────╮
+</span><span class="tl out" data-scope-kenkipkp>  broken         []
+</span><span class="tl out" data-scope-kenkipkp>  broken_count   0
+</span><span class="tl out" data-scope-kenkipkp>  checked_refs   27
+</span><span class="tl out" data-scope-kenkipkp>  dynamic_count  1
+</span><span class="tl out" data-scope-kenkipkp>  scanned_files  10
+</span><span class="tl out" data-scope-kenkipkp>  truncated      false
+</span><span class="tl out" data-scope-kenkipkp>╰───────────────────────────────────────────────────────╯
+</span><span class="tl comment" data-scope-kenkipkp># the same command is an MCP tool, schema included
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail engine commands --group custom | jq &#39;.count&#39;
+</span><span class="tl out" data-scope-kenkipkp>4
+</span></code></pre></div>
+</div>
+<div class="sc-panel" role="tabpanel" id="sc-panel-3" aria-labelledby="sc-tab-3" tabindex="0" data-scope-mlc5jbab>
+<div class="term" data-scope-kenkipkp>
+<div class="term-bar" data-scope-kenkipkp>
+<span class="term-dots" data-scope-kenkipkp><i data-scope-kenkipkp></i><i data-scope-kenkipkp></i><i data-scope-kenkipkp></i></span><span class="term-title" data-scope-kenkipkp>your project · your terminal</span></div>
+<pre class="term-body" data-scope-kenkipkp><code data-scope-kenkipkp><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail status | jq -c &#39;{verdict, port, project_match}&#39;
+</span><span class="tl out" data-scope-kenkipkp>{&quot;verdict&quot;:&quot;running&quot;,&quot;port&quot;:9080,&quot;project_match&quot;:true}
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>swallowtail configure claude --project . --print
+</span><span class="tl out" data-scope-kenkipkp>Would write to: /games/my-game/.mcp.json
+</span><span class="tl out" data-scope-kenkipkp>
+</span><span class="tl out" data-scope-kenkipkp>{
+</span><span class="tl out" data-scope-kenkipkp>  &quot;mcpServers&quot;: {
+</span><span class="tl out" data-scope-kenkipkp>    &quot;swallowtail&quot;: {
+</span><span class="tl out" data-scope-kenkipkp>      &quot;command&quot;: &quot;swallowtail&quot;,
+</span><span class="tl out" data-scope-kenkipkp>      &quot;args&quot;: [&quot;serve&quot;, &quot;--project&quot;, &quot;/games/my-game&quot;]
+</span><span class="tl out" data-scope-kenkipkp>    }
+</span><span class="tl out" data-scope-kenkipkp>  }
+</span><span class="tl out" data-scope-kenkipkp>}
+</span><span class="tl comment" data-scope-kenkipkp># or skip the process: the editor hosts an MCP endpoint itself
+</span><span class="tl cmd" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>$ </span>curl -s -X POST http://127.0.0.1:9100/mcp -H &#39;Content-Type: application/json&#39; \
+</span><span class="tl cont" data-scope-kenkipkp><span class="prompt" data-scope-kenkipkp>&gt; </span>  -d &#39;{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quot;:&quot;tools/list&quot;}&#39; | jq &#39;.result.tools | length&#39;
+</span><span class="tl out" data-scope-kenkipkp>337
+</span></code></pre></div>
+</div>
+</div>
+</div>
+<script type="module" src="/godot-mcp-go/assets/workflow-showcase.js"></script></section>
+<section class="st-wrap st-prebuild" aria-labelledby="prebuild-heading">
+<div>
+<p class="st-eyebrow">PUT IT TO WORK</p>
+<h2 id="prebuild-heading">Before your next build.</h2>
+<p>Check your scripts, validate a saved scene, and inspect errors from a short playtest. Keep the commands with your project so you can repeat the checks after a change.</p>
+<p class="st-footnote">Try this from the <a href="/godot-mcp-go/docs/quickstart">quickstart project</a>, with its editor open and the addon enabled. Use your own saved scene path when you adapt it.</p>
+<a class="st-text-link" href="/godot-mcp-go/docs/automation">Turn it into a CI check <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+<div class="st-prebuild-code">
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame is-terminal has-title"><figcaption class="header"><span class="title">Run from your project directory</span></figcaption><pre data-language="sh"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">check</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">scene</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">validate</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">res://hello.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">scene</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">play</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--mode</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">res://hello.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">runtime</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">errors</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">scene</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">stop</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p class="st-footnote">Read the validation results and returned error list before exporting. This sequence inspects a playtest; a CI gate also needs assertions and failure handling.</p>
+</div>
+</section>
+<section class="st-band st-mascot-divider">
+<div class="st-wrap st-mascot-rail">
+<button type="button" class="mascot-trigger st-mascot-sitting" data-mascot-topic="nature" data-pose="sitting" aria-label="Let Swallowtail tell you about swallowtails &amp; japanese crests" aria-controls="mascot-bubble" aria-expanded="false" aria-haspopup="dialog" data-scope-nc4tnjkm><img src="/godot-mcp-go/brand/swallowtail-sitting.png?v=matte" width="1024" height="1536" alt="" loading="lazy" fetchpriority="auto" decoding="async" data-scope-nc4tnjkm><span class="mascot-invitation" aria-hidden="true" data-scope-nc4tnjkm><span data-scope-nc4tnjkm>•••</span><span class="mascot-invitation-copy" data-scope-nc4tnjkm>A little story?</span></span></button></div>
+<div class="st-wrap st-interfaces">
+<div>
+<h2>CLI first.<br>MCP when you want it.</h2>
+<p>MCP is a connection option. The automation toolkit works without it.</p>
+</div>
+<div class="st-interface-list">
+<article>
+<h3>Use the CLI</h3>
+<p>Run commands from your terminal, reuse them in scripts, or add them to CI. Read the results directly, or pipe JSON into your next step.</p>
+<a href="/godot-mcp-go/docs/commands">Command reference <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></article>
+<article>
+<h3>Connect through MCP</h3>
+<p>For clients that use MCP, expose the same command handlers through stdio or the editor's HTTP endpoint. Configure this only if your workflow needs it.</p>
+<a href="/godot-mcp-go/docs/mcp-setup">Optional MCP setup <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></article>
+</div>
+</div>
+</section>
+<section class="st-band">
+<div class="st-wrap st-ownership" aria-labelledby="ownership-heading">
+<div>
+<p class="st-eyebrow">KEEP CONTROL OF YOUR WORK</p>
+<h2 id="ownership-heading">Your project stays yours.</h2>
+<p>Work with ordinary Godot scenes, scripts, and resources. Open them in the editor, review the changes in Git, and keep building with the tools you choose.</p>
+</div>
+<div class="st-ownership-details">
+<article>
+<h3>Inspect what changes</h3>
+<p>Your scenes, scripts, and resources remain project files you can read, edit, and version.</p>
+</article>
+<article>
+<h3>Undo supported scene edits</h3>
+<p>Supported scene operations use Godot's editor undo history. Script execution and file changes need their own review and recovery.</p>
+</article>
+<article>
+<h3>Keep a checkpoint</h3>
+<p>Save your work and commit a known working state before broad changes. Review the diff and test the result before keeping it.</p>
+</article>
+</div>
+</div>
+</section>
+<section class="st-wrap st-engine" aria-labelledby="engine-heading">
+<div class="st-section-intro">
+<h2 id="engine-heading">Godot already has a CLI.<br>Swallowtail works with it.</h2>
+<p>Godot's built-in command line launches the engine and handles tasks such as imports, scripts, and exports. Swallowtail uses your Godot installation for those jobs and adds an interface to the editor session you already have open.</p>
+</div>
+<div class="st-engine-rows">
+<article>
+<h3>Start with the engine</h3>
+<p>Import assets, check scripts, run tests, and export builds through commands that invoke Godot and report the result.</p>
+<code>swallowtail check .</code></article>
+<article>
+<h3>Work in the live editor</h3>
+<p>Inspect the scene tree, change node properties, and validate saved scenes. Read state back as you work.</p>
+<code>swallowtail scene tree</code></article>
+<article>
+<h3>See what the game does</h3>
+<p>Play a scene, inspect runtime properties, send input, and check errors. Verify behavior in the running game.</p>
+<code>swallowtail runtime tree</code></article>
+</div>
+<p class="st-footnote">Swallowtail uses an installed Godot engine; it does not bundle one. <a href="https://docs.godotengine.org/en/stable/tutorials/editor/command_line_tutorial.html">Godot's command-line reference</a> · <a href="/godot-mcp-go/docs/how-it-works">How Swallowtail works</a></p>
+</section>
+<section class="st-wrap st-comparison" aria-labelledby="comparison-heading">
+<p class="st-eyebrow">HOW IT COMPARES</p>
+<h2 id="comparison-heading">Swallowtail next to<br>Godot AI and Godot MCP Native.</h2>
+<p class="st-comparison-intro">What each tool documents: how you start, what you set up, and what you can run from a terminal, a script, or an MCP client. Sources and the comparison date sit under the table.</p>
+<div class="st-table-scroll" role="region" aria-label="Tool comparison" tabindex="0">
+<table>
+<caption>Choose the workflow that fits your project.</caption><thead>
+<tr>
+<th scope="col">What you need</th><th scope="col">Swallowtail</th><th scope="col">Godot AI</th><th scope="col">Godot MCP Native</th></tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">Starting point</th><td><strong>Standalone automation CLI + editor addon</strong></td><td>MCP integration for the editor</td><td>MCP editor addon + companion CLI</td></tr>
+<tr>
+<th scope="row">Run from your terminal</th><td>Use <code>swallowtail</code> directly, without MCP</td><td>Documented setup uses <code>godot-ai attach</code> to connect an MCP client</td><td>Use <code>gdmcp</code> through its separate local CLI API</td></tr>
+<tr>
+<th scope="row">Use without an AI agent</th><td><strong>Yes.</strong> The CLI and scripts need no agent, model, or account</td><td>Its requirements list an MCP client; every documented workflow runs through one</td><td>Yes, through its <code>gdmcp</code> CLI, which the docs present for agents with shell access</td></tr>
+<tr>
+<th scope="row">Set up the connection</th><td>Go binary + Godot addon for live commands</td><td>Python server via uv + Godot plugin + MCP client</td><td>Godot addon; prebuilt CLI for terminal use</td></tr>
+<tr>
+<th scope="row">Automate a workflow</th><td>Create projects, import, check, test, export, and operate the live editor</td><td>Edit scenes and scripts, run projects and test suites through MCP tools</td><td>Discover tools, run domain commands, and preview or apply command batches</td></tr>
+<tr>
+<th scope="row">Inspect a playtest</th><td>Runtime state, input, captures, breakpoints, stepping, and hot reload</td><td>Game state, input sequences, screenshots, and error logs</td><td>Runtime probe, breakpoints, stack and variable inspection, and execution control</td></tr>
+<tr>
+<th scope="row">Connect an MCP client</th><td>Optional stdio or editor-hosted HTTP interface</td><td>Documented primary workflow</td><td>MCP interface alongside the separate CLI API</td></tr>
+</tbody>
+</table>
+</div>
+<p class="st-footnote">Compared against the published documentation on September 7, 2026: <a href="https://github.com/hi-godot/godot-ai">Godot AI</a>, <a href="https://github.com/hi-godot/godot-ai/blob/main/docs/TOOLS.md">its tool reference</a>, <a href="https://github.com/yurineko73/Godot-MCP-Native">Godot MCP Native</a>, and <a href="https://github.com/yurineko73/Godot-MCP-Native/tree/main/cli/gdmcp">its CLI reference</a>. This summarizes documented workflows, not an exhaustive feature audit.</p>
+</section>
+<section class="st-wrap st-story" aria-labelledby="story-heading">
+<div>
+<p class="st-eyebrow">WHY THIS PROJECT EXISTS</p>
+<h2 id="story-heading">I just wanted<br>to build games.</h2>
+<p class="st-story-aside">For my son.<br>For myself.</p>
+</div>
+<div class="st-story-copy">
+<p>After twenty years as a programmer, I wanted to spend more time making games. I don't have the budget to hire a team for every idea, and I don't want to spend ten years on a project at the expense of my health or my family.</p>
+<p>What I wanted was a toolkit that lets me work the way I want on any given day, and that includes using AI as one of the tools. Some days that is a terminal and a script I can run again. Some days it is an agent driving the editor while I review what it changed. Swallowtail gives both the same commands, so the choice stays mine at every step between an idea and something you can actually play.</p>
+<p>I understand the concerns about this technology. You don't have to agree with my choices, and I respect that. I'm here to make games and share a tool, not to fight. Questions and criticism are welcome. Bullying and personal attacks aren't.</p>
+<a class="st-text-link" href="/godot-mcp-go/docs/on-ai">The full note on AI and this project <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+</section>
+<section class="st-band st-start st-mascot-finale">
+<button type="button" class="mascot-trigger st-mascot-peeking" data-mascot-topic="culture" data-pose="peeking" aria-label="Let Swallowtail tell you about cafés, tailoring &amp; japan" aria-controls="mascot-bubble" aria-expanded="false" aria-haspopup="dialog" data-scope-nc4tnjkm><img src="/godot-mcp-go/brand/swallowtail-peeking.png" width="1536" height="1024" alt="" loading="lazy" fetchpriority="auto" decoding="async" data-scope-nc4tnjkm><span class="mascot-invitation" aria-hidden="true" data-scope-nc4tnjkm><span data-scope-nc4tnjkm>•••</span><span class="mascot-invitation-copy" data-scope-nc4tnjkm>A little story?</span></span></button><div class="st-wrap">
+<h2>There's a game you want to make.</h2>
+<p>Start with a scene. Build from there.</p>
+<a class="st-button" href="/godot-mcp-go/docs/quickstart">Meet the toolkit <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a></div>
+</section>
+</main>
+<aside id="mascot-bubble" class="mascot-bubble" role="dialog" aria-modal="false" aria-labelledby="mascot-story-title" hidden data-scope-aaoyelig>
+<div class="mascot-bubble-inner" data-scope-aaoyelig>
+<button type="button" class="mascot-close" aria-label="Close Swallowtail’s story" data-scope-aaoyelig>×</button><div aria-live="polite" aria-atomic="true" data-scope-aaoyelig>
+<p class="mascot-topic" data-scope-aaoyelig></p>
+<h2 id="mascot-story-title" tabindex="-1" data-scope-aaoyelig></h2>
+<p class="mascot-story-text" data-scope-aaoyelig></p>
+</div>
+<a class="mascot-story-source" target="_blank" rel="noopener noreferrer" data-scope-aaoyelig></a><div class="mascot-story-footer" data-scope-aaoyelig>
+<span class="mascot-story-count" data-scope-aaoyelig></span><button class="mascot-next" type="button" data-scope-aaoyelig>Another story <span aria-hidden="true" data-scope-aaoyelig>→</span></button></div>
+<p class="mascot-story-hint" data-scope-aaoyelig>Click me again for another, or meet the other mascots.</p>
+</div>
+</aside>
+<script type="module" src="/godot-mcp-go/assets/mascot-stories.js"></script><footer class="st-wrap st-footer">
+<span>Swallowtail · MIT licensed</span><a href="https://github.com/regiellis/godot-mcp-go">Source</a><a href="/godot-mcp-go/docs/on-ai">About the project</a><a href="/godot-mcp-go/docs/changelog">Changelog</a></footer>
+</body>
+</html>

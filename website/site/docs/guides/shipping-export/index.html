@@ -1,0 +1,738 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shipping and export · Swallowtail</title><meta name="description" content="The release pipeline across desktop, Android, web, macOS, and iOS: dev tooling out of the pck, encryption, and verifying by receipts.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Shipping and export · Swallowtail">
+<meta property="og:description" content="The release pipeline across desktop, Android, web, macOS, and iOS: dev tooling out of the pck, encryption, and verifying by receipts.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link active" aria-current="page" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Shipping and export</h1>
+<p class="page-desc" data-scope-ccykbmgk>The release pipeline across desktop, Android, web, macOS, and iOS: dev tooling out of the pck, encryption, and verifying by receipts.</p>
+</header>
+<p>When a project leaves the editor for players, three problems appear that the build-and-playtest
+loop never surfaces: dev tooling riding along inside the pck, the pck itself being an open book
+(stock tools list and extract every script and scene), and an oversized runtime. The pipeline
+below closes all three, proven end to end on a real desktop release. Throughout it,
+<strong>verify by receipts, not by exit codes</strong>. A green export means the exporter ran, not that
+the build is right.</p>
+<h2 id="pick-your-target">Pick your target<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#pick-your-target">#</a></h2>
+<p>The first five sections below are platform-independent: the export filters, the headless loop, pck
+encryption, the size knobs, and the platform-SDK gate read the same whether the artifact is an
+<code>.exe</code>, an <code>.apk</code>, or a folder of wasm. The per-platform sections after them cover what each
+target adds.</p>
+<table>
+<thead>
+<tr>
+<th>Target</th><th>Exports from a Windows dev machine</th><th>Host tooling it needs</th><th>Signing identity</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Windows, Linux desktop</td><td>yes</td><td>export templates</td><td>optional (<code>codesign/*</code> on the Windows preset)</td></tr>
+<tr>
+<td>Android</td><td>yes</td><td>JDK, Android SDK, platform-tools</td><td>release keystore, yours to generate and keep</td></tr>
+<tr>
+<td>Web</td><td>yes</td><td>a static server for testing</td><td>none; the browser enforces headers instead</td></tr>
+<tr>
+<td>macOS</td><td>bundle yes, signing and notarization no</td><td>Apple tooling for the signing leg</td><td>Apple Developer certificate</td></tr>
+<tr>
+<td>iOS</td><td>preset and Xcode project only</td><td>Xcode on a Mac for the final leg</td><td>Apple Developer provisioning profile</td></tr>
+</tbody>
+</table>
+<p>Read the ground before touching a preset. Every one of these answers without an export configured
+and says what is missing:</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail export info            # templates installed? export_presets.cfg present?</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail export list-presets    # name, platform, runnable, export_path per preset</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail export project --preset-name "Windows Desktop" --debug=false</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>export project</code> returns the headless command line rather than running it, because a Godot 4 editor
+plugin cannot export. <code>swallowtail export "&#x3C;preset>"</code> is the local subcommand that runs that command
+line for you, and it needs no editor at all.</p>
+<h2 id="the-dev-tooling-boundary-this-addon-must-never-ship">The dev-tooling boundary: this addon must never ship<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-dev-tooling-boundary-this-addon-must-never-ship">#</a></h2>
+<p>The swallowtail addon is a WebSocket command server with arbitrary-eval and input-injection
+surfaces, and its two game-side autoloads stat IPC files every frame. None of that belongs in a
+player build.</p>
+<ol>
+<li>
+<p><strong>Export filters.</strong> In the preset: <code>exclude_filter="addons/swallowtail/*,tools/*"</code> (plus any
+other dev-only trees). <code>.gdignore</code>d folders never export, but plain <code>.gd</code>/<code>.tscn</code>/<code>.tres</code>
+under an addon all do unless excluded.</p>
+</li>
+<li>
+<p><strong>Disable the plugin before exporting.</strong> Disabling removes the <code>MCPGameInspector</code> /
+<code>MCPGameInput</code> autoloads from <code>project.godot</code>. Removal matches entries by the addon’s own
+script paths, so autoloads persisted into the file by an earlier session are cleaned too, and
+any unrelated autoload a project declares itself is untouched. Re-enabling self-installs them
+again; there is nothing to restore by hand. (Disabling also kills the CLI’s own server, which
+is expected: the export step below runs headless without it.)</p>
+</li>
+<li>
+<p><strong>Receipts.</strong> After exporting, string-scan the pck: the excluded paths and autoload names must
+score zero hits, and known-good game paths must be present:</p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="powershell"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">$t </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> [</span><span style="--0:#F97583;--1:#BF3441">Text.Encoding</span><span style="--0:#E1E4E8;--1:#24292E">]::ASCII.GetString([</span><span style="--0:#F97583;--1:#BF3441">IO.File</span><span style="--0:#E1E4E8;--1:#24292E">]::ReadAllBytes(</span><span style="--0:#9ECBFF;--1:#032F62">"Game.pck"</span><span style="--0:#E1E4E8;--1:#24292E">))</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">([</span><span style="--0:#F97583;--1:#BF3441">regex</span><span style="--0:#E1E4E8;--1:#24292E">]::Matches($t</span><span style="--0:#F97583;--1:#BF3441">,</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'swallowtail'</span><span style="--0:#E1E4E8;--1:#24292E">)).Count      </span><span style="--0:#99A0A6;--1:#616972"># 0 or the addon shipped</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">([</span><span style="--0:#F97583;--1:#BF3441">regex</span><span style="--0:#E1E4E8;--1:#24292E">]::Matches($t</span><span style="--0:#F97583;--1:#BF3441">,</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'MCPGame'</span><span style="--0:#E1E4E8;--1:#24292E">)).Count        </span><span style="--0:#99A0A6;--1:#616972"># 0 covers project.binary's autoload list</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">([</span><span style="--0:#F97583;--1:#BF3441">regex</span><span style="--0:#E1E4E8;--1:#24292E">]::Matches($t</span><span style="--0:#F97583;--1:#BF3441">,</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'res://scenes'</span><span style="--0:#E1E4E8;--1:#24292E">)).Count   </span><span style="--0:#99A0A6;--1:#616972"># >0 control: the game itself is in there</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+</li>
+</ol>
+<h2 id="the-headless-export-loop">The headless export loop<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-headless-export-loop">#</a></h2>
+<p>No editor needed once the preset exists (the exporting binary must still be the project’s editor
+build):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail export "Windows Desktop"</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The output path defaults to the preset’s own <code>export_path</code>, and <code>--out PATH</code> overrides it. The
+command runs the export in the foreground, exits with Godot’s code, and reports the file it
+produced, its size, and the <code>ERROR</code>/<code>WARNING</code> lines it parsed out of
+<code>&#x3C;project>/.godot/swallowtail-export.log</code>. Where the CLI is not installed, the raw form is what it
+runs for you:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">godot --headless --path . --export-release "Windows Desktop" "out/Game.exe"</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<ul>
+<li>
+<strong>An export that exits 0 and wrote nothing is the failure to watch for</strong>, and <code>swallowtail export</code>
+turns it into a non-zero exit with <code>exists: false</code> rather than a clean run. Missing export
+templates are the usual cause, and the parsed errors name each file the engine looked for.</li>
+<li>Exit 0 plus a final <code>[ DONE ] savepack</code> line is the transport signal; the receipts above and a
+boot test are the real verdict.</li>
+<li>Templates resolve from <code>%APPDATA%/Godot/export_templates/&#x3C;major.minor.patch.status>/</code> unless
+the preset’s <code>custom_template/*</code> points elsewhere, which is how the keyed and size-optimized
+templates below ship.</li>
+<li>Boot the exe and let it hold past its first scene: a window with the right title that survives
+~10s is the cheapest whole-pipeline receipt there is.</li>
+<li>
+<strong>When the pck is buried, export one on its own to scan</strong>. Adding <code>--pack</code> and an
+<code>--out out/receipt.pck</code> writes the data half of the same preset as a standalone file, so the
+string scan above works for an APK, a web build, or a desktop preset with
+<code>binary_format/embed_pck=true</code>, none of which leave a loose <code>.pck</code> to read. <code>--patch</code> with
+<code>--patches a.pck,b.pck</code> does the same for a changed-files-only pack.</li>
+</ul>
+<h2 id="pck-encryption-keyed-custom-templates">PCK encryption: keyed custom templates<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#pck-encryption-keyed-custom-templates">#</a></h2>
+<p>Godot encrypts the pck (AES-256) only when the <strong>export templates themselves carry the key</strong>,
+which official templates cannot do. Understand what it buys: casual extraction is blocked, but the
+key necessarily lives inside the shipped exe, so a determined reverse-engineer can dig it out.
+Deterrence, not DRM.</p>
+<ol>
+<li>
+<p><strong>Generate a 256-bit key once</strong> (64 hex chars) and keep it <strong>outside the repo</strong>. Never commit
+it, and never print it into a log or chat transcript:</p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="powershell"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">$b </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> [</span><span style="--0:#F97583;--1:#BF3441">byte</span><span style="--0:#E1E4E8;--1:#24292E">[]]::new(</span><span style="--0:#79B8FF;--1:#005CC5">32</span><span style="--0:#E1E4E8;--1:#24292E">); [</span><span style="--0:#F97583;--1:#BF3441">Security.Cryptography.RandomNumberGenerator</span><span style="--0:#E1E4E8;--1:#24292E">]::Fill($b)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">($b </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">ForEach-Object</span><span style="--0:#E1E4E8;--1:#24292E"> { </span><span style="--0:#79B8FF;--1:#005CC5">$_</span><span style="--0:#E1E4E8;--1:#24292E">.ToString(</span><span style="--0:#9ECBFF;--1:#032F62">'x2'</span><span style="--0:#E1E4E8;--1:#24292E">) }) </span><span style="--0:#F97583;--1:#BF3441">-join</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">''</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">Set-Content</span><span style="--0:#E1E4E8;--1:#24292E"> ~\.godot</span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">keys\game.key </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">NoNewline</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Back the file up. A lost key just means rebuilding templates with a new one, but every future
+export of the same build needs the same key.</p>
+</li>
+<li>
+<p><strong>Bake it into templates.</strong> Set <code>SCRIPT_AES256_ENCRYPTION_KEY</code> in the environment and build
+the template target with the same feature flags as the project’s editor build:</p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="powershell"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">$</span><span style="--0:#79B8FF;--1:#005CC5">env:</span><span style="--0:#E1E4E8;--1:#24292E">SCRIPT_AES256_ENCRYPTION_KEY </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> (</span><span style="--0:#79B8FF;--1:#005CC5">Get-Content</span><span style="--0:#E1E4E8;--1:#24292E"> ~\.godot</span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">keys\game.key </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">Raw).Trim()</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">scons target</span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E">template_release arch</span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E">x86_64 production</span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E">yes   </span><span style="--0:#99A0A6;--1:#616972"># + d3d12=yes etc. to match</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The key lands in one generated file, so on a warm build tree this is an incremental
+recompile-and-relink measured in <strong>seconds, not minutes</strong>. Copy the built template (and its <code>.console</code>
+sibling) somewhere stable next to the key; later builds overwrite <code>bin/</code>.</p>
+</li>
+<li>
+<p><strong>Wire the preset</strong>: <code>encrypt_pck=true</code>, <code>encrypt_directory=true</code>,
+<code>encryption_include_filters="*"</code> (encrypting everything is cheap for small pcks), and
+<code>custom_template/release</code> pointing at the keyed template.</p>
+</li>
+<li>
+<p><strong>Supply the key at export time via <code>GODOT_SCRIPT_ENCRYPTION_KEY</code></strong> (verified working live)
+in the environment of the headless export. The preset’s key field works too, but it persists
+the key in plaintext into <code>export_presets.cfg</code>, a committed file. The env var keeps it out.</p>
+</li>
+<li>
+<p><strong>Receipts.</strong> The plaintext scan from above flips: game paths and <code>gd_scene</code> markers drop to
+<strong>zero</strong> hits in an encrypted pck. Then boot the exe, because <strong>a booting game IS the
+key-match proof</strong>. <code>ERR_FILE_CORRUPT</code> at startup means the template’s baked key and the
+export-time key disagree (or the template is an unkeyed one).</p>
+</li>
+</ol>
+<h3 id="export_presetscfg-is-secret-bearing-commit-an-example"><code>export_presets.cfg</code> is secret-bearing: commit an <code>.example</code><a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#export_presetscfg-is-secret-bearing-commit-an-example">#</a></h3>
+<p>Step 4 keeps the encryption key out of the file at export time, but the file itself is still not a
+safe thing to commit. Every preset carries a <code>script_encryption_key</code> field, and a real project adds
+<code>codesign/password</code>, keystore passwords, and store credentials beside it. One committed preset with
+a filled key hands the pck open to anyone who clones the repo, and rotating it means rebuilding
+templates.</p>
+<p>The convention that keeps CI working anyway:</p>
+<ul>
+<li>
+<p>Gitignore <code>export_presets.cfg</code>. Treat it as local machine state.</p>
+</li>
+<li>
+<p>Commit <code>export_presets.cfg.example</code> with every secret field emptied (<code>script_encryption_key=""</code>,
+passwords blank) and everything else intact: preset names, platforms, export paths,
+include/exclude filters, <code>custom_features</code>. Those are the parts a build needs and none of them
+is a secret.</p>
+</li>
+<li>
+<p>Have CI copy it into place as the first build step, then supply the real values from the
+runner’s secret store as environment variables:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="yaml"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">- </span><span style="--0:#85E89D;--1:#1E7734">run</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">cp export_presets.cfg.example export_presets.cfg</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">- </span><span style="--0:#85E89D;--1:#1E7734">run</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">swallowtail export "Web" --out build/web/index.html</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#85E89D;--1:#1E7734">env</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#85E89D;--1:#1E7734">GODOT_SCRIPT_ENCRYPTION_KEY</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">${{ secrets.PCK_KEY }}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+</li>
+<li>
+<p>Verify the copy landed before blaming the export. <code>swallowtail export info</code> reports
+<code>"has_export_presets": false</code> and <code>swallowtail export list-presets</code> answers
+<code>"No export_presets.cfg found"</code> when it did not, which is a clearer failure than the engine’s.</p>
+</li>
+</ul>
+<p>Keep the two files in step. A preset added locally and not mirrored into the <code>.example</code> breaks the
+build for everyone else, and the failure names a missing preset rather than a missing file.</p>
+<h2 id="size-optimized-templates">Size-optimized templates<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#size-optimized-templates">#</a></h2>
+<p>The same custom-template slot takes size work. The scons knobs, in descending order of value for
+a typical 2D game (official numbers, condensed):</p>
+<ul>
+<li>
+<code>production=yes</code> is the baseline for anything shipped (it implies dead-code stripping and sane
+defaults); <code>debug_symbols=no</code> alone is a 5 to 10× binary reduction when not already implied.</li>
+<li>
+<code>optimize=size</code> (or <code>size_extra</code>): high savings, mild CPU cost, and what web builds already do.</li>
+<li>
+<code>lto=full</code> also gives high savings, at the cost of slow links and 12 to 16 GB RAM at build
+time. Release-only.</li>
+<li>
+<code>disable_3d=yes</code> takes ~15% off a 2D-only game. <strong>Template targets only</strong> (the editor cannot
+build without 3D); grep the project for 3D node types first.</li>
+<li>
+<code>module_text_server_adv_enabled=no module_text_server_fb_enabled=yes</code>: high savings, but it
+loses RTL text, ligatures and OpenType features. Only for Latin/Greek/Cyrillic-only games.</li>
+<li>
+<code>disable_advanced_gui=yes</code> is moderate, and deletes Tree, ItemList, TextEdit, GraphEdit,
+ColorPicker, FileDialog and friends. Many UI-heavy games can’t take this, so audit first.</li>
+<li>
+<code>build_profile=&#x3C;file>.gdbuild</code> is moderate-to-high, project-derived class stripping. The sharp
+edge: it can strip classes only reached via reflection/<code>load()</code> at runtime.</li>
+<li>Per-module <code>module_*_enabled=no</code> (see <code>scons --help</code>) and physics you don’t use
+(<code>module_jolt_enabled=no</code>, <code>disable_physics_3d=yes</code>) are small each, additive.</li>
+<li>Distribution: 7-Zip Ultra for desktop zips typically shaves another 1 to 5 MB.</li>
+</ul>
+<p><strong>Every knob gets the same gate:</strong> export, run the receipts, boot the game, and run the
+project’s own regression suite against a restored dev environment. A build that lost a module it
+actually needed usually still boots. It fails at the moment the feature is touched, which is
+exactly what a playtest suite catches and a boot test does not.</p>
+<h2 id="platform-sdks-behind-a-feature-tag">Platform SDKs behind a feature tag<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#platform-sdks-behind-a-feature-tag">#</a></h2>
+<p>A Steam, console, or web-portal SDK is a native addon that only exists on one target. Calling into
+it from anywhere in the game means every other build carries the dependency and crashes on a null
+the moment a leaderboard call runs on a platform without it. Isolate it behind three gates:</p>
+<ol>
+<li>
+<p><strong>A custom export feature.</strong> The preset for that platform sets <code>custom_features="steam"</code>;
+every other preset leaves it empty. <code>OS.has_feature("steam")</code> is then true in exactly those
+builds and nowhere else.</p>
+</li>
+<li>
+<p><strong>One wrapper scene, the only file that touches the SDK.</strong> <code>res://platforms/steam/sdk.gd</code> owns
+every call into the addon and exposes the game’s own vocabulary back:
+<code>user_name_changed</code>, <code>init_finalized</code>, <code>submit_score()</code>. Nothing outside that file names the
+addon, so removing the SDK is deleting one directory and one preset field.</p>
+</li>
+<li>
+<p><strong>Loaded only when the tag is on</strong>, and reached only through a null-safe accessor:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">platform_sdk</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Node</span><span style="--0:#E1E4E8;--1:#24292E">:                    </span><span style="--0:#99A0A6;--1:#616972"># null on every build without the tag</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_node_or_null</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">"SteamSDK"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">init_platform</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">OS</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">has_feature</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"steam"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">platform_ready.</span><span style="--0:#B392F0;--1:#6F42C1">emit</span><span style="--0:#E1E4E8;--1:#24292E">()                    </span><span style="--0:#99A0A6;--1:#616972"># the no-SDK path still completes</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">return</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> sdk </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">preload</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"res://platforms/steam/sdk.tscn"</span><span style="--0:#E1E4E8;--1:#24292E">).</span><span style="--0:#B392F0;--1:#6F42C1">instantiate</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">sdk.name </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"SteamSDK"</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">add_child</span><span style="--0:#E1E4E8;--1:#24292E">(sdk)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">sdk.init_finalized.</span><span style="--0:#B392F0;--1:#6F42C1">connect</span><span style="--0:#E1E4E8;--1:#24292E">(platform_ready.emit, </span><span style="--0:#79B8FF;--1:#005CC5">CONNECT_ONE_SHOT</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">sdk.</span><span style="--0:#B392F0;--1:#6F42C1">init</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Every caller goes through <code>platform_sdk()</code> and checks for null. The wrapper’s own <code>init()</code>
+checks the addon singleton the same way, because a tagged build can still run with the SDK
+unavailable (Steam not running, an overlay that failed to attach).</p>
+</li>
+</ol>
+<p>The <code>platform_ready</code> signal firing on both paths is what keeps the boot sequence identical
+everywhere. A flow that waits for an SDK callback hangs forever on the web build otherwise.</p>
+<p><strong>Verify the tag rather than assuming it.</strong> Feature tags come from the export preset, so the
+editor and any editor-launched game answer <code>false</code> for a custom one:</p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="sh"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">runtime</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">eval</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--code</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'emit({"steam": OS.has_feature("steam"), "editor": OS.has_feature("editor"),</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#9ECBFF;--1:#032F62">  </span></span><span style="--0:#9ECBFF;--1:#032F62">"template": OS.has_feature("template"), "debug": OS.is_debug_build()})'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># { "steam": false, "editor": true, "template": false, "debug": true }</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>That reading is the point: the SDK path is unreachable during development, so the null-safe branch
+is the one being exercised every day. Confirm the tagged branch on a real exported build, by
+running the exe and reading the same four values from its log.</p>
+<h2 id="android">Android<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#android">#</a></h2>
+<p>Two keystores exist and they are not interchangeable. The <strong>debug</strong> keystore is a throwaway the
+editor generates; the <strong>release</strong> keystore is one <code>keytool</code> generates once and Google Play binds to
+the application identity permanently. Losing it means never updating that listing again, so it is
+backed up like the encryption key and kept out of the repo.</p>
+<p><strong>Editor-side prerequisites</strong> (set in Editor Settings → Export → Android, or the export fails with
+a message naming the missing piece): a JDK, the Android SDK, and platform-tools on the machine that
+runs the export. The <code>adb</code> path comes from <code>export/android/adb</code>, falling back to a PATH lookup, and
+the debug keystore trio falls back to <code>export/android/debug_keystore</code>, <code>..._user</code>, <code>..._pass</code>.</p>
+<p><strong>Preset fields that decide the build shape:</strong></p>
+<ul>
+<li>
+<code>package/unique_name</code> is the reverse-DNS identifier. Permanent per listing, like the keystore.</li>
+<li>
+<code>version/code</code> (machine-readable, must increment every Play upload) and <code>version/name</code>.</li>
+<li>
+<code>keystore/debug</code>, <code>keystore/debug_user</code>, <code>keystore/debug_password</code>; <code>keystore/release</code>,
+<code>keystore/release_user</code>, <code>keystore/release_password</code>; <code>package/signed</code> gates signing at all.</li>
+<li>
+<code>gradle_build/use_gradle_build</code>: off packages the prebuilt template APK, on compiles a real
+Gradle project from <code>gradle_build/gradle_build_directory</code> (default <code>res://android</code>). Plugins,
+GDExtension, and custom manifest entries need it on, and <code>gradle_build/min_sdk</code> /
+<code>gradle_build/target_sdk</code> apply only on that path. Install the template once with
+<code>godot --headless --path . --install-android-build-template</code>.</li>
+<li>
+<code>gradle_build/export_format</code> picks APK or AAB. AAB is the Play upload; APK is what installs on a
+device. Keep two presets rather than flipping one, since the device loop below needs the APK.</li>
+<li>
+<code>architectures/arm64-v8a</code>, <code>armeabi-v7a</code>, <code>x86</code>, <code>x86_64</code>: arm64 alone covers current phones
+and is the smallest, while x86_64 buys emulator testing.</li>
+</ul>
+<p><strong>Keystore passwords stay out of <code>export_presets.cfg</code></strong>, which is a committed file. Every keystore
+field has an environment override that wins over it, so a headless release export signs like this:</p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="powershell"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">$</span><span style="--0:#79B8FF;--1:#005CC5">env:</span><span style="--0:#E1E4E8;--1:#24292E">GODOT_ANDROID_KEYSTORE_RELEASE_PATH     </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"</span><span style="--0:#79B8FF;--1:#005CC5">$HOME</span><span style="--0:#9ECBFF;--1:#032F62">\.godot-keys\release.keystore"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">$</span><span style="--0:#79B8FF;--1:#005CC5">env:</span><span style="--0:#E1E4E8;--1:#24292E">GODOT_ANDROID_KEYSTORE_RELEASE_USER     </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"upload"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">$</span><span style="--0:#79B8FF;--1:#005CC5">env:</span><span style="--0:#E1E4E8;--1:#24292E">GODOT_ANDROID_KEYSTORE_RELEASE_PASSWORD </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> (</span><span style="--0:#79B8FF;--1:#005CC5">Get-Content</span><span style="--0:#E1E4E8;--1:#24292E"> ~\.godot</span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">keys\release.pass </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">Raw).Trim()</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">swallowtail export </span><span style="--0:#9ECBFF;--1:#032F62">"Android Play"</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">--</span><span style="--0:#E1E4E8;--1:#24292E">out out</span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E">game.aab</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The debug trio is <code>GODOT_ANDROID_KEYSTORE_DEBUG_PATH</code> / <code>_USER</code> / <code>_PASSWORD</code>. Same rule as the
+encryption key: environment at export time, never a value in the repo.</p>
+<p><strong>Build: the device loop.</strong> <code>android deploy</code> runs export, <code>adb install -r</code>, and launch as one call:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail android list-devices                       # serial + state per attached device</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail android preset-info                        # index, name, export_path, package_name</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail android deploy --preset-name "Android Dev" --device-serial R5CT10 --debug=true</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail android deploy --preset-name "Android Dev" --skip-export=true   # reinstall what exists</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The result carries a <code>steps</code> array with a per-step exit code, so a failure names which of the three
+legs broke. <code>list-devices</code> and <code>preset-info</code> fail cleanly when platform-tools or the preset are
+absent, which makes them the preflight rather than a separate check. Deploy installs whatever sits
+at the preset’s <code>export_path</code>, so pointing it at an AAB fails at <code>adb install</code>.</p>
+<p><strong>Receipts for an APK or AAB.</strong> Both are zip containers and neither exposes a loose pck, so the
+plaintext scan runs against a standalone pack:</p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="powershell"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">swallowtail export </span><span style="--0:#9ECBFF;--1:#032F62">"Android Dev"</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">--</span><span style="--0:#E1E4E8;--1:#24292E">pack </span><span style="--0:#F97583;--1:#BF3441">--</span><span style="--0:#E1E4E8;--1:#24292E">out out</span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E">receipt.pck</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">$t </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> [</span><span style="--0:#F97583;--1:#BF3441">Text.Encoding</span><span style="--0:#E1E4E8;--1:#24292E">]::ASCII.GetString([</span><span style="--0:#F97583;--1:#BF3441">IO.File</span><span style="--0:#E1E4E8;--1:#24292E">]::ReadAllBytes(</span><span style="--0:#9ECBFF;--1:#032F62">"out/receipt.pck"</span><span style="--0:#E1E4E8;--1:#24292E">))</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">([</span><span style="--0:#F97583;--1:#BF3441">regex</span><span style="--0:#E1E4E8;--1:#24292E">]::Matches($t</span><span style="--0:#F97583;--1:#BF3441">,</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'swallowtail'</span><span style="--0:#E1E4E8;--1:#24292E">)).Count      </span><span style="--0:#99A0A6;--1:#616972"># 0 or the addon shipped</span></div></div><div class="ec-line"><div class="code"><span style="--0:#79B8FF;--1:#005CC5">Expand-Archive</span><span style="--0:#E1E4E8;--1:#24292E"> out</span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E">game.apk out</span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E">apk_check </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">Force</span></div></div><div class="ec-line"><div class="code"><span style="--0:#79B8FF;--1:#005CC5">Get-ChildItem</span><span style="--0:#E1E4E8;--1:#24292E"> out</span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E">apk_check </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">Recurse </span><span style="--0:#F97583;--1:#BF3441">|</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">Select-Object</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">ExpandProperty FullName   </span><span style="--0:#99A0A6;--1:#616972"># no addons/ paths</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The boot receipt becomes an on-device one: <code>android deploy --launch=true</code> and confirm the app holds
+past its first scene, with <code>adb logcat</code> open for the stack trace when it does not.</p>
+<p>Note what that <code>Expand-Archive</code> also proves: an APK is a zip anyone can open, and the pck inside
+it reads like any other pck. <code>encrypt_pck</code> from the encryption section applies to Android exports
+unchanged and is the only thing standing between a curious player and the scripts. The receipts
+above check content, not protection, so run the plaintext string scan against the pck pulled from
+the APK when encryption is on.</p>
+<h2 id="web-html5">Web (HTML5)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#web-html5">#</a></h2>
+<p>The artifact is a directory of files: <code>index.html</code>, a <code>.js</code> loader, a <code>.wasm</code>, the <code>.pck</code>, and
+support files. Point <code>export_path</code> at the <code>.html</code> and export into an empty directory of its own.</p>
+<p><strong>Serve it. A web export opened from <code>file://</code> fails</strong>, and the export that produced it was green,
+which is the receipt-versus-exit-code rule in its most common form. The loader fetches the wasm and
+the pck, and those fetches are cross-origin under <code>file://</code>. Use the editor’s run-in-browser flow,
+or any static server, and read the browser console rather than the export log.</p>
+<p><strong>Threads decide how the site must be configured.</strong> <code>variant/thread_support</code> true gives the export
+threads and requires a cross-origin-isolated site: the server must send
+<code>Cross-Origin-Opener-Policy: same-origin</code> and <code>Cross-Origin-Embedder-Policy: require-corp</code>, which
+also blocks the page from embedding third-party content. False drops the requirement to plain
+HTTPS at the cost of performance and audio stability. The failure mode to recognize: threads on,
+headers missing, <code>SharedArrayBuffer is not defined</code> in the console, and a build that exported
+perfectly. <code>variant/extensions_support</code> enables GDExtension for the web build and is separate.</p>
+<p>Shipping-shape fields: <code>progressive_web_app/enabled</code> (installable PWA), <code>html/export_icon</code>
+(project icon as favicon), <code>html/head_include</code> (extra <code>&#x3C;head></code> tags), <code>html/canvas_resize_policy</code>.</p>
+<p><strong>Size discipline is stricter here than on desktop</strong>, because every byte is a download before the
+first frame. The wasm is the floor and the pck is what the project controls, so audit imported
+texture and audio settings before reaching for template surgery. Serve with gzip or brotli
+compression on; wasm compresses hard, and enabling it on the host is a larger win than most build
+flags. The size knobs above still apply to a custom web template through <code>custom_template/release</code>.</p>
+<p><strong>PCK encryption on web: the mechanism works, the protection does not.</strong> Building a keyed web
+template and setting <code>encrypt_pck</code> behaves exactly as on desktop, and the plaintext receipts flip
+the same way. The value is different: the key ships inside a wasm binary the browser downloads to
+the player’s machine, and the pck itself crosses the network where any devtools network tab
+captures it. Encrypt if the same key already covers other platforms; treat it as protection on web
+and the reasoning is wrong.</p>
+<h2 id="macos">macOS<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#macos">#</a></h2>
+<p>The bundle exports from any host. The signing leg is where the host decides what is possible.</p>
+<p><strong>Preset fields.</strong> <code>application/bundle_identifier</code> (reverse-DNS, permanent per listing) and
+<code>export/distribution_type</code> choose the artifact’s purpose. The signing family is
+<code>codesign/codesign</code> (an integer selecting the tool), <code>codesign/certificate_file</code>,
+<code>codesign/certificate_password</code>, <code>codesign/apple_team_id</code>, <code>codesign/provisioning_profile</code>, and
+<code>codesign/custom_options</code>. Notarization mirrors it: <code>notarization/notarization</code> (again an integer
+tool selector), then either the API-key trio <code>notarization/api_uuid</code>, <code>notarization/api_key</code>,
+<code>notarization/api_key_id</code>, or the Apple-ID pair <code>notarization/apple_id_name</code>,
+<code>notarization/apple_id_password</code>. <strong>Which tools the two integer fields offer depends on the editor
+build and the host</strong>, so read the dropdown in the Export dialog instead of writing an index into
+the cfg by hand.</p>
+<p>Credentials get the same treatment as the Android keystore, and the same environment overrides
+exist: <code>GODOT_MACOS_CODESIGN_CERTIFICATE_FILE</code>, <code>GODOT_MACOS_CODESIGN_CERTIFICATE_PASSWORD</code>,
+<code>GODOT_MACOS_CODESIGN_PROVISIONING_PROFILE</code>, <code>GODOT_MACOS_NOTARIZATION_API_KEY</code>,
+<code>GODOT_MACOS_NOTARIZATION_API_KEY_ID</code>, <code>GODOT_MACOS_NOTARIZATION_API_UUID</code>,
+<code>GODOT_MACOS_NOTARIZATION_APPLE_ID_NAME</code>, <code>GODOT_MACOS_NOTARIZATION_APPLE_ID_PASSWORD</code>.</p>
+<p><strong>Entitlements, in one pass.</strong> They live under <code>codesign/entitlements/*</code> and each one widens what
+the signed app may do, so grant the few that are needed and leave the rest off:</p>
+<ul>
+<li>
+<code>app_sandbox/enabled</code> plus the per-resource toggles (<code>device_usb</code> and <code>device_bluetooth</code> for
+controllers, <code>files_downloads</code>, <code>files_movies</code>, <code>files_music</code>, and friends). Required for the App
+Store; unnecessary weight for direct distribution.</li>
+<li>
+<code>allow_jit_code_execution</code>, <code>allow_unsigned_executable_memory</code>,
+<code>allow_dyld_environment_variables</code>. Grant these only for a GDExtension that needs dynamic or
+self-modifying native code. Each one relaxes the runtime protections signing exists to assert.</li>
+<li>
+<code>codesign/entitlements/additional</code> takes raw plist for anything the fields do not cover.</li>
+</ul>
+<p><strong>What a Windows dev machine cannot do.</strong> Apple’s signing tools and the notarization submission are
+macOS-side, and notarization is a network round trip to Apple whose requirements and tooling change
+on Apple’s schedule rather than Godot’s. Treat Apple’s current documentation as the authority for
+that leg and this section as the map of where Godot’s fields plug into it. From Windows the
+reachable work is the preset, the export filters, and the pck receipt via <code>--export-pack</code>. The
+verification commands (<code>codesign --verify --deep --strict --verbose=2</code>, <code>spctl -a -vv</code>) run on a
+Mac, and there is no substitute for running them before shipping a bundle.</p>
+<h2 id="ios">iOS<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#ios">#</a></h2>
+<p>The export writes an Xcode project. <strong>The final build, sign, and <code>.ipa</code> leg needs Xcode on a Mac</strong>,
+which is a hard boundary rather than a matter of installing more tooling on the dev machine.</p>
+<p>Preset fields worth setting before the handoff: <code>application/bundle_identifier</code>,
+<code>application/app_store_team_id</code> (the 10-character Apple Team ID),
+<code>application/provisioning_profile_uuid_debug</code> and <code>..._release</code>, or their
+<code>application/provisioning_profile_specifier_debug</code> / <code>..._release</code> counterparts when the profile is
+named rather than identified by UUID. Leaving the UUID empty lets Xcode download or create a
+profile automatically, which is the path of least friction for a first build.
+<code>architectures/arm64</code> is the only device architecture, and <code>custom_template/release</code> takes a keyed
+or size-optimized template as everywhere else.</p>
+<p>The dev-tooling boundary pays off harder here than anywhere: App Store review turnaround measures
+in days, so run the pck scan before every submission rather than after a rejection. From Windows,
+<code>--export-pack</code> plus the string scan is the whole verifiable surface, and it is worth doing.</p>
+<h2 id="the-restore-step">The restore step<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-restore-step">#</a></h2>
+<p>Shipping state and dev state differ (plugin off, autoloads gone). After exporting, put the
+project back deliberately: re-enable the plugin (autoloads self-install on load) or
+<code>git checkout</code> the project file if the flow edited it, relaunch the editor, and run the
+project’s verification so the next session starts from a proven-green baseline.</p>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/in-game-docs" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>In-game docs</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/game-trailers" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Videos and trailers</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#pick-your-target" data-toc="pick-your-target" data-scope-p33bl5ka>Pick your target</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-dev-tooling-boundary-this-addon-must-never-ship" data-toc="the-dev-tooling-boundary-this-addon-must-never-ship" data-scope-p33bl5ka>The dev-tooling boundary: this addon must never ship</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-headless-export-loop" data-toc="the-headless-export-loop" data-scope-p33bl5ka>The headless export loop</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#pck-encryption-keyed-custom-templates" data-toc="pck-encryption-keyed-custom-templates" data-scope-p33bl5ka>PCK encryption: keyed custom templates</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#export_presetscfg-is-secret-bearing-commit-an-example" data-toc="export_presetscfg-is-secret-bearing-commit-an-example" data-scope-p33bl5ka>export_presets.cfg is secret-bearing: commit an .example</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#size-optimized-templates" data-toc="size-optimized-templates" data-scope-p33bl5ka>Size-optimized templates</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#platform-sdks-behind-a-feature-tag" data-toc="platform-sdks-behind-a-feature-tag" data-scope-p33bl5ka>Platform SDKs behind a feature tag</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#android" data-toc="android" data-scope-p33bl5ka>Android</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#web-html5" data-toc="web-html5" data-scope-p33bl5ka>Web (HTML5)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#macos" data-toc="macos" data-scope-p33bl5ka>macOS</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#ios" data-toc="ios" data-scope-p33bl5ka>iOS</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-restore-step" data-toc="the-restore-step" data-scope-p33bl5ka>The restore step</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

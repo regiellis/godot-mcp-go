@@ -1,0 +1,485 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>In-game docs · Swallowtail</title><meta name="description" content="Gyms, zoos, and museums: document the game in-game with doc.* recipes so it never goes stale.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="In-game docs · Swallowtail">
+<meta property="og:description" content="Gyms, zoos, and museums: document the game in-game with doc.* recipes so it never goes stale.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link active" aria-current="page" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>In-game docs</h1>
+<p class="page-desc" data-scope-ccykbmgk>Gyms, zoos, and museums: document the game in-game with doc.* recipes so it never goes stale.</p>
+</header>
+<p>From the workflow-design talk <em>“Gyms, Zoos, and Museums: your documentation should be in-game.”</em> A separate GDD or wiki goes stale the moment you start iterating, because you’re maintaining <strong>two</strong> things, the game and the doc. The fix: <strong>document in-game, spatially and contextually close to the content</strong>, so you maintain <strong>one</strong> thing.</p>
+<p><strong>For a solo or small team this matters more, not less.</strong> The “game of telephone” the talk describes (asking a teammate, who points to Slack, which points to Confluence…) is, for you, a game of telephone <em>with your future self</em>. Three months on you’ve forgotten your own jump distance, your asset scales, your system rules. In-game docs become a single source of truth you maintain <strong>for free while building</strong>, not a separate chore you’ll abandon.</p>
+<p>The <code>doc</code> command group builds all four patterns. Every recipe below was driven against a live editor. They need a <strong>3D scene</strong> open (<code>scene create … --root-type Node3D</code> then <code>scene open …</code>); <em>The 2D equivalent</em> at the end covers a canvas project.</p>
+<hr>
+<h2 id="1-gym-character-controller-metrics">1. Gym: character-controller metrics<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#1-gym-character-controller-metrics">#</a></h2>
+<p>“How far can a player jump?” shouldn’t send anyone to a stale table. Build a <strong>gym</strong>: geometry you can literally run at, colour-graded green (easy) → orange (hard) → red (impossible). It’s the single source of truth for movement metrics, and it doubles as a smoke test (run a bot through it overnight; did it get stuck?).</p>
+<p><strong>Build a whole gym in one shot</strong>, with rows of jump gaps, step heights, and slope ramps at increasing values, auto-graded and labeled:</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc gym</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># defaults: gaps [1,2,3,4,5], heights [0.3,0.6,1,1.5], slopes [20,30,40,50]</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># → a Gym node: 13 labeled stations + a ground plane, green→orange→red by difficulty</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Tune it to <em>your</em> controller’s real numbers:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc gym --gaps "[1.5,2.5,3.5,4.5]" --heights "[0.4,0.8,1.2]" --slopes "[25,40,55]" --spacing 4</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Or place one metric station</strong> (the gym building block) where you need it, choosing <code>gap</code>, <code>height</code>, <code>slope</code>, or a pure <code>distance</code> measuring stick:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc metric --type gap     --value 3.5 --at "Vector3(0,0,0)"  --difficulty hard</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc metric --type height  --value 1.2 --at "Vector3(0,0,4)"  --difficulty easy</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc metric --type slope   --value 35  --at "Vector3(0,0,8)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc metric --type distance --value 5  --at "Vector3(0,0,12)"   # a labeled measuring stick</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Each station is a labeled, colour-coded mini-structure. Drop your actual character controller in and run it.</p>
+<h2 id="2-zoo-see-every-asset-at-a-glance">2. Zoo: see every asset at a glance<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#2-zoo-see-every-asset-at-a-glance">#</a></h2>
+<p>The classic asset-browser problem: thumbnails tell you nothing about <strong>scale</strong>, or what an asset looks like <strong>in your level’s lighting</strong>, and searching by name fails (is it <code>iron_gate</code>, <code>steel_gate</code>, or <code>metal_gate</code>?). A <strong>zoo</strong> lays every asset out at once, so you grab the right one by <em>looking</em>, no name lookup, no asset getting lost. It is generatable. Godot’s <em>AssetPlacer</em> has this exact “Generate Zoo” feature, and so do we:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc zoo --from res://assets/props --cols 6</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># instantiates every asset in the folder into a labeled grid, with:</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">#   - the filename + real AABB dimensions on each</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">#   - a scale reference (1m + 2m cubes + a 1.8m character capsule)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">#   - a ground plane and a sun (so you judge scale and lighting honestly)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Or pass an explicit set, and turn off pieces you don’t want:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc zoo --scenes '["res://enemies/grunt.tscn","res://enemies/brute.tscn"]' --scale-ref --lighting=false</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Now the answers are visual: which two assets are the same size? Is this rock the right scale for that wall? Just look. The zoo is also where visual QA happens: spot the broken-shader asset, or screenshot-diff the zoo overnight to catch what changed.</p>
+<h2 id="3-museum-show-how-a-system-works">3. Museum: show how a system works<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#3-museum-show-how-a-system-works">#</a></h2>
+<p>For technology and systems (cloth, destruction, a scripting flow), 50 pages of wiki is the wrong format, because most of it is clearer in 3D. A <strong>museum</strong> is a row of labeled exhibit pads; you drop a <em>live</em> demo on each, and each pad links to the deeper API docs for when someone wants to read.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc museum --exhibits '["Cloth", {"name":"Destruction","link":"https://docs.godotengine.org/…","text":"how it shatters"}, {"name":"Scripting","text":"live cat-script demo"}]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># → a Museum: one labeled pad per exhibit, each carrying a doc-note with its link</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The links live as <strong>doc-notes</strong>, so they show up in <code>doc note --action list --category info</code>, which makes your museum’s “read more” index queryable. Drop the actual system demo onto each pad; the museum gives you the layout, the labels, and the links. Use it for the <strong>don’ts</strong> too (“no overhangs, because our system breaks here”).</p>
+<h2 id="4-spatial-notes-the-level-is-the-doc">4. Spatial notes: the level <em>is</em> the doc<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#4-spatial-notes-the-level-is-the-doc">#</a></h2>
+<p>The bonus pattern: leave notes <strong>in the world</strong>, contextually next to what they’re about. Region labels (“dungeon two is here”), “don’t move this”, art-review flags, and to-dos, each carrying a category, text, a screenshot path, a ticket link. Godot’s own right-click → <em>Open Documentation</em> is praised in the talk as exactly this instinct.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># drop a standalone marker note at a world position</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc note --action add --at "Vector3(40,0,12)" --category todo \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--text "balance this jump, feels too far" --link "https://tracker/PROJ-214"</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># or attach a note to an existing node (click it in the editor, then use 'selected')</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc note --action add --node-path selected --category bug --text "boss name changed 3 times, pick one"</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># review the open notes (filter by category; resolved are hidden by default)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc note --action list</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc note --action list --category art --include-resolved</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># close one out (or --delete to remove the marker entirely)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail doc note --action resolve --node-path "Note_Todo"</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Notes are stored as node metadata (<code>_doc_note</code>), so they ride along in the scene and never desync from the thing they describe. <code>doc note --action list</code> walks the open scene and reports them with paths you can feed straight back to other commands.</p>
+<h2 id="the-2d-equivalent-the-same-four-patterns-without-doc">The 2D equivalent: the same four patterns without <code>doc.*</code><a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-2d-equivalent-the-same-four-patterns-without-doc">#</a></h2>
+<p><strong>The <code>doc.*</code> scaffolds are 3D only.</strong> <code>doc gym</code>, <code>doc zoo</code>, <code>doc museum</code>, and <code>doc metric</code> each refuse a non-Node3D root, because their stations are CSG boxes and their labels are <code>Label3D</code>. The thesis is dimension-free, so a canvas project builds the same four patterns out of the generic commands.</p>
+<p><code>doc note</code> is the exception, and most of it carries over. <code>--action list</code>, <code>--action add --node-path X</code>, and <code>--action resolve</code> all work against a 2D scene: a note is metadata under the <code>_doc_note</code> key, and the walk that collects them is a plain node walk. Only <code>--action add --at "Vector3(…)"</code> is 3D. It drops a <code>Marker3D</code>, so a 2D root is refused with a pointer at <code>--node-path</code>. In 2D, place the marker with <code>node add --type Marker2D</code> and write the key with <code>node set-meta</code>.</p>
+<p>What maps over:</p>
+<ul>
+<li>
+<strong>Gym</strong> is a flat scene of measured jump gaps, speed corridors, and step heights laid out left to right at rising values, with the number on each station. <code>StaticBody2D</code> platforms are the geometry you actually run at; <code>ColorRect</code> or <code>Polygon2D</code> carries the green → orange → red grading; <code>Label</code> carries the distance.</li>
+<li>
+<strong>Zoo</strong>: a grid of <code>scene instance</code> calls with a <code>Label</code> caption under each. Scale in 2D is pixel size against your character, so put the character scene in the grid as the reference instead of the 1m/2m cubes.</li>
+<li>
+<strong>Museum</strong> is a row of exhibit pads: <code>ColorRect</code> slabs, one <code>Label</code> each, the live demo scene instanced on top.</li>
+<li>
+<strong>Spatial notes</strong> are <code>Marker2D</code> plus <code>node set-meta</code>. Metadata rides in the scene exactly as <code>_doc_note</code> does on a 3D marker, so the note stays attached to what it describes. Read one back with <code>swallowtail node get-meta --node-path X --key _doc_note</code>, or the whole set with <code>swallowtail doc note --action list</code>, which walks a 2D scene and reports each note with a path that feeds straight back into other commands.</li>
+</ul>
+<p><strong>Build a 2D gym</strong>: three ground slabs separated by two measured gaps, each graded and labeled:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail scene create --path res://docs/gym_2d.tscn --root-type Node2D --root-name Gym2D</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># ground the controller runs along; the gaps between slabs are what's under test</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail scene2d add-body --type StaticBody2D --name Ground_0 --shape rectangle --size "Vector2(256,32)" --position "Vector2(0,400)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail scene2d add-body --type StaticBody2D --name Ground_1 --shape rectangle --size "Vector2(256,32)" --position "Vector2(400,400)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail scene2d add-body --type StaticBody2D --name Ground_2 --shape rectangle --size "Vector2(256,32)" --position "Vector2(864,400)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># shapes centre on the body, so slab 0 spans x -128..128 and slab 1 spans 272..528: a 144 px gap, then 208 px</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># grade each gap the way doc gym does, green for clearable and orange for the ceiling</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail node add --type ColorRect --name Grade_144 --properties '{"position":"Vector2(128,432)","size":"Vector2(144,16)","color":"#3faf5a"}'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail node add --type ColorRect --name Grade_208 --properties '{"position":"Vector2(528,432)","size":"Vector2(208,16)","color":"#d86b2b"}'</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># the measurement, readable in the viewport</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail node add --type Label --name Gap_144 --properties '{"position":"Vector2(140,340)","text":"144 px (easy)"}'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail node add --type Label --name Gap_208 --properties '{"position":"Vector2(540,340)","text":"208 px (max jump)"}'</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e"># a spatial note carrying its own to-do</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail node add --type Marker2D --name Note_Tuning --properties '{"position":"Vector2(632,300)"}'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail node set-meta --node-path Note_Tuning --key _doc_note \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--value '{"category":"todo","text":"208 px is the ceiling, re-measure once the dash lands"}'</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail scene save</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Instance your real controller into that scene and run it. The numbers in the labels are claims until the controller clears the gap, which is the whole point of a gym over a table.</p>
+<h2 id="debug-overlays-documenting-the-running-game">Debug overlays: documenting the running game<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#debug-overlays-documenting-the-running-game">#</a></h2>
+<p>A gym answers “how far can a player jump?” at edit time. The numbers that only exist while the
+game runs (an attack radius, the spawn region, what the camera can actually see) need the same
+treatment: draw them over the live frame, on demand. The pattern is one <code>CanvasItem</code> with a
+registry of named draw layers, each a <code>Callable</code>, toggled individually.</p>
+<p>Two rules make it safe to leave in the project. It is created <strong>only</strong> under
+<code>OS.is_debug_build()</code>, so a release export never instantiates it and no player frame pays for the
+draw. And it redraws only while a layer is on, so an overlay with everything off costs one
+<code>any_enabled()</code> check per frame.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">class_name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">DebugOverlay</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Node2D</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972">## Toggleable draw layers over the running game. Debug builds only: attach()</span></div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972">## returns null in a release export, so no player frame ever pays for it.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> layers: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> {}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> enabled: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> {}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> draw_count </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">static</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">attach</span><span style="--0:#E1E4E8;--1:#24292E">(to: </span><span style="--0:#B392F0;--1:#6F42C1">Node</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">DebugOverlay</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">OS</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">is_debug_build</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">null</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> overlay </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">DebugOverlay</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">new</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">overlay.name </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"DebugOverlay"</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">overlay.z_index </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">4096</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">overlay.top_level </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">true</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">to.</span><span style="--0:#B392F0;--1:#6F42C1">add_child</span><span style="--0:#E1E4E8;--1:#24292E">(overlay)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> overlay</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972">## A layer is a name and a Callable that draws into this node. Register at</span></div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972">## boot; toggle whenever, including from runtime eval mid-session.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">register</span><span style="--0:#E1E4E8;--1:#24292E">(id: </span><span style="--0:#B392F0;--1:#6F42C1">StringName</span><span style="--0:#E1E4E8;--1:#24292E">, drawer: </span><span style="--0:#B392F0;--1:#6F42C1">Callable</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">layers[id] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> drawer</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">enabled[id] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">false</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">toggle</span><span style="--0:#E1E4E8;--1:#24292E">(id: </span><span style="--0:#B392F0;--1:#6F42C1">StringName</span><span style="--0:#E1E4E8;--1:#24292E">, on: </span><span style="--0:#B392F0;--1:#6F42C1">bool</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> layers.</span><span style="--0:#B392F0;--1:#6F42C1">has</span><span style="--0:#E1E4E8;--1:#24292E">(id):</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">push_error</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"no debug layer named </span><span style="--0:#79B8FF;--1:#005CC5">%s</span><span style="--0:#9ECBFF;--1:#032F62">"</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">%</span><span style="--0:#E1E4E8;--1:#24292E"> id)</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">enabled[id] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> on</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">any_enabled</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">bool</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> id </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> enabled:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> enabled[id]:</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">true</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">false</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_process</span><span style="--0:#E1E4E8;--1:#24292E">(_delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">any_enabled</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">queue_redraw</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_draw</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">any_enabled</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">draw_count </span><span style="--0:#F97583;--1:#BF3441">+=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> id </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> layers:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> enabled[id]:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">      </span></span><span style="--0:#E1E4E8;--1:#24292E">(layers[id] </span><span style="--0:#F97583;--1:#BF3441">as</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Callable</span><span style="--0:#E1E4E8;--1:#24292E">).</span><span style="--0:#B392F0;--1:#6F42C1">call</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#F97583;--1:#BF3441">self</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972">## Screen rectangle in this node's own coordinates, which is what a draw call</span></div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972">## wants. Reading get_viewport_rect() straight is only right at the origin.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">viewport_bounds</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Rect2</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> inverse </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_global_transform_with_canvas</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">affine_inverse</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> rect </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_viewport_rect</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> top_left </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> inverse </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> rect.position</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Rect2</span><span style="--0:#E1E4E8;--1:#24292E">(top_left, (inverse </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> rect.end) </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> top_left)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The level registers its own layers, so the overlay stays generic and every drawer sits next to the
+system it describes:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">overlay </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">DebugOverlay</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">attach</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#F97583;--1:#BF3441">self</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> overlay </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">null</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">overlay.</span><span style="--0:#B392F0;--1:#6F42C1">register</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">&#x26;"attack_range"</span><span style="--0:#E1E4E8;--1:#24292E">, _draw_attack_range)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">overlay.</span><span style="--0:#B392F0;--1:#6F42C1">register</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">&#x26;"spawn_bounds"</span><span style="--0:#E1E4E8;--1:#24292E">, _draw_spawn_bounds)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">overlay.</span><span style="--0:#B392F0;--1:#6F42C1">register</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">&#x26;"viewport_bounds"</span><span style="--0:#E1E4E8;--1:#24292E">, _draw_viewport_bounds)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_draw_attack_range</span><span style="--0:#E1E4E8;--1:#24292E">(canvas: </span><span style="--0:#B392F0;--1:#6F42C1">DebugOverlay</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> boss </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">Boss</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">as</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Node2D</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">canvas.</span><span style="--0:#B392F0;--1:#6F42C1">draw_circle</span><span style="--0:#E1E4E8;--1:#24292E">(canvas.</span><span style="--0:#B392F0;--1:#6F42C1">to_local</span><span style="--0:#E1E4E8;--1:#24292E">(boss.global_position), </span><span style="--0:#79B8FF;--1:#005CC5">180.0</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#B392F0;--1:#6F42C1">Color</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.18</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.32</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.62</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.28</span><span style="--0:#E1E4E8;--1:#24292E">))</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_draw_spawn_bounds</span><span style="--0:#E1E4E8;--1:#24292E">(canvas: </span><span style="--0:#B392F0;--1:#6F42C1">DebugOverlay</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">canvas.</span><span style="--0:#B392F0;--1:#6F42C1">draw_rect</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">SPAWN_BOUNDS</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#B392F0;--1:#6F42C1">Color</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.25</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.69</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.35</span><span style="--0:#E1E4E8;--1:#24292E">), </span><span style="--0:#79B8FF;--1:#005CC5">false</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">2.0</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_draw_viewport_bounds</span><span style="--0:#E1E4E8;--1:#24292E">(canvas: </span><span style="--0:#B392F0;--1:#6F42C1">DebugOverlay</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">canvas.</span><span style="--0:#B392F0;--1:#6F42C1">draw_rect</span><span style="--0:#E1E4E8;--1:#24292E">(canvas.</span><span style="--0:#B392F0;--1:#6F42C1">viewport_bounds</span><span style="--0:#E1E4E8;--1:#24292E">(), </span><span style="--0:#B392F0;--1:#6F42C1">Color</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">0.85</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.42</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">0.17</span><span style="--0:#E1E4E8;--1:#24292E">), </span><span style="--0:#79B8FF;--1:#005CC5">false</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">2.0</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Build (verified against a running game).</strong> No in-game console is needed: <code>runtime call</code> reaches
+<code>toggle()</code> directly, which is the whole reason to keep the layer registry public.</p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="sh"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">script</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">create</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">res://debug/debug_overlay.gd</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--content</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"..."</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">scene</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">play</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--mode</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">main</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># what is registered, and proof nothing draws while every layer is off</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">runtime</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">eval</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--code</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'var o = get_tree().current_scene.overlay</span></div></div><div class="ec-line"><div class="code"><span style="--0:#9ECBFF;--1:#032F62">emit({"attached": o != null, "layers": o.layers.keys(), "draw_count": o.draw_count})'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># { "attached": true, "layers": [&#x26;"attack_range", &#x26;"spawn_bounds", &#x26;"viewport_bounds"], "draw_count": 0 }</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">runtime</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">call</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--node-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">DebugOverlay</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--method</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">toggle</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--args</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'["attack_range", true]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">runtime</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">call</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--node-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">DebugOverlay</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--method</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">toggle</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--args</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'["spawn_bounds", true]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">runtime</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">call</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--node-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">DebugOverlay</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--method</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">toggle</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--args</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'["viewport_bounds", true]'</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">test</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">run-scenario</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--steps</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'[</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#9ECBFF;--1:#032F62">  </span></span><span style="--0:#9ECBFF;--1:#032F62">{"type":"wait","seconds":0.5},</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#9ECBFF;--1:#032F62">  </span></span><span style="--0:#9ECBFF;--1:#032F62">{"type":"assert","node_path":"DebugOverlay","property":"draw_count","operator":"gt","expected":0},</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#9ECBFF;--1:#032F62">  </span></span><span style="--0:#9ECBFF;--1:#032F62">{"type":"screenshot","save_path":"user://overlay_on.png"}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#9ECBFF;--1:#032F62">]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># draw_count 54 over half a second, screenshot saved</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>draw_count</code> is the check that matters. A screenshot proves the overlay looks right; the counter
+proves <code>_draw</code> ran at all, which is what fails when a layer is registered under a name the toggle
+misspells. Read both.</p>
+<p>Three details cost a debugging session each if guessed:</p>
+<ul>
+<li>
+<code>top_level = true</code> keeps the overlay in world space no matter where it is parented, so a drawer
+can use <code>to_local(node.global_position)</code> without compensating for an ancestor’s transform.</li>
+<li>
+<code>get_viewport_rect()</code> returns the screen rectangle in viewport coordinates. Drawing it straight
+is only correct for a node at the origin with no camera. Push it through
+<code>get_global_transform_with_canvas().affine_inverse()</code> and the rectangle tracks the camera.</li>
+<li>
+<code>queue_redraw()</code> in <code>_process</code> is the redraw pump. Without it <code>_draw</code> runs once and the overlay
+freezes to the first frame, which reads as correct until something moves.</li>
+</ul>
+<hr>
+<h2 id="the-discipline">The discipline<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-discipline">#</a></h2>
+<ul>
+<li>
+<strong>Know what to document where</strong>. The talk is emphatic: engineers read text docs (especially APIs); artists and designers will not. Put movement/asset/system truth <em>in-game</em>; keep API text where engineers expect it. Document the right thing in the right place.</li>
+<li>
+<strong>One source of truth</strong>. When someone (or future-you) asks “how far can a player jump?”, the answer is “run the gym,” not “find the table.” Update the gym, not a doc <em>and</em> the game.</li>
+<li>
+<strong>It’s generatable, so it stays current</strong>. Because <code>doc gym</code>/<code>doc zoo</code> regenerate from your real numbers and real asset folders, refreshing them is one command. A doc you can rebuild in a second is a doc you’ll actually keep.</li>
+<li>
+<strong>Combine them</strong>. Zoo + notes (flag the asset that needs a material change). Gym + zoo (an item range you can pick up and test). The patterns compose, like the rest of the toolset.</li>
+</ul>
+<p>These are scaffolds. <code>doc.*</code> gives you the labeled, measured, lit <em>structure</em>, and you drop the live content (your controller, your assets, your system demos) onto it.</p>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/rhythm-games" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Rhythm games</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/shipping-export" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Shipping and export</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#1-gym-character-controller-metrics" data-toc="1-gym-character-controller-metrics" data-scope-p33bl5ka>1. Gym: character-controller metrics</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#2-zoo-see-every-asset-at-a-glance" data-toc="2-zoo-see-every-asset-at-a-glance" data-scope-p33bl5ka>2. Zoo: see every asset at a glance</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#3-museum-show-how-a-system-works" data-toc="3-museum-show-how-a-system-works" data-scope-p33bl5ka>3. Museum: show how a system works</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#4-spatial-notes-the-level-is-the-doc" data-toc="4-spatial-notes-the-level-is-the-doc" data-scope-p33bl5ka>4. Spatial notes: the level is the doc</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-2d-equivalent-the-same-four-patterns-without-doc" data-toc="the-2d-equivalent-the-same-four-patterns-without-doc" data-scope-p33bl5ka>The 2D equivalent: the same four patterns without doc.*</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#debug-overlays-documenting-the-running-game" data-toc="debug-overlays-documenting-the-running-game" data-scope-p33bl5ka>Debug overlays: documenting the running game</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-discipline" data-toc="the-discipline" data-scope-p33bl5ka>The discipline</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

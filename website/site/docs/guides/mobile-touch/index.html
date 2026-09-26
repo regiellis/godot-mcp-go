@@ -1,0 +1,437 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mobile and touch · Swallowtail</title><meta name="description" content="Index-keyed multitouch, on-screen controls, pinch/pan gestures, safe-area HUD insets.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mobile and touch · Swallowtail">
+<meta property="og:description" content="Index-keyed multitouch, on-screen controls, pinch/pan gestures, safe-area HUD insets.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link active" aria-current="page" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Mobile and touch</h1>
+<p class="page-desc" data-scope-ccykbmgk>Index-keyed multitouch, on-screen controls, pinch/pan gestures, safe-area HUD insets.</p>
+</header>
+<p>Touch, multitouch, gestures, on-screen controls, and safe areas the Godot way. Every class and
+setting below was introspected against the live build, but <strong>re-verify with <code>engine class-info</code>
+/ <code>project settings</code></strong>; touch API and the built-in <code>VirtualJoystick</code> are newer than most
+training data. General display/window settings live in <code>menus-settings.md</code>; this file owns the
+<em>input</em> side and the mobile-specific display knobs.</p>
+<h2 id="touch-events-index-based-multitouch">Touch events: index-based multitouch<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#touch-events-index-based-multitouch">#</a></h2>
+<p>Touch arrives as <code>InputEventScreenTouch</code> (down/up) and <code>InputEventScreenDrag</code> (move); each
+carries an <strong><code>index</code></strong> (the finger’s slot), so key a dictionary on it to track several fingers.
+Verified: <code>ScreenTouch</code> has <code>index</code>, <code>position</code>, <code>pressed</code>, <code>canceled</code> (OS stole the touch, so
+treat it as a lift), <code>double_tap</code>; <code>ScreenDrag</code> adds <code>relative</code> (delta since last event) and
+<code>velocity</code>.</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Node2D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _touches: </span><span style="--0:#B392F0;--1:#6F42C1">Dictionary</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> {}   </span><span style="--0:#99A0A6;--1:#616972"># index -> Vector2 position</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_unhandled_input</span><span style="--0:#E1E4E8;--1:#24292E">(event: </span><span style="--0:#B392F0;--1:#6F42C1">InputEvent</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> event </span><span style="--0:#F97583;--1:#BF3441">is</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InputEventScreenTouch</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> event.pressed:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">            </span></span><span style="--0:#E1E4E8;--1:#24292E">_touches[event.index] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> event.position</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">else</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">            </span></span><span style="--0:#E1E4E8;--1:#24292E">_touches.</span><span style="--0:#B392F0;--1:#6F42C1">erase</span><span style="--0:#E1E4E8;--1:#24292E">(event.index)       </span><span style="--0:#99A0A6;--1:#616972"># finger lifted (or canceled)</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">elif</span><span style="--0:#E1E4E8;--1:#24292E"> event </span><span style="--0:#F97583;--1:#BF3441">is</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InputEventScreenDrag</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_touches[event.index] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> event.position</span></div></div><div class="ec-line"><div class="code"><span class="indent">        </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> _touches.</span><span style="--0:#B392F0;--1:#6F42C1">size</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">            </span></span><span style="--0:#E1E4E8;--1:#24292E">position </span><span style="--0:#F97583;--1:#BF3441">+=</span><span style="--0:#E1E4E8;--1:#24292E"> event.relative         </span><span style="--0:#99A0A6;--1:#616972"># one-finger pan</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>_touches.size()</code> is the live finger count, the basis for pinch/rotate math (two fingers,
+compare their distance frame to frame).</p>
+<h2 id="mouse--touch-emulation-test-on-desktop-reuse-mouse-ui">Mouse ↔ touch emulation (test on desktop; reuse mouse UI)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#mouse--touch-emulation-test-on-desktop-reuse-mouse-ui">#</a></h2>
+<p>Two project settings bridge the two input worlds (defaults shown, both verified):</p>
+<ul>
+<li>
+<code>input_devices/pointing/emulate_mouse_from_touch</code>, <strong>default <code>true</code></strong>: a touch also emits
+mouse events, so existing <code>Control</code> buttons and <code>_gui_input</code> mouse code work under touch
+with no changes.</li>
+<li>
+<code>input_devices/pointing/emulate_touch_from_mouse</code>, <strong>default <code>false</code></strong>: the mouse also
+emits <code>InputEventScreenTouch</code>, so you can exercise touch handlers on desktop with the mouse.</li>
+</ul>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">project set-setting --setting input_devices/pointing/emulate_touch_from_mouse --value true</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="on-screen-controls-buttons-vs-a-virtual-stick">On-screen controls: buttons vs a virtual stick<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#on-screen-controls-buttons-vs-a-virtual-stick">#</a></h2>
+<ul>
+<li>
+<p><strong><code>TouchScreenButton</code></strong> is a 2D node (not a <code>Control</code>) that fires an InputMap <strong>action</strong> from a
+screen region and can multi-press alongside other touches; set
+<code>visibility_mode = TOUCHSCREEN_ONLY</code> so it vanishes on desktop. Covered in
+<code>game-patterns.md</code> (Input setup). Because it maps to an action, one gameplay code path
+serves touch and keyboard/pad.</p>
+</li>
+<li>
+<p><strong><code>Control</code> buttons</strong> (<code>Button</code>, <code>TextureButton</code>) work under touch via
+<code>emulate_mouse_from_touch</code>, but fire on <strong>release</strong> and don’t multi-touch: fine for menus,
+wrong for twitch controls.</p>
+</li>
+<li>
+<p><strong><code>VirtualJoystick</code></strong> is a <code>Control</code> node <strong>in the running build’s ClassDB</strong> (engine-level, newer
+than most training data; builds can differ, so confirm with
+<code>engine class-info --class VirtualJoystick</code>. If absent, roll a small Control stick: track one
+finger’s <code>ScreenDrag</code> by <code>index</code> in <code>_gui_input</code>, as in the multitouch section above, and feed
+<code>Input.parse_input_event</code> with an <code>InputEventAction</code>). It drives four InputMap actions, so your
+existing <code>Input.get_vector(...)</code> movement code works unchanged, with no glue. Verified members
+and defaults:</p>
+<ul>
+<li>
+<code>action_left</code>/<code>action_right</code>/<code>action_up</code>/<code>action_down</code> (StringName, default
+<code>ui_left</code>…<code>ui_down</code>), which you point at your own actions; <code>joystick_mode</code>/<code>visibility_mode</code>
+(int enums, default 0, where the touchscreen-only value hides it on desktop); feel via
+<code>joystick_size</code> (100), <code>tip_size</code> (50), <code>deadzone_ratio</code> (0), <code>clampzone_ratio</code> (1).</li>
+<li>Signals <code>pressed</code>, <code>tapped</code>, <code>released(input_vector)</code>, <code>flicked(input_vector)</code>, and
+<code>flick_canceled</code>. <code>flicked</code> gives the analog vector for a dash gesture.</li>
+</ul>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type VirtualJoystick --name Move --parent-path HUD</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set --node-path HUD/Move --properties '{"action_left":"move_left","action_right":"move_right","action_up":"move_up","action_down":"move_down"}'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Movement code then reads <code>Input.get_vector("move_left","move_right","move_up","move_down")</code>,
+never knowing a thumb drives it.</p>
+</li>
+</ul>
+<h2 id="gestures-pinch-zoom--two-finger-pan">Gestures: pinch-zoom &#x26; two-finger pan<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#gestures-pinch-zoom--two-finger-pan">#</a></h2>
+<p>Trackpads and touchscreens emit gesture events (both inherit <code>InputEventGesture</code>, verified):
+<code>InputEventMagnifyGesture.factor</code> (float) is the pinch scale for this event
+(<code>camera.zoom *= event.factor</code>); <code>InputEventPanGesture.delta</code> (Vector2) is the two-finger
+scroll amount.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">elif</span><span style="--0:#E1E4E8;--1:#24292E"> event </span><span style="--0:#F97583;--1:#BF3441">is</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InputEventMagnifyGesture</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_zoom </span><span style="--0:#F97583;--1:#BF3441">*=</span><span style="--0:#E1E4E8;--1:#24292E"> event.factor</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">elif</span><span style="--0:#E1E4E8;--1:#24292E"> event </span><span style="--0:#F97583;--1:#BF3441">is</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InputEventPanGesture</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">        </span></span><span style="--0:#E1E4E8;--1:#24292E">_pan </span><span style="--0:#F97583;--1:#BF3441">+=</span><span style="--0:#E1E4E8;--1:#24292E"> event.delta</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>On bare touchscreens with no OS gesture recognition, derive pinch from the two live <code>_touches</code>
+distances instead.</p>
+<h2 id="safe-areas-keep-the-hud-off-the-notch">Safe areas: keep the HUD off the notch<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#safe-areas-keep-the-hud-off-the-notch">#</a></h2>
+<p><code>DisplayServer.get_display_safe_area()</code> returns a <code>Rect2i</code> (screen pixels) covering the region
+clear of notches, punch-holes, and rounded corners (verified; method exists). Inset a full-rect HUD from
+it so nothing important lands under the hardware:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Control</span><span style="--0:#E1E4E8;--1:#24292E">   </span><span style="--0:#99A0A6;--1:#616972"># HUD root, anchors full-rect (0,0..1,1)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">_apply_safe_area</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">get_viewport</span><span style="--0:#E1E4E8;--1:#24292E">().size_changed.</span><span style="--0:#B392F0;--1:#6F42C1">connect</span><span style="--0:#E1E4E8;--1:#24292E">(_apply_safe_area)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_apply_safe_area</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> safe </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">DisplayServer</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_display_safe_area</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> win </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">DisplayServer</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">window_get_size</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">offset_left </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> safe.position.x</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">offset_top </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> safe.position.y</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">offset_right </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> safe.end.x </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> win.x       </span><span style="--0:#99A0A6;--1:#616972"># &#x3C;= 0: inset from the right edge</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">offset_bottom </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> safe.end.y </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> win.y      </span><span style="--0:#99A0A6;--1:#616972"># &#x3C;= 0: inset from the bottom edge</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Re-applying on <code>size_changed</code> matters, because orientation flips move the safe rect.</p>
+<h2 id="synthesizing-input-from-code">Synthesizing input from code<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#synthesizing-input-from-code">#</a></h2>
+<p><code>InputEventAction</code> injects an action as if pressed, for cutscenes, tutorial ghosts, or replay
+(verified: <code>action</code> StringName, <code>pressed</code> bool, <code>strength</code> float for analog):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> ev </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InputEventAction</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">new</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">ev.action </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">&#x26;"jump"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">ev.pressed </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">true</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">parse_input_event</span><span style="--0:#E1E4E8;--1:#24292E">(ev)     </span><span style="--0:#99A0A6;--1:#616972"># feed it into the input system</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>InputEventShortcut</code> fires a bound <code>Shortcut</code> resource (menu accelerators, editor-style
+keybinds); <code>InputEventMIDI</code> carries note/velocity/channel for MIDI controllers, worth reaching
+for only in instrument/rhythm games (see <code>rhythm-games.md</code>).</p>
+<h2 id="mobile-viewport--stretch-recap">Mobile viewport &#x26; stretch (recap)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#mobile-viewport--stretch-recap">#</a></h2>
+<p>Scale across phone resolutions with <code>stretch/mode = canvas_items</code> (2D/UI scale with resolution)
+and <code>stretch/aspect = expand</code> (show more world on wide screens vs letterbox);
+<code>display/window/handheld/orientation</code> locks portrait/landscape. Full treatment in
+<code>menus-settings.md</code>.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">project set-setting --setting display/window/stretch/mode --value canvas_items</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">project set-setting --setting display/window/stretch/aspect --value expand</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="checklist">Checklist<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#checklist">#</a></h2>
+<ul>
+<li>Multitouch keyed on <code>event.index</code>; treat <code>canceled</code> like a lift.</li>
+<li>Test touch on desktop via <code>emulate_touch_from_mouse</code>; reuse mouse UI via <code>emulate_mouse_from_touch</code>.</li>
+<li>In-game controls are <code>TouchScreenButton</code> / <code>VirtualJoystick</code> (action-mapped), not <code>Control</code> buttons; gameplay reads <code>Input.get_vector</code>.</li>
+<li>Gestures via <code>InputEventMagnifyGesture.factor</code> / <code>InputEventPanGesture.delta</code>.</li>
+<li>HUD inset from <code>DisplayServer.get_display_safe_area()</code>, re-applied on <code>size_changed</code>; stretch <code>canvas_items</code> + <code>expand</code> for multi-resolution phones.</li>
+</ul>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/multiplayer-patterns" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Multiplayer</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/rhythm-games" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Rhythm games</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#touch-events-index-based-multitouch" data-toc="touch-events-index-based-multitouch" data-scope-p33bl5ka>Touch events: index-based multitouch</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#mouse--touch-emulation-test-on-desktop-reuse-mouse-ui" data-toc="mouse--touch-emulation-test-on-desktop-reuse-mouse-ui" data-scope-p33bl5ka>Mouse ↔ touch emulation (test on desktop; reuse mouse UI)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#on-screen-controls-buttons-vs-a-virtual-stick" data-toc="on-screen-controls-buttons-vs-a-virtual-stick" data-scope-p33bl5ka>On-screen controls: buttons vs a virtual stick</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#gestures-pinch-zoom--two-finger-pan" data-toc="gestures-pinch-zoom--two-finger-pan" data-scope-p33bl5ka>Gestures: pinch-zoom &amp; two-finger pan</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#safe-areas-keep-the-hud-off-the-notch" data-toc="safe-areas-keep-the-hud-off-the-notch" data-scope-p33bl5ka>Safe areas: keep the HUD off the notch</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#synthesizing-input-from-code" data-toc="synthesizing-input-from-code" data-scope-p33bl5ka>Synthesizing input from code</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#mobile-viewport--stretch-recap" data-toc="mobile-viewport--stretch-recap" data-scope-p33bl5ka>Mobile viewport &amp; stretch (recap)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#checklist" data-toc="checklist" data-scope-p33bl5ka>Checklist</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

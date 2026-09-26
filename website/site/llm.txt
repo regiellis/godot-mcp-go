@@ -1,0 +1,64 @@
+# Swallowtail documentation
+
+Godot automation for your terminal, scripts and connected tools.
+
+- Overview: https://regiellis.github.io/godot-mcp-go/docs/llm.txt
+- Scripting and CI: https://regiellis.github.io/godot-mcp-go/docs/automation/llm.txt
+- Before you ship: https://regiellis.github.io/godot-mcp-go/docs/before-you-ship/llm.txt
+- Your own tools and UIs: https://regiellis.github.io/godot-mcp-go/docs/building-on-top/llm.txt
+- Changelog: https://regiellis.github.io/godot-mcp-go/docs/changelog/llm.txt
+- Command groups: https://regiellis.github.io/godot-mcp-go/docs/commands/llm.txt
+- What the tool surface costs: https://regiellis.github.io/godot-mcp-go/docs/context-cost/llm.txt
+- C# projects: https://regiellis.github.io/godot-mcp-go/docs/csharp/llm.txt
+- Live dashboard: https://regiellis.github.io/godot-mcp-go/docs/dashboard/llm.txt
+- Discover, then drive: https://regiellis.github.io/godot-mcp-go/docs/discover-then-drive/llm.txt
+- Dueling Dice QA case study: https://regiellis.github.io/godot-mcp-go/docs/dueling-dice-qa/llm.txt
+- Agent evals: https://regiellis.github.io/godot-mcp-go/docs/evals/llm.txt
+- Add your own commands: https://regiellis.github.io/godot-mcp-go/docs/extending/llm.txt
+- Game QA and release reports: https://regiellis.github.io/godot-mcp-go/docs/game-qa/llm.txt
+- Live-engine gotchas: https://regiellis.github.io/godot-mcp-go/docs/gotchas/llm.txt
+- Building the Godot way: https://regiellis.github.io/godot-mcp-go/docs/guides/llm.txt
+- Steering and agent movement: https://regiellis.github.io/godot-mcp-go/docs/guides/ai-steering/llm.txt
+- Audio and music: https://regiellis.github.io/godot-mcp-go/docs/guides/audio-music/llm.txt
+- boss-patterns: https://regiellis.github.io/godot-mcp-go/docs/guides/boss-patterns/llm.txt
+- 3D character controllers: https://regiellis.github.io/godot-mcp-go/docs/guides/character-3d/llm.txt
+- C# in Godot: https://regiellis.github.io/godot-mcp-go/docs/guides/csharp-godot/llm.txt
+- Deckbuilders: https://regiellis.github.io/godot-mcp-go/docs/guides/deckbuilder-patterns/llm.txt
+- Environment art: https://regiellis.github.io/godot-mcp-go/docs/guides/environment-art/llm.txt
+- Event / decision games: https://regiellis.github.io/godot-mcp-go/docs/guides/event-deck-games/llm.txt
+- Game patterns: https://regiellis.github.io/godot-mcp-go/docs/guides/game-patterns/llm.txt
+- Videos and trailers: https://regiellis.github.io/godot-mcp-go/docs/guides/game-trailers/llm.txt
+- GDScript architecture: https://regiellis.github.io/godot-mcp-go/docs/guides/gdscript-architecture/llm.txt
+- GDScript style: https://regiellis.github.io/godot-mcp-go/docs/guides/gdscript-style/llm.txt
+- In-game docs: https://regiellis.github.io/godot-mcp-go/docs/guides/in-game-docs/llm.txt
+- Level design: https://regiellis.github.io/godot-mcp-go/docs/guides/level-design/llm.txt
+- 2D lighting: https://regiellis.github.io/godot-mcp-go/docs/guides/lighting-2d/llm.txt
+- Menus and settings: https://regiellis.github.io/godot-mcp-go/docs/guides/menus-settings/llm.txt
+- Mobile and touch: https://regiellis.github.io/godot-mcp-go/docs/guides/mobile-touch/llm.txt
+- Multiplayer: https://regiellis.github.io/godot-mcp-go/docs/guides/multiplayer-patterns/llm.txt
+- Narrative / visual novel: https://regiellis.github.io/godot-mcp-go/docs/guides/narrative-game-patterns/llm.txt
+- 2D platformers: https://regiellis.github.io/godot-mcp-go/docs/guides/platformer-2d/llm.txt
+- Porting between Godot versions: https://regiellis.github.io/godot-mcp-go/docs/guides/porting-godot-versions/llm.txt
+- Project structure: https://regiellis.github.io/godot-mcp-go/docs/guides/project-structure/llm.txt
+- Rhythm games: https://regiellis.github.io/godot-mcp-go/docs/guides/rhythm-games/llm.txt
+- Run-based / roguelite: https://regiellis.github.io/godot-mcp-go/docs/guides/run-based-games/llm.txt
+- Save systems: https://regiellis.github.io/godot-mcp-go/docs/guides/save-systems/llm.txt
+- Shaders and VFX: https://regiellis.github.io/godot-mcp-go/docs/guides/shaders-vfx/llm.txt
+- Shipping and export: https://regiellis.github.io/godot-mcp-go/docs/guides/shipping-export/llm.txt
+- Constraint tiling: https://regiellis.github.io/godot-mcp-go/docs/guides/tile-constraint/llm.txt
+- Top-down 2D: https://regiellis.github.io/godot-mcp-go/docs/guides/topdown-2d/llm.txt
+- 2D UI polish: https://regiellis.github.io/godot-mcp-go/docs/guides/ui-polish-2d/llm.txt
+- Unreal import cleanup: https://regiellis.github.io/godot-mcp-go/docs/guides/unreal-import-cleanup/llm.txt
+- How it works: https://regiellis.github.io/godot-mcp-go/docs/how-it-works/llm.txt
+- Installation: https://regiellis.github.io/godot-mcp-go/docs/installation/llm.txt
+- Use with an AI client: https://regiellis.github.io/godot-mcp-go/docs/mcp-setup/llm.txt
+- Migrating to Swallowtail: https://regiellis.github.io/godot-mcp-go/docs/migration/llm.txt
+- What's not supported: https://regiellis.github.io/godot-mcp-go/docs/not-supported/llm.txt
+- Why Swallowtail exists: https://regiellis.github.io/godot-mcp-go/docs/on-ai/llm.txt
+- Playtest loop: https://regiellis.github.io/godot-mcp-go/docs/playtest-loop/llm.txt
+- Terminal quickstart: https://regiellis.github.io/godot-mcp-go/docs/quickstart/llm.txt
+- Samples: https://regiellis.github.io/godot-mcp-go/docs/samples/llm.txt
+- Spatial placement: https://regiellis.github.io/godot-mcp-go/docs/spatial-placement/llm.txt
+- How it's tested: https://regiellis.github.io/godot-mcp-go/docs/testing/llm.txt
+- Upgrading a project: https://regiellis.github.io/godot-mcp-go/docs/upgrading/llm.txt
+- Validate scenes and scripts: https://regiellis.github.io/godot-mcp-go/docs/validation/llm.txt

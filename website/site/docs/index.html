@@ -1,0 +1,354 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview · Swallowtail</title><meta name="description" content="The complete build, play, debug, fix, and verify workflow through one Godot interface.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Overview · Swallowtail">
+<meta property="og:description" content="The complete build, play, debug, fix, and verify workflow through one Godot interface.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<style>.shell-tabs[data-scope-rs4ffo3c]{margin:1rem 0 1.25rem}.st-bar[data-scope-rs4ffo3c]{border-bottom:1px solid var(--border);gap:.25rem;display:flex}.st-tab[data-scope-rs4ffo3c]{font-family:var(--font-mono);color:var(--text-muted);cursor:pointer;background:0 0;border:none;border-bottom:2px solid #0000;margin-bottom:-1px;padding:.35rem .65rem;font-size:.8rem;font-weight:560;transition:color .15s,border-color .15s}.st-tab[data-scope-rs4ffo3c]:hover{color:var(--text)}.st-tab[data-scope-rs4ffo3c].active{color:var(--text);border-bottom-color:var(--primary)}.st-panel[data-scope-rs4ffo3c]{display:none}.st-panel[data-scope-rs4ffo3c].active{display:block}
+</style><link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link active" aria-current="page" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Overview</h1>
+<p class="page-desc" data-scope-ccykbmgk>The complete build, play, debug, fix, and verify workflow through one Godot interface.</p>
+</header>
+<p><strong>Swallowtail</strong> is an automation toolkit for Godot. Inspect scenes, edit projects,
+run checks, and playtest from your terminal. Reuse the same commands in your
+scripts and connect them to your other tools.</p>
+<p>Use <code>swallowtail</code> for new commands. The deprecated <code>godot-mcp</code> executable still
+ships in the same bundle. To move an existing addon installation, follow
+<a href="/godot-mcp-go/docs/migration">Migrating to Swallowtail</a>.</p>
+<h2 id="start-where-you-work">Start where you work<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#start-where-you-work">#</a></h2>
+<ul>
+<li>
+<strong>Run commands:</strong> follow the <a href="/godot-mcp-go/docs/quickstart">terminal quickstart</a> to build and play
+a scene in a fresh project.</li>
+<li>
+<strong>Automate your workflow:</strong> compose commands with JSON, exit codes, and shell scripts in
+<a href="/godot-mcp-go/docs/automation">Scripting and CI</a>.</li>
+<li>
+<strong>Connect your tools:</strong> use the CLI directly, or configure the <a href="/godot-mcp-go/docs/mcp-setup">optional MCP interface</a>.</li>
+</ul>
+<h2 id="alongside-godots-cli">Alongside Godot’s CLI<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#alongside-godots-cli">#</a></h2>
+<p>Godot’s built-in command line handles engine startup, scripts, imports, and
+exports. Swallowtail invokes your installed engine for those jobs and adds
+commands for the open editor and running game. See <a href="/godot-mcp-go/docs/how-it-works">How it works</a>.</p>
+<h2 id="the-working-loop">The working loop<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#the-working-loop">#</a></h2>
+<p><code>discover → build → run → play → observe → debug → fix → verify</code></p>
+<p>Because the CLI talks to the <em>live</em> editor and game, each stage can verify the previous one against real state. Ask the engine what it supports, read changes back, drive gameplay through input, and use the debugger when behavior differs from what you intended.</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css"/>
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># 1. discover: ask the live ClassDB what exists</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">engine</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">search</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--query</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">offset_transform</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># 2. build: act through typed or generic commands</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">node</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">set</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--node-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Player</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--property</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">position</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--value</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;Vector2(100, 200)&quot;</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># 3. run and play</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">scene</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">play</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--mode</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">main</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">input</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">action</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--action</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">ui_accept</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--pressed</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">true</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># 4. observe and verify</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">runtime</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">get</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--node-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Player</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--properties</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&#39;[&quot;position&quot;]&#39;</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">runtime</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">errors</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="where-to-go-next">Where to go next<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#where-to-go-next">#</a></h2>
+<div class="card-grid">
+<a class="card" href="/godot-mcp-go/docs/quickstart"><div class="card-icon">
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.9.7-2.2-.1-3a2.1 2.1 0 0 0-2.9 0Z"/><path d="M12 15 9 12a11 11 0 0 1 7-8 6 6 0 0 1 4 4 11 11 0 0 1-8 7Z"/><path d="M15 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/></svg></div>
+<div class="card-title">Quickstart</div>
+<div class="card-desc">
+<p>Build and play a scene from an empty project.</p>
+</div>
+</a><a class="card" href="/godot-mcp-go/docs/installation"><div class="card-icon">
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8v8a2 2 0 0 1-1 1.7l-7 4a2 2 0 0 1-2 0l-7-4A2 2 0 0 1 3 16V8a2 2 0 0 1 1-1.7l7-4a2 2 0 0 1 2 0l7 4A2 2 0 0 1 21 8Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></div>
+<div class="card-title">Installation</div>
+<div class="card-desc">
+<p>Add the addon to a project, or bootstrap a new one.</p>
+</div>
+</a><a class="card" href="/godot-mcp-go/docs/mcp-setup"><div class="card-icon">
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg></div>
+<div class="card-title">Use with an AI client</div>
+<div class="card-desc">
+<p>Wire the MCP server into Claude, Cursor, VS Code, or Codex.</p>
+</div>
+</a><a class="card" href="/godot-mcp-go/docs/commands"><div class="card-icon">
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></svg></div>
+<div class="card-title">Command groups</div>
+<div class="card-desc">
+<p>The command groups and how invocation works.</p>
+</div>
+</a></div>
+<h2 id="requirements-at-a-glance">Requirements at a glance<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#requirements-at-a-glance">#</a></h2>
+<ul>
+<li>
+<strong>Godot 4.7</strong>, the development target. <strong>4.3 through 4.8</strong> work in beta; see <a href="/godot-mcp-go/docs/installation">Installation</a>.</li>
+<li>
+<strong>Go 1.26+</strong> to build the CLI (or use a release binary).</li>
+<li>The editor must be open with the <strong>Swallowtail</strong> plugin enabled; the CLI is a short-lived client that dials in per command.</li>
+</ul>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<span data-scope-ccykbmgk></span><a class="pager-link next" href="/godot-mcp-go/docs/quickstart" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Quickstart</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#start-where-you-work" data-toc="start-where-you-work" data-scope-p33bl5ka>Start where you work</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#alongside-godots-cli" data-toc="alongside-godots-cli" data-scope-p33bl5ka>Alongside Godot’s CLI</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-working-loop" data-toc="the-working-loop" data-scope-p33bl5ka>The working loop</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#where-to-go-next" data-toc="where-to-go-next" data-scope-p33bl5ka>Where to go next</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#requirements-at-a-glance" data-toc="requirements-at-a-glance" data-scope-p33bl5ka>Requirements at a glance</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

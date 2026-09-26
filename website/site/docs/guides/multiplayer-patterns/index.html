@@ -1,0 +1,544 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Multiplayer · Swallowtail</title><meta name="description" content="Scene-tree replication, ENet, authority gates, @rpc arguments, the co-op skeleton, intent RPCs vs synced state.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Multiplayer · Swallowtail">
+<meta property="og:description" content="Scene-tree replication, ENet, authority gates, @rpc arguments, the co-op skeleton, intent RPCs vs synced state.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link active" aria-current="page" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Multiplayer</h1>
+<p class="page-desc" data-scope-ccykbmgk>Scene-tree replication, ENet, authority gates, @rpc arguments, the co-op skeleton, intent RPCs vs synced state.</p>
+</header>
+<p>Godot high-level multiplayer patterns with swallowtail</p>
+<p>Building co-op / versus games on Godot’s <strong>high-level multiplayer</strong> (<code>SceneMultiplayer</code> +
+RPC + the replication nodes), mapped to the CLI. The <code>multiplayer</code> command group wires the
+two replication nodes; everything else is plain <code>node.*</code> / <code>script.*</code> plus the live API.
+<strong>Verify APIs against the running engine</strong> (<code>engine class-info --class MultiplayerAPI</code>). The class surface
+below was read from the running build, but <em>two-peer behavior cannot be exercised from
+this single-instance CLI</em>. The runtime claims are the standard architecture, proven with two
+real instances (see “Testing locally”), not something this session watched replicate.</p>
+<p>The mental model</p>
+<p>High-level multiplayer replicates a <strong>scene tree</strong>, not packets. Every peer runs the same
+scene with the same node paths: <code>/root/Game/Players/12345</code> must exist and mean the same
+thing everywhere, because RPCs and synchronizers address nodes <strong>by path</strong>. Break path
+symmetry and every message silently misfires.</p>
+<ul>
+<li>
+<strong>One <code>MultiplayerAPI</code> per node</strong>. Each <code>Node</code> exposes <code>multiplayer</code> (verified), and by
+default all share the tree’s one API. It carries the peer, the connection signals, and
+<code>get_unique_id()</code> / <code>is_server()</code> / <code>get_peers()</code> / <code>get_remote_sender_id()</code> (all verified).</li>
+<li>
+<strong>Server-authoritative is the default</strong>. State lives on the server; clients send <strong>intent</strong>
+(“move left”, “fire”), the server simulates, the result streams back. Clients never own
+truth, which is what makes a game hard to cheat. The pragmatic co-op shortcut (client owns
+its own player) is under Authority, with its tradeoff stated.</li>
+<li>
+<strong>Unique ids</strong>. The server is <strong>always peer <code>1</code></strong>; each client gets a random positive id.
+<code>multiplayer.get_unique_id()</code> returns this peer’s id (<code>1</code> = “I am the server”).</li>
+</ul>
+<p>This doc is realtime state replication; for request/response web traffic (leaderboards) use
+<code>HTTPRequest</code>, not this stack. See <code>game-patterns.md</code> “Networking over HTTP”.</p>
+<p>Connection &#x26; peers</p>
+<p><code>ENetMultiplayerPeer</code> is the transport. Verified: <code>create_server(port, max_clients, ...)</code> and
+<code>create_client(address, port, ...)</code> both return an <code>Error</code> int (<code>OK == 0</code>, so <strong>check it</strong>).
+Assign the peer to <code>multiplayer.multiplayer_peer</code> and the tree is networked.</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Node</span><span style="--0:#E1E4E8;--1:#24292E">     autoload </span><span style="--0:#9ECBFF;--1:#032F62">"Net"</span><span style="--0:#E1E4E8;--1:#24292E">, registered via `project add</span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">autoload`</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">const</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">PORT</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">8910</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">host</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Error</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> peer </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">ENetMultiplayerPeer</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">new</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> err </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> peer.</span><span style="--0:#B392F0;--1:#6F42C1">create_server</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">PORT</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">4</span><span style="--0:#E1E4E8;--1:#24292E">)     port, max_clients</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> err </span><span style="--0:#F97583;--1:#BF3441">!=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">OK</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> err                   port </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> use; never assume it bound</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">multiplayer.multiplayer_peer </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> peer        this peer </span><span style="--0:#F97583;--1:#BF3441">is</span><span style="--0:#E1E4E8;--1:#24292E"> now id </span><span style="--0:#79B8FF;--1:#005CC5">1</span><span style="--0:#E1E4E8;--1:#24292E"> (the server)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">OK</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">join</span><span style="--0:#E1E4E8;--1:#24292E">(address: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Error</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> peer </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">ENetMultiplayerPeer</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">new</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> err </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> peer.</span><span style="--0:#B392F0;--1:#6F42C1">create_client</span><span style="--0:#E1E4E8;--1:#24292E">(address, </span><span style="--0:#79B8FF;--1:#005CC5">PORT</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> err </span><span style="--0:#F97583;--1:#BF3441">!=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">OK</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> err</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">multiplayer.multiplayer_peer </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> peer</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">OK</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Connection signals live on <code>MultiplayerAPI</code>, not <code>SceneTree</code></strong> (verified: the engine moved them
+off the tree). Wire once in the autoload’s <code>_ready</code>: <code>peer_connected(id)</code> /
+<code>peer_disconnected(id)</code> fire on every peer; <code>connected_to_server()</code> / <code>connection_failed()</code> /
+<code>server_disconnected()</code> are client-only. Server-side <code>peer_connected</code> is where you spawn the
+newcomer’s player. Host/Join <strong>buttons</strong> and the lobby menu belong to a Control scene. Build
+it with the container-driven skeleton in <code>menus-settings.md</code>; the <code>pressed</code> handler calls
+<code>Net.host()</code> / <code>Net.join(address)</code>. Autoload tiering: <code>gdscript-architecture.md</code>.</p>
+<p>Authority decides who owns each node</p>
+<p>It settles which peer’s copy of a node is truth (verified <code>Node</code> methods):
+<code>set_multiplayer_authority(id, recursive = true)</code> claims a node (and its subtree);
+<code>is_multiplayer_authority()</code> asks “do I own this?”; <code>get_multiplayer_authority()</code> returns the
+owner. <strong>Authority defaults to the server (1)</strong> until reassigned. <strong>Gate simulation on it</strong>:
+the owner runs the logic (<code>if not is_multiplayer_authority(): return</code> at the top of
+<code>_physics_process</code>), and everyone else just displays the replicated result (skeleton below).</p>
+<ul>
+<li>
+<p><strong>Server owns the world</strong>, meaning enemies, doors, score, and physics. Authority stays <code>1</code>.
+Discrete facts go out as RPCs from the server; continuous state rides a synchronizer.</p>
+</li>
+<li>
+<p><strong>Each client owns its own player</strong> (client-authoritative input), the <em>pragmatic co-op
+shortcut</em>. In <code>_ready</code>, <code>set_multiplayer_authority(str(name).to_int())</code> (node named for its peer
+id, below); the gate lets only the owner drive it. Cheap, responsive, no round-trip lag on
+your own avatar. <strong>Tradeoff: it trusts the client.</strong> A modded client can teleport or
+speed-hack, because its position <em>is</em> the truth. Fine for friendly co-op, wrong for
+competitive, where authority stays on the server: the client sends an intent RPC
+(<code>request_move(dir)</code>), the server validates and simulates, and the synchronizer streams the
+vetted position back.</p>
+<p>Remote procedure calls with @rpc</p>
+</li>
+</ul>
+<p><code>@rpc</code> marks a function callable across the wire. <strong>Its annotation arguments cannot be read
+from <code>ClassDB</code></strong> (parser sugar), so the accepted set was verified by <strong>compiling variants</strong>
+through <code>script validate</code>, where an invalid argument is a hard parse error. Confirmed-valid
+arguments (order-independent, all optional):</p>
+<ul>
+<li>
+<strong>Who may call:</strong> <code>"authority"</code> (the default, only the node’s authority) or <code>"any_peer"</code>
+(required for client→server intent).</li>
+<li>
+<strong>Local execution:</strong> <code>"call_remote"</code> (the default, remote peers only) or <code>"call_local"</code> (also
+runs on the caller, so the sender sees its own effect).</li>
+<li>
+<strong>Transfer mode:</strong> <code>"reliable"</code> (resent until acked, for state and chat), <code>"unreliable"</code>
+(the default, for high-frequency streams), <code>"unreliable_ordered"</code> (drops stale, keeps order);
+plus a trailing <strong>int</strong> channel (default <code>0</code>) to avoid head-of-line blocking between traffic.</li>
+</ul>
+<p>Verified to <strong>compile</strong>: <code>@rpc</code>, <code>@rpc("any_peer")</code>, <code>@rpc("call_local")</code>, <code>@rpc("reliable")</code>,
+<code>@rpc("unreliable_ordered")</code>, and the full <code>@rpc("any_peer", "call_local", "reliable", 2)</code>.
+Verified to <strong>fail</strong>: <code>@rpc("bogus_mode")</code> and <code>@rpc(..., "super_reliable", 0)</code>. A wrong mode
+string is a parse error, so validate any hand-written annotation before trusting it.</p>
+<p>Invoke with <code>rpc("method", args...)</code> (all peers) or <code>rpc_id(1, "method", args...)</code> (one target,
+here the server). <strong>Always validate an <code>any_peer</code> RPC’s caller</strong> with
+<code>multiplayer.get_remote_sender_id()</code> (verified), or a client calls your server functions
+directly. Author RPCs with <code>script edit</code> (annotated methods on the node’s script).</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@rpc</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"any_peer"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"reliable"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">request_fire</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> who </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> multiplayer.</span><span style="--0:#B392F0;--1:#6F42C1">get_remote_sender_id</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_player_owns_a_gun</span><span style="--0:#E1E4E8;--1:#24292E">(who):     never trust the call blindly</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">_spawn_bullet_for</span><span style="--0:#E1E4E8;--1:#24292E">(who)              server authoritative: server does the work</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>MultiplayerSpawner replicates node existence</p>
+<p>A synchronizer replicates <em>properties of existing nodes</em>; a <code>MultiplayerSpawner</code> replicates
+<strong>the existence</strong> of nodes. Verified: <code>add_spawnable_scene(path)</code>, <code>spawn_path</code> (NodePath),
+<code>spawn_limit</code> (int), <code>spawn_function</code> (Callable), <code>spawn(data)</code>.</p>
+<ul>
+<li>
+<strong>Auto-spawn:</strong> when the <strong>server</strong> <code>add_child()</code>s a node under the spawner’s <code>spawn_path</code>
+node, and that scene is in the spawnable list, the spawner recreates it on every client.
+That is the common path, and you never call <code>spawn()</code> yourself.</li>
+<li>
+<strong><code>spawn_function</code></strong> handles <strong>custom-data</strong> spawns: a <code>Callable(data) -> Node</code>, then
+<code>spawn(data)</code> (character choice, spawn point). Our command doesn’t set it; assign in code.</li>
+</ul>
+<p>Our command wires the awkward <code>spawn_path</code> NodePath (a <strong>scene-relative</strong> path it resolves to
+the stored spawner-relative one) and the scene list, validating each exists (<code>missing_scenes</code>);
+<code>--spawn-limit</code> caps concurrent spawns:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type Node --name Players --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">multiplayer add-spawner --parent-path . --name PlayerSpawner \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">--spawn-path Players --scenes '["res://entities/player.tscn"]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">multiplayer info --node-path PlayerSpawner      read spawn_path + spawnable_scenes back</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene save</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>MultiplayerSynchronizer replicates node properties</p>
+<p>Streams chosen properties from a node’s <strong>authority</strong> to everyone else, driven by a
+<code>SceneReplicationConfig</code>. Verified: <code>root_path</code> (NodePath, default <code>..</code>, meaning its parent),
+<code>replication_config</code>, <code>replication_interval</code>, <code>delta_interval</code>, <code>public_visibility</code> (bool),
+<code>set_visibility_for(peer, visible)</code>, <code>visibility_update_mode</code>. The config is built with
+<code>add_property(path)</code> + <code>property_set_spawn/sync/watch(path, enabled)</code> (all verified).</p>
+<ul>
+<li>
+<strong>Property paths are relative to <code>root_path</code></strong>. <code>.:position</code> is the root node’s own
+<code>position</code>; <code>Sprite2D:modulate</code> a child’s. Make the synchronizer a <strong>child of</strong> what it
+syncs and leave <code>root_path</code> default.</li>
+<li>
+<strong><code>sync</code> vs <code>watch</code>:</strong> a <em>synced</em> property sends every interval; a <em>watched</em> one sends (on
+<code>delta_interval</code>) only when it changes, which is cheaper for rarely-moving state. <em>spawn</em>
+includes the value in the initial spawn snapshot.</li>
+<li>
+<strong><code>replication_interval</code></strong> throttles frequency, and <code>0</code> (default) = every network frame (the
+bound setter names its arg <code>milliseconds</code>). <strong>Visibility:</strong> <code>public_visibility = false</code> +
+<code>set_visibility_for(peer, true)</code> scopes a synchronizer to specific peers (fog-of-war).</li>
+</ul>
+<p><strong>The direction gotcha:</strong> a synchronizer replicates <strong>FROM the authority of its <code>root_path</code>
+node TO everyone else.</strong> If the player’s authority is its owning client, that client’s
+position is the source and streams outward; if authority is the server, the server’s copy
+wins. Set authority <em>before</em> relying on the sync, or you stream the wrong copy and rubber-band.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">multiplayer add-synchronizer --parent-path . --name Sync --root . \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">--properties '[".:position", ".:rotation"]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">multiplayer add-sync-property --node-path Sync --property ".:velocity" --watch=true --sync=false</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene save</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The canonical co-op skeleton</p>
+<p>A host/join lobby, a spawner minting one player per peer, per-peer authority, and a
+synchronizer streaming each player’s transform. Client-authoritative input (the shortcut); the
+notes above say how to harden it to server-authoritative.</p>
+<p><strong>1. Player scene</strong> gates on authority and self-assigns it from its node name:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene create --path res://entities/player.tscn --root-type CharacterBody2D --root-name Player</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene open --path res://entities/player.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type Sprite2D --name Sprite --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type CollisionShape2D --name Col --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add-resource --node-path Col --property shape --resource-type CircleShape2D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">multiplayer add-synchronizer --parent-path . --name Sync --root . --properties '[".:position"]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script create --path res://entities/player.gd --extends CharacterBody2D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script attach --node-path . --script-path res://entities/player.gd</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene save</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">CharacterBody2D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> speed </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">300.0</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">set_multiplayer_authority</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">str</span><span style="--0:#E1E4E8;--1:#24292E">(name).</span><span style="--0:#B392F0;--1:#6F42C1">to_int</span><span style="--0:#E1E4E8;--1:#24292E">())      node </span><span style="--0:#F97583;--1:#BF3441">is</span><span style="--0:#E1E4E8;--1:#24292E"> named </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> its peer id</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(_delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_multiplayer_authority</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E">                                     non</span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">owners are moved by the </span><span style="--0:#B392F0;--1:#6F42C1">Sync</span><span style="--0:#E1E4E8;--1:#24292E"> node</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Input</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_vector</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"move_left"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_right"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_up"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"move_down"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> dir </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> speed</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">move_and_slide</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>2. Game scene</strong> holds a <code>Players</code> container plus the spawner over it:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene create --path res://game.tscn --root-type Node2D --root-name Game</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene open --path res://game.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node add --type Node --name Players --parent-path .</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">multiplayer add-spawner --parent-path . --name PlayerSpawner \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">--spawn-path Players --scenes '["res://entities/player.tscn"]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene save</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>3. Server spawns on connect</strong> (in the <code>Net</code> autoload). The server instances a player named
+for the peer id under <code>Players</code>; the spawner replicates it, and each player’s <code>_ready</code> claims
+authority from its name, so the owner drives it and its synchronizer streams the result out:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">const</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">PLAYER</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">preload</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"res://entities/player.tscn"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_on_peer_connected</span><span style="--0:#E1E4E8;--1:#24292E">(id: </span><span style="--0:#B392F0;--1:#6F42C1">int</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> multiplayer.</span><span style="--0:#B392F0;--1:#6F42C1">is_server</span><span style="--0:#E1E4E8;--1:#24292E">():</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E">                                     only the server spawns</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> p </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">PLAYER</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">instantiate</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">p.name </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">str</span><span style="--0:#E1E4E8;--1:#24292E">(id)                               path symmetry: </span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#B392F0;--1:#6F42C1">Game</span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#B392F0;--1:#6F42C1">Players</span><span style="--0:#F97583;--1:#BF3441">/&#x3C;</span><span style="--0:#E1E4E8;--1:#24292E">id</span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> everywhere</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">get_node</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">"/root/Game/Players"</span><span style="--0:#E1E4E8;--1:#24292E">).</span><span style="--0:#B392F0;--1:#6F42C1">add_child</span><span style="--0:#E1E4E8;--1:#24292E">(p)    spawner sees the add → replicates it</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Spawn the host’s own player the same way after <code>host()</code> (call <code>_on_peer_connected(1)</code>).</p>
+<p>Intent RPCs vs synchronized state, never both for one fact</p>
+<p>The most common design error is replicating one fact two ways. Split by shape:</p>
+<ul>
+<li>
+<strong>Continuous state → <code>MultiplayerSynchronizer</code></strong>. Positions, rotations, and health change
+every frame, and only the <em>latest</em> value matters (a dropped unreliable packet self-corrects).</li>
+<li>
+<strong>Discrete events → RPCs</strong>. Fire, jump, pickup, chat, and “round over” are one-shot facts
+that must arrive exactly once (<code>"reliable"</code>) and are meaningless to poll.</li>
+</ul>
+<p>Pick one per fact. Do <strong>not</strong> sync a <code>bool is_firing</code> <em>and</em> send a <code>fire()</code> RPC, or the receiver
+acts twice. And never sync <strong>derived</strong> state: replicate the source and recompute UI locally.</p>
+<p>Transport security: ENet is plaintext UDP</p>
+<p>Raw <code>ENetMultiplayerPeer</code> traffic is unencrypted. Anyone on the path can read and replay it, which
+is irrelevant for a LAN party and relevant the moment strangers connect over the internet. The
+engine ships DTLS for it: <code>ENetConnection.dtls_server_setup(TLSOptions)</code> on the host and
+<code>dtls_client_setup(hostname, TLSOptions)</code> on the client (both confirmed on the live 4.7 build),
+at the cost of certificate setup. Most small games skip DTLS and lean on the pattern this doc
+already teaches, where the server validates every intent RPC and owns every fact. That protects
+the game’s integrity but not the traffic’s privacy. Decide which of the two you are protecting
+before reaching for either.</p>
+<p>Testing locally means being honest about the harness</p>
+<p>Networking needs <strong>two running instances</strong>, and this CLI cannot provide the second: the
+<code>runtime</code> / <code>input</code> groups broker <strong>one</strong> game process over file IPC, and there is no
+multi-instance driver here. Options, most practical first:</p>
+<ul>
+<li>
+<p><strong>Editor “Debug ▸ Customize Run Instances”</strong>. Godot’s editor launches N instances at
+once, each with its own args/feature tags (one server, the rest clients). An editor feature,
+not a CLI one; drive it by hand.</p>
+</li>
+<li>
+<p><strong>Two OS processes</strong> with a role flag your <code>_ready</code> reads: <code>godot --path . -- --server</code> and
+<code>godot --path . -- --client</code> (parse <code>OS.get_cmdline_args()</code> → <code>Net.host()</code> / <code>Net.join(...)</code>);
+a one-key test can spawn the second via <code>OS.create_process</code>.</p>
+</li>
+<li>
+<p><strong>What the CLI <em>can</em> verify</strong> on its single instance: scene structure (<code>scene tree</code>), that
+the spawner/synchronizer hold the right config (<code>multiplayer info</code>), that scripts compile and
+RPC annotations parse (<code>script validate</code>). The replication itself you confirm across two windows.</p>
+<p>Common mistakes to avoid</p>
+</li>
+<li>
+<p><strong>Peer set after scenes load</strong>. Assign <code>multiplayer.multiplayer_peer</code> and wire its signals
+<em>before</em> the networked scene enters the tree, or early spawns/RPCs fire into a peerless tree.</p>
+</li>
+<li>
+<p><strong>Missing authority checks</strong>. Every networked <code>_physics_process</code> / input handler needs the
+<code>if not is_multiplayer_authority(): return</code> gate, or peers simulate every node and diverge.</p>
+</li>
+<li>
+<p><strong>Mismatched node paths</strong>: a player named <code>str(id)</code> on the server but auto-named <code>Player2</code>
+on a client means every path-addressed message misses. Keep names identical everywhere.</p>
+</li>
+<li>
+<p><strong>Trusting client RPCs</strong>. An <code>@rpc("any_peer")</code> handler that skips <code>get_remote_sender_id()</code>
+validation lets any client run server logic with forged args.</p>
+</li>
+<li>
+<p><strong>Syncing derived state</strong>, or <strong>both an RPC and a synced property for one fact</strong> (receiver
+double-acts). See “Intent vs state”.</p>
+</li>
+<li>
+<p><strong>Trusting a remembered signal home</strong>. Connection signals are on <code>MultiplayerAPI</code>, not
+<code>SceneTree</code>; confirm any networking API with <code>engine class-info</code> before writing it.</p>
+</li>
+</ul>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/save-systems" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Save systems</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/mobile-touch" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Mobile and touch</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="true" data-scope-p33bl5ka>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

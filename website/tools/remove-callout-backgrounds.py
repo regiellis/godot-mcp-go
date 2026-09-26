@@ -8,7 +8,7 @@ from pathlib import Path
 
 from PIL import Image
 
-root = Path(__file__).resolve().parents[1] / "public" / "brand" / "callouts"
+root = Path(__file__).resolve().parents[1] / "site" / "brand" / "callouts"
 for path in sorted(root.glob("*.png")):
     original = Image.open(path)
     if original.mode == "RGBA" and original.getextrema()[3][0] == 0:

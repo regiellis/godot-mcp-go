@@ -1,0 +1,894 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Porting between Godot versions · Swallowtail</title><meta name="description" content="Moving a 4.x project up to 4.7 with evidence on both sides: a replayable baseline drive, the per-minor break list, and a measured noise floor to read the after numbers against.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Porting between Godot versions · Swallowtail">
+<meta property="og:description" content="Moving a 4.x project up to 4.7 with evidence on both sides: a replayable baseline drive, the per-minor break list, and a measured noise floor to read the after numbers against.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link active" aria-current="page" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Porting between Godot versions</h1>
+<p class="page-desc" data-scope-ccykbmgk>Moving a 4.x project up to 4.7 with evidence on both sides: a replayable baseline drive, the per-minor break list, and a measured noise floor to read the after numbers against.</p>
+</header>
+<p>Moving a project from an older 4.x release to 4.7 is a reimport plus a short list of real breaks.
+What decides whether the port succeeded happens on either side of that: a recorded picture of how
+the game behaved before, and the same drive replayed after. <code>swallowtail</code> runs the game, drives it,
+and reads state back, so the comparison is frames and numbers instead of memory.</p>
+<p>Scope is <strong>4.3 and up to 4.7</strong>, the range the addon runs in. Godot 3 projects are out of scope.</p>
+<p>Confirm anything below against the running build (<code>engine version</code>, <code>engine class-info --class TileMap</code>) rather than against this page. The shapes are stable and the signatures move.</p>
+<h2 id="the-upgrade-pipeline">The <code>upgrade</code> pipeline<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-upgrade-pipeline">#</a></h2>
+<p><code>swallowtail upgrade &#x3C;phase></code> runs the six phases below as commands. Each phase is a gate: it does
+its work, writes a report under <code>&#x3C;project>/.godot/upgrade/</code>, and stops. Nothing runs the next
+phase for you, because every phase ends with something a person should read. The phases are the
+spec for the commands, and each phase’s <strong>Build</strong> block names the command that runs it.</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th><th>Command</th><th>Needs</th><th>Writes</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>1 pre-flight</td><td><code>upgrade preflight [--old-godot PATH] [--godot PATH]</code></td><td>a clean tree, no editor</td><td><code>preflight.json</code>, one commit forcing warnings on</td></tr>
+<tr>
+<td>2 baseline</td><td><code>upgrade baseline --old-godot PATH [--scenario FILE]</code></td><td>the old binary (4.3+)</td><td><code>baseline/</code> frames, numbers, errors</td></tr>
+<tr>
+<td>3 open</td><td><code>upgrade open --godot PATH</code></td><td>the new binary</td><td>a tag, a branch, <code>open.json</code> with the bucketed to-do list</td></tr>
+<tr>
+<td>4 and 5 fix</td><td><code>upgrade fix --category NAME [--dry-run]</code></td><td>the new editor running</td><td>one proved edit per category, one commit each</td></tr>
+<tr>
+<td>6 verify</td><td><code>upgrade verify --godot PATH [--scenario FILE]</code></td><td>the new binary</td><td><code>verify.json</code>, the delta table</td></tr>
+</tbody>
+</table>
+<p><strong>What every phase reads, because the Output panel is not the whole story.</strong> An editor’s error
+panel shows the last few dozen lines, the analyzer results of scripts that happen to be open, and
+nothing that printed before the panel existed. Two of the costliest breaks print nothing at all: a
+property the new version dropped on resave, and a deprecation whose warning is off by default.
+So the harvest reads seven sources, and a report names which source each finding came from:</p>
+<ol>
+<li>The launch log. <code>launch --headless</code> captures the editor’s whole stdout and stderr to
+<code>.godot/swallowtail-launch.log</code>, unbounded, so boot-time failures (autoloads, <code>@tool</code> scripts)
+and the full reimport flood are there when the panel has already scrolled past them.</li>
+<li>Warnings forced on. <code>preflight</code> sets every <code>debug/gdscript/warnings/*</code> level to at least <code>warn</code>
+in its own commit before the first open (a key the engine defaults to <code>error</code> keeps the error,
+since lowering it during a port is the opposite of the point), and <code>verify</code> puts them back at
+the end. The parser reads these through a cached path, so a change made while the editor runs is
+invisible to it; it has to be in <code>project.godot</code> before launch. <strong>Reverting that commit is not
+enough on its own</strong>: the editor prunes any setting equal to its default on the next save, so most
+of the block is already gone by then and git’s three-way merge reads the whole hunk as reverted.
+<code>verify</code> runs the revert and then repairs whatever it left, key by key, through
+<code>project set-setting</code> and <code>project remove-setting</code>.</li>
+<li>
+<code>script validate --all</code>, the tree-wide compile.</li>
+<li>Every scene, opened and validated. <code>scene validate</code> flags a <code>MissingNode</code> or <code>MissingResource</code>
+placeholder and an <code>ext_resource</code> whose path no longer exists; <code>preflight</code> runs the same check
+offline over the <code>.tscn</code> and <code>.tres</code> text before anything is rewritten.</li>
+<li>The resave diff. The first open rewrites scenes, resources, and <code>project.godot</code>. <code>open</code> diffs
+every file the editor touched and reports each property or setting that went missing, as
+<code>scene, node, property</code>. This is the only place a silent drop shows up.</li>
+<li>The static rename sweep. The rename table matched against every <code>.gd</code> as text. A renamed
+method called on an untyped variable compiles clean and fails at runtime, so the compiler cannot
+find it; the text can.</li>
+<li>The drive. <code>baseline</code> and <code>verify</code> play the scenario and poll <code>runtime errors</code>; a fault breaks
+into the debugger and the report carries <code>debug state</code>’s stack. Coverage is whatever the drive
+exercised, and the report says so.</li>
+</ol>
+<p><strong><code>fix</code> applies, then proves it, then keeps or restores.</strong> Report-only is what the editor already
+gives you. Each category runs as one loop: capture (<code>authoring checkpoint --action capture</code>, a git
+tag, and the category’s count from <code>open.json</code>), apply through the tool’s own commands
+(<code>script edit</code> for text rewrites, <code>scene open</code> plus one <code>editor run-script</code> extraction plus
+<code>node delete</code> and <code>scene save</code> for the TileMap conversion, <code>project set-setting</code> for the feature
+tag), then prove it: <code>editor reload</code>, <code>script validate --all</code>, <code>editor errors --internal=false</code>,
+the drive. The category’s count must reach zero and neither the compile’s failure count nor the
+error panel’s may get worse. If either fails, <code>fix</code> restores the checkpoint and the captured files
+named by the plan, and reports why with <code>debug state</code>’s stack attached. <code>--dry-run</code> prints the diff and touches
+nothing. The categories <code>fix</code> can apply are the mechanical ones: the rename table, <code>@export_file</code>
+to <code>@export_file_path</code>, the typed <code>Dictionary</code> cast, the TileMap to TileMapLayer rewrite, the
+feature tag, and <code>.uid</code> sidecars. A GDExtension addon with no build for the target is the one
+finding that stays a report, and <code>preflight</code> refuses to continue past it.</p>
+<p><strong>Recovery captures the checkpoint and the plan’s files before applying changes.</strong> Each addon command commits its own
+<code>EditorUndoRedoManager</code> action and the wire has no way to group several calls into one, so a
+category taking more than one command cannot be a single Ctrl+Z. The checkpoint holds the scene’s
+node identities and transforms; file snapshots hold the bytes and existence of each planned path.
+The Git tag remains available for manual recovery. Automatic recovery leaves unrelated files alone,
+refreshes cached scripts and project settings, and reloads affected scene tabs from their restored files.
+Scene conversions require saved tabs and an editor that can report unsaved scenes. When a scene is
+open, checkpoint capture must succeed before applying a fix; file-only fixes can run with no scene open. <code>restored: true</code> requires successful recovery calls, a clean
+checkpoint diff, and matching file bytes after the editor refresh. Failures return <code>restored: false</code>
+with per-step <code>recovery_errors</code>; a failed reload is never reported as restored. Two
+further limits worth knowing before reading a report: <strong>the error panel is a running buffer</strong>, so
+both proof snapshots drain it and rescan rather than comparing raw counts, and <strong>the rename table
+ships report-only</strong>, because every symbol the supported range changed either drops an argument or
+has no replacement at all.</p>
+<p>Scope is 4.3 and up on both sides, because the addon’s floor is 4.3 and <code>baseline</code> needs it in
+the old editor. Two binaries have to be on disk; the commands take both explicitly and guess
+neither. The headless editor <code>open</code> launches stays up afterwards, because <code>fix</code> and <code>verify</code> drive
+it; close it yourself once the port is done (<code>status</code> names its pid).</p>
+<p><strong>Verification.</strong> The pipeline was driven end to end on 2026-08-30 against a copy of the
+<code>starter-kit-basic-scene</code> project carrying six planted breakages: a <code>TileMap</code> with two layers and
+six painted cells, two scripts using <code>@export_file</code> beside a <code>res://</code> prefix test, a
+<code>: Dictionary = JSON.parse_string</code> line, a <code>.tscn</code> with an <code>ext_resource</code> path that does not exist,
+a <code>get_layers_count()</code> call site, and a feature tag naming 4.6. <code>preflight</code> found all six and
+committed 50 warning settings; <code>baseline</code> recorded six numbers and two frames with no runtime
+errors; <code>open</code> tagged, branched, settled the reimport in three reloads, and bucketed the findings
+across eight categories; <code>fix</code> applied <code>export_file</code>, <code>typed_dictionary</code>, <code>tilemap</code> and <code>settings</code>
+to zero and committed each, refused <code>renames</code> as report-only, and found <code>uid</code> already resolved by
+the first open; <code>verify</code> replayed the drive to identical numbers and 0.00 percent changed pixels on
+both frames, and restored all eight surviving warning settings. A deliberately broken rewrite was
+run through <code>fix</code> as well: <code>script validate</code> went from 0 failures to 1, the category was restored,
+nothing was committed, and the file came back byte for byte.</p>
+<p><strong>Two cross-version runs ground the numbers.</strong> A genuine 4.4 editor (<code>4.4.2.rc</code>, built from the
+engine’s <code>4.4</code> branch) drove <code>--old-godot</code> against two beds, each imported and resaved by 4.4
+first. On the small planted-breakage bed the two versions render identically and every frame pair
+compared at 0.00 percent. On <code>starter-kit-3d-platformer</code>, a real lit 3D scene, <code>preflight</code> flagged
+four scripts failing the cold parse on both binaries equally (the project’s <code>Audio</code> autoload,
+which the parse-only check cannot resolve; identical on both sides means it is not an upgrade
+break), the resave diff caught 4.7 silently dropping <code>glow_levels/5</code> from the environment
+resource, and <code>verify</code> measured the honest cross-version render noise: mean 7.76 percent and peak
+12.09 percent of pixels changed per frame at the default threshold of 10. Read the delta table
+against that floor: on a real 3D scene, single-digit percentages are version noise, and what
+matters is a frame pair that jumps far above its neighbours. That platformer run is also what
+caught the comparison lying: every pair reported 0.00 while six-figure pixel counts sat beside it,
+because the percentage was decoded from a field the addon does not send. Numbers a phase prints
+deserve the same suspicion as numbers the engine prints.</p>
+<p><strong>The 2D floor is different in kind.</strong> A third bed, an animated 2D scene authored through the
+addon (eight sprites, a dark <code>CanvasModulate</code>, three moving shadow-casting <code>PointLight2D</code>s, two
+occluders), measured 4.4 to 4.7 at mean 0.00 and peak 0.01 percent changed pixels across 300
+frames. So read the table per dimension: the 2D canvas pipeline replays near bit-identically
+across these versions and any visible percentage on a 2D scene deserves attention, while a 3D
+scene carries a several-percent floor before anything is wrong. Glow, custom shaders, and
+particles are unmeasured on both floors.</p>
+<h2 id="what-breaks-between-4x-minors">What breaks between 4.x minors<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#what-breaks-between-4x-minors">#</a></h2>
+<p>Most minor-to-minor change is additive or widens a type (<code>String</code> to <code>StringName</code> is the recurring
+one), so a GDScript project usually opens and runs. C# breaks more often, because binary
+compatibility is not held across minors. The changes that cost hand work:</p>
+<table>
+<thead>
+<tr>
+<th>Release</th><th>Change</th><th>What it costs</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>4.3</td><td><code>TileMap</code> deprecated in favour of <code>TileMapLayer</code>, one node per layer</td><td>scene surgery plus a script port off the layer-indexed API</td></tr>
+<tr>
+<td>4.3</td><td>GDExtension dropped <code>close_library</code> / <code>initialize_library</code> / <code>open_library</code></td><td>a GDExtension addon needs a rebuild by its author, which nothing local can do</td></tr>
+<tr>
+<td>4.4</td><td><code>.uid</code> sidecar files appear beside scripts and shaders</td><td>commit them, and move them with their file</td></tr>
+<tr>
+<td>4.4</td><td><code>@export_file</code> began returning <code>uid://</code> paths</td><td>code that string-matched <code>res://</code> stops matching (4.5 added <code>@export_file_path</code> to force the old shape)</td></tr>
+<tr>
+<td>4.4</td><td>typed <code>Dictionary</code></td><td>an untyped <code>JSON.parse_string</code> result no longer assigns into one</td></tr>
+<tr>
+<td>4.5</td><td>Android C# export requires .NET 9</td><td>other platforms stay on .NET 8</td></tr>
+<tr>
+<td>4.7</td><td>nothing breaking listed for GDScript</td><td>a 4.6 project opens, compiles, and runs as it is; one live port compiled 7 of 7 scripts with no edit, leaving reimport and resave as the whole job</td></tr>
+</tbody>
+</table>
+<p>The project config version does not change inside 4.x (<code>config_version=5</code>), so 4.7 shows no
+conversion dialog. It reimports the whole project and regenerates <code>.godot/</code>, which takes minutes on
+a large project and floods the error panel with warnings that mostly clear on the second pass. A
+project older than 4.2 gets one extra dialog about mesh compression: <strong>Restart &#x26; Upgrade</strong> writes
+the change permanently, <strong>Upgrade Only</strong> keeps it in memory for the session.</p>
+<h2 id="phase-1-pre-flight-before-an-editor-opens">Phase 1: pre-flight, before an editor opens<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#phase-1-pre-flight-before-an-editor-opens">#</a></h2>
+<p>Nothing here needs an editor, and <code>swallowtail install</code> does not dial one either. Launching the editor
+is the step that starts rewriting the project, so it comes after all of this.</p>
+<p><strong>Build:</strong></p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail install --project . --enable   # this dirties the tree, so it lands on its own</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">git commit -am "chore: install swallowtail addon"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail upgrade preflight --old-godot &#x3C;old binary> --godot &#x3C;new binary></span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>upgrade preflight</code> is the phase. It reads <code>config/features</code> and the config version, parses every
+<code>.gdextension</code> and refuses outright when one has no build for this machine, finds <code>TileMap</code> nodes
+still in scenes, sweeps every <code>.gd</code> for the patterns below, lists scripts and shaders with no <code>.uid</code>
+sidecar, and reports each <code>ext_resource</code> path that is not on disk. With both binaries named it also
+runs the cold parse sweep under each, so a script that fails only under the new one is a real port
+finding rather than one that was already broken. It requires a clean tree, writes
+<code>.godot/upgrade/preflight.json</code>, and ends with the warnings commit described above.</p>
+<p>Run by hand, the same reading is:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">grep config/features project.godot     # PackedStringArray("4.2", "Forward Plus")</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">ls addons/                             # every entry is its own compatibility question</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">git status --porcelain                 # must come back empty before anything else runs</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail check .                      # cold parse, no editor</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Order matters. The clean check comes first, then the addon install as its own commit. Installing
+before the check turns “must come back empty” into a judgement call, and installing without
+committing mixes the addon’s own files into a port diff that later has to be read as one migration.
+The rollback branch and tag are <code>upgrade open</code>’s first act, before it launches anything.</p>
+<p>Each third-party addon needs its own 4.7 answer before the editor opens, because the first launch
+enables what is already enabled and runs its code. A <strong>GDExtension</strong> addon (a <code>.gdextension</code> file
+beside platform binaries) is the one that can hard-block the port: those binaries are compiled
+against a specific engine ABI, and only the addon’s author can rebuild them. Note each addon’s
+version and its stated Godot support, and disable any that has no 4.7 build before the first open.</p>
+<p>The rollback point has to exist <strong>before</strong> the first launch. Opening in 4.7 rewrites <code>project.godot</code>
+(its own settings, and the section order they are written in) and resaves scenes as it touches them.
+It does <strong>not</strong> rewrite <code>config/features</code>: that string keeps naming whichever version last saved the
+project, so a fully ported project still reports 4.2 to everything that reads the file, this doc’s
+own first command included. Phase 5 sets it.</p>
+<h2 id="phase-2-record-the-baseline">Phase 2: record the baseline<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#phase-2-record-the-baseline">#</a></h2>
+<p>A screenshot proves one frame. What catches a regression is a <strong>drive</strong>, written once and replayed
+identically on both sides of the port. <code>test run-scenario</code> takes that drive as a JSON step list, so
+keep the list in a file and reuse it verbatim later.</p>
+<p><strong>Build:</strong></p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail upgrade baseline --old-godot &#x3C;old binary> --scenario drive.json</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>upgrade baseline</code> runs the game standalone under the old binary and replays <code>drive.json</code> over the
+game’s own direct channel, which needs the <code>swallowtail/runtime/direct_server</code> project setting and a
+debug build. It records every value the drive read, the screenshots, and <code>runtime errors</code> into
+<code>.godot/upgrade/baseline/</code>, and <code>upgrade verify</code> replays the identical file later. Without
+<code>--scenario</code> it records <code>--frames</code> frames with <code>--write-movie</code> at a fixed 60 fps and quits, which
+gives a frame sequence to compare and the run log’s own error lines.</p>
+<p><strong>One difference from the hand-run path is worth knowing.</strong> The command reads an <code>assert</code> step as a
+measurement: it records what the property held and does not judge it. Whether a value satisfied an
+operator on the old build says nothing about the port, and the recorded number is what the delta
+table diffs. Run <code>test run-scenario</code> in the editor when you want the assertions themselves.</p>
+<p>Run by hand (in the old editor, addon installed and enabled):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene play --mode main</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">test run-scenario --steps '[</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">{"type":"wait","seconds":1.0},</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">{"type":"input","action":"move_right","pressed":true,"auto_release":false},</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">{"type":"wait","seconds":1.5},</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">{"type":"input","action":"move_right","pressed":false},</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">{"type":"assert","node_path":"Player","property":"global_position","expected":"Vector2(0, 0)","operator":"neq"},</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">{"type":"screenshot"}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime get --node-path Player --properties '["global_position","velocity"]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime screenshot --save-path user://baseline_level_01.png</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene stop</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Two details in that step list are silent when they are wrong:</p>
+<ul>
+<li>
+<strong>A press is released again in the same batch unless the step sets <code>"auto_release": false</code></strong>. A
+hold-then-wait written without it runs as a one-frame tap, and the step still reports <code>sent: true</code>.
+The tell is <code>auto_released: true</code> in the step’s own result. Without the flag the drive above moves
+the player a few pixels instead of 600, and the <code>neq</code> assert passes anyway.</li>
+<li>
+<strong><code>expected</code> is a Godot literal string</strong> (<code>"Vector2(0, 0)"</code>, <code>"#ff0000"</code>, <code>"true"</code>, a number),
+coerced to the live property’s type before the comparison. A pair that cannot be coerced comes back
+<code>passed: false</code> with a <code>reason</code> naming both types, which is a typo in the step list rather than a
+regression in the game.</li>
+</ul>
+<p>Record the numbers <code>runtime get</code> returns alongside the images. A position that lands 40 px short
+after the port is a physics or input change no screenshot comparison will flag.</p>
+<p><strong>Run the whole baseline twice and keep both sets.</strong> The second pass costs a minute and is what
+makes the after numbers readable, because nothing in a real game replays bit-identically. Measured
+on one port: <code>_process</code>-driven positions differed by 0.083 units between two runs of the <strong>same</strong>
+build, and two screenshots of the same build differed by 8.35 percent while the cross-version pair
+differed by 1.85. The spread between the two baseline runs is the comparison threshold. A post-port
+difference inside it is noise however large it looks, and a fixed threshold picked by intuition
+points the wrong way as often as the right one.</p>
+<p>For scenes that are looked at rather than played, shoot from a <strong>fixed</strong> camera so the after shot
+frames the same thing:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene open --path res://levels/level_02.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor set-camera --position "Vector3(0,18,40)" --look-at "Vector3(0,2,0)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor screenshot --save-path user://baseline_level_02.png</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Write down the camera arguments with the image. Reproducing the pose is the whole value of the shot.</p>
+<p>This needs the addon installed and enabled in the old editor, so check that it binds before
+planning around it: install it, enable the plugin, and run <code>swallowtail status</code> until the verdict
+reads <code>running</code>. If it never does, capture the baseline as the first thing after the 4.7 open,
+before any fix lands. That baseline is weaker, because the reimport already happened, and it still
+beats porting blind.</p>
+<h2 id="phase-3-open-in-47-and-harvest-the-error-list">Phase 3: open in 4.7 and harvest the error list<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#phase-3-open-in-47-and-harvest-the-error-list">#</a></h2>
+<p><strong>One editor.</strong> Check the verdict before launching, and never stack a second instance.</p>
+<p><strong>Build:</strong></p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail upgrade open --godot &#x3C;new binary></span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>upgrade open</code> refuses on a dirty tree, tags the tree as it stands (<code>pre-&#x3C;version>-upgrade</code>),
+branches (<code>upgrade/godot-&#x3C;version></code>), launches exactly one headless editor, and waits for the
+reimport to settle: successive <code>editor reload</code>s until the error count comes back the same twice.
+Then it reads the sources above and buckets what they found by category, opens and validates and
+resaves every scene, diffs the result, writes <code>.godot/upgrade/open.json</code>, and prints the to-do
+table. The resave lands as its own commit, so a later <code>fix</code> has a well-defined state to restore to.</p>
+<p>Run by hand:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail status                  # closed or crashed -> launch one; running -> do not; starting -> wait</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">godot --path &#x3C;project> --editor   # exactly one, at most one relaunch</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail status                  # wait for running</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">project info                      # confirm which project answered, and its Godot version</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">engine version</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The first open reimports everything. Let the scan finish before reading errors, because a scan in
+progress reports failures that resolve themselves.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor errors --internal=false --clear    # drain the import noise</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor reload                             # rescan</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor errors --internal=false            # what survives is the to-do list</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script validate --all                     # tree-wide compile check, failures only</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>--internal=false</code> keeps the project’s own script errors and drops the engine C++ entries a rescan
+floods the buffer with. <code>script validate --all</code> answers “does every script still compile”, which
+the error panel cannot, since it only shows what the editor happened to load.</p>
+<h2 id="phase-4-triage-by-category-not-file-by-file">Phase 4: triage by category, not file by file<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#phase-4-triage-by-category-not-file-by-file">#</a></h2>
+<p>A migration error list is repetitive. One renamed method appears in thirty scripts, and thirty
+individual fixes is thirty chances to typo one. Find the whole set, fix it in one pass, recompile
+that set, and watch the count fall.</p>
+<p><strong>Build:</strong></p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail upgrade fix --category renames --dry-run</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail upgrade fix --category renames --godot &#x3C;new binary></span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>upgrade fix</code> reads <code>open.json</code> for what the category started at, captures an
+<code>authoring checkpoint</code> and a git tag, applies the category through the tool’s own commands, and
+then proves it: <code>editor reload</code>, <code>script validate --all</code>, <code>editor errors</code>, and the drive when
+<code>--godot</code> names a binary to run it under. The count has to reach zero and neither tree-wide number
+may get worse. If either fails, recovery restores and verifies the checkpoint and the plan’s captured
+files. The report carries <code>recovery_errors</code> if recovery is incomplete, plus the original failure and
+the debugger’s stack when available. A category that passes lands as one commit.
+<code>--dry-run</code> prints the diff for the categories that rewrite text and the command list for the ones
+that do not.</p>
+<p>The mechanical categories are <code>renames</code>, <code>export_file</code>, <code>typed_dictionary</code>, <code>tilemap</code>, <code>settings</code>,
+and <code>uid</code>. Everything else <code>open</code> found is a report a person acts on, and <code>fix</code> says so rather than
+guessing. The rename table itself ships report-only, because every symbol the 4.3-to-4.7 range
+changed either drops an argument or has no replacement, and neither is a text substitution.</p>
+<p>Run by hand, once per category:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">project grep --query "get_used_cells" --file-type gd    # every caller of the changed API</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">analysis script-references --query TileMap              # every reference, .tscn and .tres included</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script read --path res://world/chunk.gd --start-line 40 --end-line 80</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script edit --path res://world/chunk.gd \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--replacements '[{"search":"tilemap.set_cell(0, ","replace":"ground_layer.set_cell("}]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script validate --modified                              # compiles exactly what git says changed</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor reload</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor errors --internal=false                          # shorter than last pass, or the diagnosis was wrong</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>analysis script-references</code> reaches into <code>.tscn</code> and <code>.tres</code> as well as scripts, which is how a
+deprecated node type gets found in scenes nobody opened. <code>project grep</code> is the narrower tool when
+the target is code.</p>
+<p>Ground every replacement in the live engine instead of in a memory of the old signature:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">engine search --query set_cell</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">engine class-info --class TileMapLayer --filter cell</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">engine docs --class TileMapLayer --member set_cell</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><strong>Treat a surprise as a bug in this tool surface before blaming the engine.</strong> A property that reads
+back wrong, a count that disagrees with the scene, an error naming a file that does not exist: stop
+and root-cause it. A port is the exact situation where a wrong answer is easiest to write off as
+“the old version was weird”.</p>
+<h2 id="phase-5-structural-conversions">Phase 5: structural conversions<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#phase-5-structural-conversions">#</a></h2>
+<h3 id="tilemap-to-tilemaplayer">TileMap to TileMapLayer<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#tilemap-to-tilemaplayer">#</a></h3>
+<p>The editor ships an extractor for the hand-driven path: select the <code>TileMap</code> node, open the bottom
+panel, and use the toolbox icon at its top right, <strong>Extract TileMap layers as individual
+TileMapLayer nodes</strong>. It is not scriptable, so a CLI port reads the old node and paints new layers.</p>
+<p><strong>Build:</strong></p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail upgrade fix --category tilemap --godot &#x3C;new binary></span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>That runs the extraction below for every <code>TileMap</code> in every scene, one scene at a time: open,
+extract each layer into its own <code>TileMapLayer</code>, delete the old node, save. Each addon command
+commits its own undo action and the wire cannot group several into one, so recovery uses the
+checkpoint and file snapshots. Save scene tabs before running this category: recovery reloads
+affected scenes from their captured disk state, then verifies the checkpoint diff.</p>
+<p>Run by hand:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node get --node-path Ground                                  # confirm the class is still TileMap</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node call --node-path Ground --method get_layers_count</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node call --node-path Ground --method get_used_cells --args '[0]'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Then extract every layer in one pass. <code>TileMap</code> accessors take a layer index that <code>TileMapLayer</code>
+drops (<code>get_cell_source_id(layer, coords)</code> becomes <code>get_cell_source_id(coords)</code>):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor run-script --code '</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">var root = EditorInterface.get_edited_scene_root()</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">var old = root.get_node("Ground")</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">var made = []</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">for i in old.get_layers_count():</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">var layer = TileMapLayer.new()</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">layer.name = "%s_%d" % [old.name, i]</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">layer.tile_set = old.tile_set</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">layer.z_index = old.get_layer_z_index(i)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">layer.modulate = old.get_layer_modulate(i)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">layer.y_sort_origin = old.get_layer_y_sort_origin(i)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">for c in old.get_used_cells(i):</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">        </span></span><span style="--0:#e1e4e8;--1:#24292e">layer.set_cell(c, old.get_cell_source_id(i, c), old.get_cell_atlas_coords(i, c), old.get_cell_alternative_tile(i, c))</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">root.add_child(layer)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">layer.owner = root</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">    </span></span><span style="--0:#e1e4e8;--1:#24292e">made.append([layer.name, old.get_used_cells(i).size()])</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">emit(made)'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>layer.owner = root</code> is required. A node added without an owner vanishes when the scene is saved,
+and the loss shows up as an empty level rather than as an error. The per-layer flags live behind
+<code>get_layer_*</code> / <code>is_layer_*</code> on the old node (<code>engine class-info --class TileMap --filter layer</code>
+lists the set); on the new node they are plain <code>Node2D</code> properties.</p>
+<p>Verify the cell counts moved, then remove the old node:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">tilemap get-info --node-path Ground_0      # used_cells should match the emitted count</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node delete --node-path Ground</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene save</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The script side is a separate pass: <code>$TileMap.set_cell(0, c, ...)</code> becomes
+<code>$Ground_0.set_cell(c, ...)</code>, and one script that drove several layers usually splits into several
+<code>@export var</code> references. Find them with <code>project grep --query "get_cell_" --file-type gd</code>.</p>
+<h3 id="resave-every-scene-and-resource-once">Resave every scene and resource once<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#resave-every-scene-and-resource-once">#</a></h3>
+<p>Do it as one deliberate pass rather than letting the rewrites trickle into unrelated commits for the
+next month. What the pass is actually adopting depends on where the project came from:</p>
+<ul>
+<li>
+<strong>4.3 or older</strong>: <code>.uid</code> sidecars do not exist yet, so the resave writes them. That is UID
+adoption, and the new files beside every script and scene are the deliverable.</li>
+<li>
+<strong>4.4 or newer</strong>: the sidecars are already there and already committed. The resave is text-format
+adoption instead, which in 4.7 means the <code>unique_id</code> attribute on every node and the dropped
+<code>load_steps</code> header.</li>
+</ul>
+<p><strong>Build:</strong></p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail upgrade fix --category uid --godot &#x3C;new binary></span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>By the time <code>fix</code> runs there is usually nothing left to do: the first open already rescanned the
+filesystem and wrote the sidecars, <code>open</code> committed them with the resave, and the category reports
+zero. What <code>fix</code> adds is the rescan for a file that arrived while the editor was down, and the
+count that proves every script and shader now has one. The engine says so too, with a
+<code>Missing .uid file for path</code> line in the launch log that the harvest picks up.</p>
+<p>Run by hand:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">project tree --filter "*.tscn"      # filtered, so directories holding no scene are omitted</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene open --path res://levels/level_01.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene save</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene close --path res://levels/level_01.tscn</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Loop that over the list, then spot-check that a reference resolves both ways:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">project path-to-uid --path res://entities/player.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">project uid-to-path --uid uid://bx8n2v1qk3m4p</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Commit the <code>.uid</code> files. Later relocations go through <code>fs move --from --to</code>, which updates the UID
+cache and rewrites literal <code>res://</code> references. A move made in the OS file manager leaves the
+sidecar behind and breaks the reference.</p>
+<h3 id="renamed-or-relocated-settings">Renamed or relocated settings<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#renamed-or-relocated-settings">#</a></h3>
+<p><strong>Build:</strong></p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail upgrade fix --category settings --godot &#x3C;new binary></span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The <code>settings</code> category is the feature tag. <code>open</code> reports it when <code>config/features</code> still names an
+older release than the one being ported to, and <code>fix</code> writes the target version plus whatever
+renderer strings the project already used, through <code>project set-setting</code> in the open editor.</p>
+<p>Run by hand, plus any setting that moved:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">project settings --filter anti_alias        # find where a setting moved to</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">project set-setting --key rendering/anti_aliasing/quality/msaa_3d --value 2</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">project set-setting --key application/config/features --value '["4.7", "Forward Plus"]'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Never hand-edit <code>project.godot</code>. The 4.7 editor rewrites the file on open and on any settings
+write, and a hand edit made alongside that rewrite is easy to lose without noticing.</p>
+<p><strong>The feature tag survives every rewrite that is not a settings write.</strong> Opening the project and
+resaving its scenes leaves <code>config/features</code> naming whichever version last saved it, so a fully
+ported project still reports 4.6 to everything that reads the file. One settings write from the
+editor does regenerate it, which is why <code>fix --category settings</code> is a single
+<code>project set-setting</code>; keep the renderer string the project already used (<code>Forward Plus</code>, <code>Mobile</code>,
+or <code>GL Compatibility</code> beside the version). Every port needs this line.</p>
+<h3 id="c-projects">C# projects<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#c-projects">#</a></h3>
+<p><strong>Build:</strong></p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">csharp info                          # dotnet SDK, .NET editor build, csproj state</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script edit --path Game.csproj --replacements '[{"search":"Godot.NET.Sdk/4.2.0","replace":"Godot.NET.Sdk/4.7.0"}]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">csharp build --timeout 300</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script validate --path res://Player.cs</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The <code>Godot.NET.Sdk</code> version in the <code>.csproj</code> has to match the engine, and a full rebuild is
+required rather than optional, since binary compatibility is not held across minors. Android
+exports from 4.5 onward need .NET 9 while the other platforms stay on .NET 8. Running C# at all
+needs a Godot .NET editor build plus the dotnet SDK.</p>
+<h2 id="phase-6-verify-against-the-baseline">Phase 6: verify against the baseline<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#phase-6-verify-against-the-baseline">#</a></h2>
+<p><strong>Build:</strong></p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">swallowtail upgrade verify --godot &#x3C;new binary></span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>upgrade verify</code> replays the drive <code>baseline</code> recorded, under the new binary, compares every
+recorded number and every captured frame against the baseline, runs the harvest again so the result
+reads as a delta against <code>open.json</code>, and writes <code>.godot/upgrade/verify.json</code>. Its last step puts
+the warning settings back the way <code>preflight</code> found them: it reverts that commit, and repairs
+whatever the revert could not, because the editor prunes any setting equal to its default on the
+next save and git then reads the hunk as already reverted.</p>
+<p>Run by hand:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene play --mode main</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">test run-scenario --steps '&#x3C;the identical JSON from phase 2>'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime get --node-path Player --properties '["global_position","velocity"]'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime screenshot --save-path user://after_level_01.png</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime errors</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene stop</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor compare-screenshots --image-a user://baseline_level_01.png \</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#e1e4e8;--1:#24292e">  </span></span><span style="--0:#e1e4e8;--1:#24292e">--image-b user://after_level_01.png --threshold 12</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>compare_screenshots</code> requires matching image sizes, so leave the viewport and window settings alone
+between the two captures. Read the changed-pixel percentage against the two baseline runs from phase
+2, never against a number picked in advance: on one port the same build compared with itself came
+back 8.35 percent while the cross-version pair came back 1.85. A difference larger than the baseline
+spread is worth opening the frame pair for. Anything inside it is timing.</p>
+<p>Editor captures compare the same way, once the camera is back where the baseline shot it:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene open --path res://levels/level_02.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor set-camera --position "Vector3(0,18,40)" --look-at "Vector3(0,2,0)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor screenshot --save-path user://after_level_02.png</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor compare-screenshots --image-a user://baseline_level_02.png --image-b user://after_level_02.png</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Then the checks that need no baseline at all:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene validate              # per open scene: dead AnimationPlayer track paths, stored NodePaths pointing nowhere</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script validate --all</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">editor errors --internal=false</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">analysis circular-dependencies</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>scene validate</code> catches the break a reimport produces most quietly. An AnimationPlayer track whose
+node path stopped resolving plays nothing, reports nothing, and looks identical in a still frame.</p>
+<h2 id="land-it-as-one-commit">Land it as one commit<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#land-it-as-one-commit">#</a></h2>
+<p>The 4.7 editor resaves a <code>.tscn</code> or <code>.tres</code> whenever it touches one, so the diff grows on its own
+while the port runs. Two consequences worth planning for:</p>
+<ul>
+<li>
+<strong>The scene text format itself changed</strong>. 4.7.2 writes a <code>unique_id</code> attribute on every node and
+drops <code>load_steps</code> from the <code>[gd_scene]</code> header, so a scene the editor merely opened comes back
+changed. Expect the resave noise and read it as format, not as damage.</li>
+<li>
+<strong>Keep feature work out of the port branch</strong>. Land the whole migration as one labeled commit
+naming the source and target versions. A bisect over a mixed commit cannot separate “the port
+broke this” from “the feature broke this”.</li>
+</ul>
+<h2 id="checklist">Checklist<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#checklist">#</a></h2>
+<p>Each phase command already enforces the items above it, and its report names what it read. This is
+the list for a port run by hand, and the list to read a report against.</p>
+<ul>
+<li>Rollback branch or tag exists <strong>before</strong> the first 4.7 launch, and the addon install is its own
+commit on top of a tree that was already clean.</li>
+<li>
+<code>config/features</code> version read; every <code>addons/</code> entry checked for 4.7 support, GDExtension ones first.</li>
+<li>Baseline recorded as a replayable <code>test run-scenario</code> step list, plus per-scene screenshots with
+their camera arguments and the <code>runtime get</code> numbers.</li>
+<li>Baseline run <strong>twice</strong>, both sets kept, and the spread between them used as the comparison threshold.</li>
+<li>Every held input in the step list carries <code>"auto_release": false</code>, or it is a tap by design.</li>
+<li>Exactly one editor launched, <code>swallowtail status</code> consulted first.</li>
+<li>Reimport allowed to finish before <code>editor errors</code> was read as a to-do list.</li>
+<li>Errors triaged by category, each category recompiled with <code>script validate --modified</code>.</li>
+<li>Every replacement signature confirmed against the live engine with <code>engine class-info</code> / <code>engine docs</code>.</li>
+<li>
+<code>TileMap</code> nodes extracted to <code>TileMapLayer</code> (owner set, cell counts verified) and scripts ported
+off the layer-indexed API.</li>
+<li>Every scene and resource resaved once so <code>.uid</code> files land in one pass, and committed.</li>
+<li>Settings changed through <code>project set-setting</code>, never by hand, <code>application/config/features</code> set
+to 4.7 plus the project’s renderer among them.</li>
+<li>Baseline scenario replayed, screenshots compared, <code>runtime errors</code> clean, <code>scene validate</code> clean.</li>
+<li>One labeled migration commit, no feature work inside it.</li>
+</ul>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/unreal-import-cleanup" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Unreal import cleanup</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/csharp-godot" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>C# in Godot</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-upgrade-pipeline" data-toc="the-upgrade-pipeline" data-scope-p33bl5ka>The upgrade pipeline</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#what-breaks-between-4x-minors" data-toc="what-breaks-between-4x-minors" data-scope-p33bl5ka>What breaks between 4.x minors</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#phase-1-pre-flight-before-an-editor-opens" data-toc="phase-1-pre-flight-before-an-editor-opens" data-scope-p33bl5ka>Phase 1: pre-flight, before an editor opens</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#phase-2-record-the-baseline" data-toc="phase-2-record-the-baseline" data-scope-p33bl5ka>Phase 2: record the baseline</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#phase-3-open-in-47-and-harvest-the-error-list" data-toc="phase-3-open-in-47-and-harvest-the-error-list" data-scope-p33bl5ka>Phase 3: open in 4.7 and harvest the error list</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#phase-4-triage-by-category-not-file-by-file" data-toc="phase-4-triage-by-category-not-file-by-file" data-scope-p33bl5ka>Phase 4: triage by category, not file by file</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#phase-5-structural-conversions" data-toc="phase-5-structural-conversions" data-scope-p33bl5ka>Phase 5: structural conversions</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#tilemap-to-tilemaplayer" data-toc="tilemap-to-tilemaplayer" data-scope-p33bl5ka>TileMap to TileMapLayer</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#resave-every-scene-and-resource-once" data-toc="resave-every-scene-and-resource-once" data-scope-p33bl5ka>Resave every scene and resource once</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#renamed-or-relocated-settings" data-toc="renamed-or-relocated-settings" data-scope-p33bl5ka>Renamed or relocated settings</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#c-projects" data-toc="c-projects" data-scope-p33bl5ka>C# projects</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#phase-6-verify-against-the-baseline" data-toc="phase-6-verify-against-the-baseline" data-scope-p33bl5ka>Phase 6: verify against the baseline</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#land-it-as-one-commit" data-toc="land-it-as-one-commit" data-scope-p33bl5ka>Land it as one commit</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#checklist" data-toc="checklist" data-scope-p33bl5ka>Checklist</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

@@ -1,0 +1,563 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Steering and agent movement · Swallowtail</title><meta name="description" content="Movement that reads as a creature rather than a cursor: arrive, flee, pursue and separation as summable forces, blending vs priority.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Steering and agent movement · Swallowtail">
+<meta property="og:description" content="Movement that reads as a creature rather than a cursor: arrive, flee, pursue and separation as summable forces, blending vs priority.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link active" aria-current="page" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Steering and agent movement</h1>
+<p class="page-desc" data-scope-ccykbmgk>Movement that reads as a creature rather than a cursor: arrive, flee, pursue and separation as summable forces, blending vs priority.</p>
+</header>
+<p>How to move an AI character so it reads as a creature rather than a cursor. Read
+<code>game-patterns.md</code> for scene composition and <code>gdscript-style.md</code> for language idioms.
+<strong>Verify signatures against the live engine</strong> (<code>engine class-info --class CharacterBody2D</code>,
+<code>engine class-info --class NavigationAgent2D</code>). The patterns here are stable, but the API is
+what the running binary says it is.</p>
+<h2 id="the-one-idea">The one idea<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-one-idea">#</a></h2>
+<p>Naive chase code assigns velocity:</p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">velocity </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> global_position.</span><span style="--0:#B392F0;--1:#6F42C1">direction_to</span><span style="--0:#E1E4E8;--1:#24292E">(target) </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> speed   </span><span style="--0:#99A0A6;--1:#616972"># snaps, orbits, jitters</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Steering <em>accelerates toward</em> a desired velocity instead:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> steering </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> desired_velocity </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> velocity</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">velocity </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> (velocity </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> steering.</span><span style="--0:#B392F0;--1:#6F42C1">limit_length</span><span style="--0:#E1E4E8;--1:#24292E">(max_force) </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta).</span><span style="--0:#B392F0;--1:#6F42C1">limit_length</span><span style="--0:#E1E4E8;--1:#24292E">(max_speed)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Turn rate then falls out of <code>max_force</code>, and top speed out of <code>max_speed</code>. A heavy tank
+gets a low force and a high speed; a wasp gets the reverse. That single substitution is
+most of what separates convincing AI motion from the version that snaps to the player and
+vibrates on arrival.</p>
+<p>Two numbers per agent, both <code>@export</code>ed so they are tunable from the inspector:</p>
+<ul>
+<li>
+<code>max_speed</code> sets how fast it may travel.</li>
+<li>
+<code>max_force</code> sets how hard it may change direction. This is the feel dial.</li>
+</ul>
+<h2 id="steering-vs-navigationagent">Steering vs NavigationAgent<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#steering-vs-navigationagent">#</a></h2>
+<p>They solve different problems and compose.</p>
+<table>
+<thead>
+<tr>
+<th>Need</th><th>Use</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Route around static level geometry</td><td><code>NavigationAgent2D/3D</code> pathfinding</td></tr>
+<tr>
+<td>Smooth, weighty local motion</td><td>Hand-rolled steering (this doc)</td></tr>
+<tr>
+<td>Keep a crowd from stacking up</td><td>Separation (below), or agent avoidance</td></tr>
+</tbody>
+</table>
+<p>The normal shape is both: ask the navigation agent for the next path point, then <em>steer</em>
+toward it rather than assigning velocity straight at it. Pathfinding chooses the route,
+steering decides how the body gets there.</p>
+<h2 id="build-a-steering-agent">Build: a steering agent<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#build-a-steering-agent">#</a></h2>
+<p>Verified end to end on 4.7. Creates the scene, the body, and the script:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene create --path res://ai/steer_demo.tscn --root-type Node2D --root-name SteerDemo</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene open --path res://ai/steer_demo.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene2d add-body --type CharacterBody2D --name Agent --shape circle --radius 12</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene2d add-body --type StaticBody2D --name Target --shape circle --radius 8 --position "Vector2(400, 200)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script create --path res://ai/steering_agent.gd --extends CharacterBody2D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">script attach --node-path Agent --script-path res://ai/steering_agent.gd</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set --node-path Agent --property target_path --value "../Target"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene save</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>--property target_path --value "../Target"</code> is not a typo. <code>get_node_or_null(target_path)</code>
+resolves <strong>relative to the node holding it</strong>, so a sibling needs the <code>../</code>. Passing the bare
+name silently yields null, <code>_physics_process</code> returns early, and the agent sits still with
+no error anywhere. That is the exact failure this line exists to prevent.</p>
+<p>The script (compiles clean, <code>script lint</code> reports zero findings):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">class_name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">SteeringAgent2D</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">CharacterBody2D</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> max_speed </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">300.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> max_force </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1200.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> arrive_radius </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">96.0</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@export</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> target_path: </span><span style="--0:#B392F0;--1:#6F42C1">NodePath</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _target: </span><span style="--0:#B392F0;--1:#6F42C1">Node2D</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">_target </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_node_or_null</span><span style="--0:#E1E4E8;--1:#24292E">(target_path) </span><span style="--0:#F97583;--1:#BF3441">as</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Node2D</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> _target </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">null</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> steering </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">arrive</span><span style="--0:#E1E4E8;--1:#24292E">(_target.global_position).</span><span style="--0:#B392F0;--1:#6F42C1">limit_length</span><span style="--0:#E1E4E8;--1:#24292E">(max_force)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> (velocity </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> steering </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta).</span><span style="--0:#B392F0;--1:#6F42C1">limit_length</span><span style="--0:#E1E4E8;--1:#24292E">(max_speed)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">move_and_slide</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="the-behaviours">The behaviours<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-behaviours">#</a></h2>
+<p>Each returns a <strong>steering force</strong> (<code>desired - velocity</code>), never a velocity. That is what
+lets them be summed.</p>
+<h3 id="arrive">Arrive<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#arrive">#</a></h3>
+<p>Full speed toward the target, easing to a stop inside <code>arrive_radius</code>. Most chase,
+escort, and patrol code ends up calling this one.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">arrive</span><span style="--0:#E1E4E8;--1:#24292E">(target: </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> offset </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> target </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> global_position</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> distance </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> offset.</span><span style="--0:#B392F0;--1:#6F42C1">length</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_zero_approx</span><span style="--0:#E1E4E8;--1:#24292E">(distance):</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E">velocity</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> speed </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> max_speed</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> distance </span><span style="--0:#F97583;--1:#BF3441">&#x3C;</span><span style="--0:#E1E4E8;--1:#24292E"> arrive_radius:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">speed </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> max_speed </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> distance </span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E"> arrive_radius</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> offset </span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E"> distance </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> speed </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> velocity</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Seek is this without the taper. Seek overshoots the target, turns around, overshoots
+again, and orbits forever, which is the classic “enemy vibrating on the player” bug. Reach for
+arrive by default and only drop the taper when the agent should not slow down.</p>
+<h3 id="flee">Flee<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#flee">#</a></h3>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">flee</span><span style="--0:#E1E4E8;--1:#24292E">(threat: </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">, panic_distance :</span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">200.0</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> offset </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> global_position </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> threat</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> distance </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> offset.</span><span style="--0:#B392F0;--1:#6F42C1">length</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_zero_approx</span><span style="--0:#E1E4E8;--1:#24292E">(distance) </span><span style="--0:#F97583;--1:#BF3441">or</span><span style="--0:#E1E4E8;--1:#24292E"> distance </span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> panic_distance:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">ZERO</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> offset </span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E"> distance </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> max_speed </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> velocity</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>panic_distance</code> is what stops every enemy on the map fleeing forever once the player
+picks up the scary weapon.</p>
+<h3 id="pursue-leads-the-target">Pursue leads the target<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#pursue-leads-the-target">#</a></h3>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">pursue</span><span style="--0:#E1E4E8;--1:#24292E">(target: </span><span style="--0:#B392F0;--1:#6F42C1">Node2D</span><span style="--0:#E1E4E8;--1:#24292E">, target_velocity: </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> lead </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> global_position.</span><span style="--0:#B392F0;--1:#6F42C1">distance_to</span><span style="--0:#E1E4E8;--1:#24292E">(target.global_position) </span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E"> max_speed</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">arrive</span><span style="--0:#E1E4E8;--1:#24292E">(target.global_position </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> target_velocity </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> lead)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Without the lead the chaser aims at where the target <em>was</em> and permanently tails anything
+moving across its path. Scaling the lead by distance means a far-off interceptor predicts
+further ahead, which is also what looks intelligent.</p>
+<h3 id="separation-keeps-a-crowd-from-stacking">Separation keeps a crowd from stacking<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#separation-keeps-a-crowd-from-stacking">#</a></h3>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">separation</span><span style="--0:#E1E4E8;--1:#24292E">(radius :</span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">80.0</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> push </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">ZERO</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> other </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">get_nodes_in_group</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"flock"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> other </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">self</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">or</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> other </span><span style="--0:#F97583;--1:#BF3441">is</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Node2D</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#F97583;--1:#BF3441">continue</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> offset: </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> global_position </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> other.global_position</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> distance </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> offset.</span><span style="--0:#B392F0;--1:#6F42C1">length</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> distance </span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> radius </span><span style="--0:#F97583;--1:#BF3441">or</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">is_zero_approx</span><span style="--0:#E1E4E8;--1:#24292E">(distance):</span></div></div><div class="ec-line"><div class="code"><span class="indent">      </span><span style="--0:#F97583;--1:#BF3441">continue</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">push </span><span style="--0:#F97583;--1:#BF3441">+=</span><span style="--0:#E1E4E8;--1:#24292E"> offset </span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E"> distance </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> (</span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> distance </span><span style="--0:#F97583;--1:#BF3441">/</span><span style="--0:#E1E4E8;--1:#24292E"> radius) </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> max_speed</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> push </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">ZERO</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#79B8FF;--1:#005CC5">ZERO</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E"> push </span><span style="--0:#F97583;--1:#BF3441">-</span><span style="--0:#E1E4E8;--1:#24292E"> velocity</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>The <code>1.0 - distance / radius</code> term is the important part: a neighbour at arm’s length
+pushes gently, one that is overlapping pushes hard. A flat repulsion makes the crowd
+twitch.</p>
+<p>Build it (group membership is what the loop reads):</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">node set-groups --node-path F1 --groups '["flock"]'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="blending">Blending<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#blending">#</a></h2>
+<p>Sum the forces, weight them, clamp once at the end. Weights are the tuning surface:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> steering </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">seek</span><span style="--0:#E1E4E8;--1:#24292E">(goal) </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">separation</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> separation_weight</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> (velocity </span><span style="--0:#F97583;--1:#BF3441">+</span><span style="--0:#E1E4E8;--1:#24292E"> steering.</span><span style="--0:#B392F0;--1:#6F42C1">limit_length</span><span style="--0:#E1E4E8;--1:#24292E">(max_force) </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta).</span><span style="--0:#B392F0;--1:#6F42C1">limit_length</span><span style="--0:#E1E4E8;--1:#24292E">(max_speed)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">move_and_slide</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Clamp the <strong>sum</strong>, not each term, or the weights stop meaning anything. When two
+behaviours conflict (flee-from-fire vs seek-objective) prefer priority over blending.
+Priority takes the first behaviour that returns a non-zero force; blending averages the two
+into walking straight into the fire.</p>
+<h2 id="facing">Facing<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#facing">#</a></h2>
+<p>Movement direction and facing are separate. Turn toward travel rather than snapping:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> velocity.</span><span style="--0:#B392F0;--1:#6F42C1">length_squared</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">rotation </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">lerp_angle</span><span style="--0:#E1E4E8;--1:#24292E">(rotation, velocity.</span><span style="--0:#B392F0;--1:#6F42C1">angle</span><span style="--0:#E1E4E8;--1:#24292E">(), turn_speed </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> delta)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>In 3D use <code>look_at</code> with an up vector, or <code>Basis.looking_at</code>, and interpolate with
+<code>Quaternion.slerp</code>. Assigning a basis every frame produces the same snap that assigning
+velocity does.</p>
+<h2 id="3d">3D<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#3d">#</a></h2>
+<p>Identical maths on <code>Vector3</code> with <code>CharacterBody3D</code>. Two differences:</p>
+<ul>
+<li>Keep steering on the horizontal plane and let gravity own Y, or the agent will steer
+itself into the floor. Zero the Y component of the steering force before applying it.</li>
+<li>Seat spawns on real geometry with <code>spatial place-on</code> / <code>spatial raycast</code> rather than
+guessing heights, and read bounds back with <code>spatial bounds</code>.</li>
+</ul>
+<h2 id="crowd-avoidance-via-navigationagent">Crowd avoidance via NavigationAgent<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#crowd-avoidance-via-navigationagent">#</a></h2>
+<p>Godot ships RVO avoidance on <code>NavigationAgent2D/3D</code>. The wiring:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">@onready</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> _agent: </span><span style="--0:#B392F0;--1:#6F42C1">NavigationAgent2D</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">NavigationAgent2D</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">_agent.velocity_computed.</span><span style="--0:#B392F0;--1:#6F42C1">connect</span><span style="--0:#E1E4E8;--1:#24292E">(_on_velocity_computed)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_physics_process</span><span style="--0:#E1E4E8;--1:#24292E">(_delta: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">_agent.</span><span style="--0:#B392F0;--1:#6F42C1">set_velocity</span><span style="--0:#E1E4E8;--1:#24292E">(global_position.</span><span style="--0:#B392F0;--1:#6F42C1">direction_to</span><span style="--0:#E1E4E8;--1:#24292E">(goal) </span><span style="--0:#F97583;--1:#BF3441">*</span><span style="--0:#E1E4E8;--1:#24292E"> speed)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_on_velocity_computed</span><span style="--0:#E1E4E8;--1:#24292E">(safe_velocity: </span><span style="--0:#B392F0;--1:#6F42C1">Vector2</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">velocity </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> safe_velocity</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">move_and_slide</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>avoidance_enabled</code>, <code>radius</code>, <code>neighbor_distance</code>, <code>max_neighbors</code>, and the
+<code>velocity_computed(safe_velocity)</code> signal all exist on 4.7 and the signal fires once per
+physics frame. <strong>Verify the returned <code>safe_velocity</code> numerically before building on it.</strong>
+In a two-agent head-on test here it came back <code>(0, 0)</code> on every frame in both headless and
+windowed editors, with the agent registered on a valid map, so the wiring firing is not
+evidence that avoidance is steering anything. Check with <code>runtime eval</code> and read the value:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime eval --code 'var a = get_tree().current_scene.get_node("A")</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">emit("safe=%s pos=%s" % [a.last_safe, a.global_position])'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Hand-rolled separation has no such dependency and is the dependable option when a crowd
+just needs to not stack.</p>
+<h2 id="verify-numerically-not-by-screenshot">Verify numerically, not by screenshot<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#verify-numerically-not-by-screenshot">#</a></h2>
+<p>A screenshot of a moving agent proves nothing. Play the scene and read the actual numbers:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="plaintext"><code><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">scene play --mode res://ai/steer_demo.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#e1e4e8;--1:#24292e">runtime get --node-path Agent --properties '["position","velocity"]'</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>What a correct arrive looks like, from a real run with the agent starting at <code>(0, 0)</code> and the
+target at <code>(400, 200)</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Time</th><th>position</th><th>velocity</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>~2 s</td><td><code>(124.4, 62.2)</code></td><td><code>(182.8, 91.4)</code></td></tr>
+<tr>
+<td>~6 s</td><td><code>(420.0, 200.9)</code></td><td><code>(0.0, -18.2)</code></td></tr>
+</tbody>
+</table>
+<p>Two things to read off that. The heading is right, since <code>124:62</code> is the same 2:1 ratio as
+<code>400:200</code>. And it settles with velocity near zero instead of orbiting, which is the arrive
+taper doing its job. The final <code>x</code> of 420 rather than 400 is the two collision radii
+touching (12 + 8), not an error.</p>
+<p>For separation, check pair distances rather than positions. Three agents all seeking
+<code>(0, 0)</code> from overlapping starts settled at <code>56.0</code>, <code>57.0</code>, and <code>57.7</code> units apart. That is a
+stable triangle, the equilibrium between seek pulling in and separation pushing
+out. All three converging on one number is the signal that it works; a collapsing set
+means <code>separation_weight</code> is too low.</p>
+<h2 id="pitfalls">Pitfalls<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#pitfalls">#</a></h2>
+<ul>
+<li>
+<strong>A sibling <code>NodePath</code> needs <code>../</code></strong>. Silent null, no error, agent never moves.</li>
+<li>
+<strong>Steer in <code>_physics_process</code>, not <code>_process</code></strong>. <code>move_and_slide</code> is physics-frame work.</li>
+<li>
+<strong>Clamp the summed force, not each behaviour</strong>, or blending weights do nothing.</li>
+<li>
+<strong><code>max_force</code> too high erases the effect</strong>, leaving velocity assignment again with
+extra steps. If motion looks snappy, lower it before adding more behaviours.</li>
+<li>
+<strong>Separation over a whole-tree group scan is O(n²)</strong>. Fine for a squad; for hundreds,
+bucket by grid cell or use an <code>Area2D</code> neighbour list.</li>
+<li>
+<strong><code>get_nodes_in_group</code> returns freed nodes’ peers mid-frame</strong>. Guard with
+<code>is_instance_valid(other)</code> when agents die during iteration.</li>
+</ul>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/environment-art" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Environment art</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/menus-settings" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Menus and settings</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-one-idea" data-toc="the-one-idea" data-scope-p33bl5ka>The one idea</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#steering-vs-navigationagent" data-toc="steering-vs-navigationagent" data-scope-p33bl5ka>Steering vs NavigationAgent</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#build-a-steering-agent" data-toc="build-a-steering-agent" data-scope-p33bl5ka>Build: a steering agent</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-behaviours" data-toc="the-behaviours" data-scope-p33bl5ka>The behaviours</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#arrive" data-toc="arrive" data-scope-p33bl5ka>Arrive</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#flee" data-toc="flee" data-scope-p33bl5ka>Flee</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#pursue-leads-the-target" data-toc="pursue-leads-the-target" data-scope-p33bl5ka>Pursue leads the target</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#separation-keeps-a-crowd-from-stacking" data-toc="separation-keeps-a-crowd-from-stacking" data-scope-p33bl5ka>Separation keeps a crowd from stacking</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#blending" data-toc="blending" data-scope-p33bl5ka>Blending</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#facing" data-toc="facing" data-scope-p33bl5ka>Facing</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#3d" data-toc="3d" data-scope-p33bl5ka>3D</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#crowd-avoidance-via-navigationagent" data-toc="crowd-avoidance-via-navigationagent" data-scope-p33bl5ka>Crowd avoidance via NavigationAgent</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#verify-numerically-not-by-screenshot" data-toc="verify-numerically-not-by-screenshot" data-scope-p33bl5ka>Verify numerically, not by screenshot</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#pitfalls" data-toc="pitfalls" data-scope-p33bl5ka>Pitfalls</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

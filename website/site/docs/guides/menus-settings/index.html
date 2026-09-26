@@ -1,0 +1,624 @@
+<!DOCTYPE html><html lang="en" data-scope-ccykbmgk>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menus and settings · Swallowtail</title><meta name="description" content="The meta-game screens: pause done right, the settings widget family, ConfigFile persistence, input remapping.">
+<link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Menus and settings · Swallowtail">
+<meta property="og:description" content="The meta-game screens: pause done right, the settings widget family, ConfigFile persistence, input remapping.">
+<meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t !== "dark" && t !== "light") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    } catch (e) {
+      document.documentElement.setAttribute("data-theme", "light");
+    }
+  })();
+</script><link rel="stylesheet" href="/godot-mcp-go/assets/shared.css">
+<link rel="stylesheet" href="/godot-mcp-go/assets/docs.css">
+</head>
+<body data-scope-ccykbmgk>
+<a class="skip-link" href="#main" data-scope-ccykbmgk>Skip to content</a><div class="announce" id="announce" role="region" aria-label="Announcement" data-key="swallowtail-announcement-rename" data-scope-h4bjbk3l>
+<div class="announce-inner" data-scope-h4bjbk3l>
+<p data-scope-h4bjbk3l><strong data-scope-h4bjbk3l>godot-mcp is now Swallowtail.</strong> Same toolkit, new name. <a href="/godot-mcp-go/docs/migration#why-the-name-changed" data-scope-h4bjbk3l>Why, and how to migrate</a></p>
+<button class="announce-dismiss" type="button" aria-label="Dismiss announcement" title="Dismiss" data-scope-h4bjbk3l>&times;</button></div>
+</div>
+<script>
+  (function () {
+    var el = document.getElementById("announce");
+    if (!el) return;
+    var key = el.getAttribute("data-key");
+    try { if (localStorage.getItem(key) === "1") el.hidden = true; } catch (e) {}
+    var btn = el.querySelector(".announce-dismiss");
+    if (btn) btn.addEventListener("click", function () {
+      el.hidden = true;
+      try { localStorage.setItem(key, "1"); } catch (e) {}
+    });
+  })();
+</script><header class="topbar" data-scope-nazmfhjt>
+<div class="topbar-inner" data-scope-nazmfhjt>
+<div class="topbar-left" data-scope-nazmfhjt>
+<button id="sidebar-toggle" class="icon-btn sidebar-toggle" type="button" aria-label="Open navigation" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button><a class="logo" href="/godot-mcp-go/" aria-label="Swallowtail home" data-scope-f7espo7c><img src="/godot-mcp-go/brand/swallowtail-butler.png" width="40" height="40" alt="" data-scope-f7espo7c><span data-scope-f7espo7c>Swallowtail</span></a></div>
+<nav class="topbar-nav" aria-label="Primary" data-scope-nazmfhjt>
+<a href="/godot-mcp-go/docs" data-scope-nazmfhjt>Docs</a><a href="/godot-mcp-go/docs/commands" data-scope-nazmfhjt>Commands</a><a href="/godot-mcp-go/docs/samples" data-scope-nazmfhjt>Samples</a></nav>
+<div class="topbar-right" data-scope-nazmfhjt>
+<button id="search-open" class="search-trigger" type="button" aria-label="Search docs" data-scope-ac66eqjo><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span class="st-label" data-scope-ac66eqjo>Search</span><kbd class="st-kbd" data-scope-ac66eqjo>Ctrl K</kbd></button><dialog id="search-modal" class="search-modal" aria-label="Search the docs" data-scope-ac66eqjo>
+<div class="sm-input-row" data-scope-ac66eqjo>
+<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sm-input-icon" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="search-input" type="search" placeholder="Search the docs…" autocomplete="off" spellcheck="false" aria-label="Search query" data-scope-ac66eqjo><kbd class="sm-esc" data-scope-ac66eqjo>esc</kbd></div>
+<div id="search-results" class="sm-results" role="listbox" aria-label="Search results" data-scope-ac66eqjo>
+</div>
+<div class="sm-foot" data-scope-ac66eqjo>
+<span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↑</kbd><kbd data-scope-ac66eqjo>↓</kbd> navigate</span><span data-scope-ac66eqjo><kbd data-scope-ac66eqjo>↵</kbd> open</span><span class="sm-credit" data-scope-ac66eqjo>Search documentation</span></div>
+</dialog>
+<script defer src="/godot-mcp-go/assets/search.js"></script><a class="icon-btn" href="https://github.com/regiellis/godot-mcp-go" target="_blank" rel="noopener" aria-label="GitHub repository" title="GitHub" data-scope-nazmfhjt><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.9a3.4 3.4 0 0 0-.9-2.6c3-.3 6.2-1.5 6.2-6.7A5.2 5.2 0 0 0 20 4.8a4.9 4.9 0 0 0-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 0 0-6.6 0C7 .9 5.9 1.2 5.9 1.2A4.9 4.9 0 0 0 5.8 4.8 5.2 5.2 0 0 0 4.4 8.4c0 5.2 3.2 6.4 6.2 6.7a3.4 3.4 0 0 0-.9 2.6V22"/></svg></a><button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle color theme" title="Toggle theme" data-scope-l6lhmie6><span class="icon-sun" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg></span><span class="icon-moon" data-scope-l6lhmie6><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span></button><script defer src="/godot-mcp-go/assets/theme.js"></script></div>
+</div>
+</header>
+<div class="shell" data-scope-ccykbmgk>
+<aside class="sidebar" id="sidebar" data-scope-wv7whodv>
+<nav class="sidebar-nav" aria-label="Documentation" data-scope-wv7whodv>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Getting started</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs" class="nav-link" data-scope-wv7whodv>Overview</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/quickstart" class="nav-link" data-scope-wv7whodv>Quickstart</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/installation" class="nav-link" data-scope-wv7whodv>Installation</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/before-you-ship" class="nav-link" data-scope-wv7whodv>Before you ship</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/migration" class="nav-link" data-scope-wv7whodv>Migrating to Swallowtail</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/mcp-setup" class="nav-link" data-scope-wv7whodv>Use with an AI client</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/context-cost" class="nav-link" data-scope-wv7whodv>What the tool surface costs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/on-ai" class="nav-link" data-scope-wv7whodv>Why Swallowtail exists</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Working with the editor</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/discover-then-drive" class="nav-link" data-scope-wv7whodv>Discover, then drive</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/validation" class="nav-link" data-scope-wv7whodv>Validate scenes and scripts</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/upgrading" class="nav-link" data-scope-wv7whodv>Upgrading a project<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/csharp" class="nav-link" data-scope-wv7whodv>C# projects</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/gotchas" class="nav-link" data-scope-wv7whodv>Live-engine gotchas</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/dashboard" class="nav-link" data-scope-wv7whodv>Live dashboard</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Reference</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/commands" class="nav-link" data-scope-wv7whodv>Command groups</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/extending" class="nav-link" data-scope-wv7whodv>Custom commands</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/how-it-works" class="nav-link" data-scope-wv7whodv>How it works</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/testing" class="nav-link" data-scope-wv7whodv>How it&#39;s tested</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/evals" class="nav-link" data-scope-wv7whodv>Agent evals</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/not-supported" class="nav-link" data-scope-wv7whodv>What&#39;s not supported</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/changelog" class="nav-link" data-scope-wv7whodv>Changelog</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building on it</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/automation" class="nav-link" data-scope-wv7whodv>Scripting and CI</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/building-on-top" class="nav-link" data-scope-wv7whodv>Your own tools and UIs</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Building the Godot way</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides" class="nav-link" data-scope-wv7whodv>Guides overview</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Foundations</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-style" class="nav-link" data-scope-wv7whodv>GDScript style</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-patterns" class="nav-link" data-scope-wv7whodv>Game patterns</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/project-structure" class="nav-link" data-scope-wv7whodv>Project structure</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/gdscript-architecture" class="nav-link" data-scope-wv7whodv>GDScript architecture</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>2D</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/platformer-2d" class="nav-link" data-scope-wv7whodv>2D platformers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/topdown-2d" class="nav-link" data-scope-wv7whodv>Top-down 2D</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ui-polish-2d" class="nav-link" data-scope-wv7whodv>2D UI polish</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/lighting-2d" class="nav-link" data-scope-wv7whodv>2D lighting</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/tile-constraint" class="nav-link" data-scope-wv7whodv>Constraint tiling</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>3D and spatial</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/level-design" class="nav-link" data-scope-wv7whodv>Level design</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/character-3d" class="nav-link" data-scope-wv7whodv>3D character controllers</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/environment-art" class="nav-link" data-scope-wv7whodv>Environment art</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Systems</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/ai-steering" class="nav-link" data-scope-wv7whodv>Steering and agent movement</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/menus-settings" class="nav-link active" aria-current="page" data-scope-wv7whodv>Menus and settings</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/audio-music" class="nav-link" data-scope-wv7whodv>Audio and music</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shaders-vfx" class="nav-link" data-scope-wv7whodv>Shaders and VFX</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/save-systems" class="nav-link" data-scope-wv7whodv>Save systems</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/multiplayer-patterns" class="nav-link" data-scope-wv7whodv>Multiplayer</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/mobile-touch" class="nav-link" data-scope-wv7whodv>Mobile and touch</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/rhythm-games" class="nav-link" data-scope-wv7whodv>Rhythm games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/in-game-docs" class="nav-link" data-scope-wv7whodv>In-game docs</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/shipping-export" class="nav-link" data-scope-wv7whodv>Shipping and export</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/game-trailers" class="nav-link" data-scope-wv7whodv>Videos and trailers</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Genres</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/event-deck-games" class="nav-link" data-scope-wv7whodv>Event / decision games</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/run-based-games" class="nav-link" data-scope-wv7whodv>Run-based / roguelite</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/deckbuilder-patterns" class="nav-link" data-scope-wv7whodv>Deckbuilders</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/narrative-game-patterns" class="nav-link" data-scope-wv7whodv>Narrative / visual novel</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Interop</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/unreal-import-cleanup" class="nav-link" data-scope-wv7whodv>Unreal import cleanup</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/porting-godot-versions" class="nav-link" data-scope-wv7whodv>Porting between Godot versions<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/guides/csharp-godot" class="nav-link" data-scope-wv7whodv>C# in Godot</a></li>
+</ul>
+</div>
+<div class="nav-group" data-scope-wv7whodv>
+<div class="nav-group-title" data-scope-wv7whodv>Showcase</div>
+<ul data-scope-wv7whodv>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/samples" class="nav-link" data-scope-wv7whodv>Samples</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="sidebar-scrim" aria-hidden="true" data-scope-wv7whodv>
+</div>
+<script defer src="/godot-mcp-go/assets/navigation.js"></script><main class="main" id="main" data-scope-ccykbmgk>
+<article class="prose" data-search-body data-scope-ccykbmgk>
+<div class="doc-toolbar" data-scope-ccykbmgk>
+<div class="copy-page" data-scope-hqbm3slv>
+<a class="cp-btn" data-scope-hqbm3slv href="llm.txt" type="text/plain" title="Download this page as plain text">llm.txt</a>
+<button class="cp-btn" type="button" data-copy="human" title="Copy this page as Markdown" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy page</span></button><button class="cp-btn cp-agent" type="button" data-copy="agent" title="Copy a token-friendly version for an AI agent" data-scope-hqbm3slv><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6z"/><path d="M19 15l.7 1.9L22 18l-2.3.6L19 21l-.7-2.4L16 18l2.3-1.1z"/></svg><span class="cp-label" data-scope-hqbm3slv>Copy for agents</span></button></div>
+<script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
+<header class="page-head" data-scope-ccykbmgk>
+<h1 data-scope-ccykbmgk>Menus and settings</h1>
+<p class="page-desc" data-scope-ccykbmgk>The meta-game screens: pause done right, the settings widget family, ConfigFile persistence, input remapping.</p>
+</header>
+<p>How to build the screens <em>around</em> the game (title, pause, settings, remap, dialogs) with the CLI.
+This doc owns <strong>structure and the widget family</strong>; <code>ui-polish-2d.md</code> owns the <em>look</em> (Design tokens,
+drawn controls, juice, transitions). Build the skeleton here, polish there. Every widget, signal, and
+enum below was verified against the live build. A menu only tells the truth when you <strong>play it</strong>
+(<code>scene play</code> → <code>input click</code> / drive focus with a gamepad action → read back); ground anything
+unfamiliar with <code>engine class-info --class OptionButton</code> before wiring it.</p>
+<h2 id="the-skeleton-every-menu-shares">The skeleton every menu shares<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-skeleton-every-menu-shares">#</a></h2>
+<p>A menu is a <code>Control</code> scene laid out by <strong>containers</strong>, not absolute coordinates. Containers re-flow
+on any resolution, offsets don’t. Three commands do it: <code>ui.add_container</code> (auto-arranging parent),
+<code>ui.add_control</code> (a leaf widget), <code>ui.set_sizing</code> (how a child fills its slot). Anchor the outer
+container <code>full_rect</code>; a <code>CenterContainer</code> then centers the button column at any window size.</p>
+<p><strong>Build (a title screen):</strong></p>
+<div class="expressive-code">
+<link rel="stylesheet" href="/godot-mcp-go/assets/code.css">
+<script type="module" src="/godot-mcp-go/assets/code.js"></script><figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="sh"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">scene</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">create</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">res://ui/main_menu.tscn</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--root-type</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Control</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">scene</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">open</span><span style="--0:#E1E4E8;--1:#24292E">   </span><span style="--0:#79B8FF;--1:#005CC5">--path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">res://ui/main_menu.tscn</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">ui</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">add-container</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--type</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">CenterContainer</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--parent-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">node</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">set-anchor</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--node-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--preset</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">full_rect</span><span style="--0:#E1E4E8;--1:#24292E">                 </span><span style="--0:#99A0A6;--1:#616972"># track the window</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">ui</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">add-container</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--type</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">VBoxContainer</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Buttons</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--parent-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--separation</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">14</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">ui</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">add-control</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--type</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Button</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">PlayButton</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--parent-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center/Buttons</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--text</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"Play"</span><span style="--0:#E1E4E8;--1:#24292E">   </span><span style="--0:#99A0A6;--1:#616972"># + Settings, Quit</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">ui</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">set-sizing</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--node-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center/Buttons/PlayButton</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--h</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">fill</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--custom-min-size</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"Vector2(260,56)"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">node</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">connect</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--source-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center/Buttons/PlayButton</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--signal-name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">pressed</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--target-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">.</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--method-name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">_on_play</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">scene</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">save</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>grab_focus()</code> the first button on open (a controller/keyboard needs a focused control), then change scenes on Play:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_on_play</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">change_scene_to_file</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"res://scenes/level_01.tscn"</span><span style="--0:#E1E4E8;--1:#24292E">)   </span><span style="--0:#99A0A6;--1:#616972"># returns an Error code</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>change_scene_to_file</code> frees the current scene and loads the new one next frame;
+<code>change_scene_to_packed(preloaded)</code> avoids the load hitch, <code>reload_current_scene()</code> restarts.</p>
+<h2 id="pause-menu-an-overlay-that-lives-while-the-tree-is-frozen">Pause menu: an overlay that lives while the tree is frozen<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#pause-menu-an-overlay-that-lives-while-the-tree-is-frozen">#</a></h2>
+<p>Pause is two facts: <code>get_tree().paused = true</code> stops every node whose <code>process_mode</code> is the default
+<code>PROCESS_MODE_INHERIT</code>/<code>PROCESS_MODE_PAUSABLE</code>, and the pause UI must keep running to un-pause. Put
+the UI on its own <code>CanvasLayer</code> (draws above the world, ignores the game camera) set to
+<strong><code>PROCESS_MODE_ALWAYS</code></strong> (<code>3</code>) so its buttons still receive input.</p>
+<p><strong>Build:</strong></p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="sh"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">node</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">add</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--type</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">CanvasLayer</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">PauseUI</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--parent-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">.</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">node</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">set</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--node-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">PauseUI</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--properties</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'{"layer":10,"process_mode":3,"visible":false}'</span><span style="--0:#E1E4E8;--1:#24292E">   </span><span style="--0:#99A0A6;--1:#616972"># 3 = ALWAYS</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">ui</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">add-container</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--type</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">CenterContainer</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--parent-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">PauseUI</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">node</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">set-anchor</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--node-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">PauseUI/Center</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--preset</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">full_rect</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_unhandled_input</span><span style="--0:#E1E4E8;--1:#24292E">(e: </span><span style="--0:#B392F0;--1:#6F42C1">InputEvent</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> e.</span><span style="--0:#B392F0;--1:#6F42C1">is_action_pressed</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"ui_cancel"</span><span style="--0:#E1E4E8;--1:#24292E">):              </span><span style="--0:#99A0A6;--1:#616972"># Esc / gamepad Start</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> p </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().paused</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().paused </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> p</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">PauseUI</span><span style="--0:#E1E4E8;--1:#24292E">.visible </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> p</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> p: </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">PauseUI/Center/Buttons/Resume</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">grab_focus</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Process-mode ladder: <code>INHERIT</code>(0) follows the parent, <code>PAUSABLE</code>(1) stops on pause, <code>WHEN_PAUSED</code>(2)
+runs <em>only</em> while paused, <code>ALWAYS</code>(3) never stops, <code>DISABLED</code>(4) never runs. Gate Quit behind a
+<code>ConfirmationDialog</code> (below) so a mis-click is recoverable.</p>
+<h2 id="the-settings-screen-and-its-full-widget-family">The settings screen and its full widget family<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#the-settings-screen-and-its-full-widget-family">#</a></h2>
+<p>Group settings into <code>TabContainer</code> pages, whose direct-child Controls <strong>become the tabs</strong> (title each
+with <code>set_tab_title(idx, title)</code>); a bare <code>TabBar</code> is the strip alone when you page content yourself.
+Each row pairs a <code>Label</code> with the right widget. The family, each with the signal you bind:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th><th>Widget</th><th>Signal → read</th><th>Notes</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>Resolution / Quality</td><td><code>OptionButton</code></td><td><code>item_selected(index)</code> → <code>get_item_id(index)</code></td><td><code>add_item(label, id)</code>, <code>select(idx)</code></td></tr>
+<tr>
+<td>Bus volume</td><td><code>HSlider</code> (<code>Range</code>)</td><td><code>value_changed(value)</code> → <code>.value</code></td><td>set <code>min_value</code>/<code>max_value</code>/<code>step</code></td></tr>
+<tr>
+<td>VSync / Fullscreen</td><td><code>CheckButton</code></td><td><code>toggled(on)</code> → <code>.button_pressed</code></td><td>toggle button, label beside it</td></tr>
+<tr>
+<td>Numeric (FOV, …)</td><td><code>SpinBox</code> (<code>Range</code>)</td><td><code>value_changed(value)</code> → <code>.value</code></td><td><code>.suffix = "°"</code>, <code>.prefix</code> (4.8 deprecates both for a <code>format</code> string; check <code>engine class-info --class SpinBox</code> on the running build)</td></tr>
+<tr>
+<td>Credits / web link</td><td><code>LinkButton</code></td><td><code>pressed</code></td><td>set <code>.uri</code> to auto-open on click</td></tr>
+<tr>
+<td>Extra actions</td><td><code>MenuButton</code> / <code>MenuBar</code></td><td>popup’s <code>id_pressed(id)</code></td><td>see below</td></tr>
+</tbody>
+</table>
+<p><strong>Build (a Video tab: dropdown, slider, toggle):</strong></p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="sh"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">ui</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">add-container</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--type</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">TabContainer</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Tabs</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--parent-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">ui</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">add-container</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--type</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">VBoxContainer</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Video</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--parent-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center/Tabs</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">ui</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">add-control</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--type</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">OptionButton</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">ResOption</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--parent-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center/Tabs/Video</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">ui</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">add-control</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--type</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">HSlider</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">MusicSlider</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--parent-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center/Tabs/Video</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">node</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">set</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--node-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center/Tabs/Video/MusicSlider</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--properties</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'{"min_value":0.0,"max_value":1.0,"step":0.01,"value":1.0}'</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">ui</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">add-control</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--type</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">CheckButton</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">VSyncToggle</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--parent-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center/Tabs/Video</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--text</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"VSync"</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">node</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">connect</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--source-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Center/Tabs/Video/MusicSlider</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--signal-name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">value_changed</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--target-path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">.</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--method-name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">_on_music</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>add_item</code>/<code>select</code>/<code>item_selected</code> are runtime calls; populate and react in script:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> r </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> [</span><span style="--0:#9ECBFF;--1:#032F62">"1280x720"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"1920x1080"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"2560x1440"</span><span style="--0:#E1E4E8;--1:#24292E">]:</span></div></div><div class="ec-line"><div class="code"><span class="indent">    </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">Center/Tabs/Video/ResOption</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">add_item</span><span style="--0:#E1E4E8;--1:#24292E">(r)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">Center/Tabs/Video/ResOption</span><span style="--0:#E1E4E8;--1:#24292E">.item_selected.</span><span style="--0:#B392F0;--1:#6F42C1">connect</span><span style="--0:#E1E4E8;--1:#24292E">(_on_res)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_on_music</span><span style="--0:#E1E4E8;--1:#24292E">(value: </span><span style="--0:#B392F0;--1:#6F42C1">float</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:                 </span><span style="--0:#99A0A6;--1:#616972"># HSlider (linear) → audio bus (dB)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">AudioServer</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">set_bus_volume_db</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">AudioServer</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_bus_index</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"Music"</span><span style="--0:#E1E4E8;--1:#24292E">), </span><span style="--0:#B392F0;--1:#6F42C1">linear_to_db</span><span style="--0:#E1E4E8;--1:#24292E">(value))</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>linear_to_db(0)</code> is <code>-inf</code> (silence), which is correct. Godot also has
+<code>AudioServer.set_bus_volume_linear(idx, value)</code> to skip the conversion. Reach for <code>MenuBar</code> only for a
+desktop-app top strip; each child <code>PopupMenu</code> is one menu, wired via <code>get_menu_popup(i).id_pressed</code>,
+and a <code>MenuButton</code>’s dropdown is <code>get_popup().id_pressed</code>.</p>
+<h2 id="persist-settings-with-configfile--apply-on-boot">Persist settings with ConfigFile + apply-on-boot<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#persist-settings-with-configfile--apply-on-boot">#</a></h2>
+<p>Save to <code>user://settings.cfg</code> with <code>ConfigFile</code> (INI-style, human-readable, no schema). One
+<strong>autoload</strong> loads it and applies every value <em>before the first scene draws</em>, so the game starts in
+the user’s state. <code>save</code>/<code>load</code> return an <code>Error</code> (<code>OK == 0</code>).</p>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="sh"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">project</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">add-autoload</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">Settings</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--path</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">res://autoload/settings.gd</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">extends</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">Node</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">const</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">PATH</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"user://settings.cfg"</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_ready</span><span style="--0:#E1E4E8;--1:#24292E">() </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:                                </span><span style="--0:#99A0A6;--1:#616972"># apply-on-boot</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> cfg </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">ConfigFile</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">new</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> cfg.</span><span style="--0:#B392F0;--1:#6F42C1">load</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">PATH</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">!=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">OK</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#F97583;--1:#BF3441">return</span><span style="--0:#E1E4E8;--1:#24292E">                   </span><span style="--0:#99A0A6;--1:#616972"># first run → defaults stand</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> m </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">AudioServer</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">get_bus_index</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"Master"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">AudioServer</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">set_bus_volume_db</span><span style="--0:#E1E4E8;--1:#24292E">(m, </span><span style="--0:#B392F0;--1:#6F42C1">linear_to_db</span><span style="--0:#E1E4E8;--1:#24292E">(cfg.</span><span style="--0:#B392F0;--1:#6F42C1">get_value</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"audio"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#9ECBFF;--1:#032F62">"master"</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">1.0</span><span style="--0:#E1E4E8;--1:#24292E">)))</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#99A0A6;--1:#616972"># …apply video/input the same way</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">put</span><span style="--0:#E1E4E8;--1:#24292E">(section: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">, key: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">, value: </span><span style="--0:#B392F0;--1:#6F42C1">Variant</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> cfg </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">ConfigFile</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">new</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">cfg.</span><span style="--0:#B392F0;--1:#6F42C1">load</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">PATH</span><span style="--0:#E1E4E8;--1:#24292E">)                                     </span><span style="--0:#99A0A6;--1:#616972"># merge, don't clobber sibling keys</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">cfg.</span><span style="--0:#B392F0;--1:#6F42C1">set_value</span><span style="--0:#E1E4E8;--1:#24292E">(section, key, value)</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">cfg.</span><span style="--0:#B392F0;--1:#6F42C1">save</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">PATH</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>get_value(section, key, default)</code> returns the default when absent, so fresh installs and partial configs need no special-casing.</p>
+<h2 id="edit-then-commit-or-discard-staged-screens">Edit then commit or discard: staged screens<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#edit-then-commit-or-discard-staged-screens">#</a></h2>
+<p>A settings screen or a loadout editor has a Cancel button, and Cancel has to mean something. Wiring
+each widget straight to the store makes every drag of a volume slider a write, so Cancel can only
+undo what it remembers to undo. Stage the edit instead:</p>
+<ol>
+<li>
+<strong>On open</strong>, copy the persisted values into a scratch dictionary. <code>Dictionary.duplicate(true)</code>
+for nested data, so an edit cannot reach the original through a shared sub-dictionary.</li>
+<li>
+<strong>While editing</strong>, every widget signal writes the scratch. Live preview (applying a volume as
+the slider moves) is fine and separate: preview the audio bus, store nothing.</li>
+<li>
+<strong>On confirm</strong>, validate, fold the scratch back into the store, then save once.</li>
+<li>
+<strong>On cancel</strong>, drop the scratch and re-apply the stored values to undo any preview. The store
+was never touched, so there is nothing to roll back.</li>
+</ol>
+<p>The same three steps cover a deck or loadout editor, where the scratch is a deep copy of the deck
+record plus a mirror of any currency being spent. Cancel discards the copy and the spend together,
+which is why a partial purchase cannot leak out of a cancelled screen.</p>
+<p><strong>Build (verified in a running game).</strong> The store is the <code>ConfigFile</code> from the previous section:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># open: scratch copy of just the section under edit</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> scratch </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> {}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> key </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> cfg.</span><span style="--0:#B392F0;--1:#6F42C1">get_section_keys</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"audio"</span><span style="--0:#E1E4E8;--1:#24292E">):</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">scratch[key] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> cfg.</span><span style="--0:#B392F0;--1:#6F42C1">get_value</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"audio"</span><span style="--0:#E1E4E8;--1:#24292E">, key)</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">scratch[</span><span style="--0:#9ECBFF;--1:#032F62">"music"</span><span style="--0:#E1E4E8;--1:#24292E">] </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">0.2</span><span style="--0:#E1E4E8;--1:#24292E">                      </span><span style="--0:#99A0A6;--1:#616972"># a widget edits the scratch, never the store</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># confirm: fold the scratch back and save once</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">for</span><span style="--0:#E1E4E8;--1:#24292E"> key </span><span style="--0:#F97583;--1:#BF3441">in</span><span style="--0:#E1E4E8;--1:#24292E"> scratch:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">cfg.</span><span style="--0:#B392F0;--1:#6F42C1">set_value</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"audio"</span><span style="--0:#E1E4E8;--1:#24292E">, key, scratch[key])</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">cfg.</span><span style="--0:#B392F0;--1:#6F42C1">save</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">PATH</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="sh"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">runtime</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">eval</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--code</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">'...'</span><span style="--0:#E1E4E8;--1:#24292E">   </span><span style="--0:#99A0A6;--1:#616972"># the sequence above, reading the file back after each step</span></div></div><div class="ec-line"><div class="code"><span style="--0:#99A0A6;--1:#616972"># { "music_after_cancel": 0.8, "music_after_confirm": 0.2 }</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>Read the file back, not the widget. A screen whose Cancel path is checked by looking at the slider
+position passes even when the write already happened.</p>
+<h2 id="input-remapping-rebind-actions-at-runtime">Input remapping: rebind actions at runtime<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#input-remapping-rebind-actions-at-runtime">#</a></h2>
+<p>Remapping edits the live <code>InputMap</code>: <code>action_erase_events(action)</code> clears an action’s bindings,
+<code>action_add_event(action, event)</code> adds the captured one. The UI enters a <strong>listening</strong> state, grabs
+the next key, rebinds, persists. Serialize <code>InputEventKey.physical_keycode</code> (an int, layout-
+independent), never the event object. The <strong>edit-time default</strong> bindings a project ships with come
+from the <code>input_map</code> command group (<code>input_map set-action</code>); this is the <em>runtime</em> layer on top.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> listening </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">""</span><span style="--0:#E1E4E8;--1:#24292E">                                   </span><span style="--0:#99A0A6;--1:#616972"># empty = not capturing</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">begin_listen</span><span style="--0:#E1E4E8;--1:#24292E">(action: </span><span style="--0:#B392F0;--1:#6F42C1">String</span><span style="--0:#E1E4E8;--1:#24292E">, prompt: </span><span style="--0:#B392F0;--1:#6F42C1">Button</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">listening </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> action</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">prompt.text </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"Press a key…"</span></div></div><div class="ec-line"><div class="code">
+</div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">_unhandled_input</span><span style="--0:#E1E4E8;--1:#24292E">(e: </span><span style="--0:#B392F0;--1:#6F42C1">InputEvent</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> key </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> e </span><span style="--0:#F97583;--1:#BF3441">as</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">InputEventKey</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#F97583;--1:#BF3441">if</span><span style="--0:#E1E4E8;--1:#24292E"> listening </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">""</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">or</span><span style="--0:#E1E4E8;--1:#24292E"> key </span><span style="--0:#F97583;--1:#BF3441">==</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">null</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">or</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#F97583;--1:#BF3441">not</span><span style="--0:#E1E4E8;--1:#24292E"> key.pressed: </span><span style="--0:#F97583;--1:#BF3441">return</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">InputMap</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">action_erase_events</span><span style="--0:#E1E4E8;--1:#24292E">(listening)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">InputMap</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">action_add_event</span><span style="--0:#E1E4E8;--1:#24292E">(listening, key)</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#B392F0;--1:#6F42C1">Settings</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">put</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"keys"</span><span style="--0:#E1E4E8;--1:#24292E">, listening, key.physical_keycode)   </span><span style="--0:#99A0A6;--1:#616972"># persist the int</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">listening </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">""</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p>On boot, rebuild each action from the saved int: <code>var ev := InputEventKey.new(); ev.physical_keycode = scancode</code>, then <code>action_erase_events</code> + <code>action_add_event</code>. <code>key.as_text_physical_keycode()</code> gives
+the label string (“Space”, “A”).</p>
+<h2 id="window--display">Window &#x26; display<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#window--display">#</a></h2>
+<p>Runtime changes go through <code>DisplayServer</code>; layout-time scaling through project settings. Never write
+<code>project.godot</code> by hand. Use <code>project set-setting</code>.</p>
+<ul>
+<li>
+<strong>Fullscreen / windowed:</strong> <code>DisplayServer.window_set_mode(mode)</code> takes <code>WINDOW_MODE_WINDOWED</code>,
+<code>WINDOW_MODE_FULLSCREEN</code> (borderless), or <code>WINDOW_MODE_EXCLUSIVE_FULLSCREEN</code>.</li>
+<li>
+<strong>VSync:</strong> <code>DisplayServer.window_set_vsync_mode(mode)</code> takes <code>VSYNC_ENABLED</code>, <code>VSYNC_DISABLED</code>,
+<code>VSYNC_ADAPTIVE</code>, or <code>VSYNC_MAILBOX</code>.</li>
+<li>
+<strong>Resolution:</strong> <code>DisplayServer.window_set_size(Vector2i(w, h))</code> (windowed only).</li>
+<li>
+<strong>Content scale</strong> (UI crispness across resolutions): set the stretch policy once as project
+settings, and the engine scales the UI for you:
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="sh"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">project</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">set-setting</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">display/window/stretch/mode</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--value</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">canvas_items</span></div></div><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">project</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">set-setting</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--name</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">display/window/stretch/aspect</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--value</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">keep</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+A live per-user accessibility knob is <code>get_window().content_scale_factor</code>.</li>
+</ul>
+<h2 id="dialogs--popups">Dialogs &#x26; popups<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#dialogs--popups">#</a></h2>
+<p><code>AcceptDialog</code> is a <code>Window</code> with an OK button (signal <code>confirmed</code>); <code>ConfirmationDialog</code> adds Cancel
+(signal <code>canceled</code>). Show either with <strong><code>popup_centered(Vector2i(w, h))</code></strong>, never <code>visible = true</code>
+(which skips placement). <code>FileDialog</code> (a <code>ConfirmationDialog</code>) picks files: set <code>file_mode</code>
+(<code>FILE_MODE_OPEN_FILE</code>, <code>FILE_MODE_SAVE_FILE</code>, …) and <code>access</code> (<code>ACCESS_RESOURCES</code> for <code>res://</code>,
+<code>ACCESS_USERDATA</code> for <code>user://</code>, <code>ACCESS_FILESYSTEM</code> for the disk), add <code>*.ext</code> filters, read
+<code>file_selected(path)</code>.</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">confirm_quit</span><span style="--0:#E1E4E8;--1:#24292E">(d: </span><span style="--0:#B392F0;--1:#6F42C1">ConfirmationDialog</span><span style="--0:#E1E4E8;--1:#24292E">) </span><span style="--0:#F97583;--1:#BF3441">-></span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">void</span><span style="--0:#E1E4E8;--1:#24292E">:</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">d.dialog_text </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">"Quit to desktop?"</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">d.confirmed.</span><span style="--0:#B392F0;--1:#6F42C1">connect</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().quit)              </span><span style="--0:#99A0A6;--1:#616972"># canceled just closes</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">d.</span><span style="--0:#B392F0;--1:#6F42C1">popup_centered</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#B392F0;--1:#6F42C1">Vector2i</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">320</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">140</span><span style="--0:#E1E4E8;--1:#24292E">))              </span><span style="--0:#99A0A6;--1:#616972"># a FileDialog: same popup_centered, + add_filter</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="gamepad--keyboard-navigation-the-couch-compat-checklist">Gamepad &#x26; keyboard navigation (the couch-compat checklist)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#gamepad--keyboard-navigation-the-couch-compat-checklist">#</a></h2>
+<p>A mouse-only menu is broken on a controller. Exactly one Control holds focus; <code>ui_up</code>/<code>ui_down</code>/
+<code>ui_left</code>/<code>ui_right</code>/<code>ui_accept</code>/<code>ui_cancel</code> (built-in actions) move and activate it. On every screen:</p>
+<ul>
+<li>
+<strong>Grab focus on open</strong>. <code>first_button.grab_focus()</code> when it shows; re-grab after a sub-dialog closes. No focus → a controller does nothing.</li>
+<li>
+<strong>Every interactive Control is focusable</strong>. Buttons default to <code>focus_mode = FOCUS_ALL</code>(2); custom Controls must set it (<code>FOCUS_NONE</code>=0, <code>FOCUS_CLICK</code>=1).</li>
+<li>
+<strong>Fix auto-routing where it’s wrong</strong> with <code>focus_neighbor_top/bottom/left/right</code> (or <code>set_focus_neighbor(SIDE_BOTTOM, path)</code>) and <code>focus_next</code>/<code>focus_previous</code>.</li>
+<li>
+<strong>Verify by driving</strong>. <code>scene play</code>, then <code>input action --action ui_down</code> / <code>ui_accept</code>, and <code>runtime get</code> the focused path: reach <em>and trigger</em> mouse-free.</li>
+<li>
+<strong>Touch builds</strong> may want an on-screen stick. See <em>VirtualJoystick</em> below.</li>
+</ul>
+<h2 id="skinning-with-9-slice-ninepatchrect-vs-styleboxtexture">Skinning with 9-slice: NinePatchRect vs StyleBoxTexture<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#skinning-with-9-slice-ninepatchrect-vs-styleboxtexture">#</a></h2>
+<p>Both stretch a bordered texture without distorting corners; <strong>their margin properties differ, and
+mixing them up silently does nothing</strong> (verified live):</p>
+<ul>
+<li>
+<strong><code>NinePatchRect</code></strong> is a <em>node</em>, a standalone stretchable image (a framed panel you place). Margins
+are <strong><code>patch_margin_left/top/right/bottom</code></strong> (<code>int</code>, px); <code>axis_stretch_horizontal/vertical</code> pick
+tile vs stretch on the edges.</li>
+<li>
+<strong><code>StyleBoxTexture</code></strong> is a <em>resource</em> fed to a Control’s theme (a Button’s <code>normal</code>/<code>hover</code>/
+<code>pressed</code>, a Panel’s <code>panel</code>), so the widget draws itself skinned with correct content padding.
+Margins are <strong><code>texture_margin_left/…</code></strong> (<code>float</code>); <code>set_texture_margin_all(n)</code> sets all four.</li>
+</ul>
+<p>Use <code>NinePatchRect</code> for a decorative frame; <code>StyleBoxTexture</code> to skin an interactive widget.
+<code>theme.set_stylebox</code> only builds a flat <code>StyleBoxFlat</code>, so apply a textured one in script:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> sb </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">StyleBoxTexture</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">new</span><span style="--0:#E1E4E8;--1:#24292E">()</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">sb.texture </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">load</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"res://ui/panel.png"</span><span style="--0:#E1E4E8;--1:#24292E">)</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">sb.</span><span style="--0:#B392F0;--1:#6F42C1">set_texture_margin_all</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#79B8FF;--1:#005CC5">12.0</span><span style="--0:#E1E4E8;--1:#24292E">)                       </span><span style="--0:#99A0A6;--1:#616972"># the 9-slice border, px</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">Panel</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">add_theme_stylebox_override</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"panel"</span><span style="--0:#E1E4E8;--1:#24292E">, sb)       </span><span style="--0:#99A0A6;--1:#616972"># or a Button's "normal"/"hover"/"pressed"</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="font-pipeline">Font pipeline<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#font-pipeline">#</a></h2>
+<p>A <code>.ttf</code>/<code>.otf</code> dropped in the project <strong>auto-imports as a <code>FontFile</code></strong>, so reference its <code>res://</code>
+path directly. Set it as a <code>Theme</code>’s <code>default_font</code> (+ <code>default_font_size</code>), or per control:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">var</span><span style="--0:#E1E4E8;--1:#24292E"> f </span><span style="--0:#F97583;--1:#BF3441">:=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#B392F0;--1:#6F42C1">load</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"res://ui/Inter.ttf"</span><span style="--0:#E1E4E8;--1:#24292E">)                   </span><span style="--0:#99A0A6;--1:#616972"># FontFile</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">Title</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">add_theme_font_override</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"font"</span><span style="--0:#E1E4E8;--1:#24292E">, f)             </span><span style="--0:#99A0A6;--1:#616972"># one control</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">menu_theme.default_font </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> f                            </span><span style="--0:#99A0A6;--1:#616972"># every Control under this Theme</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">menu_theme.default_font_size </span><span style="--0:#F97583;--1:#BF3441">=</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">20</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>SystemFont</code> pulls from the OS with a fallback chain (<code>font_names = ["Segoe UI", "Arial"]</code>,
+<code>allow_system_fallback = true</code>) for glyphs a bundled font lacks. For weight/spacing/italic off one
+base file, reach for <code>FontVariation</code>. Its axis-pinning and letter-spacing traps are in
+<code>ui-polish-2d.md</code> (“Typography facts”); don’t re-solve them. Bulk theme sizing:
+<code>theme create --default-font-size 18</code> / <code>theme set-font-size --node-path X --name font_size --size 24</code>.</p>
+<h2 id="graphedit-family-when-a-game-needs-a-node-editor">GraphEdit family (when a game needs a node editor)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#graphedit-family-when-a-game-needs-a-node-editor">#</a></h2>
+<p><code>GraphEdit</code> + <code>GraphNode</code> build in-game/tool <strong>node graphs</strong>: a skill-tree builder, dialogue
+debugger, visual crafting bench. Use it only when the game edits a graph; a static skill tree
+is better as <code>TextureButton</code>s + <code>Line2D</code>s. <code>GraphEdit</code> doesn’t connect wires itself. It emits
+<code>connection_request(from, from_port, to, to_port)</code> and you decide, calling <code>connect_node(from, from_port, to, to_port)</code> to accept the wire (<code>disconnection_request</code> is the tear-down half). Each
+<code>GraphNode</code>’s ports come from <strong>slots</strong>: <code>set_slot(idx, enable_left, type_left, color_left, enable_right, type_right, color_right)</code> turns a child row into an input (left) / output (right) port.</p>
+<h2 id="videostreamplayer-for-cutscenes--attract-screens">VideoStreamPlayer for cutscenes &#x26; attract screens<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#videostreamplayer-for-cutscenes--attract-screens">#</a></h2>
+<p><code>VideoStreamPlayer</code> is a <code>Control</code> that plays a <code>VideoStream</code>: set <code>stream</code>, call <code>play()</code>, react to
+<code>finished</code>. The caveat: <strong>Godot ships only the Theora codec</strong> (<code>.ogv</code> → <code>VideoStreamTheora</code>), with
+no MP4/H.264 out of the box, so transcode to <code>.ogv</code> (or add a GDExtension decoder).</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="gdscript"><code><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">Intro</span><span style="--0:#E1E4E8;--1:#24292E">.finished.</span><span style="--0:#B392F0;--1:#6F42C1">connect</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#F97583;--1:#BF3441">func</span><span style="--0:#E1E4E8;--1:#24292E">(): </span><span style="--0:#B392F0;--1:#6F42C1">get_tree</span><span style="--0:#E1E4E8;--1:#24292E">().</span><span style="--0:#B392F0;--1:#6F42C1">change_scene_to_file</span><span style="--0:#E1E4E8;--1:#24292E">(</span><span style="--0:#9ECBFF;--1:#032F62">"res://ui/main_menu.tscn"</span><span style="--0:#E1E4E8;--1:#24292E">))</span></div></div><div class="ec-line"><div class="code"><span style="--0:#F97583;--1:#BF3441">$</span><span style="--0:#79B8FF;--1:#005CC5">Intro</span><span style="--0:#E1E4E8;--1:#24292E">.</span><span style="--0:#B392F0;--1:#6F42C1">play</span><span style="--0:#E1E4E8;--1:#24292E">()                                          </span><span style="--0:#99A0A6;--1:#616972"># set autoplay + loop for an attract loop</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<h2 id="virtualjoystick-the-on-screen-touch-stick">VirtualJoystick, the on-screen touch stick<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#virtualjoystick-the-on-screen-touch-stick">#</a></h2>
+<p><code>VirtualJoystick</code> is a <code>Control</code> <strong>in the running build’s ClassDB</strong>, engine-level rather than a
+project addon (verified: no plugin registers it here). It’s newer than most training data and
+builds can differ, so confirm with <code>engine class-info --class VirtualJoystick</code> before relying on it; if absent,
+fall back to the Control-stick pattern in <code>mobile-touch.md</code>. It drives four InputMap actions, so
+gameplay reads it as ordinary <code>Input.get_vector(...)</code>:</p>
+<ul>
+<li>Actions (<code>StringName</code>, point at your movement actions): <code>action_left/right/up/down</code>.</li>
+<li>Shape/feel: <code>joystick_mode</code>, <code>visibility_mode</code>, <code>joystick_size</code>, <code>tip_size</code>, <code>deadzone_ratio</code>, <code>clampzone_ratio</code>, <code>initial_offset_ratio</code>.</li>
+<li>Signals: <code>pressed</code>, <code>tapped</code>, <code>released(input_vector)</code>, <code>flicked(input_vector)</code>, <code>flick_canceled</code>.</li>
+</ul>
+<h2 id="checklist">Checklist<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#checklist">#</a></h2>
+<ul>
+<li>Layout by containers anchored <code>full_rect</code>, never offsets; <code>grab_focus()</code> a control on open.</li>
+<li>Pause = <code>get_tree().paused</code> + a <code>PROCESS_MODE_ALWAYS</code> <code>CanvasLayer</code> overlay; Quit behind a <code>ConfirmationDialog</code>.</li>
+<li>Right widget per setting, read off its signal; volumes through <code>linear_to_db</code>.</li>
+<li>Persist to <code>user://settings.cfg</code> via <code>ConfigFile</code>; one autoload applies on boot before first draw.</li>
+<li>Staged screens edit a scratch copy: confirm folds it back and saves, cancel drops it untouched.</li>
+<li>Remaps edit <code>InputMap</code> at runtime and persist <code>physical_keycode</code> ints; <code>input_map</code> ships defaults.</li>
+<li>Display via <code>DisplayServer</code> (mode/vsync/size); content scale via <code>project set-setting display/window/stretch/*</code>.</li>
+<li>Couch test: reachable + triggerable by <code>ui_*</code> actions alone (verify via <code>input action</code> + <code>runtime get</code>).</li>
+<li>9-slice: <code>NinePatchRect.patch_margin_*</code> (int) vs <code>StyleBoxTexture.texture_margin_*</code> (float). Don’t cross them.</li>
+<li>Motion/transitions → <code>ui-polish-2d.md</code>; product-shell (boot/splash, settings-as-registration, a11y tab) → <code>narrative-game-patterns.md</code>.</li>
+</ul>
+</article>
+<nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
+<a class="pager-link prev" href="/godot-mcp-go/docs/guides/ai-steering" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>Steering and agent movement</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/audio-music" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Audio and music</span></a></nav>
+<footer class="site-foot" data-scope-ccykbmgk>Built with the help of <code data-scope-ccykbmgk>swallowtail</code>. MIT licensed.</footer>
+</main>
+<aside class="toc" aria-label="On this page" aria-hidden="false" data-scope-p33bl5ka>
+<div class="toc-title" data-scope-p33bl5ka>On this page</div>
+<ul data-scope-p33bl5ka>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-skeleton-every-menu-shares" data-toc="the-skeleton-every-menu-shares" data-scope-p33bl5ka>The skeleton every menu shares</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#pause-menu-an-overlay-that-lives-while-the-tree-is-frozen" data-toc="pause-menu-an-overlay-that-lives-while-the-tree-is-frozen" data-scope-p33bl5ka>Pause menu: an overlay that lives while the tree is frozen</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#the-settings-screen-and-its-full-widget-family" data-toc="the-settings-screen-and-its-full-widget-family" data-scope-p33bl5ka>The settings screen and its full widget family</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#persist-settings-with-configfile--apply-on-boot" data-toc="persist-settings-with-configfile--apply-on-boot" data-scope-p33bl5ka>Persist settings with ConfigFile + apply-on-boot</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#edit-then-commit-or-discard-staged-screens" data-toc="edit-then-commit-or-discard-staged-screens" data-scope-p33bl5ka>Edit then commit or discard: staged screens</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#input-remapping-rebind-actions-at-runtime" data-toc="input-remapping-rebind-actions-at-runtime" data-scope-p33bl5ka>Input remapping: rebind actions at runtime</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#window--display" data-toc="window--display" data-scope-p33bl5ka>Window &amp; display</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#dialogs--popups" data-toc="dialogs--popups" data-scope-p33bl5ka>Dialogs &amp; popups</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#gamepad--keyboard-navigation-the-couch-compat-checklist" data-toc="gamepad--keyboard-navigation-the-couch-compat-checklist" data-scope-p33bl5ka>Gamepad &amp; keyboard navigation (the couch-compat checklist)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#skinning-with-9-slice-ninepatchrect-vs-styleboxtexture" data-toc="skinning-with-9-slice-ninepatchrect-vs-styleboxtexture" data-scope-p33bl5ka>Skinning with 9-slice: NinePatchRect vs StyleBoxTexture</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#font-pipeline" data-toc="font-pipeline" data-scope-p33bl5ka>Font pipeline</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#graphedit-family-when-a-game-needs-a-node-editor" data-toc="graphedit-family-when-a-game-needs-a-node-editor" data-scope-p33bl5ka>GraphEdit family (when a game needs a node editor)</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#videostreamplayer-for-cutscenes--attract-screens" data-toc="videostreamplayer-for-cutscenes--attract-screens" data-scope-p33bl5ka>VideoStreamPlayer for cutscenes &amp; attract screens</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#virtualjoystick-the-on-screen-touch-stick" data-toc="virtualjoystick-the-on-screen-touch-stick" data-scope-p33bl5ka>VirtualJoystick, the on-screen touch stick</a></li>
+<li class="toc-item depth-2" data-scope-p33bl5ka>
+<a href="#checklist" data-toc="checklist" data-scope-p33bl5ka>Checklist</a></li>
+</ul>
+</aside>
+<script defer src="/godot-mcp-go/assets/table-of-contents.js"></script></div>
+</body>
+</html>

@@ -1,0 +1,69 @@
+# Overview
+
+The complete build, play, debug, fix, and verify workflow through one Godot interface.
+
+**Swallowtail** is an automation toolkit for Godot. Inspect scenes, edit projects,
+run checks, and playtest from your terminal. Reuse the same commands in your
+scripts and connect them to your other tools.
+
+Use `swallowtail` for new commands. The deprecated `godot-mcp` executable still
+ships in the same bundle. To move an existing addon installation, follow
+[Migrating to Swallowtail](https://regiellis.github.io/godot-mcp-go/docs/migration).
+
+## Start where you work
+
+- **Run commands:** follow the [terminal quickstart](https://regiellis.github.io/godot-mcp-go/docs/quickstart) to build and play
+  a scene in a fresh project.
+- **Automate your workflow:** compose commands with JSON, exit codes, and shell scripts in
+  [Scripting and CI](https://regiellis.github.io/godot-mcp-go/docs/automation).
+- **Connect your tools:** use the CLI directly, or configure the [optional MCP interface](https://regiellis.github.io/godot-mcp-go/docs/mcp-setup).
+
+## Alongside Godot's CLI
+
+Godot's built-in command line handles engine startup, scripts, imports, and
+exports. Swallowtail invokes your installed engine for those jobs and adds
+commands for the open editor and running game. See [How it works](https://regiellis.github.io/godot-mcp-go/docs/how-it-works).
+
+## The working loop
+
+`discover → build → run → play → observe → debug → fix → verify`
+
+Because the CLI talks to the *live* editor and game, each stage can verify the previous one against real state. Ask the engine what it supports, read changes back, drive gameplay through input, and use the debugger when behavior differs from what you intended.
+
+```bash
+# 1. discover: ask the live ClassDB what exists
+swallowtail engine search --query offset_transform
+
+# 2. build: act through typed or generic commands
+swallowtail node set --node-path Player --property position --value "Vector2(100, 200)"
+
+# 3. run and play
+swallowtail scene play --mode main
+swallowtail input action --action ui_accept --pressed true
+
+# 4. observe and verify
+swallowtail runtime get --node-path Player --properties '["position"]'
+swallowtail runtime errors
+```
+
+## Where to go next
+
+
+  - **Quickstart**:
+    Build and play a scene from an empty project.
+
+  - **Installation**:
+    Add the addon to a project, or bootstrap a new one.
+
+  - **Use with an AI client**:
+    Wire the MCP server into Claude, Cursor, VS Code, or Codex.
+
+  - **Command groups**:
+    The command groups and how invocation works.
+
+
+## Requirements at a glance
+
+- **Godot 4.7**, the development target. **4.3 through 4.8** work in beta; see [Installation](https://regiellis.github.io/godot-mcp-go/docs/installation).
+- **Go 1.26+** to build the CLI (or use a release binary).
+- The editor must be open with the **Swallowtail** plugin enabled; the CLI is a short-lived client that dials in per command.

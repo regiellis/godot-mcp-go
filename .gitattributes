@@ -6,3 +6,11 @@
 
 # Downloadable reports retain their exact PDF bytes.
 *.pdf binary
+
+# Static source and copy-page payloads have stable newlines on every platform.
+website/site/**/*.html text eol=lf
+website/site/**/*.css text eol=lf
+website/site/**/*.js text eol=lf
+website/site/**/*.txt text eol=lf
+website/site/index.html text eol=lf
+website/site/llm.txt text eol=lf
