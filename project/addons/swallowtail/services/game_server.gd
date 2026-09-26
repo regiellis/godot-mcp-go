@@ -290,7 +290,12 @@ func _deliver_runtime(ws: WebSocketPeer, id: Variant, result: Dictionary) -> voi
 	if ws.get_ready_state() != WebSocketPeer.STATE_OPEN:
 		return
 	if result.has("error"):
-		_send(ws, id, null, {"code": -32000, "message": str(result["error"])})
+		# Same mapping as runtime_commands._send over the editor hop: a handler may
+		# name the wire code and attach data (runtime.eval's aborted snippet).
+		var err := {"code": int(result.get("error_code", -32000)), "message": str(result["error"])}
+		if result.get("error_data") is Dictionary:
+			err["data"] = result["error_data"]
+		_send(ws, id, null, err)
 	else:
 		_send(ws, id, result, null)
 

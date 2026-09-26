@@ -1,0 +1,217 @@
+[
+  {
+    "node": "Chapters/Intro/Card",
+    "start": 0.0,
+    "end": 8.0
+  },
+  {
+    "node": "Chapters/EditorWorkflow/Card",
+    "start": 29.46667,
+    "end": 41.35667
+  },
+  {
+    "node": "Chapters/WhyCLI/Card",
+    "start": 41.35667,
+    "end": 64.9
+  },
+  {
+    "node": "Chapters/Setup/S01_ConnectTheEditor",
+    "start": 64.9,
+    "end": 78.98
+  },
+  {
+    "node": "Chapters/Setup/S02_CheckTheConnection",
+    "start": 78.98,
+    "end": 84.61
+  },
+  {
+    "node": "Chapters/Setup/S03_AskForHelp",
+    "start": 84.61,
+    "end": 97.91
+  },
+  {
+    "node": "Chapters/Setup/S04_SeeWhat\\'sThere",
+    "start": 97.91,
+    "end": 111.63333
+  },
+  {
+    "node": "Chapters/Building/S05_StartWithAScene",
+    "start": 111.63333,
+    "end": 122.04333
+  },
+  {
+    "node": "Chapters/Building/S06_GiveItAHome",
+    "start": 122.04333,
+    "end": 128.06333
+  },
+  {
+    "node": "Chapters/Building/S07_MakeItStandOut",
+    "start": 128.06333,
+    "end": 143.16667
+  },
+  {
+    "node": "Chapters/Building/S08_BuildOutTheShore",
+    "start": 143.16667,
+    "end": 151.08667
+  },
+  {
+    "node": "Chapters/Building/S09_PlaceTheNewRock",
+    "start": 151.08667,
+    "end": 152.84667
+  },
+  {
+    "node": "Chapters/Building/S10_GiveItSomeWeight",
+    "start": 152.84667,
+    "end": 156.93667
+  },
+  {
+    "node": "Chapters/Building/S11_BringTheWaterUp",
+    "start": 156.93667,
+    "end": 165.15667
+  },
+  {
+    "node": "Chapters/Building/S12_KeepTheSceneEdit",
+    "start": 165.15667,
+    "end": 173.16667
+  },
+  {
+    "node": "Chapters/Scale/Card",
+    "start": 173.16667,
+    "end": 208.16667
+  },
+  {
+    "node": "Chapters/Automation/S13_KeepWhatWorks",
+    "start": 208.16667,
+    "end": 226.73667
+  },
+  {
+    "node": "Chapters/Automation/S14_RunTheSequence",
+    "start": 226.73667,
+    "end": 234.90667
+  },
+  {
+    "node": "Chapters/Automation/S15_RunItAgain",
+    "start": 234.90667,
+    "end": 250.10667
+  },
+  {
+    "node": "Chapters/Automation/S16_CheckBeforePlaying",
+    "start": 250.10667,
+    "end": 261.9
+  },
+  {
+    "node": "Chapters/Playtest/S17_RunIt",
+    "start": 261.9,
+    "end": 273.42
+  },
+  {
+    "node": "Chapters/Playtest/S18_InspectTheGame",
+    "start": 273.42,
+    "end": 275.25
+  },
+  {
+    "node": "Chapters/Playtest/S19_MoveThroughIt",
+    "start": 275.25,
+    "end": 284.74
+  },
+  {
+    "node": "Chapters/Playtest/S20_ReadTheValue",
+    "start": 284.74,
+    "end": 292.0
+  },
+  {
+    "node": "Chapters/Playtest/S21_ChangeItLive",
+    "start": 292.0,
+    "end": 303.55
+  },
+  {
+    "node": "Chapters/Playtest/S22_ReadItBack",
+    "start": 303.55,
+    "end": 307.11
+  },
+  {
+    "node": "Chapters/Playtest/S23_CheckWhatHappened",
+    "start": 307.11,
+    "end": 310.59
+  },
+  {
+    "node": "Chapters/Playtest/S24_KeepAFrame",
+    "start": 310.59,
+    "end": 314.83
+  },
+  {
+    "node": "Chapters/Playtest/S25_FinishTheExperiment",
+    "start": 314.83,
+    "end": 331.1
+  },
+  {
+    "node": "Chapters/Agent/S26_HandOffATask",
+    "start": 331.1,
+    "end": 345.44
+  },
+  {
+    "node": "Chapters/Agent/S27_DiscoverTheCommand",
+    "start": 345.44,
+    "end": 347.22
+  },
+  {
+    "node": "Chapters/Agent/S28_KeepTheCalmWater",
+    "start": 347.22,
+    "end": 353.03
+  },
+  {
+    "node": "Chapters/Agent/S29_LowerTheSun",
+    "start": 353.03,
+    "end": 356.53
+  },
+  {
+    "node": "Chapters/Agent/S30_WarmTheLight",
+    "start": 356.53,
+    "end": 359.53
+  },
+  {
+    "node": "Chapters/Agent/S31_SaveForReview",
+    "start": 359.53,
+    "end": 363.03
+  },
+  {
+    "node": "Chapters/Agent/S32_InspectTheResult",
+    "start": 363.03,
+    "end": 380.73333
+  },
+  {
+    "node": "Chapters/MCPOverview/Card",
+    "start": 380.73333,
+    "end": 403.30333
+  },
+  {
+    "node": "Chapters/MCP/S33_McpWhenYouWantIt",
+    "start": 403.30333,
+    "end": 405.57333
+  },
+  {
+    "node": "Chapters/MCP/S34_MakeOneMoreChange",
+    "start": 405.57333,
+    "end": 406.90333
+  },
+  {
+    "node": "Chapters/MCP/S35_WatchTheChange",
+    "start": 406.90333,
+    "end": 409.90333
+  },
+  {
+    "node": "Chapters/MCP/S36_ReadItBack",
+    "start": 409.90333,
+    "end": 420.83333
+  },
+  {
+    "node": "Chapters/Workflow/Card",
+    "start": 420.83333,
+    "end": 455.7
+  },
+  {
+    "node": "Chapters/Close/Card",
+    "start": 455.7,
+    "end": 469.43333
+  }
+]

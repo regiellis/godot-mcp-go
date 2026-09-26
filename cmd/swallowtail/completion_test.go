@@ -18,6 +18,10 @@ func TestCompletionCandidates(t *testing.T) {
 		{[]string{"sc"}, "scene"}, {[]string{"scene", "tr"}, "tree"}, {[]string{"scene", "tree", "--max"}, "--max-depth"}, {[]string{"doctor", "--j"}, "--json"},
 		{[]string{"upgrade", "pre"}, "preflight"},
 		{[]string{"upgrade", "preflight", "--old"}, "--old-godot"},
+		{[]string{"qa", "re"}, "report"},
+		{[]string{"qa", "report", "--ass"}, "--assessment"},
+		{[]string{"qa", "attest", "--det"}, "--detail"},
+		{[]string{"qa", "compare", "--tol"}, "--tolerance-percent"},
 	} {
 		if got := completionCandidates(tc.words, c); !slices.Contains(got, tc.want) {
 			t.Fatal(tc, got)

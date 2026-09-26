@@ -1,0 +1,58 @@
+[
+  {
+    "text": "Swallowtail. At your service.",
+    "file": "audio/voice_00.mp3",
+    "voice": "ElevenLabs Chris (stock voice)",
+    "model": "eleven_multilingual_v2",
+    "start": 1.5
+  },
+  {
+    "text": "There's a game you want to make. Maybe it starts with something small. A patch of land. Some water. A light on the horizon.",
+    "file": "audio/voice_01.mp3",
+    "voice": "ElevenLabs Chris (stock voice)",
+    "model": "eleven_multilingual_v2",
+    "start": 11
+  },
+  {
+    "text": "Open your project and start building. Place the lighthouse. Bring the water to life. Use the terminal when it suits you. You can still open the scene and change it yourself.",
+    "file": "audio/voice_02.mp3",
+    "voice": "ElevenLabs Chris (stock voice)",
+    "model": "eleven_multilingual_v2",
+    "start": 25
+  },
+  {
+    "text": "Once a few commands work, keep them. Put the repeatable parts in a script, and run them again after a change. Spend your time on the decisions that make this place yours.",
+    "file": "audio/voice_03.mp3",
+    "voice": "ElevenLabs Chris (stock voice)",
+    "model": "eleven_multilingual_v2",
+    "start": 45
+  },
+  {
+    "text": "Then run it. Move through the scene. Check what the water is doing, and read the values back. If something's off, change it and try again. Building is only part of the job. You need to see how it feels.",
+    "file": "audio/voice_04.mp3",
+    "voice": "ElevenLabs Chris (stock voice)",
+    "model": "eleven_multilingual_v2",
+    "start": 64
+  },
+  {
+    "text": "Some days, you'd rather hand off a task. Ask an agent to soften the waves and warm the light. It uses the same tools. You review what changed, play the scene, and decide what stays.",
+    "file": "audio/voice_05.mp3",
+    "voice": "ElevenLabs Chris (stock voice)",
+    "model": "eleven_multilingual_v2",
+    "start": 87
+  },
+  {
+    "text": "If your agent uses MCP, connect it to the same editor. The commands still work from your terminal. Your scenes and scripts are still ordinary Godot files. The workflow is yours to choose.",
+    "file": "audio/voice_06.mp3",
+    "voice": "ElevenLabs Chris (stock voice)",
+    "model": "eleven_multilingual_v2",
+    "start": 109
+  },
+  {
+    "text": "There's a game you want to make. Start with a scene. Build from there. Swallowtail. At your service.",
+    "file": "audio/voice_07.mp3",
+    "voice": "ElevenLabs Chris (stock voice)",
+    "model": "eleven_multilingual_v2",
+    "start": 132
+  }
+]

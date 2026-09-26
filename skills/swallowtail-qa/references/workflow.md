@@ -1,0 +1,160 @@
+# QA commands and extension contract
+
+The local commands are `qa init`, `qa run`, `qa compare`, `qa attest`, and `qa report`.
+Use `swallowtail qa <command> --help` for flags. These commands do not require a running
+editor or an installed addon. Python 3.10+ runs the embedded worker. Select an interpreter
+with `SWALLOWTAIL_PYTHON`; install `reportlab>=4,<5` into that interpreter for PDFs.
+
+```sh
+swallowtail qa init --project /games/example
+swallowtail qa run --project /games/example --config qa/config.json --pdf
+swallowtail qa compare --project /games/example --run .godot/swallowtail-qa/runs/new --baseline .godot/swallowtail-qa/runs/approved --tolerance-percent 10
+swallowtail qa report --project /games/example --run .godot/swallowtail-qa/runs/new --out output/qa.pdf
+```
+
+`init` writes `qa/config.json` and `qa/smoke.gd`, refusing existing files. `run` creates a
+fresh directory, prints its path/PID immediately, then writes `run.json` even on a failed
+scenario or timeout. Default output is `.godot/swallowtail-qa/runs/<timestamp>`; keep
+approved baselines elsewhere in versioned QA evidence if `.godot` may be cleared.
+Explicit `--out` is a new run directory and must not already exist.
+
+Exit 0 means all configured checks passed. Exit 1 means a failed or incomplete run,
+regression or incompatible comparison. Exit 2 means invalid configuration or unavailable
+tooling. A missing PDF dependency does not erase the retained run evidence.
+
+## Configuration, schema 1
+
+```json
+{
+  "schema": 1,
+  "name": "Example game desktop QA",
+  "kind": "source",
+  "executable": "/tools/godot",
+  "args": ["--windowed", "--resolution", "1280x720"],
+  "scenario": "qa/navigation.gd",
+  "timeout_seconds": 120,
+  "environment": "GPU model, driver, display refresh, power mode",
+  "commands": [],
+  "manual_checks": ["Visual and audio review"],
+  "budgets": {"process_frame/idle": {"p99_ms": 25, "max_ms": 50}}
+}
+```
+
+Paths are relative to `--project` unless absolute. Use an executable, not a shell wrapper.
+The worker owns `--path`, `--script`, `--log-file`, and Godot user arguments. Source mode
+requires `project.godot` and the scenario. Package mode requires `kind: "package"`, the
+actual game executable, no scenario, and arguments that exit normally before the timeout,
+for example `--quit-after 2400` for a bounded Godot smoke test. Frame count is not wall time.
+Package execution uses the executable's directory as cwd. Engine and adjacent PCK hashes
+are retained. Custom games can supply `boot_pattern` instead of the default `Godot Engine`.
+
+Optional command checks have `name`, `argv` (string array; never interpreted by a shell),
+`pass_pattern` (regular expression), and `timeout_seconds`. They run before the game under
+the same isolated save environment. Configuration and GDScript are executable project
+code: review untrusted projects before running them. Do not put secrets in command args.
+Children spawned independently by a game or command need their own adapter/cleanup;
+v1 owns and terminates only the direct process it launches.
+
+`--presentmon /tools/PresentMon.exe` captures the spawned game PID with PresentMon's v2
+CSV interface on Windows. The binary is not bundled or downloaded automatically. A requested
+but empty/missing capture fails. Keep its version and exact environment with the run;
+the built-in summary uses `MsBetweenPresents`. A present is not necessarily displayed.
+
+Budgets are per named metric group: `process_frame/<phase>` or `present/all`. Allowed upper
+limits are `median_ms`, `p99_ms`, `max_ms`, `over_33_333_ms`, and `over_100_ms`. Missing phases
+fail their budget. No universal FPS budget is assumed.
+
+## Game-owned GDScript scenarios
+
+```gdscript
+extends RefCounted
+
+func run(qa) -> void:
+    qa.phase("boot")
+    qa.check(qa.change_scene_to_file("res://menu.tscn") == OK, "menu loads")
+    await qa.wait(2.0)
+    qa.check(qa.current_scene != null, "menu stays alive")
+    qa.phase("idle")
+    await qa.wait(5.0)
+    await qa.screenshot("Menu after boot; visual review required")
+```
+
+`qa` is a SceneTree: use its root, signals and timers. `check(condition, label)` records
+an assertion. `phase(label)` labels frame intervals. `wait(seconds)` yields in real engine
+time. `screenshot(caption)` awaits a rendered frame, writes a PNG in the run, and marks
+the capture frames separately. Headless screenshots are recorded as skipped.
+Use deadlines for every wait on gameplay state; the outer process timeout is a final guard.
+Keep source scenarios outside player export filters. The runner calls normal game methods;
+it is not proof of OS input delivery or controller hardware behavior.
+
+Project-specific `mcp_commands/*.gd` can share a helper with these scenarios, but they run
+inside the editor and have different capabilities. No change to the editor command router
+is needed. A future adapter can invoke `swallowtail automate` as a command check, provided
+the editor and target are explicitly selected and the result has an assertion receipt.
+
+## Manual evidence and baseline rules
+
+```sh
+swallowtail qa attest --project /games/example --run path/to/run --check "Visual and audio review" --status pass --detail "Operator completed menu, five turns and pause/resume; no missing art or audio dropout."
+```
+
+Before an operator-driven capture, establish that the operator can see and interact with the exact game window. A Ready response before launch, a live PID, a boot log or presentation events do not prove visibility. If the window is unavailable, retain process data with that limitation and leave manual checks pending; do not label the trace gameplay. A later operator correction supersedes an earlier form response and must be recorded in the run and regenerated report.
+
+Only declared manual checks can be attested. The result records a timestamp, evidence text
+and previous state. Regenerate the PDF after attestation or comparison. This is an operator
+record, not an automated assertion. Pending manual checks keep a run incomplete.
+
+Comparisons require the same host, OS, executable engine hash, arguments, scenario hash,
+capture source and runtime renderer/device/viewport where available. PCK hashes and source
+commits may differ: that is the build change being measured. Package templates whose exe
+hash changes are conservatively incompatible in v1. Missing phases or incomplete runs are
+not passing baselines. Compare reports show median/p99/peak deltas against a percent tolerance;
+use repeated runs before attributing a small difference to a code change.
+
+The PDF embeds Inter (OFL), the Swallowtail butler, warm ivory, ink and mulberry. It contains
+coverage, phase timing, comparison, screenshots, limitations, provenance and artifact hashes.
+`run.json`, the archived config/scenario, complete logs, raw CSVs and PNGs remain the evidence
+of record. PDF pagination is automatic; render and inspect it before delivering a release report.
+
+## Conclusions and ship readiness
+
+Every `qa report` includes test conclusions and a separate ship-readiness section. A green
+run defaults to `NOT ASSESSED` for shipping; failed or pending checks default to `HOLD`.
+The automatic text describes recorded scope and does not claim a fix or owner approval.
+
+For specific findings and closure criteria, supply a versioned editorial assessment:
+
+```sh
+swallowtail qa report --run path/to/run --assessment qa/assessment.json --out output/qa.pdf
+```
+
+Assessment JSON schema 1:
+
+```json
+{
+  "schema": 1,
+  "prepared_by": "QA review of recorded evidence",
+  "tests": [{
+    "name": "Menu transitions",
+    "conclusion": "Warm source transitions meet the measured budget.",
+    "fix_status": "Cache fix verified in source; package retest remains.",
+    "next_action": "Repeat timestamped transitions in the shipping build.",
+    "evidence": "navigation/run.json and frames.csv"
+  }],
+  "readiness": {
+    "verdict": "hold",
+    "summary": "Release candidate; required package coverage is incomplete.",
+    "required": ["Complete the exact-package retest."],
+    "follow_up": ["Expand hardware coverage."],
+    "acceptance": ["Attach clean retest evidence and the release owner's decision."]
+  }
+}
+```
+
+All displayed test fields must be nonempty. Readiness verdicts are `hold`, `conditional`,
+`ready` and `not_assessed`; the three lists are required and may be empty. A `ready`
+assessment is rejected for failed/incomplete checks, source runs, or outstanding `required`
+items. Editorial text is explicitly advisory and never changes receipts, raw artifacts,
+attestations or test status. The PDF records the assessment path and SHA-256. Keep the
+assessment with the evidence, identify cross-run findings, and regenerate after corrections.
+Passing this validation is not evidence that the author covered every release risk.

@@ -1,0 +1,8 @@
+{
+  "steps": [
+    {"method": "shader.set_param", "params": {"node_path": "Water", "param": "wave1_amplitude", "value": 0.18}},
+    {"method": "node.set", "params": {"node_path": "Sun", "properties": {"light_energy": 1.35, "rotation_degrees": "Vector3(-48, -40, 0)", "light_color": "Color(1, 0.94, 0.85)"}}},
+    {"method": "scene.save", "params": {}},
+    {"method": "scene.validate", "params": {"path": "res://lighthouse_demo.tscn"}, "expect": {"/valid": true}}
+  ]
+}

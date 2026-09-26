@@ -350,7 +350,11 @@ func _send(command: String, params: Dictionary, timeout_sec: float = 5.0) -> Dic
 		return error_internal("Invalid response JSON from game")
 	(parsed as Dictionary).erase("_id")
 	if parsed.has("error"):
-		return error(-32000, str(parsed["error"]))
+		# The game may name the wire code and attach data (runtime.eval's
+		# aborted snippet carries its partial output and the captured errors).
+		var code := int(parsed.get("error_code", -32000))
+		var data: Variant = parsed.get("error_data", {})
+		return error(code, str(parsed["error"]), data if data is Dictionary else {})
 	if read_attempts > 1:
 		(parsed as Dictionary)["response_read_attempts"] = read_attempts
 	return success(parsed)

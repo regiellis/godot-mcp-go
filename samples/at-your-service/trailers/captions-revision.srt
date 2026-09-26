@@ -1,0 +1,694 @@
+1
+00:00:00,880 --> 00:00:01,160
+So...
+
+2
+00:00:02,460 --> 00:00:03,840
+this is Swallowtail.
+
+3
+00:00:05,420 --> 00:00:09,400
+I've got Godot open here, with this little
+stretch of coast...
+
+4
+00:00:10,400 --> 00:00:12,340
+and I'm going to do most of this from the
+terminal.
+
+5
+00:00:13,360 --> 00:00:17,620
+I'll move some things around, change a few
+values, run the game...
+
+6
+00:00:18,480 --> 00:00:20,540
+even change stuff while it's running.
+
+7
+00:00:21,440 --> 00:00:23,900
+And Godot stays open the whole time.
+
+8
+00:00:25,260 --> 00:00:25,480
+So...
+
+9
+00:00:25,680 --> 00:00:26,300
+let me show you.
+
+10
+00:00:30,197 --> 00:00:31,577
+Now, you might be thinking...
+
+11
+00:00:32,557 --> 00:00:34,317
+why not just do this in the editor?
+
+12
+00:00:35,597 --> 00:00:36,837
+And for one rock?
+
+13
+00:00:37,757 --> 00:00:37,957
+Yeah.
+
+14
+00:00:38,557 --> 00:00:39,597
+Just drag it.
+
+15
+00:00:41,837 --> 00:00:43,197
+But if I need to do it again...
+
+16
+00:00:43,897 --> 00:00:46,317
+or do the same thing to fifty rocks...
+
+17
+00:00:47,157 --> 00:00:47,917
+that's different.
+
+18
+00:00:48,877 --> 00:00:53,677
+Here I can do it once, save what I did, and
+just run it again.
+
+19
+00:00:54,637 --> 00:00:59,337
+And every command tells me what actually
+happened, so I'm not eyeballing
+
+20
+00:00:59,397 --> 00:00:59,577
+it.
+
+21
+00:01:00,677 --> 00:01:00,977
+Okay.
+
+22
+00:01:01,817 --> 00:01:02,717
+Let's get it hooked up.
+
+23
+00:01:05,630 --> 00:01:06,890
+So I've got Godot,
+
+24
+00:01:07,630 --> 00:01:09,750
+and I've got the Swallowtail binary.
+
+25
+00:01:10,650 --> 00:01:11,809
+I'm in the project folder.
+
+26
+00:01:12,910 --> 00:01:15,890
+Install puts the addon in and turns it on...
+
+27
+00:01:16,750 --> 00:01:18,590
+launch opens the editor...
+
+28
+00:01:19,230 --> 00:01:20,090
+and status...
+
+29
+00:01:20,970 --> 00:01:21,230
+yep.
+
+30
+00:01:21,690 --> 00:01:22,450
+It can see it.
+
+31
+00:01:24,690 --> 00:01:26,770
+There are a lot of commands.
+
+32
+00:01:27,370 --> 00:01:28,410
+Over three hundred.
+
+33
+00:01:29,370 --> 00:01:30,510
+I don't remember them either.
+
+34
+00:01:31,110 --> 00:01:32,410
+So I just ask.
+
+35
+00:01:33,150 --> 00:01:34,630
+Node set, help...
+
+36
+00:01:35,250 --> 00:01:36,810
+and it tells me what it wants.
+
+37
+00:01:38,110 --> 00:01:38,810
+Scene tree...
+
+38
+00:01:39,690 --> 00:01:41,690
+that's everything in the scene.
+
+39
+00:01:42,450 --> 00:01:43,830
+And there's the lighthouse.
+
+40
+00:01:47,070 --> 00:01:48,450
+Okay, we're in.
+
+41
+00:01:49,390 --> 00:01:50,470
+Let's change something.
+
+42
+00:01:52,363 --> 00:01:53,403
+Watch the lighthouse.
+
+43
+00:01:54,363 --> 00:01:54,843
+First...
+
+44
+00:01:55,523 --> 00:01:56,563
+where is it right now?
+
+45
+00:01:57,663 --> 00:01:58,123
+Okay.
+
+46
+00:01:58,683 --> 00:01:59,623
+That's the position,
+
+47
+00:02:00,343 --> 00:02:01,323
+that's the scale.
+
+48
+00:02:02,243 --> 00:02:03,783
+I'm going to move it over here.
+
+49
+00:02:07,023 --> 00:02:07,343
+There.
+
+50
+00:02:08,263 --> 00:02:09,683
+And a little bigger.
+
+51
+00:02:11,923 --> 00:02:13,583
+And that's the actual scene.
+
+52
+00:02:14,503 --> 00:02:15,903
+If I click it in Godot...
+
+53
+00:02:16,783 --> 00:02:17,643
+same object.
+
+54
+00:02:18,683 --> 00:02:21,003
+I can keep going in the inspector if I want.
+
+55
+00:02:23,897 --> 00:02:26,236
+Now the shore looks a bit empty.
+
+56
+00:02:27,257 --> 00:02:28,837
+I'll copy one of these rocks...
+
+57
+00:02:29,717 --> 00:02:30,517
+give it a name...
+
+58
+00:02:31,237 --> 00:02:32,077
+move it in...
+
+59
+00:02:32,617 --> 00:02:33,777
+and make it bigger.
+
+60
+00:02:37,017 --> 00:02:37,517
+That's better.
+
+61
+00:02:38,777 --> 00:02:39,457
+And the water...
+
+62
+00:02:40,577 --> 00:02:41,997
+let's turn the waves up.
+
+63
+00:02:45,237 --> 00:02:46,497
+Yeah, that's rough.
+
+64
+00:02:47,557 --> 00:02:47,937
+Okay.
+
+65
+00:02:48,697 --> 00:02:49,177
+Save.
+
+66
+00:02:53,897 --> 00:02:56,637
+So that's all one command at a time.
+
+67
+00:02:57,597 --> 00:02:58,277
+And honestly,
+
+68
+00:02:59,037 --> 00:03:00,877
+I could've done all of that by hand.
+
+69
+00:03:01,877 --> 00:03:03,697
+But say it's not one rock.
+
+70
+00:03:04,497 --> 00:03:05,857
+Say it's a few hundred.
+
+71
+00:03:06,677 --> 00:03:09,497
+Or I want five versions of this coast...
+
+72
+00:03:10,097 --> 00:03:12,557
+calm, stormy, sunset...
+
+73
+00:03:13,177 --> 00:03:14,817
+and I want to flip between them.
+
+74
+00:03:17,057 --> 00:03:18,557
+Clicking through that every time?
+
+75
+00:03:19,457 --> 00:03:20,037
+No thanks.
+
+76
+00:03:20,877 --> 00:03:23,537
+This is where Swallowtail really shines.
+
+77
+00:03:28,897 --> 00:03:30,077
+So here's a plan.
+
+78
+00:03:30,997 --> 00:03:32,677
+It's just a JSON file.
+
+79
+00:03:33,577 --> 00:03:34,357
+Four steps.
+
+80
+00:03:35,237 --> 00:03:36,037
+Calm the water,
+
+81
+00:03:36,817 --> 00:03:37,997
+bring the daylight back,
+
+82
+00:03:38,757 --> 00:03:41,217
+save, and check the scene's valid.
+
+83
+00:03:42,237 --> 00:03:45,697
+If that check fails, it stops and tells me
+where.
+
+84
+00:03:46,737 --> 00:03:47,357
+Let's run it.
+
+85
+00:03:50,597 --> 00:03:51,497
+Water's calm...
+
+86
+00:03:52,277 --> 00:03:53,997
+and every step came back.
+
+87
+00:03:55,057 --> 00:03:55,777
+Run it again...
+
+88
+00:03:59,017 --> 00:03:59,737
+Same result.
+
+89
+00:04:00,657 --> 00:04:01,897
+That's kind of the point.
+
+90
+00:04:02,737 --> 00:04:04,337
+I can always get back to this.
+
+91
+00:04:05,097 --> 00:04:09,017
+And it's a file, so it goes in git with
+everything else.
+
+92
+00:04:10,257 --> 00:04:11,777
+One more thing before we play.
+
+93
+00:04:12,657 --> 00:04:13,057
+Check...
+
+94
+00:04:13,457 --> 00:04:16,797
+that runs Godot's own script checker over
+the project.
+
+95
+00:04:17,757 --> 00:04:18,557
+Four scripts...
+
+96
+00:04:19,117 --> 00:04:19,717
+all good.
+
+97
+00:04:22,630 --> 00:04:23,030
+Okay.
+
+98
+00:04:23,670 --> 00:04:24,450
+Let's play it.
+
+99
+00:04:25,330 --> 00:04:27,530
+I put the rough water back on first...
+
+100
+00:04:28,130 --> 00:04:29,610
+so there's something to fix.
+
+101
+00:04:31,850 --> 00:04:32,670
+Start the scene...
+
+102
+00:04:33,570 --> 00:04:34,510
+check the camera...
+
+103
+00:04:35,090 --> 00:04:36,530
+and move forward a bit.
+
+104
+00:04:39,770 --> 00:04:40,110
+Hmm.
+
+105
+00:04:40,950 --> 00:04:43,950
+From down here, that's a lot of wave.
+
+106
+00:04:44,890 --> 00:04:47,630
+Let me ask the game what it's actually set
+to...
+
+107
+00:04:48,570 --> 00:04:49,830
+point six five.
+
+108
+00:04:52,730 --> 00:04:53,490
+Let's drop it.
+
+109
+00:04:54,370 --> 00:04:55,390
+Point one eight...
+
+110
+00:04:56,210 --> 00:04:57,110
+while it's running.
+
+111
+00:05:01,350 --> 00:05:01,630
+Yeah.
+
+112
+00:05:02,070 --> 00:05:02,950
+That's more like it.
+
+113
+00:05:03,750 --> 00:05:04,429
+Read it back...
+
+114
+00:05:05,310 --> 00:05:06,210
+point one eight.
+
+115
+00:05:07,310 --> 00:05:07,970
+Any errors?
+
+116
+00:05:09,110 --> 00:05:09,470
+None.
+
+117
+00:05:10,290 --> 00:05:12,670
+And I'll grab a frame to compare later.
+
+118
+00:05:14,910 --> 00:05:15,170
+Now...
+
+119
+00:05:15,450 --> 00:05:16,050
+the catch.
+
+120
+00:05:16,930 --> 00:05:18,610
+That's only in the running game.
+
+121
+00:05:19,250 --> 00:05:20,890
+When I stop, it's gone.
+
+122
+00:05:21,690 --> 00:05:25,670
+So that value has to go into the scene, and
+get saved.
+
+123
+00:05:26,550 --> 00:05:28,910
+Which is a nice little job for an agent.
+
+124
+00:05:31,830 --> 00:05:33,450
+So I'd tell it something like...
+
+125
+00:05:34,270 --> 00:05:35,410
+keep the calm water,
+
+126
+00:05:36,210 --> 00:05:37,050
+lower the sun,
+
+127
+00:05:37,870 --> 00:05:41,210
+warm the light up, and save it so I can take
+a look.
+
+128
+00:05:42,230 --> 00:05:44,610
+And it does the same thing I just did.
+
+129
+00:05:45,590 --> 00:05:46,650
+Looks up the command...
+
+130
+00:05:47,370 --> 00:05:48,210
+sets the water...
+
+131
+00:05:49,070 --> 00:05:50,050
+moves the sun...
+
+132
+00:05:50,750 --> 00:05:51,470
+warms it up...
+
+133
+00:05:52,330 --> 00:05:52,870
+saves.
+
+134
+00:06:03,110 --> 00:06:06,350
+Then it reads it all back, so it knows it
+worked.
+
+135
+00:06:07,170 --> 00:06:08,150
+It's not guessing.
+
+136
+00:06:08,950 --> 00:06:11,270
+And I can see every command it ran.
+
+137
+00:06:12,170 --> 00:06:12,770
+Don't like it?
+
+138
+00:06:13,450 --> 00:06:15,470
+I change it, or ask again.
+
+139
+00:06:16,430 --> 00:06:18,550
+The creative calls are still mine.
+
+140
+00:06:21,463 --> 00:06:21,823
+Now...
+
+141
+00:06:22,363 --> 00:06:22,963
+MCP.
+
+142
+00:06:23,923 --> 00:06:28,183
+If your agent has a terminal, it can just
+use these same commands.
+
+143
+00:06:28,943 --> 00:06:30,663
+You don't need MCP for that.
+
+144
+00:06:31,583 --> 00:06:37,463
+MCP is for tools like Claude Code, Cursor,
+VS Code.
+
+145
+00:06:38,303 --> 00:06:41,543
+They connect, see the tools, and call them.
+
+146
+00:06:43,783 --> 00:06:45,003
+Here's one connecting.
+
+147
+00:06:45,823 --> 00:06:46,903
+It lowers the sun...
+
+148
+00:06:49,983 --> 00:06:51,843
+...and reads it back.
+
+149
+00:06:52,903 --> 00:06:53,623
+Same editor.
+
+150
+00:06:54,423 --> 00:06:55,863
+Same commands underneath.
+
+151
+00:06:56,743 --> 00:06:57,663
+Nothing's moved.
+
+152
+00:07:01,563 --> 00:07:03,103
+So, quick recap.
+
+153
+00:07:03,923 --> 00:07:05,083
+We hooked up the editor...
+
+154
+00:07:05,843 --> 00:07:07,103
+moved some stuff around...
+
+155
+00:07:07,943 --> 00:07:09,183
+saved it as a plan...
+
+156
+00:07:09,923 --> 00:07:12,203
+played the game and fixed it live...
+
+157
+00:07:12,783 --> 00:07:15,283
+and handed the last bit to an agent.
+
+158
+00:07:16,243 --> 00:07:18,003
+Use whatever part you want.
+
+159
+00:07:18,723 --> 00:07:19,803
+Just the terminal...
+
+160
+00:07:20,443 --> 00:07:20,943
+scripts...
+
+161
+00:07:21,543 --> 00:07:22,263
+an agent.
+
+162
+00:07:23,103 --> 00:07:25,303
+The AI part's completely optional.
+
+163
+00:07:26,183 --> 00:07:28,863
+And it's all still plain Godot files.
+
+164
+00:07:29,803 --> 00:07:33,523
+Open it without Swallowtail and it's just
+your project.
+
+165
+00:07:36,430 --> 00:07:36,730
+So...
+
+166
+00:07:37,470 --> 00:07:38,890
+there's a game you want to make.
+
+167
+00:07:39,810 --> 00:07:40,850
+Start with a scene...
+
+168
+00:07:41,410 --> 00:07:42,530
+and build from there.
+
+169
+00:07:43,770 --> 00:07:44,490
+Swallowtail.
+
+170
+00:07:45,330 --> 00:07:46,370
+At your service.

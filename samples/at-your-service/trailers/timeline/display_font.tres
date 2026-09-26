@@ -1,0 +1,9 @@
+[gd_resource type="FontVariation" format=3]
+
+[ext_resource type="FontFile" path="res://assets/manrope/Manrope[wght].ttf" id="1_32jm5"]
+
+[resource]
+base_font = ExtResource("1_32jm5")
+variation_opentype = {
+2003265652: 700.0
+}

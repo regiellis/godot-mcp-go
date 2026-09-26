@@ -235,6 +235,14 @@ The `atan2(-x, -z)` maps a velocity heading to the yaw that points the model's `
 `_skin.basis = _skin.basis.slerp(Basis.looking_at(planar, Vector3.UP), turn_speed * delta)` (both
 verified to compile).
 
+**Check which way the rig actually faces before trusting `-Z`.** Kenney's Blocky Characters and
+Mini Dungeon rigs face `+Z`, so the snippet above turned them to face the camera and put a
+forward-mounted hit `Area3D` behind the body (found 2026-09-17 in a sample build).
+For those, `atan2(planar.x, planar.z)` and a hitbox on local `+Z`. Read it off the model once
+with `spatial bounds` or a `runtime get` of a child's position after a known move rather than
+assuming. The same packs import every clip as one-shot (`loop_mode` 0), `idle` and `walk`
+included, so set the locomotion clips to `Animation.LOOP_LINEAR` in `_ready`.
+
 ## 3D platformer feel
 
 The forgiving-jump timers are identical to the 2D versions in `game-patterns.md` (coyote time,

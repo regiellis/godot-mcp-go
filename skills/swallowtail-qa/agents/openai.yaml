@@ -1,0 +1,5 @@
+interface:
+  display_name: "Swallowtail Game QA"
+  short_description: "Release playtests, frame baselines and branded reports"
+  brand_color: "#81485f"
+  default_prompt: "Use $swallowtail-qa to test this game, capture frame spikes, and produce a branded release QA report."

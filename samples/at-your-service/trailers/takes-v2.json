@@ -1,0 +1,1098 @@
+{
+  "status": {
+    "argv": [
+      "status"
+    ],
+    "output": "{\n  \"verdict\": \"running\",\n  \"reachable\": true,\n  \"port\": 9080,\n  \"pid\": 27400,\n  \"started_unix\": 1789831230,\n  \"message\": \"Editor is running and reachable.\",\n  \"action\": \"Proceed. Do NOT launch another editor: a second instance would stack.\",\n  \"port_source\": \"discovery\",\n  \"project_path\": \"D:/Tools/godot-mcp-go/samples/at-your-service/\",\n  \"project_match\": true\n}",
+    "exit": 0,
+    "result": {
+      "verdict": "running",
+      "reachable": true,
+      "port": 9080,
+      "pid": 27400,
+      "started_unix": 1789831230,
+      "message": "Editor is running and reachable.",
+      "action": "Proceed. Do NOT launch another editor: a second instance would stack.",
+      "port_source": "discovery",
+      "project_path": "D:/Tools/godot-mcp-go/samples/at-your-service/",
+      "project_match": true
+    }
+  },
+  "help": {
+    "argv": [
+      "node",
+      "set",
+      "--help"
+    ],
+    "output": "swallowtail node set: Set node properties. Two forms: singular --property + --value, OR a batch --properties object; the batch validates all names up front and writes atomically in one undo action.\n\nParams:\n  --node-path   NodePath    required  Target node.\n  --property    String      optional  Property name (singular form; pair with --value). Omit when using --properties.\n  --value       JSON        optional  Value for --property (scalar, Godot literal string, or JSON), coerced toward the property's type; an @export node-path property resolves a path to the node. Required with --property.\n  --properties  Dictionary  optional  Batch form: {property: value}, written atomically. Use instead of --property/--value.",
+    "exit": 0
+  },
+  "open": {
+    "argv": [
+      "scene",
+      "open",
+      "--path",
+      "res://lighthouse_demo.tscn"
+    ],
+    "output": "{\n  \"already_active\": true,\n  \"opened\": false,\n  \"path\": \"res://lighthouse_demo.tscn\"\n}",
+    "exit": 0,
+    "result": {
+      "already_active": true,
+      "opened": false,
+      "path": "res://lighthouse_demo.tscn"
+    }
+  },
+  "tree": {
+    "argv": [
+      "scene",
+      "tree"
+    ],
+    "output": "{\n  \"scene_path\": \"res://lighthouse_demo.tscn\",\n  \"tree\": {\n    \"children\": [\n      {\n        \"name\": \"WorldEnvironment\",\n        \"path\": \"WorldEnvironment\",\n        \"type\": \"WorldEnvironment\"\n      },\n      {\n        \"name\": \"Sun\",\n        \"path\": \"Sun\",\n        \"type\": \"DirectionalLight3D\"\n      },\n      {\n        \"name\": \"Water\",\n        \"path\": \"Water\",\n        \"script\": \"res://water/shervheim_water.gd\",\n        \"type\": \"MeshInstance3D\"\n      },\n      {\n        \"name\": \"Camera\",\n        \"path\": \"Camera\",\n        \"script\": \"res://camera/fly_camera.gd\",\n        \"type\": \"Camera3D\"\n      },\n      {\n        \"children\": [\n          {\n            \"name\": \"SpikeRock\",\n            \"path\": \"Dressing/SpikeRock\",\n            \"type\": \"MeshInstance3D\"\n          },\n          {\n            \"name\": \"RoundRock\",\n            \"path\": \"Dressing/RoundRock\",\n            \"type\": \"MeshInstance3D\"\n          },\n          {\n            \"name\": \"Scatter0\",\n            \"path\": \"Dressing/Scatter0\",\n            \"type\": \"MeshInstance3D\"\n          },\n          {\n            \"name\": \"Scatter1\",\n            \"path\": \"Dressing/Scatter1\",\n            \"type\": \"MeshInstance3D\"\n          },\n          {\n            \"name\": \"Scatter2\",\n            \"path\": \"Dressing/Scatter2\",\n            \"type\": \"MeshInstance3D\"\n          },\n          {\n            \"name\": \"Scatter3\",\n            \"path\": \"Dressing/Scatter3\",\n            \"type\": \"MeshInstance3D\"\n          },\n          {\n            \"name\": \"Scatter4\",\n            \"path\": \"Dressing/Scatter4\",\n            \"type\": \"MeshInstance3D\"\n          },\n          {\n            \"name\": \"Scatter5\",\n            \"path\": \"Dressing/Scatter5\",\n            \"type\": \"MeshInstance3D\"\n          },\n          {\n            \"children\": [\n              {\n                \"name\": \"LampLight\",\n                \"path\": \"Dressing/Lighthouse/LampLight\",\n                \"type\": \"OmniLight3D\"\n              }\n            ],\n            \"name\": \"Lighthouse\",\n            \"path\": \"Dressing/Lighthouse\",\n            \"type\": \"MeshInstance3D\"\n          },\n          {\n            \"name\": \"SandTerrain\",\n            \"path\": \"Dressing/SandTerrain\",\n            \"type\": \"MeshInstance3D\"\n          },\n          {\n            \"name\": \"ShoreRock\",\n            \"path\": \"Dressing/ShoreRock\",\n            \"type\": \"MeshInstance3D\"\n          }\n        ],\n        \"name\": \"Dressing\",\n        \"path\": \"Dressing\",\n        \"type\": \"Node3D\"\n      }\n    ],\n    \"name\": \"shervheim_demo\",\n    \"path\": \".\",\n    \"type\": \"Node3D\"\n  }\n}",
+    "exit": 0,
+    "result": {
+      "scene_path": "res://lighthouse_demo.tscn",
+      "tree": {
+        "children": [
+          {
+            "name": "WorldEnvironment",
+            "path": "WorldEnvironment",
+            "type": "WorldEnvironment"
+          },
+          {
+            "name": "Sun",
+            "path": "Sun",
+            "type": "DirectionalLight3D"
+          },
+          {
+            "name": "Water",
+            "path": "Water",
+            "script": "res://water/shervheim_water.gd",
+            "type": "MeshInstance3D"
+          },
+          {
+            "name": "Camera",
+            "path": "Camera",
+            "script": "res://camera/fly_camera.gd",
+            "type": "Camera3D"
+          },
+          {
+            "children": [
+              {
+                "name": "SpikeRock",
+                "path": "Dressing/SpikeRock",
+                "type": "MeshInstance3D"
+              },
+              {
+                "name": "RoundRock",
+                "path": "Dressing/RoundRock",
+                "type": "MeshInstance3D"
+              },
+              {
+                "name": "Scatter0",
+                "path": "Dressing/Scatter0",
+                "type": "MeshInstance3D"
+              },
+              {
+                "name": "Scatter1",
+                "path": "Dressing/Scatter1",
+                "type": "MeshInstance3D"
+              },
+              {
+                "name": "Scatter2",
+                "path": "Dressing/Scatter2",
+                "type": "MeshInstance3D"
+              },
+              {
+                "name": "Scatter3",
+                "path": "Dressing/Scatter3",
+                "type": "MeshInstance3D"
+              },
+              {
+                "name": "Scatter4",
+                "path": "Dressing/Scatter4",
+                "type": "MeshInstance3D"
+              },
+              {
+                "name": "Scatter5",
+                "path": "Dressing/Scatter5",
+                "type": "MeshInstance3D"
+              },
+              {
+                "children": [
+                  {
+                    "name": "LampLight",
+                    "path": "Dressing/Lighthouse/LampLight",
+                    "type": "OmniLight3D"
+                  }
+                ],
+                "name": "Lighthouse",
+                "path": "Dressing/Lighthouse",
+                "type": "MeshInstance3D"
+              },
+              {
+                "name": "SandTerrain",
+                "path": "Dressing/SandTerrain",
+                "type": "MeshInstance3D"
+              },
+              {
+                "name": "ShoreRock",
+                "path": "Dressing/ShoreRock",
+                "type": "MeshInstance3D"
+              }
+            ],
+            "name": "Dressing",
+            "path": "Dressing",
+            "type": "Node3D"
+          }
+        ],
+        "name": "shervheim_demo",
+        "path": ".",
+        "type": "Node3D"
+      }
+    }
+  },
+  "home": {
+    "argv": [
+      "node",
+      "set",
+      "--node-path",
+      "Dressing/Lighthouse",
+      "--property",
+      "position",
+      "--value",
+      "Vector3(-4, 1.08, -7)"
+    ],
+    "output": "{\n  \"new_value\": {\n    \"x\": -4.0,\n    \"y\": 1.08000004291534,\n    \"z\": -7.0\n  },\n  \"node\": \"Dressing/Lighthouse\",\n  \"old_value\": {\n    \"x\": 7.0,\n    \"y\": 1.08000004291534,\n    \"z\": -7.0\n  },\n  \"properties\": {\n    \"position\": {\n      \"x\": -4.0,\n      \"y\": 1.08000004291534,\n      \"z\": -7.0\n    }\n  },\n  \"property\": \"position\"\n}",
+    "exit": 0,
+    "result": {
+      "new_value": {
+        "x": -4.0,
+        "y": 1.08000004291534,
+        "z": -7.0
+      },
+      "node": "Dressing/Lighthouse",
+      "old_value": {
+        "x": 7.0,
+        "y": 1.08000004291534,
+        "z": -7.0
+      },
+      "properties": {
+        "position": {
+          "x": -4.0,
+          "y": 1.08000004291534,
+          "z": -7.0
+        }
+      },
+      "property": "position"
+    }
+  },
+  "small": {
+    "argv": [
+      "node",
+      "set",
+      "--node-path",
+      "Dressing/Lighthouse",
+      "--property",
+      "scale",
+      "--value",
+      "Vector3(0.5, 0.5, 0.5)"
+    ],
+    "output": "{\n  \"new_value\": {\n    \"x\": 0.5,\n    \"y\": 0.5,\n    \"z\": 0.5\n  },\n  \"node\": \"Dressing/Lighthouse\",\n  \"old_value\": {\n    \"x\": 0.699999988079071,\n    \"y\": 0.699999988079071,\n    \"z\": 0.699999988079071\n  },\n  \"properties\": {\n    \"scale\": {\n      \"x\": 0.5,\n      \"y\": 0.5,\n      \"z\": 0.5\n    }\n  },\n  \"property\": \"scale\"\n}",
+    "exit": 0,
+    "result": {
+      "new_value": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.5
+      },
+      "node": "Dressing/Lighthouse",
+      "old_value": {
+        "x": 0.699999988079071,
+        "y": 0.699999988079071,
+        "z": 0.699999988079071
+      },
+      "properties": {
+        "scale": {
+          "x": 0.5,
+          "y": 0.5,
+          "z": 0.5
+        }
+      },
+      "property": "scale"
+    }
+  },
+  "inspect": {
+    "argv": [
+      "node",
+      "get",
+      "--node-path",
+      "Dressing/Lighthouse",
+      "--properties",
+      "[\"position\",\"scale\"]"
+    ],
+    "output": "{\n  \"node_path\": \"Dressing/Lighthouse\",\n  \"properties\": {\n    \"position\": {\n      \"x\": -4.0,\n      \"y\": 1.08000004291534,\n      \"z\": -7.0\n    },\n    \"scale\": {\n      \"x\": 0.5,\n      \"y\": 0.5,\n      \"z\": 0.5\n    }\n  },\n  \"type\": \"MeshInstance3D\"\n}",
+    "exit": 0,
+    "result": {
+      "node_path": "Dressing/Lighthouse",
+      "properties": {
+        "position": {
+          "x": -4.0,
+          "y": 1.08000004291534,
+          "z": -7.0
+        },
+        "scale": {
+          "x": 0.5,
+          "y": 0.5,
+          "z": 0.5
+        }
+      },
+      "type": "MeshInstance3D"
+    }
+  },
+  "place": {
+    "argv": [
+      "node",
+      "set",
+      "--node-path",
+      "Dressing/Lighthouse",
+      "--property",
+      "position",
+      "--value",
+      "Vector3(7, 1.08, -7)"
+    ],
+    "output": "{\n  \"new_value\": {\n    \"x\": 7.0,\n    \"y\": 1.08000004291534,\n    \"z\": -7.0\n  },\n  \"node\": \"Dressing/Lighthouse\",\n  \"old_value\": {\n    \"x\": -4.0,\n    \"y\": 1.08000004291534,\n    \"z\": -7.0\n  },\n  \"properties\": {\n    \"position\": {\n      \"x\": 7.0,\n      \"y\": 1.08000004291534,\n      \"z\": -7.0\n    }\n  },\n  \"property\": \"position\"\n}",
+    "exit": 0,
+    "result": {
+      "new_value": {
+        "x": 7.0,
+        "y": 1.08000004291534,
+        "z": -7.0
+      },
+      "node": "Dressing/Lighthouse",
+      "old_value": {
+        "x": -4.0,
+        "y": 1.08000004291534,
+        "z": -7.0
+      },
+      "properties": {
+        "position": {
+          "x": 7.0,
+          "y": 1.08000004291534,
+          "z": -7.0
+        }
+      },
+      "property": "position"
+    }
+  },
+  "scale": {
+    "argv": [
+      "node",
+      "set",
+      "--node-path",
+      "Dressing/Lighthouse",
+      "--property",
+      "scale",
+      "--value",
+      "Vector3(0.7, 0.7, 0.7)"
+    ],
+    "output": "{\n  \"new_value\": {\n    \"x\": 0.699999988079071,\n    \"y\": 0.699999988079071,\n    \"z\": 0.699999988079071\n  },\n  \"node\": \"Dressing/Lighthouse\",\n  \"old_value\": {\n    \"x\": 0.5,\n    \"y\": 0.5,\n    \"z\": 0.5\n  },\n  \"properties\": {\n    \"scale\": {\n      \"x\": 0.699999988079071,\n      \"y\": 0.699999988079071,\n      \"z\": 0.699999988079071\n    }\n  },\n  \"property\": \"scale\"\n}",
+    "exit": 0,
+    "result": {
+      "new_value": {
+        "x": 0.699999988079071,
+        "y": 0.699999988079071,
+        "z": 0.699999988079071
+      },
+      "node": "Dressing/Lighthouse",
+      "old_value": {
+        "x": 0.5,
+        "y": 0.5,
+        "z": 0.5
+      },
+      "properties": {
+        "scale": {
+          "x": 0.699999988079071,
+          "y": 0.699999988079071,
+          "z": 0.699999988079071
+        }
+      },
+      "property": "scale"
+    }
+  },
+  "remove_copy": {
+    "argv": [
+      "node",
+      "delete",
+      "--node-path",
+      "Dressing/ShoreRock"
+    ],
+    "output": "{\n  \"deleted\": \"ShoreRock\"\n}",
+    "exit": 0,
+    "result": {
+      "deleted": "ShoreRock"
+    }
+  },
+  "duplicate": {
+    "argv": [
+      "node",
+      "duplicate",
+      "--node-path",
+      "Dressing/Scatter0",
+      "--name",
+      "ShoreRock"
+    ],
+    "output": "{\n  \"duplicate\": \"Dressing/ShoreRock\",\n  \"name\": \"ShoreRock\",\n  \"original\": \"Dressing/Scatter0\"\n}",
+    "exit": 0,
+    "result": {
+      "duplicate": "Dressing/ShoreRock",
+      "name": "ShoreRock",
+      "original": "Dressing/Scatter0"
+    }
+  },
+  "rock": {
+    "argv": [
+      "node",
+      "set",
+      "--node-path",
+      "Dressing/ShoreRock",
+      "--property",
+      "position",
+      "--value",
+      "Vector3(12, 0.5, 1)"
+    ],
+    "output": "{\n  \"new_value\": {\n    \"x\": 12.0,\n    \"y\": 0.5,\n    \"z\": 1.0\n  },\n  \"node\": \"Dressing/ShoreRock\",\n  \"old_value\": {\n    \"x\": -12.0,\n    \"y\": -0.944145917892456,\n    \"z\": 4.0\n  },\n  \"properties\": {\n    \"position\": {\n      \"x\": 12.0,\n      \"y\": 0.5,\n      \"z\": 1.0\n    }\n  },\n  \"property\": \"position\"\n}",
+    "exit": 0,
+    "result": {
+      "new_value": {
+        "x": 12.0,
+        "y": 0.5,
+        "z": 1.0
+      },
+      "node": "Dressing/ShoreRock",
+      "old_value": {
+        "x": -12.0,
+        "y": -0.944145917892456,
+        "z": 4.0
+      },
+      "properties": {
+        "position": {
+          "x": 12.0,
+          "y": 0.5,
+          "z": 1.0
+        }
+      },
+      "property": "position"
+    }
+  },
+  "rock_scale": {
+    "argv": [
+      "node",
+      "set",
+      "--node-path",
+      "Dressing/ShoreRock",
+      "--property",
+      "scale",
+      "--value",
+      "Vector3(2, 2, 2)"
+    ],
+    "output": "{\n  \"new_value\": {\n    \"x\": 2.0,\n    \"y\": 2.0,\n    \"z\": 2.0\n  },\n  \"node\": \"Dressing/ShoreRock\",\n  \"old_value\": {\n    \"x\": 7.0,\n    \"y\": 7.0,\n    \"z\": 7.0\n  },\n  \"properties\": {\n    \"scale\": {\n      \"x\": 2.0,\n      \"y\": 2.0,\n      \"z\": 2.0\n    }\n  },\n  \"property\": \"scale\"\n}",
+    "exit": 0,
+    "result": {
+      "new_value": {
+        "x": 2.0,
+        "y": 2.0,
+        "z": 2.0
+      },
+      "node": "Dressing/ShoreRock",
+      "old_value": {
+        "x": 7.0,
+        "y": 7.0,
+        "z": 7.0
+      },
+      "properties": {
+        "scale": {
+          "x": 2.0,
+          "y": 2.0,
+          "z": 2.0
+        }
+      },
+      "property": "scale"
+    }
+  },
+  "waves": {
+    "argv": [
+      "shader",
+      "set-param",
+      "--node-path",
+      "Water",
+      "--param",
+      "wave1_amplitude",
+      "--value",
+      "0.65"
+    ],
+    "output": "{\n  \"node_path\": \"Water\",\n  \"param\": \"wave1_amplitude\",\n  \"value\": \"0.65\"\n}",
+    "exit": 0,
+    "result": {
+      "node_path": "Water",
+      "param": "wave1_amplitude",
+      "value": "0.65"
+    }
+  },
+  "save": {
+    "argv": [
+      "scene",
+      "save"
+    ],
+    "output": "{\n  \"method\": \"save_scene\",\n  \"path\": \"res://lighthouse_demo.tscn\",\n  \"saved\": true\n}",
+    "exit": 0,
+    "result": {
+      "method": "save_scene",
+      "path": "res://lighthouse_demo.tscn",
+      "saved": true
+    }
+  },
+  "plan": {
+    "argv": [
+      "automate",
+      "--file",
+      "trailers/calm.json"
+    ],
+    "output": "{\"ok\":true,\"dry_run\":false,\"steps\":[{\"index\":0,\"method\":\"shader.set_param\",\"status\":\"passed\",\"duration_ms\":20,\"result\":{\"node_path\":\"Water\",\"param\":\"wave1_amplitude\",\"value\":\"0.18\"}},{\"index\":1,\"method\":\"node.set\",\"status\":\"passed\",\"duration_ms\":21,\"result\":{\"node\":\"Sun\",\"properties\":{\"light_color\":{\"a\":1.0,\"b\":0.850000023841858,\"g\":0.939999997615814,\"html\":\"#fff0d9ff\",\"r\":1.0},\"light_energy\":1.35000002384186,\"rotation_degrees\":{\"x\":-48.0,\"y\":-39.9999961853027,\"z\":0.0}}}},{\"index\":2,\"method\":\"scene.save\",\"status\":\"passed\",\"duration_ms\":95,\"result\":{\"method\":\"save_scene\",\"path\":\"res://lighthouse_demo.tscn\",\"saved\":true}},{\"index\":3,\"method\":\"scene.validate\",\"status\":\"passed\",\"duration_ms\":545,\"result\":{\"issue_count\":0,\"issues\":[],\"note\":\"Checks saved node paths, classes, animation tracks and external resources without opening the scene. Absolute paths depend on the runtime tree and are not checked; use script.validate for script diagnostics.\",\"scene_path\":\"res://lighthouse_demo.tscn\",\"source\":\"disk\",\"valid\":true}}]}",
+    "exit": 0,
+    "result": {
+      "ok": true,
+      "dry_run": false,
+      "steps": [
+        {
+          "index": 0,
+          "method": "shader.set_param",
+          "status": "passed",
+          "duration_ms": 20,
+          "result": {
+            "node_path": "Water",
+            "param": "wave1_amplitude",
+            "value": "0.18"
+          }
+        },
+        {
+          "index": 1,
+          "method": "node.set",
+          "status": "passed",
+          "duration_ms": 21,
+          "result": {
+            "node": "Sun",
+            "properties": {
+              "light_color": {
+                "a": 1.0,
+                "b": 0.850000023841858,
+                "g": 0.939999997615814,
+                "html": "#fff0d9ff",
+                "r": 1.0
+              },
+              "light_energy": 1.35000002384186,
+              "rotation_degrees": {
+                "x": -48.0,
+                "y": -39.9999961853027,
+                "z": 0.0
+              }
+            }
+          }
+        },
+        {
+          "index": 2,
+          "method": "scene.save",
+          "status": "passed",
+          "duration_ms": 95,
+          "result": {
+            "method": "save_scene",
+            "path": "res://lighthouse_demo.tscn",
+            "saved": true
+          }
+        },
+        {
+          "index": 3,
+          "method": "scene.validate",
+          "status": "passed",
+          "duration_ms": 545,
+          "result": {
+            "issue_count": 0,
+            "issues": [],
+            "note": "Checks saved node paths, classes, animation tracks and external resources without opening the scene. Absolute paths depend on the runtime tree and are not checked; use script.validate for script diagnostics.",
+            "scene_path": "res://lighthouse_demo.tscn",
+            "source": "disk",
+            "valid": true
+          }
+        }
+      ]
+    }
+  },
+  "plan_again": {
+    "argv": [
+      "automate",
+      "--file",
+      "trailers/calm.json"
+    ],
+    "output": "{\"ok\":true,\"dry_run\":false,\"steps\":[{\"index\":0,\"method\":\"shader.set_param\",\"status\":\"passed\",\"duration_ms\":20,\"result\":{\"node_path\":\"Water\",\"param\":\"wave1_amplitude\",\"value\":\"0.18\"}},{\"index\":1,\"method\":\"node.set\",\"status\":\"passed\",\"duration_ms\":20,\"result\":{\"node\":\"Sun\",\"properties\":{\"light_color\":{\"a\":1.0,\"b\":0.850000023841858,\"g\":0.939999997615814,\"html\":\"#fff0d9ff\",\"r\":1.0},\"light_energy\":1.35000002384186,\"rotation_degrees\":{\"x\":-48.0,\"y\":-39.9999961853027,\"z\":0.0}}}},{\"index\":2,\"method\":\"scene.save\",\"status\":\"passed\",\"duration_ms\":105,\"result\":{\"method\":\"save_scene\",\"path\":\"res://lighthouse_demo.tscn\",\"saved\":true}},{\"index\":3,\"method\":\"scene.validate\",\"status\":\"passed\",\"duration_ms\":537,\"result\":{\"issue_count\":0,\"issues\":[],\"note\":\"Checks saved node paths, classes, animation tracks and external resources without opening the scene. Absolute paths depend on the runtime tree and are not checked; use script.validate for script diagnostics.\",\"scene_path\":\"res://lighthouse_demo.tscn\",\"source\":\"disk\",\"valid\":true}}]}",
+    "exit": 0,
+    "result": {
+      "ok": true,
+      "dry_run": false,
+      "steps": [
+        {
+          "index": 0,
+          "method": "shader.set_param",
+          "status": "passed",
+          "duration_ms": 20,
+          "result": {
+            "node_path": "Water",
+            "param": "wave1_amplitude",
+            "value": "0.18"
+          }
+        },
+        {
+          "index": 1,
+          "method": "node.set",
+          "status": "passed",
+          "duration_ms": 20,
+          "result": {
+            "node": "Sun",
+            "properties": {
+              "light_color": {
+                "a": 1.0,
+                "b": 0.850000023841858,
+                "g": 0.939999997615814,
+                "html": "#fff0d9ff",
+                "r": 1.0
+              },
+              "light_energy": 1.35000002384186,
+              "rotation_degrees": {
+                "x": -48.0,
+                "y": -39.9999961853027,
+                "z": 0.0
+              }
+            }
+          }
+        },
+        {
+          "index": 2,
+          "method": "scene.save",
+          "status": "passed",
+          "duration_ms": 105,
+          "result": {
+            "method": "save_scene",
+            "path": "res://lighthouse_demo.tscn",
+            "saved": true
+          }
+        },
+        {
+          "index": 3,
+          "method": "scene.validate",
+          "status": "passed",
+          "duration_ms": 537,
+          "result": {
+            "issue_count": 0,
+            "issues": [],
+            "note": "Checks saved node paths, classes, animation tracks and external resources without opening the scene. Absolute paths depend on the runtime tree and are not checked; use script.validate for script diagnostics.",
+            "scene_path": "res://lighthouse_demo.tscn",
+            "source": "disk",
+            "valid": true
+          }
+        }
+      ]
+    }
+  },
+  "check": {
+    "argv": [
+      "check",
+      ".",
+      "--godot",
+      "D:/Engines/Godot/current/godot_console.exe"
+    ],
+    "output": "{\n  \"project_path\": \"D:\\\\Tools\\\\godot-mcp-go\\\\samples\\\\at-your-service\",\n  \"log\": \"D:\\\\Tools\\\\godot-mcp-go\\\\samples\\\\at-your-service\\\\.godot\\\\swallowtail-check.log\",\n  \"total\": 4,\n  \"failed\": 0,\n  \"duration_ms\": 180,\n  \"files\": [\n    {\n      \"path\": \"res://camera/fly_camera.gd\",\n      \"ok\": true,\n      \"command\": [\n        \"D:/Engines/Godot/current/godot_console.exe\",\n        \"--headless\",\n        \"--path\",\n        \"D:\\\\Tools\\\\godot-mcp-go\\\\samples\\\\at-your-service\",\n        \"--script\",\n        \"res://camera/fly_camera.gd\",\n        \"--check-only\"\n      ],\n      \"errors\": []\n    },\n    {\n      \"path\": \"res://trailers/film.gd\",\n      \"ok\": true,\n      \"command\": [\n        \"D:/Engines/Godot/current/godot_console.exe\",\n        \"--headless\",\n        \"--path\",\n        \"D:\\\\Tools\\\\godot-mcp-go\\\\samples\\\\at-your-service\",\n        \"--script\",\n        \"res://trailers/film.gd\",\n        \"--check-only\"\n      ],\n      \"errors\": []\n    },\n    {\n      \"path\": \"res://ui/demo_panel.gd\",\n      \"ok\": true,\n      \"command\": [\n        \"D:/Engines/Godot/current/godot_console.exe\",\n        \"--headless\",\n        \"--path\",\n        \"D:\\\\Tools\\\\godot-mcp-go\\\\samples\\\\at-your-service\",\n        \"--script\",\n        \"res://ui/demo_panel.gd\",\n        \"--check-only\"\n      ],\n      \"errors\": []\n    },\n    {\n      \"path\": \"res://water/shervheim_water.gd\",\n      \"ok\": true,\n      \"command\": [\n        \"D:/Engines/Godot/current/godot_console.exe\",\n        \"--headless\",\n        \"--path\",\n        \"D:\\\\Tools\\\\godot-mcp-go\\\\samples\\\\at-your-service\",\n        \"--script\",\n        \"res://water/shervheim_water.gd\",\n        \"--check-only\"\n      ],\n      \"errors\": []\n    }\n  ]\n}",
+    "exit": 0,
+    "result": {
+      "project_path": "D:\\Tools\\godot-mcp-go\\samples\\at-your-service",
+      "log": "D:\\Tools\\godot-mcp-go\\samples\\at-your-service\\.godot\\swallowtail-check.log",
+      "total": 4,
+      "failed": 0,
+      "duration_ms": 180,
+      "files": [
+        {
+          "path": "res://camera/fly_camera.gd",
+          "ok": true,
+          "command": [
+            "D:/Engines/Godot/current/godot_console.exe",
+            "--headless",
+            "--path",
+            "D:\\Tools\\godot-mcp-go\\samples\\at-your-service",
+            "--script",
+            "res://camera/fly_camera.gd",
+            "--check-only"
+          ],
+          "errors": []
+        },
+        {
+          "path": "res://trailers/film.gd",
+          "ok": true,
+          "command": [
+            "D:/Engines/Godot/current/godot_console.exe",
+            "--headless",
+            "--path",
+            "D:\\Tools\\godot-mcp-go\\samples\\at-your-service",
+            "--script",
+            "res://trailers/film.gd",
+            "--check-only"
+          ],
+          "errors": []
+        },
+        {
+          "path": "res://ui/demo_panel.gd",
+          "ok": true,
+          "command": [
+            "D:/Engines/Godot/current/godot_console.exe",
+            "--headless",
+            "--path",
+            "D:\\Tools\\godot-mcp-go\\samples\\at-your-service",
+            "--script",
+            "res://ui/demo_panel.gd",
+            "--check-only"
+          ],
+          "errors": []
+        },
+        {
+          "path": "res://water/shervheim_water.gd",
+          "ok": true,
+          "command": [
+            "D:/Engines/Godot/current/godot_console.exe",
+            "--headless",
+            "--path",
+            "D:\\Tools\\godot-mcp-go\\samples\\at-your-service",
+            "--script",
+            "res://water/shervheim_water.gd",
+            "--check-only"
+          ],
+          "errors": []
+        }
+      ]
+    }
+  },
+  "rough": {
+    "argv": [
+      "shader",
+      "set-param",
+      "--node-path",
+      "Water",
+      "--param",
+      "wave1_amplitude",
+      "--value",
+      "0.65"
+    ],
+    "output": "{\n  \"node_path\": \"Water\",\n  \"param\": \"wave1_amplitude\",\n  \"value\": \"0.65\"\n}",
+    "exit": 0,
+    "result": {
+      "node_path": "Water",
+      "param": "wave1_amplitude",
+      "value": "0.65"
+    }
+  },
+  "play": {
+    "argv": [
+      "scene",
+      "play",
+      "--mode",
+      "current"
+    ],
+    "output": "{\n  \"live_reload\": true,\n  \"mode\": \"current\",\n  \"playing\": true\n}",
+    "exit": 0,
+    "result": {
+      "live_reload": true,
+      "mode": "current",
+      "playing": true
+    }
+  },
+  "camera": {
+    "argv": [
+      "runtime",
+      "get",
+      "--node-path",
+      "Camera",
+      "--properties",
+      "[\"movement_speed\"]"
+    ],
+    "output": "{\n  \"node_path\": \"Camera\",\n  \"properties\": {\n    \"movement_speed\": 8.0\n  },\n  \"type\": \"Camera3D\"\n}",
+    "exit": 0,
+    "result": {
+      "node_path": "Camera",
+      "properties": {
+        "movement_speed": 8.0
+      },
+      "type": "Camera3D"
+    }
+  },
+  "move": {
+    "argv": [
+      "input",
+      "key",
+      "--keycode",
+      "W",
+      "--pressed",
+      "true"
+    ],
+    "output": "{\n  \"event\": {\n    \"alt\": false,\n    \"ctrl\": false,\n    \"keycode\": \"W\",\n    \"pressed\": true,\n    \"shift\": false,\n    \"type\": \"key\"\n  },\n  \"sent\": true\n}",
+    "exit": 0,
+    "result": {
+      "event": {
+        "alt": false,
+        "ctrl": false,
+        "keycode": "W",
+        "pressed": true,
+        "shift": false,
+        "type": "key"
+      },
+      "sent": true
+    }
+  },
+  "release": {
+    "argv": [
+      "input",
+      "key",
+      "--keycode",
+      "W",
+      "--pressed",
+      "false"
+    ],
+    "output": "{\n  \"event\": {\n    \"alt\": false,\n    \"ctrl\": false,\n    \"keycode\": \"W\",\n    \"pressed\": false,\n    \"shift\": false,\n    \"type\": \"key\"\n  },\n  \"sent\": true\n}",
+    "exit": 0,
+    "result": {
+      "event": {
+        "alt": false,
+        "ctrl": false,
+        "keycode": "W",
+        "pressed": false,
+        "shift": false,
+        "type": "key"
+      },
+      "sent": true
+    }
+  },
+  "live_rough": {
+    "argv": [
+      "runtime",
+      "eval",
+      "--code",
+      "get_tree().current_scene.get_node(\"Water\").material_override.set_shader_parameter(\"wave1_amplitude\", 0.65)"
+    ],
+    "output": "{\n  \"output\": []\n}",
+    "exit": 0,
+    "result": {
+      "output": []
+    }
+  },
+  "before": {
+    "argv": [
+      "runtime",
+      "eval",
+      "--code",
+      "emit(get_tree().current_scene.get_node(\"Water\").material_override.get_shader_parameter(\"wave1_amplitude\"))"
+    ],
+    "output": "{\n  \"output\": [\n    \"0.65\"\n  ]\n}",
+    "exit": 0,
+    "result": {
+      "output": [
+        "0.65"
+      ]
+    }
+  },
+  "adjust": {
+    "argv": [
+      "runtime",
+      "eval",
+      "--code",
+      "var water = get_tree().current_scene.get_node(\"Water\")\nwater.material_override.set_shader_parameter(\"wave1_amplitude\", 0.18)"
+    ],
+    "output": "{\n  \"output\": []\n}",
+    "exit": 0,
+    "result": {
+      "output": []
+    }
+  },
+  "after": {
+    "argv": [
+      "runtime",
+      "eval",
+      "--code",
+      "emit(get_tree().current_scene.get_node(\"Water\").material_override.get_shader_parameter(\"wave1_amplitude\"))"
+    ],
+    "output": "{\n  \"output\": [\n    \"0.18\"\n  ]\n}",
+    "exit": 0,
+    "result": {
+      "output": [
+        "0.18"
+      ]
+    }
+  },
+  "errors": {
+    "argv": [
+      "runtime",
+      "errors"
+    ],
+    "output": "{\n  \"buffered\": 0.0,\n  \"count\": 0.0,\n  \"errors\": [],\n  \"next_seq\": 0.0\n}",
+    "exit": 0,
+    "result": {
+      "buffered": 0.0,
+      "count": 0.0,
+      "errors": [],
+      "next_seq": 0.0
+    }
+  },
+  "capture": {
+    "argv": [
+      "runtime",
+      "screenshot",
+      "--save-path",
+      "user://coast-reviewed.png"
+    ],
+    "output": "{\n  \"black_frame\": false,\n  \"format\": \"png\",\n  \"hdr_2d\": false,\n  \"height\": 1080.0,\n  \"saved_path\": \"user://coast-reviewed.png\",\n  \"width\": 1920.0\n}",
+    "exit": 0,
+    "result": {
+      "black_frame": false,
+      "format": "png",
+      "hdr_2d": false,
+      "height": 1080.0,
+      "saved_path": "user://coast-reviewed.png",
+      "width": 1920.0
+    }
+  },
+  "stop": {
+    "argv": [
+      "scene",
+      "stop"
+    ],
+    "output": "{\n  \"stopped\": true\n}",
+    "exit": 0,
+    "result": {
+      "stopped": true
+    }
+  },
+  "agent_help": {
+    "argv": [
+      "shader",
+      "set-param",
+      "--help"
+    ],
+    "output": "swallowtail shader set_param: Set a uniform on a node's ShaderMaterial. A string --value is evaluated as an Expression (so 'Vector3(1,0,0)', numbers, etc. work).\n\nParams:\n  --node-path  NodePath  required  Node with a ShaderMaterial.\n  --param      String    required  Uniform name.\n  --value      JSON      optional  Value to set (string is Expression-evaluated; may be null/omitted).",
+    "exit": 0
+  },
+  "agent_water": {
+    "argv": [
+      "shader",
+      "set-param",
+      "--node-path",
+      "Water",
+      "--param",
+      "wave1_amplitude",
+      "--value",
+      "0.18"
+    ],
+    "output": "{\n  \"node_path\": \"Water\",\n  \"param\": \"wave1_amplitude\",\n  \"value\": \"0.18\"\n}",
+    "exit": 0,
+    "result": {
+      "node_path": "Water",
+      "param": "wave1_amplitude",
+      "value": "0.18"
+    }
+  },
+  "agent_light": {
+    "argv": [
+      "node",
+      "set",
+      "--node-path",
+      "Sun",
+      "--property",
+      "rotation_degrees",
+      "--value",
+      "Vector3(-18, -40, 0)"
+    ],
+    "output": "{\n  \"new_value\": {\n    \"x\": -18.0,\n    \"y\": -39.9999961853027,\n    \"z\": 0.0\n  },\n  \"node\": \"Sun\",\n  \"old_value\": {\n    \"x\": -48.0,\n    \"y\": -39.9999961853027,\n    \"z\": 0.0\n  },\n  \"properties\": {\n    \"rotation_degrees\": {\n      \"x\": -18.0,\n      \"y\": -39.9999961853027,\n      \"z\": 0.0\n    }\n  },\n  \"property\": \"rotation_degrees\"\n}",
+    "exit": 0,
+    "result": {
+      "new_value": {
+        "x": -18.0,
+        "y": -39.9999961853027,
+        "z": 0.0
+      },
+      "node": "Sun",
+      "old_value": {
+        "x": -48.0,
+        "y": -39.9999961853027,
+        "z": 0.0
+      },
+      "properties": {
+        "rotation_degrees": {
+          "x": -18.0,
+          "y": -39.9999961853027,
+          "z": 0.0
+        }
+      },
+      "property": "rotation_degrees"
+    }
+  },
+  "agent_color": {
+    "argv": [
+      "node",
+      "set",
+      "--node-path",
+      "Sun",
+      "--property",
+      "light_color",
+      "--value",
+      "Color(1, 0.75, 0.5)"
+    ],
+    "output": "{\n  \"new_value\": {\n    \"a\": 1.0,\n    \"b\": 0.5,\n    \"g\": 0.75,\n    \"html\": \"#ffbf80ff\",\n    \"r\": 1.0\n  },\n  \"node\": \"Sun\",\n  \"old_value\": {\n    \"a\": 1.0,\n    \"b\": 0.850000023841858,\n    \"g\": 0.939999997615814,\n    \"html\": \"#fff0d9ff\",\n    \"r\": 1.0\n  },\n  \"properties\": {\n    \"light_color\": {\n      \"a\": 1.0,\n      \"b\": 0.5,\n      \"g\": 0.75,\n      \"html\": \"#ffbf80ff\",\n      \"r\": 1.0\n    }\n  },\n  \"property\": \"light_color\"\n}",
+    "exit": 0,
+    "result": {
+      "new_value": {
+        "a": 1.0,
+        "b": 0.5,
+        "g": 0.75,
+        "html": "#ffbf80ff",
+        "r": 1.0
+      },
+      "node": "Sun",
+      "old_value": {
+        "a": 1.0,
+        "b": 0.850000023841858,
+        "g": 0.939999997615814,
+        "html": "#fff0d9ff",
+        "r": 1.0
+      },
+      "properties": {
+        "light_color": {
+          "a": 1.0,
+          "b": 0.5,
+          "g": 0.75,
+          "html": "#ffbf80ff",
+          "r": 1.0
+        }
+      },
+      "property": "light_color"
+    }
+  },
+  "agent_save": {
+    "argv": [
+      "scene",
+      "save"
+    ],
+    "output": "{\n  \"method\": \"save_scene\",\n  \"path\": \"res://lighthouse_demo.tscn\",\n  \"saved\": true\n}",
+    "exit": 0,
+    "result": {
+      "method": "save_scene",
+      "path": "res://lighthouse_demo.tscn",
+      "saved": true
+    }
+  },
+  "agent_read": {
+    "argv": [
+      "node",
+      "get",
+      "--node-path",
+      "Sun",
+      "--properties",
+      "[\"rotation_degrees\",\"light_color\"]"
+    ],
+    "output": "{\n  \"node_path\": \"Sun\",\n  \"properties\": {\n    \"light_color\": {\n      \"a\": 1.0,\n      \"b\": 0.5,\n      \"g\": 0.75,\n      \"html\": \"#ffbf80ff\",\n      \"r\": 1.0\n    },\n    \"rotation_degrees\": {\n      \"x\": -18.0,\n      \"y\": -39.9999961853027,\n      \"z\": 0.0\n    }\n  },\n  \"type\": \"DirectionalLight3D\"\n}",
+    "exit": 0,
+    "result": {
+      "node_path": "Sun",
+      "properties": {
+        "light_color": {
+          "a": 1.0,
+          "b": 0.5,
+          "g": 0.75,
+          "html": "#ffbf80ff",
+          "r": 1.0
+        },
+        "rotation_degrees": {
+          "x": -18.0,
+          "y": -39.9999961853027,
+          "z": 0.0
+        }
+      },
+      "type": "DirectionalLight3D"
+    }
+  },
+  "mcp_edit": {
+    "arguments": {
+      "method": "node.set",
+      "params": {
+        "node_path": "Sun",
+        "property": "rotation_degrees",
+        "value": "Vector3(-8, -40, 0)"
+      }
+    },
+    "response": {
+      "id": 2,
+      "jsonrpc": "2.0",
+      "result": {
+        "content": [
+          {
+            "text": "{\"new_value\":{\"x\":-7.99999952316284,\"y\":-39.9999961853027,\"z\":0.0},\"node\":\"Sun\",\"old_value\":{\"x\":-18.0,\"y\":-39.9999961853027,\"z\":0.0},\"properties\":{\"rotation_degrees\":{\"x\":-7.99999952316284,\"y\":-39.9999961853027,\"z\":0.0}},\"property\":\"rotation_degrees\"}",
+            "type": "text"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "mcp_read": {
+    "arguments": {
+      "method": "node.get",
+      "params": {
+        "node_path": "Sun",
+        "property": "rotation_degrees"
+      }
+    },
+    "response": {
+      "id": 3,
+      "jsonrpc": "2.0",
+      "result": {
+        "content": [
+          {
+            "text": "{\"node_path\":\"Sun\",\"properties\":{\"rotation_degrees\":{\"x\":-7.99999952316284,\"y\":-39.9999961853027,\"z\":0.0}},\"type\":\"DirectionalLight3D\"}",
+            "type": "text"
+          }
+        ],
+        "isError": false
+      }
+    }
+  },
+  "final_save": {
+    "argv": [
+      "scene",
+      "save"
+    ],
+    "output": "{\n  \"method\": \"save_scene\",\n  \"path\": \"res://lighthouse_demo.tscn\",\n  \"saved\": true\n}",
+    "exit": 0,
+    "result": {
+      "method": "save_scene",
+      "path": "res://lighthouse_demo.tscn",
+      "saved": true
+    }
+  },
+  "material_save": {
+    "argv": [
+      "editor",
+      "run-script",
+      "--code",
+      "var w = EditorInterface.get_edited_scene_root().get_node(\"Water\"); emit(ResourceSaver.save(w.material_override, \"res://water/shervheim_water_material.tres\"))",
+      "--allow-unsafe-editor-io"
+    ],
+    "output": "{\n  \"output\": [\n    \"0\"\n  ]\n}",
+    "exit": 0,
+    "result": {
+      "output": [
+        "0"
+      ]
+    }
+  }
+}

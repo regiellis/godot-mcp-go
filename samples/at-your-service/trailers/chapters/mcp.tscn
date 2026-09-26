@@ -1,0 +1,1073 @@
+[gd_scene format=3 uid="uid://e1cfw1rwn701"]
+
+[ext_resource type="Script" uid="uid://c4rxjuskm0rk" path="res://trailers/chapter.gd" id="1_kbo78"]
+[ext_resource type="FontVariation" path="res://trailers/timeline/display_font.tres" id="2_gj1x8"]
+[ext_resource type="FontFile" uid="uid://by75qrvimdas8" path="res://assets/source-code-pro/SourceCodePro-Regular.ttf" id="3_oc033"]
+[ext_resource type="FontFile" uid="uid://dtbm556602jfo" path="res://assets/inter/Inter-Regular.ttf" id="4_6t5rd"]
+[ext_resource type="Texture2D" uid="uid://bk7ygsbgkx6ev" path="res://trailers/brand/swallowtail-checking.png" id="5_fcmm5"]
+
+[node name="MCP" type="Control" unique_id=1019116518]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+script = ExtResource("1_kbo78")
+
+[node name="S33_McpWhenYouWantIt" type="Control" parent="." unique_id=561609624]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = ""
+metadata/start_seconds = 376.23567
+metadata/end_seconds = 382.34267
+metadata/start = 403.30333
+metadata/end = 405.57333
+
+[node name="Background" type="ColorRect" parent="S33_McpWhenYouWantIt" unique_id=1008430522]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S33_McpWhenYouWantIt" unique_id=204502894]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_gj1x8")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S33_McpWhenYouWantIt" unique_id=1528706986]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S33_McpWhenYouWantIt" unique_id=347124025]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "06 / CONNECT THROUGH MCP"
+
+[node name="Title" type="Label" parent="S33_McpWhenYouWantIt" unique_id=1074469992]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 737.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_gj1x8")
+theme_override_font_sizes/font_size = 61
+text = "MCP when you want it."
+
+[node name="Subtitle" type="Label" parent="S33_McpWhenYouWantIt" unique_id=256925048]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 571.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 29
+text = "Connect to the same editor session."
+
+[node name="Console" type="Control" parent="S33_McpWhenYouWantIt" unique_id=382188786]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S33_McpWhenYouWantIt/Console" unique_id=1697759746]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S33_McpWhenYouWantIt/Console" unique_id=1245173865]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S33_McpWhenYouWantIt/Console" unique_id=924142889]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 268.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "MCP / CONNECTION"
+
+[node name="Command01" type="Label" parent="S33_McpWhenYouWantIt/Console" unique_id=2133274980]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 512.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "$ swallowtail serve --project ."
+
+[node name="Command02" type="Label" parent="S33_McpWhenYouWantIt/Console" unique_id=358447435]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 262.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "  --typed=false"
+
+[node name="Command03" type="Label" parent="S33_McpWhenYouWantIt/Console" unique_id=334402866]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 29.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+
+[node name="Command04" type="Label" parent="S33_McpWhenYouWantIt/Console" unique_id=2093862757]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 356.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "MCP stdio → godot_run"
+
+[node name="ResultRule" type="ColorRect" parent="S33_McpWhenYouWantIt/Console" unique_id=1031231255]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S33_McpWhenYouWantIt/Console" unique_id=876121860]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 403.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED SESSION"
+
+[node name="Result" type="Label" parent="S33_McpWhenYouWantIt/Console" unique_id=714301055]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 539.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 28
+text = "One connection to the existing project."
+
+[node name="Note" type="Label" parent="S33_McpWhenYouWantIt" unique_id=1206767761]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 672.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 30
+text = "The CLI remains available alongside MCP."
+
+[node name="Footer" type="Label" parent="S33_McpWhenYouWantIt" unique_id=759395373]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S33_McpWhenYouWantIt" unique_id=834181679]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S33_McpWhenYouWantIt" unique_id=1193437354]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 802.0
+offset_right = 1870.0
+offset_bottom = 1010.0
+mouse_filter = 2
+texture = ExtResource("5_fcmm5")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S33_McpWhenYouWantIt" unique_id=1430778411]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S33_McpWhenYouWantIt" unique_id=1011431166]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1375.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 26
+text = "Same editor. Same scene."
+
+[node name="S34_MakeOneMoreChange" type="Control" parent="." unique_id=363661128]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = ""
+metadata/start_seconds = 382.34267
+metadata/end_seconds = 385.65967
+metadata/start = 405.57333
+metadata/end = 406.90333
+
+[node name="Background" type="ColorRect" parent="S34_MakeOneMoreChange" unique_id=1761552605]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S34_MakeOneMoreChange" unique_id=163596084]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_gj1x8")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S34_MakeOneMoreChange" unique_id=994191447]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S34_MakeOneMoreChange" unique_id=423394261]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "06 / CONNECT THROUGH MCP"
+
+[node name="Title" type="Label" parent="S34_MakeOneMoreChange" unique_id=1865812886]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 769.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_gj1x8")
+theme_override_font_sizes/font_size = 61
+text = "Make one more change."
+
+[node name="Subtitle" type="Label" parent="S34_MakeOneMoreChange" unique_id=1251480665]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 601.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 29
+text = "Lower the sun for a later evening look."
+
+[node name="Console" type="Control" parent="S34_MakeOneMoreChange" unique_id=2067754083]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S34_MakeOneMoreChange/Console" unique_id=1910980311]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S34_MakeOneMoreChange/Console" unique_id=177496981]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S34_MakeOneMoreChange/Console" unique_id=716613171]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 328.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "MCP / TOOL ARGUMENTS"
+
+[node name="Command01" type="Label" parent="S34_MakeOneMoreChange/Console" unique_id=1914609534]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 262.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "tool: godot_run"
+
+[node name="Command02" type="Label" parent="S34_MakeOneMoreChange/Console" unique_id=1044383216]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 277.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "method: node.set"
+
+[node name="Command03" type="Label" parent="S34_MakeOneMoreChange/Console" unique_id=1377062584]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 137.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "params:"
+
+[node name="Command04" type="Label" parent="S34_MakeOneMoreChange/Console" unique_id=847873641]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 278.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "  node_path: Sun"
+
+[node name="Command05" type="Label" parent="S34_MakeOneMoreChange/Console" unique_id=579185687]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 222.0
+offset_right = 465.0
+offset_bottom = 256.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "  property: rotation_degrees"
+
+[node name="Command06" type="Label" parent="S34_MakeOneMoreChange/Console" unique_id=2014183427]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 258.0
+offset_right = 496.0
+offset_bottom = 292.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "  value: \"Vector3(-8, -40, 0)\""
+
+[node name="ResultRule" type="ColorRect" parent="S34_MakeOneMoreChange/Console" unique_id=965821993]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S34_MakeOneMoreChange/Console" unique_id=1202880396]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 403.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED REQUEST"
+
+[node name="Result" type="Label" parent="S34_MakeOneMoreChange/Console" unique_id=915482001]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 581.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 28
+text = "Tool call prepared for the same Sun node."
+
+[node name="Note" type="Label" parent="S34_MakeOneMoreChange" unique_id=1043600828]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 735.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 30
+text = "The method and parameters describe the edit."
+
+[node name="Footer" type="Label" parent="S34_MakeOneMoreChange" unique_id=220757904]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S34_MakeOneMoreChange" unique_id=1745874808]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S34_MakeOneMoreChange" unique_id=1974306214]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 802.0
+offset_right = 1870.0
+offset_bottom = 1010.0
+mouse_filter = 2
+texture = ExtResource("5_fcmm5")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S34_MakeOneMoreChange" unique_id=161682597]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S34_MakeOneMoreChange" unique_id=2012372295]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1380.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 26
+text = "Next: a lower evening sun."
+
+[node name="S35_WatchTheChange" type="Control" parent="." unique_id=36538512]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "mcp_edit"
+metadata/start_seconds = 385.65967
+metadata/end_seconds = 390.85167
+metadata/start = 406.90333
+metadata/end = 409.90333
+
+[node name="Background" type="ColorRect" parent="S35_WatchTheChange" unique_id=620610319]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S35_WatchTheChange" unique_id=1888891970]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_gj1x8")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S35_WatchTheChange" unique_id=957969747]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S35_WatchTheChange" unique_id=2065677549]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "06 / CONNECT THROUGH MCP"
+
+[node name="Title" type="Label" parent="S35_WatchTheChange" unique_id=192675440]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 627.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_gj1x8")
+theme_override_font_sizes/font_size = 61
+text = "Watch the change."
+
+[node name="Subtitle" type="Label" parent="S35_WatchTheChange" unique_id=361127102]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 554.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 29
+text = "The MCP call edits the same node."
+
+[node name="Console" type="Control" parent="S35_WatchTheChange" unique_id=619878458]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S35_WatchTheChange/Console" unique_id=1736925845]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S35_WatchTheChange/Console" unique_id=724305822]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S35_WatchTheChange/Console" unique_id=568673050]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 388.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "MCP / RECORDED TOOL CALL"
+
+[node name="Command01" type="Label" parent="S35_WatchTheChange/Console" unique_id=1222162368]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 262.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "tool: godot_run"
+
+[node name="Command02" type="Label" parent="S35_WatchTheChange/Console" unique_id=95440660]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 277.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "method: node.set"
+
+[node name="Command03" type="Label" parent="S35_WatchTheChange/Console" unique_id=86378709]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 278.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "  node_path: Sun"
+
+[node name="Command04" type="Label" parent="S35_WatchTheChange/Console" unique_id=1298256908]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 465.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "  property: rotation_degrees"
+
+[node name="Command05" type="Label" parent="S35_WatchTheChange/Console" unique_id=1117111775]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 222.0
+offset_right = 496.0
+offset_bottom = 256.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "  value: \"Vector3(-8, -40, 0)\""
+
+[node name="ResultRule" type="ColorRect" parent="S35_WatchTheChange/Console" unique_id=692286884]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S35_WatchTheChange/Console" unique_id=1928540108]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S35_WatchTheChange/Console" unique_id=170084742]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 495.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 28
+text = "Sun rotation updated through MCP."
+
+[node name="Note" type="Label" parent="S35_WatchTheChange" unique_id=1907595566]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 790.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 30
+text = "The scene changes through the same editor tools."
+
+[node name="Footer" type="Label" parent="S35_WatchTheChange" unique_id=68871454]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S35_WatchTheChange" unique_id=1118841524]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S35_WatchTheChange" unique_id=1561027418]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 802.0
+offset_right = 1870.0
+offset_bottom = 1010.0
+mouse_filter = 2
+texture = ExtResource("5_fcmm5")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S35_WatchTheChange" unique_id=377102633]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S35_WatchTheChange" unique_id=1259014076]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1437.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 26
+text = "The sun drops from -18° to -8°."
+
+[node name="S36_ReadItBack" type="Control" parent="." unique_id=362096913]
+visible = false
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/recorded_take = "mcp_read"
+metadata/start_seconds = 390.85167
+metadata/end_seconds = 400.53333
+metadata/start = 409.90333
+metadata/end = 420.83333
+
+[node name="Background" type="ColorRect" parent="S36_ReadItBack" unique_id=1640983162]
+layout_mode = 0
+offset_right = 1000.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Wordmark" type="Label" parent="S36_ReadItBack" unique_id=363688627]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_gj1x8")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="S36_ReadItBack" unique_id=1866507125]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Chapter" type="Label" parent="S36_ReadItBack" unique_id=1893891635]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 151.0
+offset_right = 438.0
+offset_bottom = 183.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "06 / CONNECT THROUGH MCP"
+
+[node name="Title" type="Label" parent="S36_ReadItBack" unique_id=366413136]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 193.0
+offset_right = 450.0
+offset_bottom = 278.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -11
+theme_override_fonts/font = ExtResource("2_gj1x8")
+theme_override_font_sizes/font_size = 61
+text = "Read it back."
+
+[node name="Subtitle" type="Label" parent="S36_ReadItBack" unique_id=612602253]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 291.0
+offset_right = 521.0
+offset_bottom = 327.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 29
+text = "Confirm the result through MCP."
+
+[node name="Console" type="Control" parent="S36_ReadItBack" unique_id=1409402486]
+anchors_preset = 0
+offset_left = 76.0
+offset_top = 378.0
+offset_right = 924.0
+offset_bottom = 868.0
+
+[node name="ConsoleBackground" type="ColorRect" parent="S36_ReadItBack/Console" unique_id=2125126129]
+layout_mode = 0
+offset_right = 848.0
+offset_bottom = 490.0
+mouse_filter = 2
+color = Color(0.9490196, 0.9254902, 0.8901961, 1)
+
+[node name="ConsoleRule" type="ColorRect" parent="S36_ReadItBack/Console" unique_id=1600988854]
+layout_mode = 0
+offset_top = -1.5
+offset_right = 848.0
+offset_bottom = 1.5
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="ConsoleHeading" type="Label" parent="S36_ReadItBack/Console" unique_id=605130220]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 23.0
+offset_right = 373.0
+offset_bottom = 55.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "MCP / RECORDED RESPONSE"
+
+[node name="Command01" type="Label" parent="S36_ReadItBack/Console" unique_id=894041744]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 78.0
+offset_right = 262.0
+offset_bottom = 112.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "tool: godot_run"
+
+[node name="Command02" type="Label" parent="S36_ReadItBack/Console" unique_id=1949145013]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 114.0
+offset_right = 277.0
+offset_bottom = 148.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "method: node.get"
+
+[node name="Command03" type="Label" parent="S36_ReadItBack/Console" unique_id=82794672]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 150.0
+offset_right = 278.0
+offset_bottom = 184.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "  node_path: Sun"
+
+[node name="Command04" type="Label" parent="S36_ReadItBack/Console" unique_id=320346064]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 186.0
+offset_right = 465.0
+offset_bottom = 220.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 26
+text = "  property: rotation_degrees"
+
+[node name="ResultRule" type="ColorRect" parent="S36_ReadItBack/Console" unique_id=995226173]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 356.0
+offset_right = 822.0
+offset_bottom = 358.0
+mouse_filter = 2
+color = Color(0.79607844, 0.7490196, 0.70980394, 1)
+
+[node name="ResultHeading" type="Label" parent="S36_ReadItBack/Console" unique_id=232662373]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 378.0
+offset_right = 283.0
+offset_bottom = 410.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "RESULT / RECORDED"
+
+[node name="Result" type="Label" parent="S36_ReadItBack/Console" unique_id=1096930431]
+layout_mode = 0
+offset_left = 26.0
+offset_top = 426.0
+offset_right = 352.0
+offset_bottom = 461.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 28
+text = "Sun rotation: (-8, -40, 0)"
+
+[node name="Note" type="Label" parent="S36_ReadItBack" unique_id=1777960258]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 915.0
+offset_right = 782.0
+offset_bottom = 953.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 30
+text = "Your scenes and scripts stay ordinary Godot files."
+
+[node name="Footer" type="Label" parent="S36_ReadItBack" unique_id=1349005020]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 1007.0
+offset_right = 453.0
+offset_bottom = 1039.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_oc033")
+theme_override_font_sizes/font_size = 25
+text = "YOUR GAME. YOUR WORKFLOW."
+
+[node name="MascotPlinth" type="ColorRect" parent="S36_ReadItBack" unique_id=1999930985]
+layout_mode = 0
+offset_left = 1727.0
+offset_top = 996.0
+offset_right = 1881.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 0.39215687)
+
+[node name="CheckingMascot" type="TextureRect" parent="S36_ReadItBack" unique_id=629797377]
+layout_mode = 0
+offset_left = 1740.0
+offset_top = 802.0
+offset_right = 1870.0
+offset_bottom = 1010.0
+mouse_filter = 2
+texture = ExtResource("5_fcmm5")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SceneCaptionBackground" type="ColorRect" parent="S36_ReadItBack" unique_id=220884936]
+layout_mode = 0
+offset_left = 1032.0
+offset_top = 950.0
+offset_right = 1670.0
+offset_bottom = 1032.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.84)
+
+[node name="SceneCaption" type="Label" parent="S36_ReadItBack" unique_id=1389504945]
+layout_mode = 0
+offset_left = 1054.0
+offset_top = 975.0
+offset_right = 1385.0
+offset_bottom = 1008.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_6t5rd")
+theme_override_font_sizes/font_size = 26
+text = "Your game. Your workflow."

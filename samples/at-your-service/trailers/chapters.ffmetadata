@@ -1,0 +1,67 @@
+;FFMETADATA1
+title=Swallowtail — At your service
+[CHAPTER]
+TIMEBASE=1/1000
+START=0
+END=29467
+title=At your service
+[CHAPTER]
+TIMEBASE=1/1000
+START=29467
+END=64900
+title=Why not just use the editor?
+[CHAPTER]
+TIMEBASE=1/1000
+START=64900
+END=111633
+title=Connect the editor
+[CHAPTER]
+TIMEBASE=1/1000
+START=111633
+END=143167
+title=Move and scale the lighthouse
+[CHAPTER]
+TIMEBASE=1/1000
+START=143167
+END=173167
+title=Shape the shoreline
+[CHAPTER]
+TIMEBASE=1/1000
+START=173167
+END=208167
+title=When the work scales up
+[CHAPTER]
+TIMEBASE=1/1000
+START=208167
+END=261900
+title=Make it repeatable
+[CHAPTER]
+TIMEBASE=1/1000
+START=261900
+END=292000
+title=Playtest and inspect
+[CHAPTER]
+TIMEBASE=1/1000
+START=292000
+END=331100
+title=Try it live, then save the choice
+[CHAPTER]
+TIMEBASE=1/1000
+START=331100
+END=380733
+title=What the AI actually does
+[CHAPTER]
+TIMEBASE=1/1000
+START=380733
+END=420833
+title=Where MCP fits
+[CHAPTER]
+TIMEBASE=1/1000
+START=420833
+END=455700
+title=Choose your workflow
+[CHAPTER]
+TIMEBASE=1/1000
+START=455700
+END=469433
+title=Your game. Your workflow.

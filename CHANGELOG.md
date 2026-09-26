@@ -6,6 +6,50 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-09-26
+
+### Added
+
+- **Release QA commands and skill**. `qa init`, `qa run`, `qa compare`, `qa attest`, and `qa report` retain logs, build hashes, named frame phases and screenshots, distinguish source scenarios from packaged tests, and generate a branded PDF with the Swallowtail mascot. Games extend the runner with GDScript `run(qa)` scenarios. Python 3.10+ runs the embedded worker; ReportLab 4 renders PDFs. Optional PresentMon capture targets the spawned Windows process. The `swallowtail-qa` skill documents coverage, evidence and baseline comparisons.
+
+- **QA conclusions and readiness assessments**. Reports include per-test conclusions, fix status and closure work. `qa report --assessment` accepts a reviewed assessment JSON and records its hash. Passing checks alone do not imply ship approval.
+- **Companion QA skill bundles**. Platform archives include both skills, with a separate QA skill archive. Checksums cover all nine archives.
+
+- **The butler in the banner**. Running `swallowtail` with no arguments now draws the mascot beside the wordmark, in colour as half-block cells on a terminal that takes escapes, and as a textured silhouette under `NO_COLOR` or a dumb terminal. Piped output and every command's output are unchanged.
+- **The `at-your-service` sample**. A getting-started film that follows one lighthouse coast through terminal commands, a repeatable command plan, a live playtest, an agent task, and an MCP readback, with the playable scene beside it. The film is thirteen chapter scenes and an AnimationPlayer timeline, editable in the Godot editor and rendered by Godot's movie writer; the CLI and MCP results it shows were recorded against the project. `samples/at-your-service/`.
+
+### Changed
+
+- **`scene3d add-body --from-mesh` seats the body on the mesh and fits the shape to it**. The body takes the mesh's rotation and origin, the mesh's scale is baked into the collider, and a box, sphere, or capsule is sized to the mesh bounds unless `--size`, `--radius`, or `--height` is given. Before this the body landed at `--position` with the collider at the mesh's unit size, so a collider for a mesh anywhere but the origin was seated wrong. `--reparent-mesh true` moves the MeshInstance3D under the new body so the two move together, and the whole call is one undo step. `--position` is refused together with `--from-mesh`.
+
+### Fixed
+
+- Named and keypad input resolves through Godot key-name APIs without invalid GlobalScope ClassDB lookups.
+- PDF frame-timing headings stay with their explanatory text across page breaks.
+- QA shell completion lists its subcommands and command-specific flags, including assessment files and manual attestations.
+- Release verification checks both skill payloads, the standalone QA skill archive, and the complete checksum manifest.
+
+- **`gridmap meshlibrary-from-scene` keeps each piece's mesh and collider offsets**. The kit scene is instantiated without entering the tree, where `global_transform` reads identity, so every item's mesh and every collider landed on the item origin: a wall's box blocked only its lower half. Offsets are now accumulated from local transforms.
+- **`scene3d setup-camera --look-at` aims a new camera**. For a camera the command was creating, the look-at ran before the node was in the tree, so the engine refused it and the camera kept an identity rotation inside a success envelope. The aim is now set from the basis, with the target carried into the parent's space. An existing camera was never affected.
+- **`scene3d setup-environment` builds a sky by default**. Sky is the default background mode, but the Sky resource was only built when `--sky` was passed, so a bare call answered success and the game came up on a black background. The default mode now builds the procedural sky with its default colours; an existing environment keeps the sky it has.
+- **`editor run-script` and `runtime eval` report a runtime fault instead of a clean run**. A snippet that hit a script error (an invalid call, a null dereference) aborted at that line and came back with whatever it had emitted so far and no error, so the only trace was a line in the Output panel. Both now capture what the engine logged around the run and answer `-32603` naming the line of the caller's code, with the partial `output` and the captured `errors` attached. A `push_error` or an engine error inside a called method does not fail the call and is attached as `errors`, with the snippet's own line where the backtrace names it. A parse error now names its line too. On Godot 4.3 and 4.4, which have no `Logger`, the reply carries `error_capture: "unavailable"`. A game launched from the editor still breaks into the debugger on a script error before the reply can be built, and the timeout message already reports that break; the new reply is what a standalone game answers over the direct channel.
+- **`editor errors` no longer reads a game's log from a windowed editor**. When the Output panel held nothing after filtering (an empty panel, or `--internal=false` dropping every line), the command fell through to `user://logs/godot.log`, which every game run of the project writes under the same user-data directory and which outlives the session. A clean editor could therefore report a script error a game had raised days earlier, with no way to tell it from a live one. The log is now read only when the Output panel is unreachable, which is the headless case it was written for. Found retesting on Godot 4.8-dev6 and reproduced on 4.7.2.
+- **Screenshots of an HDR 2D viewport are encoded as sRGB**. With `rendering/viewport/hdr_2d` on (which `lighting glow-2d` enables), the viewport hands back a half-float linear image, and `runtime screenshot`, `runtime capture-frames`, and `editor screenshot` saved those values straight to PNG, so every capture read far darker than the window. The three captures now convert to 8-bit sRGB first and report `hdr_2d` in the result. On Godot 4.3 the engine has no conversion method, so the frame stays linear and the result carries `color_space: "linear"`.
+
+### Verified
+
+- **Godot 4.8-dev6** (`8898c2b3d`, released 15 September 2026). All 336
+  commands across 51 groups register with no group skipped, the live ClassDB
+  and the dev6 doc cache read, the game IPC answers, a planted parse error
+  reaches a windowed `editor errors`, `scene save` writes the same text as
+  4.7.2 apart from the edited property, and the HTTP MCP conformance sweep
+  passes 37/37. No code change was needed for 4.8; the one finding, the log
+  fallback in `editor errors` above, reproduces on 4.7.2. Against 4.7.2 in the
+  same inspector state, dev6 adds 42 classes and removes 7; since dev5 the
+  only movement is `OpenXRFoveatedInsetViewport` added and
+  `GodotPhysicsDirectSpaceState2D` back again. dev6 is the newest snapshot,
+  and there is no 4.8 beta yet.
+
 ## [1.0.1] - 2026-09-10
 
 A hotfix for `swallowtail migrate`. The addon is unchanged apart from its

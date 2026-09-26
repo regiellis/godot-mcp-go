@@ -1,0 +1,476 @@
+[gd_scene format=3 uid="uid://bua1lgby2vylb"]
+
+[ext_resource type="Script" uid="uid://c4rxjuskm0rk" path="res://trailers/chapter.gd" id="1_vqv5p"]
+[ext_resource type="FontVariation" path="res://trailers/timeline/display_font.tres" id="2_om8sp"]
+[ext_resource type="FontFile" uid="uid://by75qrvimdas8" path="res://assets/source-code-pro/SourceCodePro-Regular.ttf" id="3_5ptba"]
+[ext_resource type="FontFile" uid="uid://dtbm556602jfo" path="res://assets/inter/Inter-Regular.ttf" id="4_7kq4n"]
+[ext_resource type="Texture2D" uid="uid://ckf0igyhw4x76" path="res://trailers/brand/swallowtail-presenting.png" id="5_5bqpu"]
+
+[node name="WhyCLI" type="Control" unique_id=529032688]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+script = ExtResource("1_vqv5p")
+
+[node name="Card" type="Control" parent="." unique_id=1846966763]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/start_seconds = 45.256
+metadata/end_seconds = 61.2
+metadata/start = 41.35667
+metadata/end = 64.9
+
+[node name="Shade" type="Control" parent="Card" unique_id=2006271396]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="Band00" type="ColorRect" parent="Card/Shade" unique_id=1025645181]
+layout_mode = 0
+offset_top = 540.0
+offset_right = 1920.0
+offset_bottom = 554.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0)
+
+[node name="Band01" type="ColorRect" parent="Card/Shade" unique_id=1415948421]
+layout_mode = 0
+offset_top = 554.0
+offset_right = 1920.0
+offset_bottom = 568.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.0028460498)
+
+[node name="Band02" type="ColorRect" parent="Card/Shade" unique_id=1389481036]
+layout_mode = 0
+offset_top = 568.0
+offset_right = 1920.0
+offset_bottom = 582.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.008049845)
+
+[node name="Band03" type="ColorRect" parent="Card/Shade" unique_id=2131574993]
+layout_mode = 0
+offset_top = 582.0
+offset_right = 1920.0
+offset_bottom = 596.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.014788509)
+
+[node name="Band04" type="ColorRect" parent="Card/Shade" unique_id=64049122]
+layout_mode = 0
+offset_top = 596.0
+offset_right = 1920.0
+offset_bottom = 610.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.022768399)
+
+[node name="Band05" type="ColorRect" parent="Card/Shade" unique_id=164779323]
+layout_mode = 0
+offset_top = 610.0
+offset_right = 1920.0
+offset_bottom = 624.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.031819806)
+
+[node name="Band06" type="ColorRect" parent="Card/Shade" unique_id=187377185]
+layout_mode = 0
+offset_top = 624.0
+offset_right = 1920.0
+offset_bottom = 638.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.04182822)
+
+[node name="Band07" type="ColorRect" parent="Card/Shade" unique_id=1768178128]
+layout_mode = 0
+offset_top = 638.0
+offset_right = 1920.0
+offset_bottom = 652.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.052709583)
+
+[node name="Band08" type="ColorRect" parent="Card/Shade" unique_id=233561687]
+layout_mode = 0
+offset_top = 652.0
+offset_right = 1920.0
+offset_bottom = 666.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.06439876)
+
+[node name="Band09" type="ColorRect" parent="Card/Shade" unique_id=129913325]
+layout_mode = 0
+offset_top = 666.0
+offset_right = 1920.0
+offset_bottom = 680.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.07684334)
+
+[node name="Band10" type="ColorRect" parent="Card/Shade" unique_id=1931742535]
+layout_mode = 0
+offset_top = 680.0
+offset_right = 1920.0
+offset_bottom = 694.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.09)
+
+[node name="Band11" type="ColorRect" parent="Card/Shade" unique_id=971189257]
+layout_mode = 0
+offset_top = 694.0
+offset_right = 1920.0
+offset_bottom = 708.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.10383207)
+
+[node name="Band12" type="ColorRect" parent="Card/Shade" unique_id=2074230250]
+layout_mode = 0
+offset_top = 708.0
+offset_right = 1920.0
+offset_bottom = 722.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.118308075)
+
+[node name="Band13" type="ColorRect" parent="Card/Shade" unique_id=1116397898]
+layout_mode = 0
+offset_top = 722.0
+offset_right = 1920.0
+offset_bottom = 736.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.13340053)
+
+[node name="Band14" type="ColorRect" parent="Card/Shade" unique_id=1078517051]
+layout_mode = 0
+offset_top = 736.0
+offset_right = 1920.0
+offset_bottom = 750.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.14908521)
+
+[node name="Band15" type="ColorRect" parent="Card/Shade" unique_id=148819428]
+layout_mode = 0
+offset_top = 750.0
+offset_right = 1920.0
+offset_bottom = 764.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.16534056)
+
+[node name="Band16" type="ColorRect" parent="Card/Shade" unique_id=687481229]
+layout_mode = 0
+offset_top = 764.0
+offset_right = 1920.0
+offset_bottom = 778.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.18214719)
+
+[node name="Band17" type="ColorRect" parent="Card/Shade" unique_id=837331068]
+layout_mode = 0
+offset_top = 778.0
+offset_right = 1920.0
+offset_bottom = 792.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.1994876)
+
+[node name="Band18" type="ColorRect" parent="Card/Shade" unique_id=542724590]
+layout_mode = 0
+offset_top = 792.0
+offset_right = 1920.0
+offset_bottom = 806.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.2173458)
+
+[node name="Band19" type="ColorRect" parent="Card/Shade" unique_id=937360192]
+layout_mode = 0
+offset_top = 806.0
+offset_right = 1920.0
+offset_bottom = 820.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.23570724)
+
+[node name="Band20" type="ColorRect" parent="Card/Shade" unique_id=1759482800]
+layout_mode = 0
+offset_top = 820.0
+offset_right = 1920.0
+offset_bottom = 834.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.25455844)
+
+[node name="Band21" type="ColorRect" parent="Card/Shade" unique_id=1068275027]
+layout_mode = 0
+offset_top = 834.0
+offset_right = 1920.0
+offset_bottom = 848.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.273887)
+
+[node name="Band22" type="ColorRect" parent="Card/Shade" unique_id=274676962]
+layout_mode = 0
+offset_top = 848.0
+offset_right = 1920.0
+offset_bottom = 862.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.29368147)
+
+[node name="Band23" type="ColorRect" parent="Card/Shade" unique_id=851206597]
+layout_mode = 0
+offset_top = 862.0
+offset_right = 1920.0
+offset_bottom = 876.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.31393105)
+
+[node name="Band24" type="ColorRect" parent="Card/Shade" unique_id=979767381]
+layout_mode = 0
+offset_top = 876.0
+offset_right = 1920.0
+offset_bottom = 890.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.33462575)
+
+[node name="Band25" type="ColorRect" parent="Card/Shade" unique_id=272688799]
+layout_mode = 0
+offset_top = 890.0
+offset_right = 1920.0
+offset_bottom = 904.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.35575622)
+
+[node name="Band26" type="ColorRect" parent="Card/Shade" unique_id=376410955]
+layout_mode = 0
+offset_top = 904.0
+offset_right = 1920.0
+offset_bottom = 918.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.37731367)
+
+[node name="Band27" type="ColorRect" parent="Card/Shade" unique_id=135421673]
+layout_mode = 0
+offset_top = 918.0
+offset_right = 1920.0
+offset_bottom = 932.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.39928976)
+
+[node name="Band28" type="ColorRect" parent="Card/Shade" unique_id=2048341588]
+layout_mode = 0
+offset_top = 932.0
+offset_right = 1920.0
+offset_bottom = 946.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.42167667)
+
+[node name="Band29" type="ColorRect" parent="Card/Shade" unique_id=1336289915]
+layout_mode = 0
+offset_top = 946.0
+offset_right = 1920.0
+offset_bottom = 960.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.44446698)
+
+[node name="Band30" type="ColorRect" parent="Card/Shade" unique_id=1675537610]
+layout_mode = 0
+offset_top = 960.0
+offset_right = 1920.0
+offset_bottom = 974.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.46765372)
+
+[node name="Band31" type="ColorRect" parent="Card/Shade" unique_id=1039710497]
+layout_mode = 0
+offset_top = 974.0
+offset_right = 1920.0
+offset_bottom = 988.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.4912302)
+
+[node name="Band32" type="ColorRect" parent="Card/Shade" unique_id=68602344]
+layout_mode = 0
+offset_top = 988.0
+offset_right = 1920.0
+offset_bottom = 1002.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.51519006)
+
+[node name="Band33" type="ColorRect" parent="Card/Shade" unique_id=1964613234]
+layout_mode = 0
+offset_top = 1002.0
+offset_right = 1920.0
+offset_bottom = 1016.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.5395273)
+
+[node name="Band34" type="ColorRect" parent="Card/Shade" unique_id=1697410327]
+layout_mode = 0
+offset_top = 1016.0
+offset_right = 1920.0
+offset_bottom = 1030.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.5642361)
+
+[node name="Band35" type="ColorRect" parent="Card/Shade" unique_id=548834298]
+layout_mode = 0
+offset_top = 1030.0
+offset_right = 1920.0
+offset_bottom = 1044.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.58931106)
+
+[node name="Band36" type="ColorRect" parent="Card/Shade" unique_id=1778687113]
+layout_mode = 0
+offset_top = 1044.0
+offset_right = 1920.0
+offset_bottom = 1058.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.61474675)
+
+[node name="Band37" type="ColorRect" parent="Card/Shade" unique_id=1980029441]
+layout_mode = 0
+offset_top = 1058.0
+offset_right = 1920.0
+offset_bottom = 1072.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.6405383)
+
+[node name="Band38" type="ColorRect" parent="Card/Shade" unique_id=790314897]
+layout_mode = 0
+offset_top = 1072.0
+offset_right = 1920.0
+offset_bottom = 1086.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.66668075)
+
+[node name="Band39" type="ColorRect" parent="Card/Shade" unique_id=2047560158]
+layout_mode = 0
+offset_top = 1086.0
+offset_right = 1920.0
+offset_bottom = 1100.0
+mouse_filter = 2
+color = Color(0.12941177, 0.10980392, 0.14509805, 0.6931695)
+
+[node name="Wordmark" type="Label" parent="Card" unique_id=558249358]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 48.0
+offset_right = 275.0
+offset_bottom = 93.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -6
+theme_override_fonts/font = ExtResource("2_om8sp")
+theme_override_font_sizes/font_size = 32
+text = "Swallowtail"
+
+[node name="BrandRule" type="ColorRect" parent="Card" unique_id=1996472668]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 109.5
+offset_right = 286.0
+offset_bottom = 112.5
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="CardBackground" type="ColorRect" parent="Card" unique_id=650270483]
+layout_mode = 0
+offset_left = 96.0
+offset_top = 610.0
+offset_right = 1824.0
+offset_bottom = 990.0
+mouse_filter = 2
+color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+
+[node name="Title" type="Label" parent="Card" unique_id=1982167622]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 625.0
+offset_right = 732.0
+offset_bottom = 697.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -9
+theme_override_fonts/font = ExtResource("2_om8sp")
+theme_override_font_sizes/font_size = 52
+text = "Do it once. Run it again."
+
+[node name="Subtitle" type="Label" parent="Card" unique_id=1654228639]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 698.0
+offset_right = 690.0
+offset_bottom = 762.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -8
+theme_override_fonts/font = ExtResource("2_om8sp")
+theme_override_font_sizes/font_size = 46
+text = "Fifty rocks is a different job."
+
+[node name="EngineHeading" type="Label" parent="Card" unique_id=933379498]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 795.0
+offset_right = 430.0
+offset_bottom = 827.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_5ptba")
+theme_override_font_sizes/font_size = 25
+text = "THE EDITOR / ONE ROCK"
+
+[node name="EngineTasks" type="Label" parent="Card" unique_id=214801980]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 843.0
+offset_right = 516.0
+offset_bottom = 881.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_7kq4n")
+theme_override_font_sizes/font_size = 30
+text = "Drag it into place by eye."
+
+[node name="SessionHeading" type="Label" parent="Card" unique_id=1176870167]
+layout_mode = 0
+offset_left = 930.0
+offset_top = 795.0
+offset_right = 1322.0
+offset_bottom = 827.0
+theme_override_colors/font_color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_5ptba")
+theme_override_font_sizes/font_size = 25
+text = "SWALLOWTAIL / FIFTY ROCKS"
+
+[node name="SessionTasks" type="Label" parent="Card" unique_id=1784632142]
+layout_mode = 0
+offset_left = 930.0
+offset_top = 843.0
+offset_right = 1357.0
+offset_bottom = 881.0
+theme_override_colors/font_color = Color(0.12941177, 0.10980392, 0.14509805, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_7kq4n")
+theme_override_font_sizes/font_size = 30
+text = "Save it. Run it. Read it back."
+
+[node name="Footer" type="Label" parent="Card" unique_id=2067834831]
+layout_mode = 0
+offset_left = 128.0
+offset_top = 925.0
+offset_right = 763.0
+offset_bottom = 960.0
+theme_override_colors/font_color = Color(0.4745098, 0.41960785, 0.4509804, 1)
+theme_override_constants/line_spacing = -1
+theme_override_fonts/font = ExtResource("4_7kq4n")
+theme_override_font_sizes/font_size = 28
+text = "The editor stays open. Your project stays yours."
+
+[node name="Mascot" type="TextureRect" parent="Card" unique_id=1945304801]
+layout_mode = 0
+offset_left = 1640.0
+offset_top = 371.0
+offset_right = 1805.0
+offset_bottom = 635.0
+mouse_filter = 2
+texture = ExtResource("5_5bqpu")
+expand_mode = 1
+stretch_mode = 5

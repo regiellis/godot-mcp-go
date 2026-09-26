@@ -62,12 +62,26 @@ func _collect_shapes(item_root: Node) -> Array:
 		var n: Node = queue.pop_front()
 		if n is CollisionShape3D and (n as CollisionShape3D).shape != null:
 			var cs := n as CollisionShape3D
-			var xform: Transform3D = item_root.global_transform.affine_inverse() * cs.global_transform if item_root is Node3D else cs.transform
 			shapes.append(cs.shape)
-			shapes.append(xform)
+			shapes.append(_relative_transform(cs, item_root))
 		for c in n.get_children():
 			queue.append(c)
 	return shapes
+
+
+## The transform of `node` relative to `ancestor`, from local transforms alone.
+## global_transform reads identity on a node that is not in the tree, and the
+## kit scene here is instantiated and never added, so every collider and mesh
+## offset used to land on the item origin (found 2026-09-17 in a sample
+## build: a wall's box blocked only its lower half).
+static func _relative_transform(node: Node3D, ancestor: Node) -> Transform3D:
+	var xform := Transform3D.IDENTITY
+	var n: Node = node
+	while n != null and n != ancestor:
+		if n is Node3D:
+			xform = (n as Node3D).transform * xform
+		n = n.get_parent()
+	return xform
 
 
 func _first_mesh_instance(item_root: Node) -> MeshInstance3D:
@@ -126,7 +140,7 @@ func _meshlibrary_from_scene(params: Dictionary) -> Dictionary:
 		lib.set_item_name(id, String(child.name))
 		lib.set_item_mesh(id, mi.mesh)
 		if child is Node3D and mi is Node3D:
-			lib.set_item_mesh_transform(id, (child as Node3D).transform.affine_inverse() * mi.global_transform if child != mi else mi.transform)
+			lib.set_item_mesh_transform(id, _relative_transform(mi, child))
 		if with_collision:
 			var shapes := _collect_shapes(child)
 			if not shapes.is_empty():

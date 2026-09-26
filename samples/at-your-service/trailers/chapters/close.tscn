@@ -1,0 +1,148 @@
+[gd_scene format=3 uid="uid://bjb1p6tidvhri"]
+
+[ext_resource type="Script" uid="uid://c4rxjuskm0rk" path="res://trailers/chapter.gd" id="1_d6x3w"]
+[ext_resource type="Texture2D" uid="uid://30c0tetrchv6" path="res://trailers/brand/swallowtail-butler.png" id="2_gc8lo"]
+[ext_resource type="FontVariation" path="res://trailers/timeline/display_font.tres" id="3_n81tp"]
+[ext_resource type="FontFile" uid="uid://dtbm556602jfo" path="res://assets/inter/Inter-Regular.ttf" id="4_3n6xn"]
+[ext_resource type="Texture2D" uid="uid://ckf0igyhw4x76" path="res://trailers/brand/swallowtail-presenting.png" id="5_limwv"]
+[ext_resource type="FontFile" uid="uid://by75qrvimdas8" path="res://assets/source-code-pro/SourceCodePro-Regular.ttf" id="6_bta6r"]
+
+[node name="Close" type="Control" unique_id=819352872]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+script = ExtResource("1_d6x3w")
+
+[node name="Card" type="Control" parent="." unique_id=179881359]
+anchors_preset = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+metadata/start_seconds = 419.53333
+metadata/end_seconds = 432.33333
+metadata/start = 455.7
+metadata/end = 469.43333
+
+[node name="Background" type="ColorRect" parent="Card" unique_id=1281131649]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+color = Color(0.5058824, 0.28235295, 0.37254903, 1)
+
+[node name="Crest" type="TextureRect" parent="Card" unique_id=631309608]
+layout_mode = 0
+offset_left = 114.0
+offset_top = 86.0
+offset_right = 196.0
+offset_bottom = 168.0
+mouse_filter = 2
+texture = ExtResource("2_gc8lo")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Wordmark" type="Label" parent="Card" unique_id=1209982702]
+layout_mode = 0
+offset_left = 216.0
+offset_top = 94.0
+offset_right = 473.0
+offset_bottom = 158.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -8
+theme_override_fonts/font = ExtResource("3_n81tp")
+theme_override_font_sizes/font_size = 46
+text = "Swallowtail"
+
+[node name="Title" type="Label" parent="Card" unique_id=1406133968]
+layout_mode = 0
+offset_left = 112.0
+offset_top = 281.0
+offset_right = 915.0
+offset_bottom = 408.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -15
+theme_override_fonts/font = ExtResource("3_n81tp")
+theme_override_font_sizes/font_size = 92
+text = "There's a game"
+
+[node name="TitleSecond" type="Label" parent="Card" unique_id=1406133969]
+layout_mode = 0
+offset_left = 112.0
+offset_top = 411.0
+offset_right = 915.0
+offset_bottom = 548.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -15
+theme_override_fonts/font = ExtResource("3_n81tp")
+theme_override_font_sizes/font_size = 92
+text = "you want to make."
+
+[node name="Invitation" type="Label" parent="Card" unique_id=1443808154]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 607.0
+offset_right = 1220.0
+offset_bottom = 655.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = 0
+theme_override_fonts/font = ExtResource("4_3n6xn")
+theme_override_font_sizes/font_size = 39
+text = "Start with a scene. See where it takes you."
+
+[node name="Mascot" type="TextureRect" parent="Card" unique_id=199880337]
+layout_mode = 0
+offset_left = 1325.0
+offset_top = 278.0
+offset_right = 1715.0
+offset_bottom = 898.0
+mouse_filter = 2
+texture = ExtResource("5_limwv")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Divider" type="ColorRect" parent="Card" unique_id=762059575]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 809.0
+offset_right = 1220.0
+offset_bottom = 811.0
+mouse_filter = 2
+color = Color(0.8666667, 0.6509804, 0.73333335, 1)
+
+[node name="Tagline" type="Label" parent="Card" unique_id=1760380657]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 840.0
+offset_right = 474.0
+offset_bottom = 906.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -9
+theme_override_fonts/font = ExtResource("3_n81tp")
+theme_override_font_sizes/font_size = 47
+text = "At your service."
+
+[node name="URL" type="Label" parent="Card" unique_id=1840540644]
+layout_mode = 0
+offset_left = 120.0
+offset_top = 932.0
+offset_right = 737.0
+offset_bottom = 973.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("6_bta6r")
+theme_override_font_sizes/font_size = 32
+text = "regiellis.github.io/godot-mcp-go"
+
+[node name="Footer" type="Label" parent="Card" unique_id=330750548]
+layout_mode = 0
+offset_left = 1460.0
+offset_top = 980.0
+offset_right = 1747.0
+offset_bottom = 1012.0
+theme_override_colors/font_color = Color(0.98039216, 0.9647059, 0.9372549, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("6_bta6r")
+theme_override_font_sizes/font_size = 25
+text = "OPEN SOURCE / GODOT"

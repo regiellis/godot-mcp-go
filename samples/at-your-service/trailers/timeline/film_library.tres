@@ -1,0 +1,895 @@
+[gd_resource type="AnimationLibrary" format=3 uid="uid://dnkqpy3b5rce0"]
+
+[ext_resource type="AudioStream" path="res://trailers/audio/take4/voiceover.ogg" id="1_ki01m"]
+[ext_resource type="AudioStream" path="res://trailers/audio/take4/music-bed.ogg" id="2_5rora"]
+
+[sub_resource type="Animation" id="Animation_d78jh"]
+resource_name = "Film"
+length = 469.43333333333334
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Chapters/Intro/Card:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 8),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Chapters/WhyCLI/Card:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 41.35667, 64.9),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Chapters/Setup/S01_ConnectTheEditor:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 64.9, 78.98),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Chapters/Setup/S02_CheckTheConnection:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 78.98, 84.61),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Chapters/Setup/S03_AskForHelp:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 84.61, 97.91),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("Chapters/Setup/S04_SeeWhat\'sThere:visible")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0, 97.91, 111.63333),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Chapters/Building/S05_StartWithAScene:visible")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0, 111.63333, 122.04333),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Chapters/Building/S06_GiveItAHome:visible")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0, 122.04333, 128.06333),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Chapters/Building/S07_MakeItStandOut:visible")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0, 128.06333, 143.16667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Chapters/Building/S08_BuildOutTheShore:visible")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0, 143.16667, 151.08667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Chapters/Building/S09_PlaceTheNewRock:visible")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0, 151.08667, 152.84667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/11/type = "value"
+tracks/11/imported = false
+tracks/11/enabled = true
+tracks/11/path = NodePath("Chapters/Building/S10_GiveItSomeWeight:visible")
+tracks/11/interp = 1
+tracks/11/loop_wrap = true
+tracks/11/keys = {
+"times": PackedFloat32Array(0, 152.84667, 156.93667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/12/type = "value"
+tracks/12/imported = false
+tracks/12/enabled = true
+tracks/12/path = NodePath("Chapters/Building/S11_BringTheWaterUp:visible")
+tracks/12/interp = 1
+tracks/12/loop_wrap = true
+tracks/12/keys = {
+"times": PackedFloat32Array(0, 156.93667, 165.15667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/13/type = "value"
+tracks/13/imported = false
+tracks/13/enabled = true
+tracks/13/path = NodePath("Chapters/Building/S12_KeepTheSceneEdit:visible")
+tracks/13/interp = 1
+tracks/13/loop_wrap = true
+tracks/13/keys = {
+"times": PackedFloat32Array(0, 165.15667, 173.16667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/14/type = "value"
+tracks/14/imported = false
+tracks/14/enabled = true
+tracks/14/path = NodePath("Chapters/Automation/S13_KeepWhatWorks:visible")
+tracks/14/interp = 1
+tracks/14/loop_wrap = true
+tracks/14/keys = {
+"times": PackedFloat32Array(0, 208.16667, 226.73667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/15/type = "value"
+tracks/15/imported = false
+tracks/15/enabled = true
+tracks/15/path = NodePath("Chapters/Automation/S14_RunTheSequence:visible")
+tracks/15/interp = 1
+tracks/15/loop_wrap = true
+tracks/15/keys = {
+"times": PackedFloat32Array(0, 226.73667, 234.90667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/16/type = "value"
+tracks/16/imported = false
+tracks/16/enabled = true
+tracks/16/path = NodePath("Chapters/Automation/S15_RunItAgain:visible")
+tracks/16/interp = 1
+tracks/16/loop_wrap = true
+tracks/16/keys = {
+"times": PackedFloat32Array(0, 234.90667, 250.10667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/17/type = "value"
+tracks/17/imported = false
+tracks/17/enabled = true
+tracks/17/path = NodePath("Chapters/Automation/S16_CheckBeforePlaying:visible")
+tracks/17/interp = 1
+tracks/17/loop_wrap = true
+tracks/17/keys = {
+"times": PackedFloat32Array(0, 250.10667, 261.9),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/18/type = "value"
+tracks/18/imported = false
+tracks/18/enabled = true
+tracks/18/path = NodePath("Chapters/Playtest/S17_RunIt:visible")
+tracks/18/interp = 1
+tracks/18/loop_wrap = true
+tracks/18/keys = {
+"times": PackedFloat32Array(0, 261.9, 273.42),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/19/type = "value"
+tracks/19/imported = false
+tracks/19/enabled = true
+tracks/19/path = NodePath("Chapters/Playtest/S18_InspectTheGame:visible")
+tracks/19/interp = 1
+tracks/19/loop_wrap = true
+tracks/19/keys = {
+"times": PackedFloat32Array(0, 273.42, 275.25),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/20/type = "value"
+tracks/20/imported = false
+tracks/20/enabled = true
+tracks/20/path = NodePath("Chapters/Playtest/S19_MoveThroughIt:visible")
+tracks/20/interp = 1
+tracks/20/loop_wrap = true
+tracks/20/keys = {
+"times": PackedFloat32Array(0, 275.25, 284.74),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/21/type = "value"
+tracks/21/imported = false
+tracks/21/enabled = true
+tracks/21/path = NodePath("Chapters/Playtest/S20_ReadTheValue:visible")
+tracks/21/interp = 1
+tracks/21/loop_wrap = true
+tracks/21/keys = {
+"times": PackedFloat32Array(0, 284.74, 292),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/22/type = "value"
+tracks/22/imported = false
+tracks/22/enabled = true
+tracks/22/path = NodePath("Chapters/Playtest/S21_ChangeItLive:visible")
+tracks/22/interp = 1
+tracks/22/loop_wrap = true
+tracks/22/keys = {
+"times": PackedFloat32Array(0, 292, 303.55),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/23/type = "value"
+tracks/23/imported = false
+tracks/23/enabled = true
+tracks/23/path = NodePath("Chapters/Playtest/S22_ReadItBack:visible")
+tracks/23/interp = 1
+tracks/23/loop_wrap = true
+tracks/23/keys = {
+"times": PackedFloat32Array(0, 303.55, 307.11),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/24/type = "value"
+tracks/24/imported = false
+tracks/24/enabled = true
+tracks/24/path = NodePath("Chapters/Playtest/S23_CheckWhatHappened:visible")
+tracks/24/interp = 1
+tracks/24/loop_wrap = true
+tracks/24/keys = {
+"times": PackedFloat32Array(0, 307.11, 310.59),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/25/type = "value"
+tracks/25/imported = false
+tracks/25/enabled = true
+tracks/25/path = NodePath("Chapters/Playtest/S24_KeepAFrame:visible")
+tracks/25/interp = 1
+tracks/25/loop_wrap = true
+tracks/25/keys = {
+"times": PackedFloat32Array(0, 310.59, 314.83),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/26/type = "value"
+tracks/26/imported = false
+tracks/26/enabled = true
+tracks/26/path = NodePath("Chapters/Playtest/S25_FinishTheExperiment:visible")
+tracks/26/interp = 1
+tracks/26/loop_wrap = true
+tracks/26/keys = {
+"times": PackedFloat32Array(0, 314.83, 331.1),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/27/type = "value"
+tracks/27/imported = false
+tracks/27/enabled = true
+tracks/27/path = NodePath("Chapters/Agent/S26_HandOffATask:visible")
+tracks/27/interp = 1
+tracks/27/loop_wrap = true
+tracks/27/keys = {
+"times": PackedFloat32Array(0, 331.1, 345.44),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/28/type = "value"
+tracks/28/imported = false
+tracks/28/enabled = true
+tracks/28/path = NodePath("Chapters/Agent/S27_DiscoverTheCommand:visible")
+tracks/28/interp = 1
+tracks/28/loop_wrap = true
+tracks/28/keys = {
+"times": PackedFloat32Array(0, 345.44, 347.22),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/29/type = "value"
+tracks/29/imported = false
+tracks/29/enabled = true
+tracks/29/path = NodePath("Chapters/Agent/S28_KeepTheCalmWater:visible")
+tracks/29/interp = 1
+tracks/29/loop_wrap = true
+tracks/29/keys = {
+"times": PackedFloat32Array(0, 347.22, 353.03),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/30/type = "value"
+tracks/30/imported = false
+tracks/30/enabled = true
+tracks/30/path = NodePath("Chapters/Agent/S29_LowerTheSun:visible")
+tracks/30/interp = 1
+tracks/30/loop_wrap = true
+tracks/30/keys = {
+"times": PackedFloat32Array(0, 353.03, 356.53),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/31/type = "value"
+tracks/31/imported = false
+tracks/31/enabled = true
+tracks/31/path = NodePath("Chapters/Agent/S30_WarmTheLight:visible")
+tracks/31/interp = 1
+tracks/31/loop_wrap = true
+tracks/31/keys = {
+"times": PackedFloat32Array(0, 356.53, 359.53),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/32/type = "value"
+tracks/32/imported = false
+tracks/32/enabled = true
+tracks/32/path = NodePath("Chapters/Agent/S31_SaveForReview:visible")
+tracks/32/interp = 1
+tracks/32/loop_wrap = true
+tracks/32/keys = {
+"times": PackedFloat32Array(0, 359.53, 363.03),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/33/type = "value"
+tracks/33/imported = false
+tracks/33/enabled = true
+tracks/33/path = NodePath("Chapters/Agent/S32_InspectTheResult:visible")
+tracks/33/interp = 1
+tracks/33/loop_wrap = true
+tracks/33/keys = {
+"times": PackedFloat32Array(0, 363.03, 380.73333),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/34/type = "value"
+tracks/34/imported = false
+tracks/34/enabled = true
+tracks/34/path = NodePath("Chapters/MCP/S33_McpWhenYouWantIt:visible")
+tracks/34/interp = 1
+tracks/34/loop_wrap = true
+tracks/34/keys = {
+"times": PackedFloat32Array(0, 403.30333, 405.57333),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/35/type = "value"
+tracks/35/imported = false
+tracks/35/enabled = true
+tracks/35/path = NodePath("Chapters/MCP/S34_MakeOneMoreChange:visible")
+tracks/35/interp = 1
+tracks/35/loop_wrap = true
+tracks/35/keys = {
+"times": PackedFloat32Array(0, 405.57333, 406.90333),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/36/type = "value"
+tracks/36/imported = false
+tracks/36/enabled = true
+tracks/36/path = NodePath("Chapters/MCP/S35_WatchTheChange:visible")
+tracks/36/interp = 1
+tracks/36/loop_wrap = true
+tracks/36/keys = {
+"times": PackedFloat32Array(0, 406.90333, 409.90333),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/37/type = "value"
+tracks/37/imported = false
+tracks/37/enabled = true
+tracks/37/path = NodePath("Chapters/MCP/S36_ReadItBack:visible")
+tracks/37/interp = 1
+tracks/37/loop_wrap = true
+tracks/37/keys = {
+"times": PackedFloat32Array(0, 409.90333, 420.83333),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/38/type = "value"
+tracks/38/imported = false
+tracks/38/enabled = true
+tracks/38/path = NodePath("Chapters/Close/Card:visible")
+tracks/38/interp = 1
+tracks/38/loop_wrap = true
+tracks/38/keys = {
+"times": PackedFloat32Array(0, 455.7, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, true]
+}
+tracks/39/type = "value"
+tracks/39/imported = false
+tracks/39/enabled = true
+tracks/39/path = NodePath("WorldViewport:position")
+tracks/39/interp = 1
+tracks/39/loop_wrap = true
+tracks/39/keys = {
+"times": PackedFloat32Array(0, 29.46667, 41.35667, 64.9, 455.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [Vector2(0, 0), Vector2(1000, 0), Vector2(0, 0), Vector2(1000, 0), Vector2(0, 0)]
+}
+tracks/40/type = "value"
+tracks/40/imported = false
+tracks/40/enabled = true
+tracks/40/path = NodePath("WorldViewport:size")
+tracks/40/interp = 1
+tracks/40/loop_wrap = true
+tracks/40/keys = {
+"times": PackedFloat32Array(0, 29.46667, 41.35667, 64.9, 455.7),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [Vector2(1920, 1080), Vector2(920, 1080), Vector2(1920, 1080), Vector2(920, 1080), Vector2(1920, 1080)]
+}
+tracks/41/type = "value"
+tracks/41/imported = false
+tracks/41/enabled = true
+tracks/41/path = NodePath("WorldViewport/Viewport/Coast/Camera:position")
+tracks/41/interp = 1
+tracks/41/loop_wrap = true
+tracks/41/keys = {
+"times": PackedFloat32Array(0, 29.46667, 64.88637, 64.9, 173.15667, 208.16667, 261.89, 261.9, 275.25, 275.3288, 275.4076, 275.4864, 275.5652, 275.644, 275.7228, 275.8016, 275.8804, 275.9592, 276.038, 276.1168, 276.1956, 276.2744, 276.3532, 276.432, 276.5108, 276.5896, 276.6684, 276.7472, 276.826, 276.9048, 276.9836, 277.0624, 277.1412, 277.2988, 277.3776, 277.4564, 277.5352, 277.614, 277.6928, 277.7716, 277.8504, 277.9292, 278.008, 278.0868, 278.1656, 278.2444, 278.3232, 278.402, 278.4808, 278.5596, 278.6384, 278.7172, 278.796, 278.8748, 278.9536, 279.0324, 279.1112, 279.19, 331.09, 331.1, 420.82333, 455.7, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(32, 16, 36), Vector3(32, 16, 36), Vector3(20.004616, 12.001538, 27.003462), Vector3(26, 18, 32), Vector3(19.000834, 14.000476, 27.000595), Vector3(21, 13, 28), Vector3(18.000732, 11.000488, 25.000732), Vector3(18, 7, 23), Vector3(18, 7, 23), Vector3(17.992895, 6.998816, 22.991713), Vector3(17.971968, 6.995328, 22.967297), Vector3(17.937792, 6.989632, 22.927423), Vector3(17.890944, 6.981824, 22.872768), Vector3(17.832, 6.972, 22.804), Vector3(17.761536, 6.960256, 22.721792), Vector3(17.680128, 6.946688, 22.626816), Vector3(17.588352, 6.931392, 22.519745), Vector3(17.486784, 6.914464, 22.401249), Vector3(17.376, 6.896, 22.272), Vector3(17.256577, 6.876096, 22.132671), Vector3(17.129087, 6.854848, 21.983936), Vector3(16.994112, 6.832352, 21.826464), Vector3(16.852224, 6.808704, 21.660929), Vector3(16.704, 6.784, 21.487999), Vector3(16.550016, 6.758336, 21.308352), Vector3(16.390848, 6.731808, 21.122656), Vector3(16.227072, 6.704512, 20.931583), Vector3(16.059263, 6.676544, 20.735807), Vector3(15.8880005, 6.648, 20.536), Vector3(15.713856, 6.618976, 20.332832), Vector3(15.537408, 6.589568, 20.126976), Vector3(15.359232, 6.559872, 19.919104), Vector3(15.179904, 6.529984, 19.709888), Vector3(14.820096, 6.470016, 19.290112), Vector3(14.640768, 6.440128, 19.080896), Vector3(14.462592, 6.410432, 18.873024), Vector3(14.286144, 6.381024, 18.667168), Vector3(14.1119995, 6.352, 18.464), Vector3(13.940736, 6.323456, 18.264193), Vector3(13.772928, 6.295488, 18.068417), Vector3(13.609152, 6.268192, 17.877344), Vector3(13.449984, 6.241664, 17.691648), Vector3(13.296, 6.216, 17.512001), Vector3(13.147776, 6.191296, 17.339071), Vector3(13.005888, 6.167648, 17.173536), Vector3(12.870912, 6.145152, 17.016064), Vector3(12.743423, 6.123904, 16.867329), Vector3(12.624, 6.104, 16.728), Vector3(12.513216, 6.085536, 16.598751), Vector3(12.411648, 6.068608, 16.480255), Vector3(12.319872, 6.053312, 16.373184), Vector3(12.238464, 6.039744, 16.278208), Vector3(12.168, 6.028, 16.196), Vector3(12.109056, 6.018176, 16.127232), Vector3(12.062208, 6.010368, 16.072577), Vector3(12.028032, 6.004672, 16.032703), Vector3(12.007104, 6.001184, 16.008287), Vector3(12, 6, 16), Vector3(12, 6, 16), Vector3(23, 13, 27), Vector3(19.000607, 10.000454, 24.000454), Vector3(20, 12, 27), Vector3(20, 12, 27)]
+}
+tracks/42/type = "value"
+tracks/42/imported = false
+tracks/42/enabled = true
+tracks/42/path = NodePath("WorldViewport/Viewport/Coast/Camera:rotation")
+tracks/42/interp = 1
+tracks/42/loop_wrap = true
+tracks/42/keys = {
+"times": PackedFloat32Array(0, 29.46667, 39.41526, 48.54615, 56.99564, 61.0841, 64.88637, 64.9, 96.96, 125.6919, 150.48667, 173.15667, 208.16667, 233.61308, 261.89, 261.9, 275.25, 275.4864, 275.7228, 275.9592, 276.1956, 276.432, 276.7472, 277.0624, 278.008, 278.402, 278.6384, 278.796, 279.0324, 279.19, 331.09, 331.1, 350.27025, 360.69667, 406.061, 420.82333, 455.7, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(-0.26061368, 0.7044941, 0), Vector3(-0.26061368, 0.7044941, 0), Vector3(-0.26003304, 0.6852654, 0), Vector3(-0.2593033, 0.664518, 0), Vector3(-0.2583889, 0.64197063, 0), Vector3(-0.25783613, 0.6296542, 0), Vector3(-0.25724083, 0.6172377, 0), Vector3(-0.3315922, 0.5561662, 0), Vector3(-0.3241916, 0.5348041, 0), Vector3(-0.3161905, 0.51225793, 0), Vector3(-0.30760652, 0.48865238, 0), Vector3(-0.29829115, 0.46366096, 0), Vector3(-0.26000693, 0.49934673, 0), Vector3(-0.24751142, 0.48199165, 0), Vector3(-0.23414652, 0.46365738, 0), Vector3(-0.061819576, 0.3805064, 0), Vector3(-0.061819576, 0.3805064, 0), Vector3(-0.06167217, 0.37955034, 0), Vector3(-0.061249647, 0.3768121, 0), Vector3(-0.06057635, 0.37245515, 0), Vector3(-0.05967202, 0.3666153, 0), Vector3(-0.058554377, 0.3594168, 0), Vector3(-0.05676398, 0.34792733, 0), Vector3(-0.054678362, 0.33460647, 0), Vector3(-0.047511052, 0.28929952, 0), Vector3(-0.04478388, 0.27223316, 0), Vector3(-0.04347535, 0.2640752, 0), Vector3(-0.042803504, 0.2598939, 0), Vector3(-0.0421731, 0.25597495, 0), Vector3(-0.042045522, 0.2551824, 0), Vector3(-0.042045522, 0.2551824, 0), Vector3(-0.20976669, 0.43984255, 0), Vector3(-0.19560264, 0.42308912, 0), Vector3(-0.18074311, 0.40568036, 0), Vector3(-0.1653676, 0.38783133, 0), Vector3(-0.14930555, 0.36934572, 0), Vector3(-0.25723854, 0.61719143, 0), Vector3(-0.25723854, 0.61719143, 0)]
+}
+tracks/43/type = "value"
+tracks/43/imported = false
+tracks/43/enabled = true
+tracks/43/path = NodePath("WorldViewport/Viewport/Coast/Camera:fov")
+tracks/43/interp = 1
+tracks/43/loop_wrap = true
+tracks/43/keys = {
+"times": PackedFloat32Array(0, 64.88637, 64.9, 173.15667, 208.16667, 261.89, 261.9, 331.09, 331.1, 420.82333, 455.7, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [50.0, 50.0, 46.0, 46.0, 55.0, 55.0, 58.0, 58.0, 49.0, 49.0, 50.0, 50.0]
+}
+tracks/44/type = "value"
+tracks/44/imported = false
+tracks/44/enabled = true
+tracks/44/path = NodePath("WorldViewport/Viewport/Coast/Sun:light_color")
+tracks/44/interp = 1
+tracks/44/loop_wrap = true
+tracks/44/keys = {
+"times": PackedFloat32Array(0, 353.03, 353.13, 353.28, 353.38, 353.53, 353.63, 353.78, 354.03, 354.28, 354.58, 354.93, 355.58, 355.83, 356.13, 356.38, 356.53, 356.83, 357.13, 357.33, 357.63, 357.83, 358.13, 358.33, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(1, 0.9411765, 0.84705883, 1), Color(1, 0.9411765, 0.84705883, 1), Color(1, 0.94090176, 0.8465666, 1), Color(1, 0.9394981, 0.8440518, 1), Color(1, 0.9379375, 0.84125566, 1), Color(1, 0.93472123, 0.83549315, 1), Color(1, 0.9320296, 0.8306707, 1), Color(1, 0.9272331, 0.822077, 1), Color(1, 0.9174211, 0.8044972, 1), Color(1, 0.90567255, 0.7834476, 1), Color(1, 0.8895633, 0.7545853, 1), Color(1, 0.8688425, 0.71746045, 1), Color(1, 0.82834685, 0.64490575, 1), Color(1, 0.81323636, 0.61783284, 1), Color(1, 0.7962627, 0.5874216, 1), Color(1, 0.7835381, 0.56462336, 1), Color(1, 0.77669656, 0.5523656, 1), Color(1, 0.77055216, 0.5413569, 1), Color(1, 0.76518863, 0.5317473, 1), Color(1, 0.76208806, 0.52619207, 1), Color(1, 0.7582118, 0.51924706, 1), Color(1, 0.75618017, 0.5156071, 1), Color(1, 0.7540236, 0.5117433, 1), Color(1, 0.7532159, 0.5102962, 1), Color(1, 0.7529412, 0.50980395, 1)]
+}
+tracks/45/type = "value"
+tracks/45/imported = false
+tracks/45/enabled = true
+tracks/45/path = NodePath("WorldViewport/Viewport/Coast/Sun:rotation_degrees")
+tracks/45/interp = 1
+tracks/45/loop_wrap = true
+tracks/45/keys = {
+"times": PackedFloat32Array(0, 353.03, 353.08, 353.13, 353.18, 353.23, 353.28, 353.33, 353.38, 353.43, 353.48, 353.53, 353.58, 353.63, 353.68, 353.73, 353.78, 353.83, 353.88, 353.93, 353.98, 354.03, 354.08, 354.13, 354.18, 354.23, 354.28, 354.33, 354.38, 354.43, 354.48, 354.53, 354.58, 354.63, 354.68, 354.73, 354.78, 354.83, 354.88, 354.93, 354.98, 355.03, 355.08, 355.13, 355.18, 355.33, 355.43, 355.48, 355.53, 355.58, 355.63, 355.68, 355.73, 355.78, 355.83, 355.88, 355.93, 355.98, 356.03, 356.08, 356.13, 356.18, 356.23, 356.28, 356.33, 356.38, 356.43, 356.48, 356.53, 356.63, 356.73, 356.83, 356.93, 357.03, 357.13, 357.23, 357.33, 357.43, 357.53, 357.63, 357.73, 357.83, 357.93, 358.03, 358.13, 358.23, 358.33, 358.43, 358.53, 406.90333, 406.95333, 407.00333, 407.05333, 407.10333, 407.15333, 407.20333, 407.25333, 407.30333, 407.35333, 407.40333, 407.45333, 407.50333, 407.55333, 407.60333, 407.70333, 407.75333, 407.80333, 407.85333, 407.90333, 407.95333, 408.00333, 408.05333, 408.10333, 408.15333, 408.20333, 408.25333, 408.30333, 408.35333, 408.40333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(-48, -39.999996, 0), Vector3(-48, -39.999996, 0), Vector3(-47.988968, -39.999996, 0), Vector3(-47.95621, -39.999996, 0), Vector3(-47.902218, -39.999996, 0), Vector3(-47.827484, -39.999996, 0), Vector3(-47.73251, -39.999996, 0), Vector3(-47.617775, -39.999996, 0), Vector3(-47.483784, -39.999996, 0), Vector3(-47.331028, -39.999996, 0), Vector3(-47.16, -39.999996, 0), Vector3(-46.97119, -39.999996, 0), Vector3(-46.765102, -39.999996, 0), Vector3(-46.542217, -39.999996, 0), Vector3(-46.303043, -39.999996, 0), Vector3(-46.048065, -39.999996, 0), Vector3(-45.777775, -39.999996, 0), Vector3(-45.492676, -39.999996, 0), Vector3(-45.19325, -39.999996, 0), Vector3(-44.88, -39.999996, 0), Vector3(-44.553413, -39.999996, 0), Vector3(-44.21399, -39.999996, 0), Vector3(-43.86222, -39.999996, 0), Vector3(-43.498596, -39.999996, 0), Vector3(-43.12362, -39.999996, 0), Vector3(-42.737774, -39.999996, 0), Vector3(-42.341564, -39.999996, 0), Vector3(-41.93547, -39.999996, 0), Vector3(-41.519997, -39.999996, 0), Vector3(-41.095634, -39.999996, 0), Vector3(-40.662876, -39.999996, 0), Vector3(-40.22222, -39.999996, 0), Vector3(-39.774155, -39.999996, 0), Vector3(-39.31917, -39.999996, 0), Vector3(-38.857773, -39.999996, 0), Vector3(-38.390453, -39.999996, 0), Vector3(-37.91769, -39.999996, 0), Vector3(-37.44, -39.999996, 0), Vector3(-36.95786, -39.999996, 0), Vector3(-36.47177, -39.999996, 0), Vector3(-35.98222, -39.999996, 0), Vector3(-35.489708, -39.999996, 0), Vector3(-34.994728, -39.999996, 0), Vector3(-34.497776, -39.999996, 0), Vector3(-33.999336, -39.999996, 0), Vector3(-32.50008, -39.999996, 0), Vector3(-31.50222, -39.999996, 0), Vector3(-31.005266, -39.999996, 0), Vector3(-30.510286, -39.999996, 0), Vector3(-30.017778, -39.999996, 0), Vector3(-29.528227, -39.999996, 0), Vector3(-29.042137, -39.999996, 0), Vector3(-28.559998, -39.999996, 0), Vector3(-28.082302, -39.999996, 0), Vector3(-27.609545, -39.999996, 0), Vector3(-27.14222, -39.999996, 0), Vector3(-26.68082, -39.999996, 0), Vector3(-26.225842, -39.999996, 0), Vector3(-25.777777, -39.999996, 0), Vector3(-25.337118, -39.999996, 0), Vector3(-24.90436, -39.999996, 0), Vector3(-24.479998, -39.999996, 0), Vector3(-24.064526, -39.999996, 0), Vector3(-23.658434, -39.999996, 0), Vector3(-23.26222, -39.999996, 0), Vector3(-22.876377, -39.999996, 0), Vector3(-22.501398, -39.999996, 0), Vector3(-22.137775, -39.999996, 0), Vector3(-21.786007, -39.999996, 0), Vector3(-21.446583, -39.999996, 0), Vector3(-21.119999, -39.999996, 0), Vector3(-20.806747, -39.999996, 0), Vector3(-20.507322, -39.999996, 0), Vector3(-20.22222, -39.999996, 0), Vector3(-19.951935, -39.999996, 0), Vector3(-19.696953, -39.999996, 0), Vector3(-19.457775, -39.999996, 0), Vector3(-19.234896, -39.999996, 0), Vector3(-19.028805, -39.999996, 0), Vector3(-18.839998, -39.999996, 0), Vector3(-18.66897, -39.999996, 0), Vector3(-18.516212, -39.999996, 0), Vector3(-18.382221, -39.999996, 0), Vector3(-18.267488, -39.999996, 0), Vector3(-18.17251, -39.999996, 0), Vector3(-18.097776, -39.999996, 0), Vector3(-18.043785, -39.999996, 0), Vector3(-18.011026, -39.999996, 0), Vector3(-18, -39.999996, 0), Vector3(-18, -39.999992, 0), Vector3(-17.967405, -39.999992, 0), Vector3(-17.872593, -39.999992, 0), Vector3(-17.719997, -39.999992, 0), Vector3(-17.514072, -39.999992, 0), Vector3(-17.259258, -39.999992, 0), Vector3(-16.959997, -39.999992, 0), Vector3(-16.62074, -39.999992, 0), Vector3(-16.245926, -39.999992, 0), Vector3(-15.839998, -39.999992, 0), Vector3(-15.407407, -39.999992, 0), Vector3(-14.952591, -39.999992, 0), Vector3(-14.479999, -39.999992, 0), Vector3(-13.994073, -39.999992, 0), Vector3(-13.499259, -39.999992, 0), Vector3(-12.50074, -39.999992, 0), Vector3(-12.005926, -39.999992, 0), Vector3(-11.5199995, -39.999992, 0), Vector3(-11.047406, -39.999992, 0), Vector3(-10.592591, -39.999992, 0), Vector3(-10.159999, -39.999992, 0), Vector3(-9.754073, -39.999992, 0), Vector3(-9.379259, -39.999992, 0), Vector3(-9.039999, -39.999992, 0), Vector3(-8.740741, -39.999992, 0), Vector3(-8.485925, -39.999992, 0), Vector3(-8.279999, -39.999992, 0), Vector3(-8.127406, -39.999992, 0), Vector3(-8.032593, -39.999992, 0), Vector3(-7.9999995, -39.999992, 0), Vector3(-7.9999995, -39.999992, 0)]
+}
+tracks/46/type = "value"
+tracks/46/imported = false
+tracks/46/enabled = true
+tracks/46/path = NodePath("WorldViewport/Viewport/Coast/WorldEnvironment:environment:fog_light_color")
+tracks/46/interp = 1
+tracks/46/loop_wrap = true
+tracks/46/keys = {
+"times": PackedFloat32Array(0, 353.08, 353.28, 353.53, 353.78, 354.03, 354.33, 354.63, 354.93, 355.83, 356.08, 356.33, 356.73, 357.23, 357.73, 358.23, 358.53, 406.95333, 407.10333, 407.30333, 407.45333, 407.85333, 408.05333, 408.25333, 408.40333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.60784316, 0.7372549, 0.7647059, 1), Color(0.6078648, 0.7371785, 0.76464534, 1), Color(0.6083676, 0.73540175, 0.7632373, 1), Color(0.6098604, 0.7301272, 0.7590575, 1), Color(0.61220044, 0.72185916, 0.7525055, 1), Color(0.6152667, 0.71102506, 0.74391997, 1), Color(0.6197344, 0.69523925, 0.73141044, 1), Color(0.6248644, 0.6771133, 0.7170465, 1), Color(0.6304475, 0.6573861, 0.70141363, 1), Color(0.64782447, 0.59598774, 0.6527583, 1), Color(0.65228015, 0.5802441, 0.6402823, 1), Color(0.6563486, 0.56586903, 0.62889063, 1), Color(0.66054904, 0.5510275, 0.61712945, 1), Color(0.6633393, 0.54116845, 0.60931665, 1), Color(0.66535497, 0.53404653, 0.6036728, 1), Color(0.66647494, 0.5300892, 0.6005368, 1), Color(0.6666667, 0.5294118, 0.6, 1), Color(0.6667146, 0.52924246, 0.5998658, 1), Color(0.6673813, 0.5268869, 0.59799916, 1), Color(0.6692462, 0.52029747, 0.5927774, 1), Color(0.6711482, 0.5135772, 0.5874519, 1), Color(0.6768911, 0.4932856, 0.5713717, 1), Color(0.67934424, 0.48461777, 0.56450284, 1), Color(0.6809608, 0.47890592, 0.55997646, 1), Color(0.6813726, 0.47745103, 0.5588236, 1), Color(0.6813726, 0.47745103, 0.5588236, 1)]
+}
+tracks/47/type = "value"
+tracks/47/imported = false
+tracks/47/enabled = true
+tracks/47/path = NodePath("WorldViewport/Viewport/Coast/WorldEnvironment:environment:ambient_light_color")
+tracks/47/interp = 1
+tracks/47/loop_wrap = true
+tracks/47/keys = {
+"times": PackedFloat32Array(0, 353.08, 353.28, 353.38, 353.53, 353.63, 353.78, 354.03, 354.18, 354.33, 354.63, 354.93, 355.58, 355.83, 356.08, 356.33, 356.48, 356.73, 357.03, 357.23, 357.53, 357.73, 358.03, 358.23, 358.53, 406.95333, 407.00333, 407.10333, 407.20333, 407.30333, 407.45333, 407.85333, 408.05333, 408.15333, 408.25333, 408.35333, 408.40333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.7764706, 0.83137256, 0.8745098, 1), Color(0.7763884, 0.83123994, 0.87441033, 1), Color(0.77447754, 0.8281557, 0.87209713, 1), Color(0.7726243, 0.8251645, 0.86985373, 1), Color(0.76880497, 0.819, 0.8652304, 1), Color(0.7656087, 0.8138411, 0.8613612, 1), Color(0.75991285, 0.8046478, 0.85446626, 1), Color(0.74826115, 0.78584146, 0.8403615, 1), Color(0.7401368, 0.7727285, 0.83052677, 1), Color(0.7312839, 0.75843966, 0.81981015, 1), Color(0.71178997, 0.72697574, 0.7962122, 1), Color(0.690574, 0.6927324, 0.7705297, 1), Color(0.64248544, 0.61511576, 0.7123172, 1), Color(0.62454176, 0.58615404, 0.6905959, 1), Color(0.6076099, 0.5588255, 0.67009956, 1), Color(0.5921499, 0.5338725, 0.6513848, 1), Color(0.5837717, 0.52034974, 0.64124274, 1), Color(0.57618827, 0.5081098, 0.6320628, 1), Color(0.56949896, 0.497313, 0.62396514, 1), Color(0.5655852, 0.49099606, 0.61922747, 1), Color(0.56060684, 0.48296082, 0.613201, 1), Color(0.5579257, 0.47863337, 0.60995543, 1), Color(0.55493426, 0.4738051, 0.6063342, 1), Color(0.55366975, 0.47176412, 0.6048035, 1), Color(0.5529412, 0.47058824, 0.6039216, 1), Color(0.55275905, 0.47029427, 0.6037011, 1), Color(0.5522292, 0.4694391, 0.60305977, 1), Color(0.55022573, 0.4662054, 0.60063446, 1), Color(0.54712945, 0.46120784, 0.5968863, 1), Color(0.54313904, 0.45476717, 0.5920558, 1), Color(0.53591156, 0.4431018, 0.5833068, 1), Color(0.5140885, 0.40787858, 0.55688936, 1), Color(0.50476646, 0.39283255, 0.5456048, 1), Color(0.5011983, 0.38707337, 0.54128546, 1), Color(0.49862355, 0.38291764, 0.53816867, 1), Color(0.497241, 0.38068613, 0.536495, 1), Color(0.49705887, 0.38039216, 0.53627455, 1), Color(0.49705887, 0.38039216, 0.53627455, 1)]
+}
+tracks/48/type = "value"
+tracks/48/imported = false
+tracks/48/enabled = true
+tracks/48/path = NodePath("WorldViewport/Viewport/Coast/WorldEnvironment:environment:ambient_light_energy")
+tracks/48/interp = 1
+tracks/48/loop_wrap = true
+tracks/48/keys = {
+"times": PackedFloat32Array(0, 353.08, 353.28, 353.53, 353.78, 354.03, 354.33, 354.63, 354.93, 355.83, 356.08, 356.33, 356.73, 357.23, 357.73, 358.23, 358.53, 406.95333, 407.10333, 407.30333, 407.45333, 407.85333, 408.05333, 408.25333, 408.40333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [0.65, 0.6499265, 0.6482167, 0.64314127, 0.6351852, 0.62476, 0.60956985, 0.59212786, 0.57314515, 0.51406366, 0.49891412, 0.4850815, 0.4708, 0.46131304, 0.45445982, 0.45065185, 0.45, 0.44983703, 0.44757038, 0.44122964, 0.43476295, 0.41523704, 0.4068963, 0.4014, 0.4, 0.4]
+}
+tracks/49/type = "value"
+tracks/49/imported = false
+tracks/49/enabled = true
+tracks/49/path = NodePath("WorldViewport/Viewport/Coast/WorldEnvironment:environment:sky:sky_material:sky_top_color")
+tracks/49/interp = 1
+tracks/49/loop_wrap = true
+tracks/49/keys = {
+"times": PackedFloat32Array(0, 353.08, 353.18, 353.28, 353.38, 353.53, 353.63, 353.78, 353.88, 354.03, 354.18, 354.33, 354.48, 354.63, 354.93, 355.58, 355.83, 356.08, 356.33, 356.48, 356.73, 357.03, 357.23, 357.53, 357.73, 358.03, 358.23, 358.53, 406.95333, 407.00333, 407.10333, 407.20333, 407.30333, 407.45333, 407.85333, 407.95333, 408.05333, 408.15333, 408.25333, 408.35333, 408.40333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.41568628, 0.6784314, 0.8156863, 1), Color(0.4156589, 0.67827713, 0.8155306, 1), Color(0.41544342, 0.67706376, 0.8143059, 1), Color(0.41502193, 0.67469, 0.81191, 1), Color(0.41440418, 0.6712111, 0.80839854, 1), Color(0.4131311, 0.6640415, 0.80116194, 1), Color(0.41206565, 0.65804154, 0.7951059, 1), Color(0.41016704, 0.64734936, 0.78431374, 1), Color(0.40871528, 0.6391736, 0.7760616, 1), Color(0.4062831, 0.6254768, 0.7622368, 1), Color(0.403575, 0.61022586, 0.7468433, 1), Color(0.40062407, 0.5936073, 0.73006946, 1), Color(0.39746338, 0.57580763, 0.7121034, 1), Color(0.39412606, 0.55701333, 0.6931335, 1), Color(0.3870541, 0.5171869, 0.6529348, 1), Color(0.37102455, 0.42691532, 0.5618196, 1), Color(0.36504334, 0.39323157, 0.52782106, 1), Color(0.35939938, 0.3614473, 0.49573976, 1), Color(0.35424605, 0.33242586, 0.46644706, 1), Color(0.3514533, 0.31669834, 0.45057255, 1), Color(0.3489255, 0.30246276, 0.43620393, 1), Color(0.34669572, 0.2899056, 0.42352942, 1), Color(0.34539115, 0.28255874, 0.41611388, 1), Color(0.3437317, 0.2732134, 0.40668118, 1), Color(0.342838, 0.2681804, 0.40160117, 1), Color(0.34184083, 0.2625649, 0.39593318, 1), Color(0.34141934, 0.26019114, 0.39353725, 1), Color(0.34117648, 0.25882354, 0.39215687, 1), Color(0.34111577, 0.25848165, 0.3918118, 1), Color(0.34093916, 0.25748703, 0.39080787, 1), Color(0.34027132, 0.2537261, 0.38701177, 1), Color(0.33923924, 0.24791372, 0.3811451, 1), Color(0.3379091, 0.24042296, 0.37358433, 1), Color(0.33549994, 0.22685564, 0.3598902, 1), Color(0.32822558, 0.18588951, 0.3185412, 1), Color(0.32657257, 0.17658043, 0.3091451, 1), Color(0.32511824, 0.16839027, 0.30087847, 1), Color(0.32392883, 0.16169214, 0.2941177, 1), Color(0.3230706, 0.1568588, 0.28923923, 1), Color(0.32260972, 0.1542635, 0.2866196, 1), Color(0.32254905, 0.1539216, 0.2862745, 1), Color(0.32254905, 0.1539216, 0.2862745, 1)]
+}
+tracks/50/type = "value"
+tracks/50/imported = false
+tracks/50/enabled = true
+tracks/50/path = NodePath("WorldViewport/Viewport/Coast/WorldEnvironment:environment:sky:sky_material:sky_horizon_color")
+tracks/50/interp = 1
+tracks/50/loop_wrap = true
+tracks/50/keys = {
+"times": PackedFloat32Array(0, 353.08, 353.28, 353.38, 353.53, 353.63, 353.78, 354.03, 354.18, 354.33, 354.63, 354.93, 355.58, 355.83, 356.08, 356.33, 356.48, 356.73, 357.23, 357.53, 357.73, 358.03, 358.23, 358.53, 406.95333, 407.10333, 407.20333, 407.30333, 407.45333, 407.85333, 408.05333, 408.15333, 408.25333, 408.40333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.827451, 0.9019608, 0.8980392, 1), Color(0.8274885, 0.9018844, 0.89791954, 1), Color(0.8283601, 0.9001076, 0.8951371, 1), Color(0.82920545, 0.8983844, 0.8924385, 1), Color(0.8309476, 0.8948331, 0.886877, 1), Color(0.8324055, 0.89186114, 0.88222283, 1), Color(0.8350036, 0.886565, 0.87392884, 1), Color(0.84031844, 0.87573093, 0.85696226, 1), Color(0.8440243, 0.86817676, 0.8451321, 1), Color(0.84806246, 0.8599451, 0.83224106, 1), Color(0.85695446, 0.84181917, 0.8038551, 1), Color(0.8666319, 0.822092, 0.77296174, 1), Color(0.88856703, 0.7773781, 0.70293796, 1), Color(0.8967519, 0.7606936, 0.6768095, 1), Color(0.90447515, 0.74495, 0.6521544, 1), Color(0.9115271, 0.7305749, 0.6296424, 1), Color(0.9153487, 0.72278464, 0.6174426, 1), Color(0.91880786, 0.71573335, 0.6064, 1), Color(0.92364436, 0.7058743, 0.59096044, 1), Color(0.9259152, 0.7012453, 0.58371127, 1), Color(0.92713815, 0.6987524, 0.57980716, 1), Color(0.9285027, 0.6959709, 0.57545125, 1), Color(0.9290795, 0.6947951, 0.5736099, 1), Color(0.92941177, 0.69411767, 0.57254905, 1), Color(0.92949486, 0.6939483, 0.57228386, 1), Color(0.9306504, 0.69159275, 0.56859493, 1), Color(0.93206275, 0.6887137, 0.5640863, 1), Color(0.93388295, 0.68500334, 0.5582757, 1), Color(0.9371797, 0.6782831, 0.54775155, 1), Color(0.9471341, 0.65799147, 0.51597404, 1), Color(0.9513862, 0.64932364, 0.5023999, 1), Color(0.9530138, 0.64600587, 0.49720412, 1), Color(0.9541882, 0.6436118, 0.49345493, 1), Color(0.95490193, 0.6421569, 0.4911765, 1), Color(0.95490193, 0.6421569, 0.4911765, 1)]
+}
+tracks/51/type = "value"
+tracks/51/imported = false
+tracks/51/enabled = true
+tracks/51/path = NodePath("WorldViewport/Viewport/Coast/WorldEnvironment:environment:sky:sky_material:ground_horizon_color")
+tracks/51/interp = 1
+tracks/51/loop_wrap = true
+tracks/51/keys = {
+"times": PackedFloat32Array(0, 353.08, 353.28, 353.38, 353.53, 353.63, 353.78, 354.03, 354.18, 354.33, 354.63, 354.93, 355.58, 355.83, 356.08, 356.33, 356.48, 356.73, 357.23, 357.53, 357.73, 358.03, 358.23, 358.53, 406.95333, 407.10333, 407.20333, 407.30333, 407.45333, 407.85333, 408.05333, 408.15333, 408.25333, 408.40333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.827451, 0.9019608, 0.8980392, 1), Color(0.8274885, 0.9018844, 0.89791954, 1), Color(0.8283601, 0.9001076, 0.8951371, 1), Color(0.82920545, 0.8983844, 0.8924385, 1), Color(0.8309476, 0.8948331, 0.886877, 1), Color(0.8324055, 0.89186114, 0.88222283, 1), Color(0.8350036, 0.886565, 0.87392884, 1), Color(0.84031844, 0.87573093, 0.85696226, 1), Color(0.8440243, 0.86817676, 0.8451321, 1), Color(0.84806246, 0.8599451, 0.83224106, 1), Color(0.85695446, 0.84181917, 0.8038551, 1), Color(0.8666319, 0.822092, 0.77296174, 1), Color(0.88856703, 0.7773781, 0.70293796, 1), Color(0.8967519, 0.7606936, 0.6768095, 1), Color(0.90447515, 0.74495, 0.6521544, 1), Color(0.9115271, 0.7305749, 0.6296424, 1), Color(0.9153487, 0.72278464, 0.6174426, 1), Color(0.91880786, 0.71573335, 0.6064, 1), Color(0.92364436, 0.7058743, 0.59096044, 1), Color(0.9259152, 0.7012453, 0.58371127, 1), Color(0.92713815, 0.6987524, 0.57980716, 1), Color(0.9285027, 0.6959709, 0.57545125, 1), Color(0.9290795, 0.6947951, 0.5736099, 1), Color(0.92941177, 0.69411767, 0.57254905, 1), Color(0.92949486, 0.6939483, 0.57228386, 1), Color(0.9306504, 0.69159275, 0.56859493, 1), Color(0.93206275, 0.6887137, 0.5640863, 1), Color(0.93388295, 0.68500334, 0.5582757, 1), Color(0.9371797, 0.6782831, 0.54775155, 1), Color(0.9471341, 0.65799147, 0.51597404, 1), Color(0.9513862, 0.64932364, 0.5023999, 1), Color(0.9530138, 0.64600587, 0.49720412, 1), Color(0.9541882, 0.6436118, 0.49345493, 1), Color(0.95490193, 0.6421569, 0.4911765, 1), Color(0.95490193, 0.6421569, 0.4911765, 1)]
+}
+tracks/52/type = "value"
+tracks/52/imported = false
+tracks/52/enabled = true
+tracks/52/path = NodePath("WorldViewport/Viewport/Coast/Water:material_override:shader_parameter/wave1_amplitude")
+tracks/52/interp = 1
+tracks/52/loop_wrap = true
+tracks/52/keys = {
+"times": PackedFloat32Array(0, 161.99667, 227.51667, 261.9, 295.39),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [0.25, 0.65, 0.18, 0.65, 0.18]
+}
+tracks/53/type = "value"
+tracks/53/imported = false
+tracks/53/enabled = true
+tracks/53/path = NodePath("WorldViewport/Viewport/Coast/Dressing/Lighthouse:position")
+tracks/53/interp = 1
+tracks/53/loop_wrap = true
+tracks/53/keys = {
+"times": PackedFloat32Array(0, 64.88637, 64.9, 122.04333, 122.17833, 122.31333, 122.44833, 122.58333, 122.71833, 122.85333, 122.98833, 123.12333, 123.25833, 123.52833, 123.66333, 123.79833, 123.93333, 124.06833, 124.20333, 124.33833, 124.47333, 124.60833, 124.74333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(7, 1.08, -7), Vector3(7, 1.08, -7), Vector3(-4, 1.08, -7), Vector3(-4, 1.08, -7), Vector3(-3.92025, 1.08, -7), Vector3(-3.692, 1.08, -7), Vector3(-3.33175, 1.08, -7), Vector3(-2.856, 1.08, -7), Vector3(-2.28125, 1.08, -7), Vector3(-1.6239998, 1.08, -7), Vector3(-0.90075016, 1.08, -7), Vector3(-0.12800002, 1.08, -7), Vector3(0.6777501, 1.08, -7), Vector3(2.32225, 1.08, -7), Vector3(3.1280003, 1.08, -7), Vector3(3.9007497, 1.08, -7), Vector3(4.6239996, 1.08, -7), Vector3(5.28125, 1.08, -7), Vector3(5.856, 1.08, -7), Vector3(6.33175, 1.08, -7), Vector3(6.6920004, 1.08, -7), Vector3(6.92025, 1.08, -7), Vector3(7, 1.08, -7), Vector3(7, 1.08, -7)]
+}
+tracks/54/type = "value"
+tracks/54/imported = false
+tracks/54/enabled = true
+tracks/54/path = NodePath("WorldViewport/Viewport/Coast/Dressing/Lighthouse:scale")
+tracks/54/interp = 1
+tracks/54/loop_wrap = true
+tracks/54/keys = {
+"times": PackedFloat32Array(0, 64.88637, 64.9, 128.06333, 128.15933, 128.25533, 128.35133, 128.44733, 128.54333, 128.63933, 128.73533, 128.83133, 129.21533, 129.31133, 129.40733, 129.50333, 129.59933, 129.69533, 129.79133, 129.88733, 129.98333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector3(0.7, 0.7, 0.7), Vector3(0.7, 0.7, 0.7), Vector3(0.5, 0.5, 0.5), Vector3(0.5, 0.5, 0.5), Vector3(0.50145, 0.50145, 0.50145), Vector3(0.5056, 0.5056, 0.5056), Vector3(0.51215, 0.51215, 0.51215), Vector3(0.5208, 0.5208, 0.5208), Vector3(0.53125, 0.53125, 0.53125), Vector3(0.5432, 0.5432, 0.5432), Vector3(0.55635, 0.55635, 0.55635), Vector3(0.5704, 0.5704, 0.5704), Vector3(0.6296, 0.6296, 0.6296), Vector3(0.64365, 0.64365, 0.64365), Vector3(0.6568, 0.6568, 0.6568), Vector3(0.66875, 0.66875, 0.66875), Vector3(0.6792, 0.6792, 0.6792), Vector3(0.68785, 0.68785, 0.68785), Vector3(0.69439995, 0.69439995, 0.69439995), Vector3(0.69855, 0.69855, 0.69855), Vector3(0.7, 0.7, 0.7), Vector3(0.7, 0.7, 0.7)]
+}
+tracks/55/type = "value"
+tracks/55/imported = false
+tracks/55/enabled = true
+tracks/55/path = NodePath("WorldViewport/Viewport/Coast/Dressing/ShoreRock:visible")
+tracks/55/interp = 1
+tracks/55/loop_wrap = true
+tracks/55/keys = {
+"times": PackedFloat32Array(0, 148.83667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, true]
+}
+tracks/56/type = "value"
+tracks/56/imported = false
+tracks/56/enabled = true
+tracks/56/path = NodePath("WorldViewport/Viewport/Coast/Dressing/ShoreRock:position")
+tracks/56/interp = 1
+tracks/56/loop_wrap = true
+tracks/56/keys = {
+"times": PackedFloat32Array(0, 151.08667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [Vector3(-12, -0.9441459, 4), Vector3(12, 0.5, 1)]
+}
+tracks/57/type = "value"
+tracks/57/imported = false
+tracks/57/enabled = true
+tracks/57/path = NodePath("WorldViewport/Viewport/Coast/Dressing/ShoreRock:scale")
+tracks/57/interp = 1
+tracks/57/loop_wrap = true
+tracks/57/keys = {
+"times": PackedFloat32Array(0, 152.84667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [Vector3(7, 7, 7), Vector3(2, 2, 2)]
+}
+tracks/58/type = "value"
+tracks/58/imported = false
+tracks/58/enabled = true
+tracks/58/path = NodePath("WorldViewport/Viewport/Coast/Water:material_override:shader_parameter/sky_horizon_color")
+tracks/58/interp = 1
+tracks/58/loop_wrap = true
+tracks/58/keys = {
+"times": PackedFloat32Array(0, 353.08, 353.28, 353.38, 353.53, 353.63, 353.78, 354.03, 354.18, 354.33, 354.63, 354.93, 355.58, 355.83, 356.08, 356.33, 356.48, 356.73, 357.23, 357.53, 357.73, 358.03, 358.23, 358.53, 406.95333, 407.10333, 407.20333, 407.30333, 407.45333, 407.85333, 408.05333, 408.15333, 408.25333, 408.40333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.827451, 0.9019608, 0.8980392, 1), Color(0.8274885, 0.9018844, 0.89791954, 1), Color(0.8283601, 0.9001076, 0.8951371, 1), Color(0.82920545, 0.8983844, 0.8924385, 1), Color(0.8309476, 0.8948331, 0.886877, 1), Color(0.8324055, 0.89186114, 0.88222283, 1), Color(0.8350036, 0.886565, 0.87392884, 1), Color(0.84031844, 0.87573093, 0.85696226, 1), Color(0.8440243, 0.86817676, 0.8451321, 1), Color(0.84806246, 0.8599451, 0.83224106, 1), Color(0.85695446, 0.84181917, 0.8038551, 1), Color(0.8666319, 0.822092, 0.77296174, 1), Color(0.88856703, 0.7773781, 0.70293796, 1), Color(0.8967519, 0.7606936, 0.6768095, 1), Color(0.90447515, 0.74495, 0.6521544, 1), Color(0.9115271, 0.7305749, 0.6296424, 1), Color(0.9153487, 0.72278464, 0.6174426, 1), Color(0.91880786, 0.71573335, 0.6064, 1), Color(0.92364436, 0.7058743, 0.59096044, 1), Color(0.9259152, 0.7012453, 0.58371127, 1), Color(0.92713815, 0.6987524, 0.57980716, 1), Color(0.9285027, 0.6959709, 0.57545125, 1), Color(0.9290795, 0.6947951, 0.5736099, 1), Color(0.92941177, 0.69411767, 0.57254905, 1), Color(0.92949486, 0.6939483, 0.57228386, 1), Color(0.9306504, 0.69159275, 0.56859493, 1), Color(0.93206275, 0.6887137, 0.5640863, 1), Color(0.93388295, 0.68500334, 0.5582757, 1), Color(0.9371797, 0.6782831, 0.54775155, 1), Color(0.9471341, 0.65799147, 0.51597404, 1), Color(0.9513862, 0.64932364, 0.5023999, 1), Color(0.9530138, 0.64600587, 0.49720412, 1), Color(0.9541882, 0.6436118, 0.49345493, 1), Color(0.95490193, 0.6421569, 0.4911765, 1), Color(0.95490193, 0.6421569, 0.4911765, 1)]
+}
+tracks/59/type = "value"
+tracks/59/imported = false
+tracks/59/enabled = true
+tracks/59/path = NodePath("WorldViewport/Viewport/Coast/Water:material_override:shader_parameter/sky_top_color")
+tracks/59/interp = 1
+tracks/59/loop_wrap = true
+tracks/59/keys = {
+"times": PackedFloat32Array(0, 353.08, 353.18, 353.28, 353.38, 353.53, 353.63, 353.78, 353.88, 354.03, 354.18, 354.33, 354.48, 354.63, 354.93, 355.58, 355.83, 356.08, 356.33, 356.48, 356.73, 357.03, 357.23, 357.53, 357.73, 358.03, 358.23, 358.53, 406.95333, 407.00333, 407.10333, 407.20333, 407.30333, 407.45333, 407.85333, 407.95333, 408.05333, 408.15333, 408.25333, 408.35333, 408.40333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.41568628, 0.6784314, 0.8156863, 1), Color(0.4156589, 0.67827713, 0.8155306, 1), Color(0.41544342, 0.67706376, 0.8143059, 1), Color(0.41502193, 0.67469, 0.81191, 1), Color(0.41440418, 0.6712111, 0.80839854, 1), Color(0.4131311, 0.6640415, 0.80116194, 1), Color(0.41206565, 0.65804154, 0.7951059, 1), Color(0.41016704, 0.64734936, 0.78431374, 1), Color(0.40871528, 0.6391736, 0.7760616, 1), Color(0.4062831, 0.6254768, 0.7622368, 1), Color(0.403575, 0.61022586, 0.7468433, 1), Color(0.40062407, 0.5936073, 0.73006946, 1), Color(0.39746338, 0.57580763, 0.7121034, 1), Color(0.39412606, 0.55701333, 0.6931335, 1), Color(0.3870541, 0.5171869, 0.6529348, 1), Color(0.37102455, 0.42691532, 0.5618196, 1), Color(0.36504334, 0.39323157, 0.52782106, 1), Color(0.35939938, 0.3614473, 0.49573976, 1), Color(0.35424605, 0.33242586, 0.46644706, 1), Color(0.3514533, 0.31669834, 0.45057255, 1), Color(0.3489255, 0.30246276, 0.43620393, 1), Color(0.34669572, 0.2899056, 0.42352942, 1), Color(0.34539115, 0.28255874, 0.41611388, 1), Color(0.3437317, 0.2732134, 0.40668118, 1), Color(0.342838, 0.2681804, 0.40160117, 1), Color(0.34184083, 0.2625649, 0.39593318, 1), Color(0.34141934, 0.26019114, 0.39353725, 1), Color(0.34117648, 0.25882354, 0.39215687, 1), Color(0.34111577, 0.25848165, 0.3918118, 1), Color(0.34093916, 0.25748703, 0.39080787, 1), Color(0.34027132, 0.2537261, 0.38701177, 1), Color(0.33923924, 0.24791372, 0.3811451, 1), Color(0.3379091, 0.24042296, 0.37358433, 1), Color(0.33549994, 0.22685564, 0.3598902, 1), Color(0.32822558, 0.18588951, 0.3185412, 1), Color(0.32657257, 0.17658043, 0.3091451, 1), Color(0.32511824, 0.16839027, 0.30087847, 1), Color(0.32392883, 0.16169214, 0.2941177, 1), Color(0.3230706, 0.1568588, 0.28923923, 1), Color(0.32260972, 0.1542635, 0.2866196, 1), Color(0.32254905, 0.1539216, 0.2862745, 1), Color(0.32254905, 0.1539216, 0.2862745, 1)]
+}
+tracks/60/type = "value"
+tracks/60/imported = false
+tracks/60/enabled = true
+tracks/60/path = NodePath("WorldViewport/Viewport/Coast/Water:material_override:shader_parameter/shallow_color")
+tracks/60/interp = 1
+tracks/60/loop_wrap = true
+tracks/60/keys = {
+"times": PackedFloat32Array(0, 353.08, 353.28, 353.53, 353.78, 354.03, 354.33, 354.63, 354.93, 355.83, 356.08, 356.33, 356.73, 357.23, 357.73, 358.23, 358.53, 406.95333, 407.10333, 407.30333, 407.45333, 407.85333, 408.05333, 408.25333, 408.40333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.33333334, 0.79607844, 0.69411767, 1), Color(0.33340254, 0.7960568, 0.6941321, 1), Color(0.33501172, 0.795554, 0.6944673, 1), Color(0.3397886, 0.7940612, 0.6954625, 1), Color(0.3472767, 0.79172117, 0.69702256, 1), Color(0.35708869, 0.7886549, 0.6990667, 1), Color(0.37138528, 0.7841872, 0.70204514, 1), Color(0.38780126, 0.7790572, 0.70546514, 1), Color(0.40566733, 0.7734741, 0.70918727, 1), Color(0.46127346, 0.75609714, 0.72077185, 1), Color(0.47553182, 0.75164145, 0.72374237, 1), Color(0.48855078, 0.747573, 0.7264546, 1), Color(0.5019922, 0.74337256, 0.7292549, 1), Color(0.5109211, 0.7405823, 0.7311151, 1), Color(0.5173712, 0.73856664, 0.7324589, 1), Color(0.52095515, 0.73744667, 0.73320556, 1), Color(0.52156866, 0.7372549, 0.73333335, 1), Color(0.521722, 0.737207, 0.7333653, 1), Color(0.5238553, 0.7365403, 0.73380977, 1), Color(0.5298231, 0.7346754, 0.735053, 1), Color(0.5359094, 0.7327734, 0.73632103, 1), Color(0.5542867, 0.7270305, 0.7401496, 1), Color(0.5621368, 0.72457737, 0.74178505, 1), Color(0.56730986, 0.7229608, 0.74286276, 1), Color(0.5686275, 0.722549, 0.74313724, 1), Color(0.5686275, 0.722549, 0.74313724, 1)]
+}
+tracks/61/type = "value"
+tracks/61/imported = false
+tracks/61/enabled = true
+tracks/61/path = NodePath("WorldViewport/Viewport/Coast/Water:material_override:shader_parameter/deep_color")
+tracks/61/interp = 1
+tracks/61/loop_wrap = true
+tracks/61/keys = {
+"times": PackedFloat32Array(0, 353.08, 353.28, 353.53, 353.78, 354.03, 354.33, 354.63, 355.83, 356.33, 356.73, 357.23, 357.73, 358.23, 406.95333, 407.10333, 407.30333, 408.05333, 408.25333, 408.40333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.09019608, 0.27450982, 0.36078432, 1), Color(0.090237886, 0.27447954, 0.36075693, 1), Color(0.0912101, 0.27377552, 0.36011997, 1), Color(0.09409613, 0.27168563, 0.35822913, 1), Color(0.09862019, 0.2684096, 0.35526508, 1), Color(0.10454827, 0.26411685, 0.35138115, 1), Color(0.11318579, 0.2578621, 0.3457221, 1), Color(0.123103775, 0.2506801, 0.3392241, 1), Color(0.16749322, 0.21853602, 0.31014138, 1), Color(0.18397328, 0.20660219, 0.2993441, 1), Color(0.19209412, 0.20072156, 0.29402354, 1), Color(0.19748867, 0.19681518, 0.2904892, 1), Color(0.2013856, 0.19399326, 0.28793603, 1), Color(0.2035509, 0.19242528, 0.28651738, 1), Color(0.20401424, 0.19208977, 0.28621382, 1), Color(0.20530313, 0.19115643, 0.28536937, 1), Color(0.20890865, 0.18854554, 0.28300714, 1), Color(0.22843152, 0.17440829, 0.2702163, 1), Color(0.23155686, 0.1721451, 0.26816863, 1), Color(0.23235294, 0.17156863, 0.2676471, 1), Color(0.23235294, 0.17156863, 0.2676471, 1)]
+}
+tracks/62/type = "value"
+tracks/62/imported = false
+tracks/62/enabled = true
+tracks/62/path = NodePath("WorldViewport/Viewport/Coast/Water:material_override:shader_parameter/far_color")
+tracks/62/interp = 1
+tracks/62/loop_wrap = true
+tracks/62/keys = {
+"times": PackedFloat32Array(0, 353.08, 353.28, 353.53, 353.78, 354.03, 354.33, 354.63, 354.93, 355.83, 356.08, 356.33, 356.73, 357.23, 357.73, 358.23, 358.53, 406.95333, 407.10333, 407.30333, 407.45333, 407.85333, 408.05333, 408.25333, 408.40333, 469.43333),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Color(0.3137255, 0.54509807, 0.62352943, 1), Color(0.31375578, 0.5450245, 0.6234718, 1), Color(0.3144598, 0.5433148, 0.6221308, 1), Color(0.3165497, 0.53823936, 0.61815006, 1), Color(0.3198257, 0.5302833, 0.61191, 1), Color(0.32411847, 0.519858, 0.6037333, 1), Color(0.33037323, 0.5046679, 0.59181947, 1), Color(0.3375552, 0.48722592, 0.5781395, 1), Color(0.34537163, 0.46824318, 0.5632511, 1), Color(0.3696993, 0.4091617, 0.5169127, 1), Color(0.3759373, 0.39401218, 0.5050307, 1), Color(0.38163313, 0.38017952, 0.49418157, 1), Color(0.38751373, 0.36589804, 0.48298037, 1), Color(0.39142013, 0.3564111, 0.47553962, 1), Color(0.39424205, 0.34955788, 0.47016454, 1), Color(0.39581004, 0.3457499, 0.46717793, 1), Color(0.39607844, 0.34509805, 0.46666667, 1), Color(0.39614552, 0.3449351, 0.46653885, 1), Color(0.39707887, 0.3426684, 0.46476108, 1), Color(0.39968976, 0.33632767, 0.45978796, 1), Color(0.4023525, 0.329861, 0.45471603, 1), Color(0.41039258, 0.3103351, 0.4394016, 1), Color(0.413827, 0.30199435, 0.43285984, 1), Color(0.4160902, 0.29649806, 0.428549, 1), Color(0.4166667, 0.29509804, 0.42745098, 1), Color(0.4166667, 0.29509804, 0.42745098, 1)]
+}
+tracks/63/type = "value"
+tracks/63/imported = false
+tracks/63/enabled = true
+tracks/63/path = NodePath("WorldViewport/Viewport/Coast/Water:material_override:shader_parameter/wave_time")
+tracks/63/interp = 1
+tracks/63/loop_wrap = true
+tracks/63/keys = {
+"times": PackedFloat32Array(0, 469.43333),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 469.43333333333334]
+}
+tracks/64/type = "value"
+tracks/64/imported = false
+tracks/64/enabled = true
+tracks/64/path = NodePath("Chapters/Intro/Card/Title:position")
+tracks/64/interp = 1
+tracks/64/loop_wrap = true
+tracks/64/keys = {
+"times": PackedFloat32Array(0, 0.73667, 1.47333, 2.21, 2.94667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(112, 324), Vector2(112, 320.875), Vector2(112, 314), Vector2(112, 307.125), Vector2(112, 304)]
+}
+tracks/65/type = "value"
+tracks/65/imported = false
+tracks/65/enabled = true
+tracks/65/path = NodePath("Chapters/Intro/Card/Tagline:position")
+tracks/65/interp = 1
+tracks/65/loop_wrap = true
+tracks/65/keys = {
+"times": PackedFloat32Array(0, 0.73667, 1.47333, 2.21, 2.94667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(119, 490), Vector2(119, 486.875), Vector2(119, 480), Vector2(119, 473.125), Vector2(119, 470)]
+}
+tracks/66/type = "value"
+tracks/66/imported = false
+tracks/66/enabled = true
+tracks/66/path = NodePath("Transition:position")
+tracks/66/interp = 1
+tracks/66/loop_wrap = true
+tracks/66/keys = {
+"times": PackedFloat32Array(0, 29.45667, 29.46667, 29.78667, 64.89, 64.9, 65.22, 111.62333, 111.63333, 111.95333, 143.15667, 143.16667, 143.48667, 173.15667, 173.16667, 173.48667, 208.15667, 208.16667, 208.48667, 261.89, 261.9, 262.22, 291.99, 292, 292.32, 331.09, 331.1, 331.42, 380.72333, 380.73333, 381.05333, 420.82333, 420.83333, 421.15333, 455.69, 455.7, 456.02),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(1920, 0), Vector2(1920, 0), Vector2(0, 0), Vector2(1920, 0), Vector2(1920, 0), Vector2(0, 0), Vector2(1920, 0), Vector2(1920, 0), Vector2(0, 0), Vector2(1920, 0), Vector2(1920, 0), Vector2(0, 0), Vector2(1920, 0), Vector2(1920, 0), Vector2(0, 0), Vector2(1920, 0), Vector2(1920, 0), Vector2(0, 0), Vector2(1920, 0), Vector2(1920, 0), Vector2(0, 0), Vector2(1920, 0), Vector2(1920, 0), Vector2(0, 0), Vector2(1920, 0), Vector2(1920, 0), Vector2(0, 0), Vector2(1920, 0), Vector2(1920, 0), Vector2(0, 0), Vector2(1920, 0), Vector2(1920, 0), Vector2(0, 0), Vector2(1920, 0), Vector2(1920, 0), Vector2(0, 0), Vector2(1920, 0)]
+}
+tracks/67/type = "audio"
+tracks/67/imported = false
+tracks/67/enabled = true
+tracks/67/path = NodePath("Audio/Voiceover")
+tracks/67/interp = 1
+tracks/67/loop_wrap = true
+tracks/67/keys = {
+"clips": [{
+"end_offset": 0.0,
+"start_offset": 0.0,
+"stream": ExtResource("1_ki01m")
+}],
+"times": PackedFloat32Array(0)
+}
+tracks/67/use_blend = true
+tracks/68/type = "audio"
+tracks/68/imported = false
+tracks/68/enabled = true
+tracks/68/path = NodePath("Audio/Music")
+tracks/68/interp = 1
+tracks/68/loop_wrap = true
+tracks/68/keys = {
+"clips": [{
+"end_offset": 0.0,
+"start_offset": 0.0,
+"stream": ExtResource("2_5rora")
+}],
+"times": PackedFloat32Array(0)
+}
+tracks/68/use_blend = true
+tracks/69/type = "value"
+tracks/69/imported = false
+tracks/69/enabled = true
+tracks/69/path = NodePath("Chapters/EditorWorkflow/Card:visible")
+tracks/69/interp = 1
+tracks/69/loop_wrap = true
+tracks/69/keys = {
+"times": PackedFloat32Array(0, 29.46667, 41.35667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/70/type = "value"
+tracks/70/imported = false
+tracks/70/enabled = true
+tracks/70/path = NodePath("Chapters/Scale/Card:visible")
+tracks/70/interp = 1
+tracks/70/loop_wrap = true
+tracks/70/keys = {
+"times": PackedFloat32Array(0, 173.16667, 208.16667),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/71/type = "value"
+tracks/71/imported = false
+tracks/71/enabled = true
+tracks/71/path = NodePath("Chapters/Workflow/Card:visible")
+tracks/71/interp = 1
+tracks/71/loop_wrap = true
+tracks/71/keys = {
+"times": PackedFloat32Array(0, 420.83333, 455.7),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/72/type = "value"
+tracks/72/imported = false
+tracks/72/enabled = true
+tracks/72/path = NodePath("Chapters/MCPOverview/Card:visible")
+tracks/72/interp = 1
+tracks/72/loop_wrap = true
+tracks/72/keys = {
+"times": PackedFloat32Array(0, 380.73333, 403.30333),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+
+[resource]
+_data = {
+&"Film": SubResource("Animation_d78jh")
+}

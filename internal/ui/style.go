@@ -5,7 +5,10 @@
 // its stdout is the MCP transport.
 package ui
 
-import "os"
+import (
+	"os"
+	"strconv"
+)
 
 // Palette renders ANSI-styled text for one output stream, or the text
 // unchanged when styling is off (piped stream, NO_COLOR, TERM=dumb, or a
@@ -73,3 +76,17 @@ func (p Palette) Bold(s string) string    { return p.wrap("1", s) }
 func (p Palette) Dim(s string) string     { return p.wrap("2", s) }
 func (p Palette) Slot(s string) string    { return p.wrap("35", s) } // a fill-in placeholder in a usage line
 func (p Palette) URL(s string) string     { return p.wrap("2;4", s) }
+
+// Pixel colors one cell of block art: s in 256-color fg, over 256-color bg
+// when bg is not negative. The one token named for color rather than role,
+// because the banner's mascot is a picture, and a picture has no roles.
+func (p Palette) Pixel(fg, bg int, s string) string {
+	if bg < 0 {
+		return p.wrap("38;5;"+strconv.Itoa(fg), s)
+	}
+	return p.wrap("38;5;"+strconv.Itoa(fg)+";48;5;"+strconv.Itoa(bg), s)
+}
+
+// Forced always styles, whatever the stream. For tests and previews of
+// styled output; never the default for a real stream.
+var Forced = Palette{on: true}

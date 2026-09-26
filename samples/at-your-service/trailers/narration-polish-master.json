@@ -1,0 +1,267 @@
+{
+  "cues": [
+    {
+      "index": 0,
+      "title": "At your service",
+      "paragraphs": [
+        "Hey, welcome to Swallowtail, an automation toolkit for Godot. Let's make a few changes to this stretch of coast. I'll show you how to connect the editor, automate a workflow, and bring an AI agent into the process."
+      ],
+      "text": "Hey, welcome to Swallowtail, an automation toolkit for Godot. Let's make a few changes to this stretch of coast. I'll show you how to connect the editor, automate a workflow, and bring an AI agent into the process.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "warmly"
+      ]
+    },
+    {
+      "index": 1,
+      "title": "Why not just use the editor?",
+      "paragraphs": [
+        "There's an obvious question: why not just use the editor? If I'm moving one rock, I probably would. It's easy to place it by eye. Swallowtail becomes useful when I want to repeat that work, try several variations, or let an agent help with the changes.",
+        "Godot's own command line already handles imports, scripts, and exports. Swallowtail also lets us reach into the editor we're working in. Let's connect it."
+      ],
+      "text": "There's an obvious question: why not just use the editor? If I'm moving one rock, I probably would. It's easy to place it by eye. Swallowtail becomes useful when I want to repeat that work, try several variations, or let an agent help with the changes. Godot's own command line already handles imports, scripts, and exports. Swallowtail also lets us reach into the editor we're working in. Let's connect it.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "curious",
+        "explaining"
+      ]
+    },
+    {
+      "index": 2,
+      "title": "Connect the editor",
+      "paragraphs": [
+        "I've installed Godot and the Swallowtail binary. Now I'll open a terminal in the project folder. From here, I can install and enable the addon, then launch the editor. The status command tells me whether the connection is ready.",
+        "Whenever I need an option, I can ask for help. Here, node set explains how to change a property. Next, I'll read the scene tree to find our lighthouse."
+      ],
+      "text": "I've installed Godot and the Swallowtail binary. Now I'll open a terminal in the project folder. From here, I can install and enable the addon, then launch the editor. The status command tells me whether the connection is ready. Whenever I need an option, I can ask for help. Here, node set explains how to change a property. Next, I'll read the scene tree to find our lighthouse.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "explaining",
+        "reassuring"
+      ]
+    },
+    {
+      "index": 3,
+      "title": "Move and scale the lighthouse",
+      "paragraphs": [
+        "Let's give the lighthouse a better spot. I'll read its position and scale first, so I know where I'm starting. Then I'll move it across the island. Watch the tower...",
+        "There we go. I'll make it a little bigger, too. We're changing the open scene, so I can select that same lighthouse in Godot and carry on in the inspector."
+      ],
+      "text": "Let's give the lighthouse a better spot. I'll read its position and scale first, so I know where I'm starting. Then I'll move it across the island. Watch the tower... There we go. I'll make it a little bigger, too. We're changing the open scene, so I can select that same lighthouse in Godot and carry on in the inspector.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "conversational",
+        "pleased"
+      ]
+    },
+    {
+      "index": 4,
+      "title": "Shape the shoreline",
+      "paragraphs": [
+        "The shoreline could use another rock. I'll duplicate this one, name the copy, and bring it closer to shore. A small change to its scale helps it fit.",
+        "Let's give the water more movement. I'll increase the wave amplitude. Watch the difference along the shore.",
+        "I'll save that and see how it feels in the game."
+      ],
+      "text": "The shoreline could use another rock. I'll duplicate this one, name the copy, and bring it closer to shore. A small change to its scale helps it fit. Let's give the water more movement. I'll increase the wave amplitude. Watch the difference along the shore. I'll save that and see how it feels in the game.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "conversational",
+        "curious",
+        "conversational"
+      ]
+    },
+    {
+      "index": 5,
+      "title": "When the work scales up",
+      "paragraphs": [
+        "So far, these are small edits. But imagine adjusting hundreds of rocks, or comparing five versions of this coast with different water and lighting. That's when a repeatable set of commands starts to save work. I can choose the settings once and apply them again.",
+        "You could write a Godot script for that, too. Swallowtail gives you ready-made commands to build on, whether you're writing the automation yourself or asking an agent to help."
+      ],
+      "text": "So far, these are small edits. But imagine adjusting hundreds of rocks, or comparing five versions of this coast with different water and lighting. That's when a repeatable set of commands starts to save work. I can choose the settings once and apply them again. You could write a Godot script for that, too. Swallowtail gives you ready-made commands to build on, whether you're writing the automation yourself or asking an agent to help.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "curious",
+        "confident"
+      ]
+    },
+    {
+      "index": 6,
+      "title": "Make it repeatable",
+      "paragraphs": [
+        "Here's what that looks like. This plan brings back the calm water and daylight, saves the scene, and checks that it's valid. I'll run it now.",
+        "Let's run the same plan again.",
+        "We're back at the same settings. This plan sets specific values, so I can return to this version whenever I need a comparison. I'll check the scripts before we play it."
+      ],
+      "text": "Here's what that looks like. This plan brings back the calm water and daylight, saves the scene, and checks that it's valid. I'll run it now. Let's run the same plan again. We're back at the same settings. This plan sets specific values, so I can return to this version whenever I need a comparison. I'll check the scripts before we play it.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "explaining",
+        "conversational",
+        "pleased"
+      ]
+    },
+    {
+      "index": 7,
+      "title": "Playtest and inspect",
+      "paragraphs": [
+        "Let's see the coast from inside the game. I'll start the scene, check the active camera, and send a movement key to get a closer look.",
+        "From down here, the waves feel a bit strong. I'll read the shader value from the running game. It's set to point six five. Let's try bringing that down."
+      ],
+      "text": "Let's see the coast from inside the game. I'll start the scene, check the active camera, and send a movement key to get a closer look. From down here, the waves feel a bit strong. I'll read the shader value from the running game. It's set to point six five. Let's try bringing that down.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "conversational",
+        "thoughtfully"
+      ]
+    },
+    {
+      "index": 8,
+      "title": "Try it live, then save the choice",
+      "paragraphs": [
+        "I'll set the amplitude to point one eight. Watch the water for a moment...",
+        "That feels closer. I'll read the value back to confirm it, check for runtime errors, and capture a frame to compare later.",
+        "This change belongs to the running game. To keep it, I need to apply the same value in the editor and save. That's a useful task to hand to an agent."
+      ],
+      "text": "I'll set the amplitude to point one eight. Watch the water for a moment... That feels closer. I'll read the value back to confirm it, check for runtime errors, and capture a frame to compare later. This change belongs to the running game. To keep it, I need to apply the same value in the editor and save. That's a useful task to hand to an agent.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "calmly",
+        "pleased",
+        "explaining"
+      ]
+    },
+    {
+      "index": 9,
+      "title": "What the AI actually does",
+      "paragraphs": [
+        "I can ask an AI agent to keep the calmer water, lower the sun, and warm the light, then save the scene for review. Here's the workflow: inspect the project, look up the commands, apply the changes, and read the results back.",
+        "The agent gets feedback from Godot as it works, and I can check both the commands and the scene. If something isn't right, I can adjust it or ask for another pass. I still decide how this coast should look."
+      ],
+      "text": "I can ask an AI agent to keep the calmer water, lower the sun, and warm the light, then save the scene for review. Here's the workflow: inspect the project, look up the commands, apply the changes, and read the results back. The agent gets feedback from Godot as it works, and I can check both the commands and the scene. If something isn't right, I can adjust it or ask for another pass. I still decide how this coast should look.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "conversational",
+        "confident"
+      ]
+    },
+    {
+      "index": 10,
+      "title": "Where MCP fits",
+      "paragraphs": [
+        "An agent with terminal access can use those same CLI commands. MCP, or Model Context Protocol, gives AI clients another way to discover and call Swallowtail's tools. Both routes reach the same operations in Godot.",
+        "Here, the client connects to Swallowtail through standard input and output. It calls a tool to lower the sun, and we can watch the scene change.",
+        "Then it reads the sun's rotation back, so we can check that the change took effect."
+      ],
+      "text": "An agent with terminal access can use those same CLI commands. MCP, or Model Context Protocol, gives AI clients another way to discover and call Swallowtail's tools. Both routes reach the same operations in Godot. Here, the client connects to Swallowtail through standard input and output. It calls a tool to lower the sun, and we can watch the scene change. Then it reads the sun's rotation back, so we can check that the change took effect.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "explaining",
+        "conversational",
+        "confident"
+      ]
+    },
+    {
+      "index": 11,
+      "title": "Choose your workflow",
+      "paragraphs": [
+        "You can use Swallowtail yourself, reuse your commands in scripts, or connect an agent when it helps. AI and MCP are optional. And throughout that workflow, you're working with ordinary Godot scenes and scripts."
+      ],
+      "text": "You can use Swallowtail yourself, reuse your commands in scripts, or connect an agent when it helps. AI and MCP are optional. And throughout that workflow, you're working with ordinary Godot scenes and scripts.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "reassuring"
+      ]
+    },
+    {
+      "index": 12,
+      "title": "Your game. Your workflow.",
+      "paragraphs": [
+        "Start with a scene... and see where it takes you.",
+        "Swallowtail is at your service."
+      ],
+      "text": "Start with a scene... and see where it takes you. Swallowtail is at your service.",
+      "voice": "PSONA",
+      "voice_id": "bYXvTprZQHr4vlg4TPx7",
+      "model": "eleven_v3",
+      "speed": 1,
+      "stability": 0.5,
+      "output_format": "mp3_44100_192",
+      "delivery": [
+        "warmly",
+        "warmly"
+      ]
+    }
+  ],
+  "text": "[warmly] Hey, welcome to Swallowtail, an automation toolkit for Godot. Let's make a few changes to this stretch of coast. I'll show you how to connect the editor, automate a workflow, and bring an AI agent into the process.\n\n[curious] Before we start, there's an obvious question: why not just use the editor? If I'm moving one rock, I probably would. It's easy to place it by eye. Swallowtail becomes useful when I want to repeat that work, try several variations, or let an agent help with the changes.\n\n[explaining] Godot's own command line already handles imports, scripts, and exports. Swallowtail also lets us reach into the editor we're working in. Let's connect it.\n\n[explaining] I've installed Godot and the Swallowtail binary. Now I'll open a terminal in the project folder. From here, I can install and enable the addon, then launch the editor. The status command tells me whether the connection is ready.\n\n[reassuring] Whenever I need an option, I can ask for help. Here, node set explains how to change a property. Next, I'll read the scene tree to find our lighthouse.\n\n[conversational] Let's give the lighthouse a better spot. I'll read its position and scale first, so I know where I'm starting. Then I'll move it across the island. Watch the tower...\n\n[pleased] There we go. I'll make it a little bigger, too. We're changing the open scene, so I can select that same lighthouse in Godot and carry on in the inspector.\n\n[conversational] The shoreline could use another rock. I'll duplicate this one, name the copy, and bring it closer to shore. A small change to its scale helps it fit.\n\n[curious] Let's give the water more movement. I'll increase the wave amplitude. Watch the difference along the shore.\n\n[conversational] I'll save that and see how it feels in the game.\n\n[curious] So far, these are small edits. But imagine adjusting hundreds of rocks, or comparing five versions of this coast with different water and lighting. That's when a repeatable set of commands starts to save work. I can choose the settings once and apply them again.\n\n[confident] You could write a Godot script for that, too. Swallowtail gives you ready-made commands to build on, whether you're writing the automation yourself or asking an agent to help.\n\n[explaining] Here's what that looks like. This plan brings back the calm water and daylight, saves the scene, and checks that it's valid. I'll run it now.\n\n[conversational] Let's run the same plan again.\n\n[pleased] We're back at the same settings. This plan sets specific values, so I can return to this version whenever I need a comparison. I'll check the scripts before we play it.\n\n[conversational] Let's see the coast from inside the game. I'll start the scene, check the active camera, and send a movement key to get a closer look.\n\n[thoughtfully] From down here, the waves feel a bit strong. I'll read the shader value from the running game. It's set to point six five. Let's try bringing that down.\n\n[calmly] I'll set the amplitude to point one eight. Watch the water for a moment...\n\n[pleased] That feels closer. I'll read the value back to confirm it, check for runtime errors, and capture a frame to compare later.\n\n[explaining] This change belongs to the running game. To keep it, I need to apply the same value in the editor and save. That's a useful task to hand to an agent.\n\n[conversational] I can ask an AI agent to keep the calmer water, lower the sun, and warm the light, then save the scene for review. Here's the workflow: inspect the project, look up the commands, apply the changes, and read the results back.\n\n[confident] The agent gets feedback from Godot as it works, and I can check both the commands and the scene. If something isn't right, I can adjust it or ask for another pass. I still decide how this coast should look.\n\n[explaining] An agent with terminal access can use those same CLI commands. MCP, or Model Context Protocol, gives AI clients another way to discover and call Swallowtail's tools. Both routes reach the same operations in Godot.\n\n[conversational] Here, the client connects to Swallowtail through standard input and output. It calls a tool to lower the sun, and we can watch the scene change.\n\n[confident] Then it reads the sun's rotation back, so we can check that the change took effect.\n\n[reassuring] You can use Swallowtail yourself, reuse your commands in scripts, or connect an agent when it helps. AI and MCP are optional. And throughout that workflow, you're working with ordinary Godot scenes and scripts.\n\n[warmly] Start with a scene... and see where it takes you.\n\n[warmly] Swallowtail is at your service.",
+  "characters": 4619,
+  "voice_id": "bYXvTprZQHr4vlg4TPx7",
+  "model": "eleven_v3",
+  "seed": 61928,
+  "similarity_boost": 0.85,
+  "stability": 0.5,
+  "recording_note": "Accepted performance omits the nonessential lead-in 'Before we start'; edited transcript follows the spoken take. Generation text below retains the original input.",
+  "files": [
+    "audio/polish/master.mp3",
+    "audio/polish/master.timing.json"
+  ]
+}
