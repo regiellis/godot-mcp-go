@@ -3,6 +3,7 @@ import argparse
 import csv
 import hashlib
 import html
+import io
 import json
 import math
 import os
@@ -10,6 +11,7 @@ from pathlib import Path
 import platform
 import re
 import shutil
+import signal
 import statistics
 import subprocess
 import sys
@@ -67,20 +69,111 @@ def metric(values):
             "over_100_ms": sum(v > 100 for v in values)}
 
 
-def frames(path, presentmon=False):
+def frames(path, presentmon=False, payload=None, expected_samples=None, allow_empty=False):
     groups = {}
-    with Path(path).open(encoding="utf-8-sig", newline="") as stream:
-        reader = csv.DictReader(stream)
+    count = 0
+    text = (Path(path).read_bytes() if payload is None else payload).decode("utf-8-sig")
+    with io.StringIO(text, newline="") as stream:
+        reader = csv.DictReader(stream, strict=True)
         required = {"MsBetweenPresents"} if presentmon else {"frame_ms", "phase"}
+        if expected_samples is not None:
+            required.add("time_us")
         if not required.issubset(reader.fieldnames or []):
             raise ValueError("unsupported frame CSV columns")
+        if expected_samples is not None and reader.fieldnames != ["time_us", "frame_ms", "phase"]:
+            raise ValueError("schema-2 frame CSV requires exact time_us,frame_ms,phase columns")
         for row in reader:
+            if None in row or any(row.get(key) is None for key in required):
+                raise ValueError("malformed frame CSV row")
+            if expected_samples is not None and not row["time_us"].isdigit():
+                raise ValueError("invalid frame timestamp")
             key = "present/all" if presentmon else "process_frame/" + row["phase"]
             value = float(row["MsBetweenPresents" if presentmon else "frame_ms"])
             groups.setdefault(key, []).append(value)
+            count += 1
+    if expected_samples is not None and count != expected_samples:
+        raise ValueError(f"frame sample count mismatch: declared {expected_samples}, read {count}")
+    if not groups and allow_empty:
+        return {}
     if not groups:
         raise ValueError("frame capture has no samples")
     return {key: metric(values) for key, values in groups.items()}
+
+
+def source_evidence(run, out, interruption):
+    """Only an atomic receipt's declared prefix is completed source evidence."""
+    path = out / "scenario.json"
+    if not path.is_file():
+        add_check(run, "scenario completion", False, "no scenario receipt; " + (interruption or "normal exit"))
+        run["scenario"] = {"complete": False, "coverage": "missing"}
+        if not interruption:
+            raise ValueError("source scenario receipt is missing after normal exit")
+        run["limitations"].append("Interrupted before any scenario checkpoint; no assertions, captures or frame samples are claimed.")
+        return
+    receipt = read_json(path)
+    if not isinstance(receipt, dict) or type(receipt.get("schema")) is not int or receipt["schema"] not in (1, 2) or type(receipt.get("complete")) is not bool:
+        raise ValueError("scenario receipt requires schema 1 or 2 and a boolean complete flag")
+    complete = receipt["complete"]
+    if receipt["schema"] == 1 and not complete:
+        raise ValueError("partial scenario receipts require schema 2 checkpoint metadata")
+    checks, shots = receipt.get("checks"), receipt.get("screenshots")
+    if not isinstance(checks, list) or not isinstance(shots, list):
+        raise ValueError("scenario checks and screenshots must be arrays")
+    for check in checks:
+        if not isinstance(check, dict) or check.get("status") not in ("pass", "fail", "skip") or not isinstance(check.get("name"), str) or not check["name"].strip() or ("detail" in check and not isinstance(check["detail"], str)):
+            raise ValueError("invalid scenario assertion")
+    for shot in shots:
+        if not isinstance(shot, dict) or not isinstance(shot.get("path"), str) or not shot["path"] or not isinstance(shot.get("caption"), str):
+            raise ValueError("invalid scenario screenshot metadata")
+        image = local_path(out, shot["path"])
+        if not image.is_file() or image.stat().st_size == 0:
+            raise ValueError("declared scenario screenshot is missing or empty: " + shot["path"])
+        if receipt["schema"] == 2:
+            if not isinstance(shot.get("sha256"), str) or re.fullmatch(r"[0-9a-f]{64}", shot["sha256"]) is None or digest(image) != shot["sha256"]:
+                raise ValueError("scenario screenshot checksum mismatch: " + shot["path"])
+    payload = None
+    samples = None
+    scenario = {"schema": receipt["schema"], "complete": complete,
+                "coverage": "complete" if complete else "checkpointed"}
+    if receipt["schema"] == 2:
+        capture = receipt.get("frames")
+        if type(receipt.get("checkpoint")) is not int or receipt["checkpoint"] < 1 or not isinstance(capture, dict) or capture.get("path") != "frames.csv":
+            raise ValueError("invalid scenario checkpoint/frame manifest")
+        if any(type(capture.get(key)) is not int for key in ("bytes", "samples")) or capture["bytes"] < 1 or capture["samples"] < 0 or not isinstance(capture.get("chunks"), list):
+            raise ValueError("invalid committed frame byte/sample counts or checksums")
+        data = local_path(out, "frames.csv").read_bytes()
+        size = capture["bytes"]
+        if len(data) < size or (complete and len(data) != size):
+            raise ValueError(f"frame byte count mismatch: declared {size}, file has {len(data)}")
+        payload = data[:size]
+        if not payload.endswith(b"\n"):
+            raise ValueError("committed frame prefix ends in an incomplete CSV record")
+        offset = 0
+        for chunk in capture["chunks"]:
+            if not isinstance(chunk, dict) or type(chunk.get("offset")) is not int or chunk["offset"] != offset or type(chunk.get("bytes")) is not int or chunk["bytes"] < 1 or not isinstance(chunk.get("sha256"), str):
+                raise ValueError("invalid or noncontiguous frame checksum segment")
+            end = offset + chunk["bytes"]
+            if end > size or hashlib.sha256(payload[offset:end]).hexdigest() != chunk["sha256"]:
+                raise ValueError("committed frame checksum mismatch at byte " + str(offset))
+            offset = end
+        if offset != size:
+            raise ValueError("frame checksums do not cover the declared byte prefix")
+        samples = capture["samples"]
+        scenario.update({"checkpoint": receipt["checkpoint"], "frame_samples": samples,
+                         "frame_bytes": size, "uncommitted_frame_bytes": len(data) - size})
+        for key in ("engine", "renderer", "device", "viewport"):
+            if not isinstance(receipt.get(key), str):
+                raise ValueError("scenario checkpoint requires runtime field: " + key)
+    detail = f"complete receipt with {len(checks)} assertions" if complete else "incomplete checkpoint; " + (interruption or "scenario ended before completion")
+    add_check(run, "scenario completion", complete and bool(checks), detail)
+    run["checks"].extend(checks)
+    run["screenshots"].extend(shots)
+    run["scenario"] = scenario
+    run["comparison_context"]["runtime"] = {key: receipt.get(key) for key in ("engine", "renderer", "device", "viewport")}
+    if not complete:
+        run["scope"] += "; incomplete checkpointed evidence"
+        run["limitations"].append("Source scenario incomplete: only committed assertions, captures and frame samples are reported; uncommitted CSV tail is retained but excluded. Partial timings do not establish complete-workload budgets.")
+    run["metrics"].update(frames(local_path(out, "frames.csv"), payload=payload, expected_samples=samples, allow_empty=not complete))
 
 
 def executable(value, project):
@@ -152,8 +245,10 @@ def command(argv, cwd, env, log, timeout):
             proc.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             timed_out = True
-            proc.kill()
-            proc.wait()
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+                proc.wait()
     return proc.returncode, timed_out
 
 
@@ -205,6 +300,8 @@ def run_capture(args):
         "runner_sha256": digest(HERE / "runner.gd") if config["kind"] == "source" else None,
         "presentmon_sha256": digest(presentmon) if presentmon else None,
         "capture": "presentmon" if args.presentmon else "process_frame" if config["kind"] == "source" else "none"}
+    game, capture = None, None
+    timeout, interruption = False, ""
     try:
         for index, cmd in enumerate(config.get("commands", [])):
             argv = [executable(cmd["argv"][0], project), *cmd["argv"][1:]]
@@ -222,12 +319,10 @@ def run_capture(args):
             argv += ["--path", str(project), "--script", str(out / "runner.gd"), "--", str(out), str(scenario)]
         run["argv"] = argv
         write_json(out / "run.json", {**run, "status": "running"})
-        capture = None
         with (out / "console.log").open("wb") as log, (out / "presentmon.log").open("wb") as pm_log:
             game = subprocess.Popen(argv, cwd=project if config["kind"] == "source" else Path(exe).parent,
                                     env=env, stdout=log, stderr=subprocess.STDOUT)
             print(json.dumps({"run": str(out), "pid": game.pid}), flush=True)
-            timeout = False
             try:
                 if args.presentmon:
                     capture = subprocess.Popen([presentmon, "--process_id", str(game.pid), "--output_file", str(out / "presentmon.csv"),
@@ -240,18 +335,39 @@ def run_capture(args):
                     timeout = True
                     game.kill()
                     game.wait()
+                except KeyboardInterrupt as error:
+                    interruption = str(error) or "interrupted by operator"
+                    raise
             finally:
                 if game.poll() is None:
                     game.kill()
                     game.wait()
                 if capture:
+                    if (timeout or interruption) and capture.poll() is None:
+                        capture.kill()
                     try:
                         capture.wait(timeout=config.get("timeout_seconds", 120) + 15)
                     except subprocess.TimeoutExpired:
                         capture.kill()
                         capture.wait()
-            add_check(run, "process exit", game.returncode == 0 and not timeout, f"exit={game.returncode}; timeout={timeout}")
-        raw = (out / "console.log").read_text(encoding="utf-8", errors="replace")
+    except KeyboardInterrupt as error:
+        interruption = str(error) or "interrupted by operator"
+        add_check(run, "QA runner", False, interruption)
+    except Exception as error:
+        interruption = "QA worker failure"
+        add_check(run, "QA runner", False, str(error))
+    # Ingest checkpoints after process cleanup even when wait/capture raised.
+    # The process failure remains primary; evidence cannot turn it into a pass.
+    if game is not None:
+        add_check(run, "process exit", game.returncode == 0 and not timeout and not interruption,
+                  f"exit={game.returncode}; timeout={timeout}; interruption={interruption or 'none'}")
+        if not interruption and (timeout or game.returncode != 0):
+            interruption = "process timeout" if timeout else f"process exit {game.returncode}"
+    run["process"] = {"launched": game is not None, "exit_code": game.returncode if game else None,
+                      "timed_out": timeout, "interruption": interruption or None}
+    try:
+        console = out / "console.log"
+        raw = console.read_text(encoding="utf-8", errors="replace") if console.exists() else ""
         if (out / "engine.log").exists():
             raw += "\n" + (out / "engine.log").read_text(encoding="utf-8", errors="replace")
         diagnostics = sorted(set(ERRORS.findall(raw)))
@@ -259,30 +375,31 @@ def run_capture(args):
         add_check(run, "complete engine log", not diagnostics, "\n".join(diagnostics) or "no engine errors or shutdown leaks")
         add_check(run, "boot receipt", re.search(config.get("boot_pattern", "Godot Engine"), raw) is not None)
         run["comparison_context"]["render_log"] = sorted(set(re.findall(r"(?m)^.*(?:Vulkan|OpenGL|D3D12).*Using Device.*$", raw)))
-        if config["kind"] == "source":
-            receipt = read_json(out / "scenario.json") if (out / "scenario.json").exists() else {}
-            add_check(run, "scenario completion", receipt.get("schema") == 1 and receipt.get("complete") is True and bool(receipt.get("checks")))
-            for check in receipt.get("checks", []):
-                if check.get("status") not in ("pass", "fail", "skip") or not check.get("name"):
-                    raise ValueError("invalid scenario assertion")
-                run["checks"].append(check)
-            for shot in receipt.get("screenshots", []):
-                local_path(out, shot["path"])
-                run["screenshots"].append(shot)
-            run["comparison_context"]["runtime"] = {key: receipt.get(key) for key in ("engine", "renderer", "device", "viewport")}
-            run["metrics"].update(frames(out / "frames.csv"))
+    except Exception as error:
+        add_check(run, "engine log evidence", False, str(error))
+    if config["kind"] == "source":
+        try:
+            source_evidence(run, out, interruption)
+        except Exception as error:
+            add_check(run, "scenario evidence", False, str(error))
+    try:
         if args.presentmon:
             add_check(run, "PresentMon exit", capture is not None and capture.returncode == 0)
-            run["metrics"].update(frames(out / "presentmon.csv", True))
+            if interruption and not (out / "presentmon.csv").exists():
+                run["limitations"].append("PresentMon did not publish samples before interruption.")
+            else:
+                run["metrics"].update(frames(out / "presentmon.csv", True))
         for phase, limits in config.get("budgets", {}).items():
             for key, limit in limits.items():
                 actual = run["metrics"].get(phase, {}).get(key)
-                add_check(run, phase + "/" + key + " budget", actual is not None and actual <= limit,
-                          f"actual={actual}; maximum={limit}")
-    except KeyboardInterrupt:
-        add_check(run, "QA runner", False, "interrupted by operator")
+                if interruption or (config["kind"] == "source" and not run.get("scenario", {}).get("complete")):
+                    run["checks"].append({"name": phase + "/" + key + " budget", "status": "pending",
+                                          "detail": "incomplete workload; observed=" + str(actual)})
+                else:
+                    add_check(run, phase + "/" + key + " budget", actual is not None and actual <= limit,
+                              f"actual={actual}; maximum={limit}")
     except Exception as error:
-        add_check(run, "QA runner", False, str(error))
+        add_check(run, "frame/budget evidence", False, str(error))
     for name in config.get("manual_checks", []):
         run["checks"].append({"name": name, "status": "pending", "manual": True, "detail": "operator evidence required"})
     run["finished"] = now()
@@ -503,7 +620,13 @@ def main(argv=None):
         shutil.copyfile(HERE / "example.gd", scenario_path)
         print(str(config_path)); return 0
     if args.action == "run":
-        return run_capture(args)
+        def terminated(signum, _frame):
+            raise KeyboardInterrupt("terminated by signal " + signal.Signals(signum).name)
+        previous = signal.signal(signal.SIGTERM, terminated)
+        try:
+            return run_capture(args)
+        finally:
+            signal.signal(signal.SIGTERM, previous)
     run_dir = (project / args.run).resolve()
     if args.action == "report":
         report(run_dir, (project / args.out).resolve() if args.out else run_dir / "report.pdf",
