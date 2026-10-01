@@ -8,14 +8,18 @@ A reference for working in a **C# Godot project**. Idioms verified against a shi
 commercial Godot C# game (decompiled), so they reflect real shipping practice rather than
 tutorials.
 
-> **Scope / fit.** The `swallowtail` CLI authors **GDScript** (`script.create`/`script.edit`
-> write `.gd`); it does not compile C#. So this file is guidance for when you're editing a
-> C# Godot codebase directly (in the filesystem, building with `dotnet`/Godot's build),
-> not something you drive through the addon. The `engine.*` discovery commands still help.
-> The live `ClassDB` API is identical whether you call it from C# or GDScript, so
-> `engine class-info --class Tween` etc. remain your source of truth for current signatures.
-> For *what to build*, `project-structure.md` and `deckbuilder-patterns.md` are
-> language-agnostic and apply here too.
+> **Scope / fit.** The `swallowtail` CLI supports **GDScript and C# scripts**:
+> `script create`/`script edit` handle `.gd` and `.cs` files, `csharp setup` scaffolds the
+> project, and `csharp build` runs `dotnet build` with structured diagnostics. C# projects
+> need a Godot .NET editor build and the .NET SDK. `script validate --path X.cs` builds the
+> whole project but filters diagnostics to that file; check `project_error_count` as well
+> as its file-level `valid` result. `editor run-script` and `runtime eval` still execute
+> GDScript, not C#.
+>
+> The `engine.*` discovery commands still help. The live `ClassDB` API is identical
+> whether you call it from C# or GDScript, so `engine class-info --class Tween` etc.
+> remain your source of truth for current signatures. For *what to build*,
+> `project-structure.md` and `deckbuilder-patterns.md` are language-agnostic and apply here too.
 
 ## Node classes: `partial`, inherit a Godot type
 
