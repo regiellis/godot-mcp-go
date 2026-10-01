@@ -47,6 +47,8 @@ swallowtail spatial place_on --node-path Crate --samples 3 --conform
 swallowtail spatial snap --node-path Bolt --to Beam --mode vertex
 ```
 
+The sampled down-rays exclude `CollisionObject3D` collider RIDs in the mover's subtree. Colliders outside that subtree, and other collision producers, are not excluded. The surface still needs colliders; AABB seating does not.
+
 For a free raycast (no target node), cast a ray and place at the hit:
 
 ```bash
@@ -65,12 +67,14 @@ swallowtail spatial raycast --from "Vector3(4,30,-6)" --to "Vector3(4,-30,-6)"
 For a cluster (a desk with a lamp, papers, and a mug), place the anchor, `spatial bounds` it, then derive each child position from the measured box, not from a guessed constant. Every piece hangs off what actually landed.
 
 ```bash
-swallowtail spatial align --node-path Lamp --to Desk --edge top --inset "Vector3(0.3, 0, 0.2)"
-swallowtail spatial distribute --node-paths '["Book1","Book2","Book3"]' --along x --spacing 0.25
+swallowtail spatial align --node-path Lamp --to Desk --axes xz --on-top
+swallowtail spatial distribute --nodes '["Book1","Book2","Book3"]' --axis x --spacing 0.25
 swallowtail spatial look_at --node-path Camera --target Desk
 ```
 
-`spatial relate` reports the spatial relationship between two nodes (above, inside, touching, the gap between them), so an agent can assert an arrangement instead of trusting it. `spatial find_in_region` lists what occupies a world box, and `spatial lint` flags geometry that floats or intersects.
+`--axes xz --on-top` centers the mover horizontally and seats its bottom on the target's top. Derive any additional offset from measured bounds; `align` has no `edge` or `inset` parameter. `distribute --spacing` is the distance between successive centers, not the gap between mesh edges.
+
+`spatial relate` reports center delta, distance, per-axis centered flags, a per-axis `gap` as a Vector3 string (positive separation, negative overlap depth), and `overlaps` for AABB intersection. Assert these numeric fields rather than expecting a semantic `relation` label. `spatial find_in_region` lists what occupies a world box, and `spatial lint` reports duplicate or unsupported solid geometry.
 
 ## 4. Verify numerically
 
@@ -79,17 +83,18 @@ A screenshot confirms nothing about a 0.05 m float. Read the result back and ass
 ```bash
 # did the lamp actually land on the table top?
 swallowtail spatial bounds --node-path Lamp
-swallowtail spatial relate --node-path Lamp --to Table
-# -> { "relation": "resting_on", "gap": 0.0, "overlap": false }
+swallowtail spatial relate --node-path Lamp --other Table
+# -> center_delta, distance, centered{x,y,z}, gap (Vector3 string), overlaps, point_only
+# Check Lamp min.y against Table max.y; gap.y should be near zero.
 
-# sweep the scene for floaters and interpenetration
-swallowtail spatial lint --check-floating
+# sweep the scene for floaters with an explicit 5 cm vertical threshold
+swallowtail spatial lint --check-floating --float-threshold 0.05
 ```
 
 
 > **Tip**
 >
-> `spatial lint --check-floating` only considers solid geometry (MeshInstance3D, CSGShape3D) and treats a piece as supported if it touches or rests just above another solid, within a 5 cm tolerance. Lights, decals, particles, and scattered MultiMesh have no "rests on a surface" meaning and are excluded, so the check does not drown in false positives.
+> `spatial lint --check-floating` only considers solid geometry (MeshInstance3D, CSGShape3D). Contact uses a 0.05 m AABB expansion; resting above another solid uses `--float-threshold` (default **0.5 m**). Pass `--float-threshold 0.05` for a 5 cm vertical support threshold, and use bounds/relate readback to check exact seating. Lights, decals, particles, and scattered MultiMesh are excluded from the floating check.
 
 
 ## Why `world_aabb` is the correct bound

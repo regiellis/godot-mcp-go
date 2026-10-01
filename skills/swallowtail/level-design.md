@@ -279,9 +279,9 @@ feed straight back into `node set --property global_position`):
   spatial place_on --node-path Crate --samples 3 --conform
   #   -> hits/misses (misses>0 ⇒ part hangs off an edge), unevenness (0=flat), avg_normal;
   #      --conform also tilts the prop to match the slope's normal.
-  #   The SURFACE needs use_collision; the PROP must not have one, or the bundle hits the prop's
-  #   own top face and seats it on itself (seated_on names the prop, misses 0, unevenness 0;
-  #   a healthy-looking wrong answer). Seat first, switch use_collision on after.
+  #   The SURFACE needs colliders (CSG use_collision or StaticBody3D + CollisionShape3D).
+  #   CollisionObject3D colliders in the prop's subtree are excluded from the down-rays.
+  #   Colliders outside that subtree, and other collision producers, are not excluded.
   # Tier 3: exact corner/edge alignment (the scriptable vertex-snap analog; no collider):
   spatial snap --node-path Bolt --to Beam --mode vertex   # mover's anchor -> nearest real vertex
   spatial snap --node-path Decal --to Wall --mode face --axes yz   # nearest point on nearest face

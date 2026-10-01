@@ -151,8 +151,10 @@ pcg scatter --along Road --spacing 3 --emit multimesh --mesh_from PostProto --se
 Filters: `--min_slope/--max_slope` (degrees from up, and it needs colliders so the down-ray reads
 a normal), `--min_height/--max_height` (world Y band), `--noise_threshold` (a FastNoiseLite mask for
 natural clumping/patches). `--emit multimesh` for thousands (one draw call, no node cost);
-`--emit scene` when each instance needs to be a real node. Wrap a big generation in
-`authoring checkpoint --action capture` first so you can `restore` if you don't like the seed.
+`--emit scene` when each instance needs to be a real node. Use
+`authoring checkpoint --action capture` to inspect or restore existing node transforms.
+`restore` does not remove scattered nodes or undo resource/file edits; track owned creations
+and remove them explicitly, or recover a disposable scene from a saved copy/version control.
 
 ## Ship-it performance (env-art / tech-art, **not** level design)
 

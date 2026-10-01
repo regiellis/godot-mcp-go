@@ -261,14 +261,17 @@
 commercial Godot C# game (decompiled), so they reflect real shipping practice rather than
 tutorials.</p>
 <blockquote>
-<p><strong>Scope / fit.</strong> The <code>swallowtail</code> CLI authors <strong>GDScript</strong> (<code>script.create</code>/<code>script.edit</code>
-write <code>.gd</code>); it does not compile C#. So this file is guidance for when you’re editing a
-C# Godot codebase directly (in the filesystem, building with <code>dotnet</code>/Godot’s build),
-not something you drive through the addon. The <code>engine.*</code> discovery commands still help.
-The live <code>ClassDB</code> API is identical whether you call it from C# or GDScript, so
-<code>engine class-info --class Tween</code> etc. remain your source of truth for current signatures.
-For <em>what to build</em>, <code>project-structure.md</code> and <code>deckbuilder-patterns.md</code> are
-language-agnostic and apply here too.</p>
+<p><strong>Scope / fit.</strong> The <code>swallowtail</code> CLI supports <strong>GDScript and C# scripts</strong>:
+<code>script create</code>/<code>script edit</code> handle <code>.gd</code> and <code>.cs</code> files, <code>csharp setup</code> scaffolds the
+project, and <code>csharp build</code> runs <code>dotnet build</code> with structured diagnostics. C# projects
+need a Godot .NET editor build and the .NET SDK. <code>script validate --path X.cs</code> builds the
+whole project but filters diagnostics to that file; check <code>project_error_count</code> as well
+as its file-level <code>valid</code> result. <code>editor run-script</code> and <code>runtime eval</code> still execute
+GDScript, not C#.</p>
+<p>The <code>engine.*</code> discovery commands still help. The live <code>ClassDB</code> API is identical
+whether you call it from C# or GDScript, so <code>engine class-info --class Tween</code> etc.
+remain your source of truth for current signatures. For <em>what to build</em>,
+<code>project-structure.md</code> and <code>deckbuilder-patterns.md</code> are language-agnostic and apply here too.</p>
 </blockquote>
 <h2 id="node-classes-partial-inherit-a-godot-type">Node classes: <code>partial</code>, inherit a Godot type<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#node-classes-partial-inherit-a-godot-type">#</a></h2>
 <p>Every script that Godot instantiates is a <code>partial class</code> deriving from a Godot node type.
