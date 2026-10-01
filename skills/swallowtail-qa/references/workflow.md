@@ -101,7 +101,10 @@ invent a missing-frame error. Corrupt declared evidence still fails; normal comp
 requires the complete CSV, exact counts/checksums and every declared capture. A forcibly
 killed worker may leave `run.json` running; its last source checkpoint does not certify a
 finalized run or full coverage. Checkpoint IO is part of instrumented process-frame timing.
-The worker handles SIGINT/SIGTERM delivered to its own process. The Go CLI does not yet
+SIGINT/SIGTERM delivered directly to the Python worker are finalized while it waits for
+an owned command or game. Signals during evidence/report finalization, repeated signals,
+or forced termination can still leave `run.json` unfinished; those cancellation paths
+are not established by these tests. The Go CLI does not yet
 forward a signal sent only to the CLI parent; that can leave the worker/game running until
 their timeout. CLI-parent cancellation and process-group signal ownership remain separate
 work, not coverage established by the worker's interruption tests.
