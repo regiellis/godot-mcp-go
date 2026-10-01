@@ -87,6 +87,25 @@ Use deadlines for every wait on gameplay state; the outer process timeout is a f
 Keep source scenarios outside player export filters. The runner calls normal game methods;
 it is not proof of OS input delivery or controller hardware behavior.
 
+Source runs publish atomic schema-2 `scenario.json` checkpoints at completed checks,
+phase changes, completed captures and roughly one-second intervals. `frames.csv` is an
+append log; each checkpoint declares its flushed byte prefix, sample count and contiguous
+SHA-256 segments. Only that verified prefix contributes metrics. Completed capture metadata
+includes the PNG checksum. The worker still reads older complete schema-1 receipts.
+
+A timeout, nonzero process exit, or interruption handled by the Python worker remains a failure. The
+last valid checkpoint retains completed assertions/captions and sampled timings, explicitly
+labelled incomplete; workload budgets stay unassessed. Uncommitted CSV tail is archived but
+excluded. Interruption before the first checkpoint claims no scenario evidence and does not
+invent a missing-frame error. Corrupt declared evidence still fails; normal completion
+requires the complete CSV, exact counts/checksums and every declared capture. A forcibly
+killed worker may leave `run.json` running; its last source checkpoint does not certify a
+finalized run or full coverage. Checkpoint IO is part of instrumented process-frame timing.
+The worker handles SIGINT/SIGTERM delivered to its own process. The Go CLI does not yet
+forward a signal sent only to the CLI parent; that can leave the worker/game running until
+their timeout. CLI-parent cancellation and process-group signal ownership remain separate
+work, not coverage established by the worker's interruption tests.
+
 Project-specific `mcp_commands/*.gd` can share a helper with these scenarios, but they run
 inside the editor and have different capabilities. No change to the editor command router
 is needed. A future adapter can invoke `swallowtail automate` as a command check, provided
