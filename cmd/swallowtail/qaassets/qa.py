@@ -245,8 +245,10 @@ def command(argv, cwd, env, log, timeout):
             proc.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             timed_out = True
-            proc.kill()
-            proc.wait()
+        finally:
+            if proc.poll() is None:
+                proc.kill()
+                proc.wait()
     return proc.returncode, timed_out
 
 

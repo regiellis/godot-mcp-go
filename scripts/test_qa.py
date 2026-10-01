@@ -191,6 +191,7 @@ class ProcessTests(unittest.TestCase):
 from pathlib import Path
 mode = sys.argv[1]
 out = Path(sys.argv[sys.argv.index('--') + 1])
+(out / 'child.pid').write_text(str(os.getpid()), encoding='ascii')
 print('Godot Engine (test double; no engine)', flush=True)
 if mode not in ('missing', 'early-timeout'):
     (out / 'frames.csv').write_bytes(DATA)
@@ -215,12 +216,18 @@ elif mode == 'corrupt':
     (out / 'scenario.json').write_text('{', encoding='utf-8')
 """.replace("DATA", repr(CSV)).replace("IMAGE", repr(PNG)).replace("RECEIPT", repr(receipt())), encoding="utf-8")
         self.fake = fake
+        self.pre = self.project / "pre.py"
+        self.pre.write_text("import os, sys, time\nfrom pathlib import Path\n"
+                            "Path(sys.argv[1]).write_text(str(os.getpid()), encoding='ascii')\ntime.sleep(60)\n", encoding="utf-8")
 
-    def argv(self, mode):
+    def argv(self, mode, precommand=False):
         config = {"schema": 1, "name": "non-engine contracts", "kind": "source",
                   "executable": sys.executable, "args": [str(self.fake), mode],
                   "scenario": "scenario.gd", "timeout_seconds": 1 if mode != "operator" else 20,
                   "budgets": {"process_frame/boot": {"p99_ms": 3}}}
+        if precommand:
+            config["commands"] = [{"name": "owned precommand", "argv": [sys.executable, str(self.pre),
+                                   str(self.project / ("result-" + mode) / "child.pid")], "timeout_seconds": 20}]
         qa.write_json(self.project / "config.json", config)
         return [sys.executable, str(WORKER), "run", "--project", str(self.project),
                 "--config", "config.json", "--out", "result-" + mode]
@@ -250,40 +257,51 @@ elif mode == 'corrupt':
                     self.assertTrue(run["process"]["timed_out"])
                     self.assertTrue(any(c["name"] == "scenario evidence" and c["status"] == "fail" for c in run["checks"]))
 
-    @unittest.skipUnless(os.name == "posix", "POSIX worker signal finalization")
-    def test_operator_signals_preserve_checkpoint_and_reap_child(self):
-        for sig in (signal.SIGINT, signal.SIGTERM):
-            with self.subTest(signal=sig):
+    @unittest.skipUnless(hasattr(os, "pidfd_open") and hasattr(signal, "pidfd_send_signal"), "Linux pidfd cleanup ownership")
+    def test_operator_signals_reap_game_and_command_children(self):
+        for precommand, sig in ((command, sig) for command in (False, True) for sig in (signal.SIGINT, signal.SIGTERM)):
+            with self.subTest(precommand=precommand, signal=sig):
                 target = self.project / "result-operator"
-                proc = subprocess.Popen(self.argv("operator"), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-                child = None
+                proc = subprocess.Popen(self.argv("operator", precommand), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+                child_fd = None
                 try:
-                    launch = json.loads(proc.stdout.readline())
-                    child = launch["pid"]
+                    ready = [target / "child.pid"] + ([] if precommand else [target / "scenario.json"])
                     deadline = time.monotonic() + 4
-                    while not (target / "scenario.json").exists() and time.monotonic() < deadline:
+                    while not all(path.exists() for path in ready) and time.monotonic() < deadline:
                         time.sleep(.01)
-                    self.assertTrue((target / "scenario.json").exists())
+                    self.assertTrue(all(path.exists() for path in ready))
+                    # Hold the child identity so cleanup cannot signal a reused PID.
+                    child_fd = os.pidfd_open(int(ready[0].read_text(encoding="ascii")))
                     proc.send_signal(sig)
                     _stdout, stderr = proc.communicate(timeout=5)
                     self.assertEqual(proc.returncode, 1, stderr)
                     run = qa.read_json(target / "run.json")
                     self.assertEqual(run["status"], "fail")
-                    self.assertEqual(len(run["screenshots"]), 1)
-                    self.assertEqual(run["metrics"]["process_frame/boot"]["samples"], 2)
+                    if precommand:
+                        self.assertFalse(run["process"]["launched"])
+                        self.assertEqual(run["scenario"]["coverage"], "missing")
+                    else:
+                        self.assertEqual(len(run["screenshots"]), 1)
+                        self.assertEqual(run["metrics"]["process_frame/boot"]["samples"], 2)
                     self.assertTrue(any(c["name"] == "QA runner" and c["status"] == "fail" for c in run["checks"]))
                     self.assertFalse(any(c["name"] == "scenario evidence" for c in run["checks"]))
                     with self.assertRaises(ProcessLookupError):
-                        os.kill(child, 0)
+                        signal.pidfd_send_signal(child_fd, 0)
                 finally:
                     if proc.poll() is None:
-                        proc.kill()
-                        proc.communicate()
-                    if child is not None:
+                        proc.terminate()
                         try:
-                            os.kill(child, signal.SIGKILL)
+                            proc.communicate(timeout=5)
+                        except subprocess.TimeoutExpired:
+                            proc.kill()
+                            proc.communicate()
+                    if child_fd is not None:
+                        try:
+                            signal.pidfd_send_signal(child_fd, signal.SIGKILL)
                         except ProcessLookupError:
                             pass
+                        finally:
+                            os.close(child_fd)
                 for path in sorted(target.rglob("*"), reverse=True):
                     path.unlink() if path.is_file() else path.rmdir()
                 target.rmdir()
