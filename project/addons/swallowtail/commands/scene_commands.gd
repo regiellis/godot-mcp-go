@@ -396,6 +396,18 @@ func _save(params: Dictionary) -> Dictionary:
 	var root := get_edited_root()
 	if root == null:
 		return error_no_scene()
+	var scene_id := root.get_instance_id()
+	var scene_path := root.scene_file_path
+
+	# Preview saves reject message-queue flushes; another deferred call stays in that flush.
+	await get_tree().process_frame
+	# A tab can close or switch while waiting. Resolve it again before touching the root.
+	root = get_edited_root()
+	if root == null or root.get_instance_id() != scene_id or root.scene_file_path != scene_path:
+		return error_conflict("Active scene changed while waiting to save; retry scene.save for the intended scene", {
+			"expected_scene": scene_path,
+			"active_scene": root.scene_file_path if root != null else "",
+		})
 
 	var path := optional_string(params, "path", "")
 	if path.is_empty():
