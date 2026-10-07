@@ -4,10 +4,12 @@ A reference for working in a **C# Godot project**. Idioms verified against a shi
 commercial Godot C# game (decompiled), so they reflect real shipping practice rather than
 tutorials.
 
-> **Scope / fit.** The `swallowtail` CLI authors **GDScript** (`script.create`/`script.edit`
-> write `.gd`); it does not compile C#. So this file is guidance for when you're editing a
-> C# Godot codebase directly (in the filesystem, building with `dotnet`/Godot's build),
-> not something you drive through the addon. The `engine.*` discovery commands still help.
+> **Scope / fit.** The `csharp` group handles the project plumbing: `csharp info` reports the
+> dotnet and .NET-editor state, `csharp setup` scaffolds the `.csproj` and `.sln`, and
+> `csharp build` runs `dotnet build` and returns structured diagnostics. `script create` on a
+> `.cs` path writes a `public partial class` template, and `script validate --path X.cs` builds
+> and reports that file's diagnostics. Running C# needs a Godot .NET editor build plus the
+> dotnet SDK. This file covers the idioms you write inside those scripts.
 > The live `ClassDB` API is identical whether you call it from C# or GDScript, so
 > `engine class-info --class Tween` etc. remain your source of truth for current signatures.
 > For *what to build*, `project-structure.md` and `deckbuilder-patterns.md` are

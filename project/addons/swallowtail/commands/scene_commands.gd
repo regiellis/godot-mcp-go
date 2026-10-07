@@ -409,6 +409,18 @@ func _save(params: Dictionary) -> Dictionary:
 			{"active_scene": normalize_project_path(root.scene_file_path),
 			"suggestion": "Open the target scene tab before saving it."})
 
+	# The router runs handlers through call_deferred, and a save inside that flush
+	# opens the editor's ProgressDialog where it refuses to run: six engine errors
+	# per save on 4.7.2, though the file still lands. Save on the next frame, and
+	# refuse if the scene changed under the call while it waited.
+	var scene_path := root.scene_file_path
+	await get_tree().process_frame
+	if get_edited_root() != root or root.scene_file_path != scene_path:
+		var now := get_edited_root()
+		return error_conflict("The active scene changed before '%s' could be saved" % normalized,
+			{"active_scene": normalize_project_path(now.scene_file_path) if now != null else "",
+			"suggestion": "Open the target scene tab and save again."})
+
 	var made_dir := ensure_parent_dir(normalized)
 
 	var err := OK

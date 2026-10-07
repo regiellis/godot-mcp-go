@@ -160,4 +160,4 @@ Constraint tile-assembly composes, like the rest of the toolset. Your command se
 3. **Variety** comes from variant buckets plus `match_pattern` for special pieces.
 4. **Organic**: `stalberg_grid` for the layout, `mesh deform_lattice` to fit modules to irregular cells.
 
-Wrap risky runs in `authoring checkpoint --action capture` so a bad seed is one `restore` away.
+To discard a bad seed, run again with another `--seed` over the same cells, or `gridmap clear` to start over. `authoring checkpoint` records node transforms, not GridMap cells, so its `restore` cannot undo a run.

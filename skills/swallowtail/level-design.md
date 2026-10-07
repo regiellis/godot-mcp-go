@@ -279,9 +279,10 @@ feed straight back into `node set --property global_position`):
   spatial place_on --node-path Crate --samples 3 --conform
   #   -> hits/misses (misses>0 ⇒ part hangs off an edge), unevenness (0=flat), avg_normal;
   #      --conform also tilts the prop to match the slope's normal.
-  #   The SURFACE needs use_collision; the PROP must not have one, or the bundle hits the prop's
-  #   own top face and seats it on itself (seated_on names the prop, misses 0, unevenness 0;
-  #   a healthy-looking wrong answer). Seat first, switch use_collision on after.
+  #   The SURFACE needs collision. The rays skip any CollisionObject3D under the prop (its
+  #   StaticBody3D), but a CSG prop's own use_collision is not skipped: the bundle hits its top
+  #   face and seats it on itself (seated_on names the prop, misses 0, unevenness 0; a
+  #   healthy-looking wrong answer). Seat a CSG prop first, switch use_collision on after.
   # Tier 3: exact corner/edge alignment (the scriptable vertex-snap analog; no collider):
   spatial snap --node-path Bolt --to Beam --mode vertex   # mover's anchor -> nearest real vertex
   spatial snap --node-path Decal --to Wall --mode face --axes yz   # nearest point on nearest face
@@ -707,9 +708,9 @@ spatial raycast --from "Vector3(-70,2,40)" --to "Vector3(-70,2,-140)"  # the fla
 ```
 Seat anything on sloped plates with `spatial place_on --samples 3 --conform` instead of computing
 Y. Outdoor ground is never flat, so the footprint bundle earns its keep here more than anywhere.
-Add the prop with `--use-collision false`, seat it, then switch collision on: a prop that already
-carries a collider seats on its own top face and reports a clean success (see the Tier-2 note
-above). On a rotated plate, read the seat off `place_on`'s own `surface_top_y` and `avg_normal`
+Add a CSG prop with `--use-collision false`, seat it, then switch collision on: a CSG prop that
+already has `use_collision` seats on its own top face and reports a clean success (see the Tier-2
+note above). A prop whose collider is a body node beneath it seats correctly as it is. On a rotated plate, read the seat off `place_on`'s own `surface_top_y` and `avg_normal`
 rather than `spatial relate`. Relate compares world AABBs, and a tilted 120 m plate has an AABB
 tall enough to report `overlaps: true` against a prop resting on its surface.
 

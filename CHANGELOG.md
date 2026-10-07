@@ -6,6 +6,13 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`scene save` no longer logs six editor errors per save**. In a windowed editor every save logged six `progress_dialog.cpp` errors, though the file was written. The save now runs on the next editor frame and returns `-32009` if the active scene changes before it can. `editor errors` no longer hides those lines as noise.
+- **Spatial placement docs match the commands**. The `align` and `distribute` examples use real flags, the `relate` example uses `--other` and shows the actual result fields, and the floating-geometry tip gives the 0.5 m support gap and the 5 cm contact slack.
+- **Craft guide corrections**. The C# guide describes the `csharp` group and C#-aware `script` commands. The environment-art and tile guides no longer offer `authoring checkpoint` as a way to undo a scatter or WFC run, since it restores transforms only. The level-design guide says which props seat on their own collider: CSG props with `use_collision`, while props with a body node are excluded.
+- **`go test` passes on the public mirror**. The QA worker contract test skips when the maintainer-only script is absent.
+
 ## [1.1.0] - 2026-09-26
 
 ### Added
