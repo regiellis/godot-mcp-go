@@ -4,16 +4,16 @@ const Identity = preload("res://addons/swallowtail/identity.gd")
 
 ## Slim WebSocket JSON-RPC server hosted INSIDE the running game (NOT @tool). It
 ## is the direct channel: the swallowtail CLI dials it with --game and drives
-## runtime.*/input.* with no editor in the loop, so a standalone game (one not
-## launched from an editor) is reachable.
+## runtime.*/input.*/playtest.* with no editor in the loop, so a standalone game
+## (one not launched from an editor) is reachable.
 ##
 ## Created and started by MCPGameInspector._ready(), only in a debug build with
 ## the swallowtail/runtime/direct_server setting on, so it is impossible in a release export.
 ##
 ## Wire contract is identical to the editor addon (websocket_server.gd): JSON-RPC
 ## 2.0 over WebSocket text frames, same error codes, 127.0.0.1 ONLY (invariant).
-## Instead of routing to the editor command router, it maps runtime.<cmd> to the
-## inspector's shared dispatch (run_command) and injects input.<cmd> through the
+## Instead of routing to the editor command router, it maps runtime.<cmd> and
+## playtest.<cmd> to the inspector's shared dispatch (run_command) and injects input.<cmd> through the
 ## MCPGameInput autoload, reusing the exact game-side handlers, not copies.
 
 const DEFAULT_PORT := 9200
@@ -28,10 +28,11 @@ const RESUME_GAP_MS := 15000                  # frame gap this large => host sle
 const DISCOVERY_PATH := "user://swallowtail-game.json"
 const LEGACY_DISCOVERY_PATH := "user://godot-mcp-game.json"
 
-## Wire runtime.<cmd> -> the MCPGameInspector game-side command name it maps to.
-## The editor's runtime_commands.gd performs the same mapping when brokering over
-## file IPC; the game handlers read the same param keys the CLI sends, so params
-## pass straight through (each handler does its own validation/defaults).
+## Wire runtime.<cmd> and playtest.<cmd> -> the MCPGameInspector game-side
+## command name each maps to. The editor's runtime_commands.gd and
+## playtest_commands.gd perform the same mapping when brokering over file IPC; the
+## game handlers read the same param keys the CLI sends, so params pass straight
+## through (each handler does its own validation/defaults).
 const RUNTIME_MAP := {
 	"runtime.tree": "get_scene_tree",
 	"runtime.get": "get_node_properties",
@@ -55,6 +56,11 @@ const RUNTIME_MAP := {
 	"runtime.watch_signals": "watch_signals",
 	"runtime.await_signal": "await_signal",
 	"runtime.errors": "get_runtime_errors",
+	"playtest.start": "playtest_start",
+	"playtest.mark": "playtest_mark",
+	"playtest.event": "playtest_event",
+	"playtest.status": "playtest_status",
+	"playtest.stop": "playtest_stop",
 }
 
 const INPUT_METHODS := [
@@ -290,7 +296,12 @@ func _deliver_runtime(ws: WebSocketPeer, id: Variant, result: Dictionary) -> voi
 	if ws.get_ready_state() != WebSocketPeer.STATE_OPEN:
 		return
 	if result.has("error"):
-		_send(ws, id, null, {"code": -32000, "message": str(result["error"])})
+		# Same mapping as runtime_commands._send over the editor hop: a handler may
+		# name the wire code and attach data (runtime.eval's aborted snippet).
+		var err := {"code": int(result.get("error_code", -32000)), "message": str(result["error"])}
+		if result.get("error_data") is Dictionary:
+			err["data"] = result["error_data"]
+		_send(ws, id, null, err)
 	else:
 		_send(ws, id, result, null)
 

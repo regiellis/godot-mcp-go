@@ -10,6 +10,7 @@ extends RefCounted
 static func parse_value(value: Variant, target_type: int = TYPE_NIL) -> Variant:
 	if value == null:
 		return null
+	value = _unquote_json_string(value)
 	if target_type == TYPE_NIL:
 		return _auto_parse(value)
 
@@ -80,6 +81,22 @@ static func parse_value(value: Variant, target_type: int = TYPE_NIL) -> Variant:
 
 static func _as_array(value: Variant) -> Array:
 	return value if value is Array else [value]
+
+
+## A JSON string literal ("abc") reaches here with its quotes, because the CLI
+## parses a value as JSON only when it opens with [ or {. Params documented as
+## JSON mean the string inside: keeping the quotes once wrote
+## NodePath("\"../Child/Target\"") and reported success.
+static func _unquote_json_string(value: Variant) -> Variant:
+	if not value is String:
+		return value
+	var s: String = value
+	if s.length() < 2 or not s.begins_with("\"") or not s.ends_with("\""):
+		return value
+	var json := JSON.new()
+	if json.parse(s) == OK and json.data is String:
+		return json.data
+	return value
 
 
 static func _auto_parse(value: Variant) -> Variant:

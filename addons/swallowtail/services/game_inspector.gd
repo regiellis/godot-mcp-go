@@ -13,7 +13,10 @@ const Identity = preload("res://addons/swallowtail/identity.gd")
 ## the request file and dispatches via _handle_request().
 
 const PropertyParser := preload("res://addons/swallowtail/utils/property_parser.gd")
+const ImageCapture := preload("res://addons/swallowtail/utils/image_capture.gd")
+const ExecErrors := preload("res://addons/swallowtail/utils/exec_errors.gd")
 const GameServer := preload("res://addons/swallowtail/services/game_server.gd")
+const PlaytestRecorder := preload("res://addons/swallowtail/services/playtest_recorder.gd")
 ## Loaded at RUNTIME, never preloaded: see _start_error_log.
 const GAME_ERROR_LOG_PATH := "res://addons/swallowtail/services/game_error_log.gd"
 const ERROR_CAPTURE_MIN_VERSION := "4.5"
@@ -51,6 +54,11 @@ var _request_id: String = ""
 # swallowtail/runtime/direct_server setting on. Null otherwise (and in every export).
 var _game_server: Node = null
 
+# The playtest session recorder (services/playtest_recorder.gd), a child created
+# in _ready. It runs beside the IPC state machine rather than inside it, so every
+# other runtime.*/input.* command keeps working while a session records.
+var _playtest: PlaytestRecorder = null
+
 # Frame capture state
 var _capture_frames_remaining: int = 0
 var _capture_frame_interval: int = 1
@@ -60,6 +68,7 @@ var _captured_images: Array = []
 var _capture_node_path: String = ""
 var _capture_node_props: Array = []
 var _capture_frame_data: Array = []
+var _capture_conversion: Dictionary = {}
 
 # Monitor state
 var _monitor_node_path: String = ""
@@ -97,6 +106,7 @@ var _moveto_keys_held: Array = []
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS  # keep responding even if paused
 	_start_error_log()
+	_start_playtest_recorder()
 	_maybe_start_direct_server()
 
 
@@ -119,6 +129,34 @@ func _start_error_log() -> void:
 		return
 	_error_log = script.new()
 	OS.call("add_logger", _error_log)
+
+
+func _start_playtest_recorder() -> void:
+	_playtest = PlaytestRecorder.new()
+	_playtest.name = "MCPPlaytestRecorder"
+	_playtest.error_log = _error_log
+	add_child(_playtest)
+
+
+## Record a game event in the current playtest session: deaths, damage, pickups,
+## anything a report should count. The one line game code adds:
+##     MCPGameInspector.playtest_event("death", {"wave": 3})
+## Returns true when the event was recorded. With no session recording it does
+## nothing and returns false, so it is safe to leave in game code permanently.
+func playtest_event(event_name: String, data: Variant = {}) -> bool:
+	return _playtest != null and _playtest.record_event(event_name, data, "game")
+
+
+## Mark a checkpoint from game code (a level loaded, a wave began). Sections in the
+## report start at each mark. A no-op returning false when nothing is recording.
+func playtest_mark(label: String) -> bool:
+	return _playtest != null and _playtest.record_mark(label)
+
+
+## Called by MCPGameInput for each event an input.* command injects.
+func playtest_note_input(data: Dictionary) -> void:
+	if _playtest != null:
+		_playtest.record_input(data)
 
 
 ## Start the in-game direct WebSocket server iff BOTH the build is a debug build
@@ -231,6 +269,11 @@ func _dispatch(command: String, params: Dictionary) -> void:
 		"await_signal": _await_signal(params)
 		"get_runtime_errors": _get_runtime_errors(params)
 		"assert_node_state": _assert_node_state(params)
+		"playtest_start": _respond(_playtest.cmd_start(params))
+		"playtest_mark": _respond(_playtest.cmd_mark(params))
+		"playtest_event": _respond(_playtest.cmd_event(params))
+		"playtest_status": _respond(_playtest.cmd_status(params))
+		"playtest_stop": _respond(_playtest.cmd_stop(params))
 		_: _respond({"error": "Unknown command: %s" % command})
 
 
@@ -576,11 +619,26 @@ func _execute_script(params: Dictionary) -> void:
 	var node := Node.new()
 	node.set_script(script)
 	add_child(node)
+	var run_since: int = _error_log.next_seq() if _error_log != null else 0
 	if node.has_method("run"):
 		node.run()
 	var out: Variant = node.get("output")
 	node.queue_free()
-	_respond({"output": out if out is Array else []})
+	var output: Array = out if out is Array else []
+	# A runtime fault aborts run() and reports nothing here; the error log is
+	# the only place the engine wrote the reason. Below 4.5 there is no log and
+	# the reply says so rather than reading as a clean run.
+	if _error_log == null:
+		_respond({"output": output, "error_capture": "unavailable"})
+		return
+	var ran: Dictionary = ExecErrors.classify(_error_log.poll(run_since, false).errors, ExecErrors.script_file(script), _EVAL_PREAMBLE_LINES)
+	if ran["aborted"]:
+		_respond({"error": ExecErrors.abort_text(ran), "error_code": -32603, "error_data": {"output": output, "errors": ran["errors"]}})
+		return
+	var response := {"output": output}
+	if not ran["errors"].is_empty():
+		response["errors"] = ran["errors"]
+	_respond(response)
 
 
 func _indent(code: String) -> String:
@@ -647,6 +705,7 @@ func _screenshot(params: Dictionary) -> void:
 		await RenderingServer.frame_post_draw
 		image = get_viewport().get_texture().get_image()
 		black = _is_black(image)
+	var hdr := ImageCapture.to_srgb8(image)
 	# Default false, unlike capture_frames: a saved PNG is evidence someone looks
 	# at, and silently halving every existing caller's file would be its own
 	# surprise. Opt in explicitly. The step schema and --help both say so.
@@ -669,16 +728,16 @@ func _screenshot(params: Dictionary) -> void:
 		if save_err != OK:
 			_respond({"error": "Failed to save screenshot to '%s': %s" % [save_path, error_string(save_err)]})
 			return
-		_respond({"saved_path": save_path, "width": image.get_width(), "height": image.get_height(),
-			"format": "png", "black_frame": black})
+		_respond(ImageCapture.stamp({"saved_path": save_path, "width": image.get_width(),
+			"height": image.get_height(), "format": "png", "black_frame": black}, hdr))
 		return
-	_respond({
+	_respond(ImageCapture.stamp({
 		"image_base64": Marshalls.raw_to_base64(image.save_png_to_buffer()),
 		"width": image.get_width(),
 		"height": image.get_height(),
 		"format": "png",
 		"black_frame": black,
-	})
+	}, hdr))
 
 
 ## Is every pixel black? Checked on a 16x16 downscale so a 1440p frame costs
@@ -741,6 +800,9 @@ func _capture_one_frame() -> void:
 		_finish_capture()
 		return
 
+	var conversion: Dictionary = ImageCapture.to_srgb8(image)
+	if conversion["hdr"]:
+		_capture_conversion = conversion
 	if _capture_half_res:
 		var new_size := image.get_size() / 2
 		if new_size.x > 0 and new_size.y > 0:
@@ -780,11 +842,13 @@ func _finish_capture() -> void:
 		"height": h,
 		"half_resolution": _capture_half_res,
 	}
+	ImageCapture.stamp(response, _capture_conversion)
 	if not _capture_frame_data.is_empty():
 		response["frame_data"] = _capture_frame_data
 	_respond(response)
 	_captured_images.clear()
 	_capture_frame_data.clear()
+	_capture_conversion = {}
 
 
 # ── monitor_properties (stateful) ─────────────────────────────────────────────

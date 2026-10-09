@@ -286,74 +286,9 @@ func _screenshot(params: Dictionary) -> Dictionary:
 
 # --- File IPC ---------------------------------------------------------------
 
+## The hop itself lives in base_command.send_game_command, shared with playtest.*.
 func _send(command: String, params: Dictionary, timeout_sec: float = 5.0) -> Dictionary:
-	if not EditorInterface.is_playing_scene():
-		return error(-32000, "No scene is currently playing", {"suggestion": "Use scene.play first"})
-	# Answer in microseconds from the on-disk project.godot rather than spending the
-	# whole timeout to then guess at this exact cause. See base_command.
-	var no_autoload := game_autoload_error("MCPGameInspector")
-	if not no_autoload.is_empty():
-		return no_autoload
-
-	var user_dir := get_game_user_dir()
-	var request_path := user_dir + "/mcp_game_request"
-	var response_path := user_dir + "/mcp_game_response"
-
-	if FileAccess.file_exists(response_path):
-		DirAccess.remove_absolute(response_path)
-
-	var request_id := next_game_request_id()
-	var req := FileAccess.open(request_path, FileAccess.WRITE)
-	if req == null:
-		return error_internal("Could not create game request file at %s" % request_path)
-	req.store_string(JSON.stringify({"command": command, "params": params, "_id": request_id}))
-	req.close()
-
-	var attempts := int(timeout_sec / 0.1)
-	var text := ""
-	var read_attempts := 1
-	var unreadable := false
-	while attempts > 0:
-		await get_tree().create_timer(0.1).timeout
-		if FileAccess.file_exists(response_path):
-			# Shared tolerant read (base_command): the response file can be locked
-			# for an instant after the game renames it into place.
-			var read: Array = await read_game_response(response_path)
-			DirAccess.remove_absolute(response_path)
-			read_attempts = int(read[1])
-			var body := String(read[0])
-			if body.strip_edges().is_empty():
-				unreadable = true
-				break
-			# A response carrying a different id answers an EARLIER request the game
-			# finished late. It is not this call's answer, so drop it and keep waiting.
-			if is_stale_game_response(body, request_id):
-				attempts -= 1
-				continue
-			text = body
-			break
-		if not EditorInterface.is_playing_scene():
-			if FileAccess.file_exists(request_path):
-				DirAccess.remove_absolute(request_path)
-			return error(-32000, "Game stopped during command execution")
-		attempts -= 1
-
-	if unreadable:
-		return error_internal("Could not read game response file after %d attempts (%s)" % [read_attempts, response_path])
-	if text.is_empty():
-		if FileAccess.file_exists(request_path):
-			DirAccess.remove_absolute(request_path)
-		return game_timeout_error(timeout_sec)
-
-	var parsed = JSON.parse_string(text)
-	if not parsed is Dictionary:
-		return error_internal("Invalid response JSON from game")
-	(parsed as Dictionary).erase("_id")
-	if parsed.has("error"):
-		return error(-32000, str(parsed["error"]))
-	if read_attempts > 1:
-		(parsed as Dictionary)["response_read_attempts"] = read_attempts
-	return success(parsed)
+	return await send_game_command(command, params, timeout_sec)
 
 
 ## Every runtime.* command drives the RUNNING game over file IPC and requires a
