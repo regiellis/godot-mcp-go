@@ -98,6 +98,8 @@
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
 <li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-sessions" class="nav-link" data-scope-wv7whodv>Playtest sessions</a></li>
+<li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
@@ -263,8 +265,8 @@
 <aside class="callout" data-type="warning" role="note">
 <span class="callout-mascot" aria-hidden="true"><img src="/godot-mcp-go/brand/callouts/warning.webp" width="152" height="152" alt="" loading="lazy" decoding="async"></span><div class="callout-body">
 <div class="callout-kind">warning</div>
-<div class="callout-title">The typed list costs about 52,000 tokens</div>
-<p>The full typed surface measures ~332 tools and ~52,000 tokens of schemas, sized for big-context frontier models, which carry it comfortably with prompt caching. The single-tool mode measures ~470 tokens. Measurements, per-group breakdown, and the reasoning behind the default: <a href="/godot-mcp-go/docs/context-cost">What the tool surface costs</a>.</p>
+<div class="callout-title">The typed list costs about 56,000 tokens</div>
+<p>The full typed surface measures ~338 tools and ~56,000 tokens of schemas, sized for big-context frontier models, which carry it comfortably with prompt caching. The single-tool mode measures ~490 tokens. Measurements, per-group breakdown, and the reasoning behind the default: <a href="/godot-mcp-go/docs/context-cost">What the tool surface costs</a>.</p>
 </div>
 </aside>
 <p>By default, <code>serve</code> exposes each documented command as a typed MCP tool, such as
@@ -281,7 +283,7 @@ its parameters:</p>
 </div>
 </button></div>
 </figure></div>
-<p>For clients that cap the number of tools, run <code>serve --typed=false</code> to expose only <code>godot_run</code>. One tool still reaches all 332 registered commands while keeping the model’s context lean: the model discovers the live 4.7 API with <code>engine.search</code> / <code>engine.class_info</code>, then acts, instead of carrying every tool schema into the session. Both modes are deliberate: typed for schema-guided calls, single-tool for context economy.</p>
+<p>For clients that cap the number of tools, run <code>serve --typed=false</code> to expose only <code>godot_run</code>. One tool still reaches all 337 registered commands while keeping the model’s context lean: the model discovers the live 4.7 API with <code>engine.search</code> / <code>engine.class_info</code>, then acts, instead of carrying every tool schema into the session. Both modes are deliberate: typed for schema-guided calls, single-tool for context economy.</p>
 <aside class="callout" data-type="tip" role="note">
 <span class="callout-mascot" aria-hidden="true"><img src="/godot-mcp-go/brand/callouts/tip.webp" width="152" height="152" alt="" loading="lazy" decoding="async"></span><div class="callout-body">
 <div class="callout-kind">tip</div>

@@ -20,7 +20,7 @@ The engine does not expose what such a command would need to be correct. Godot 4
 
 The MCP tool surface is all typed tools or one generic tool. There is no curated middle setting that exposes, say, only the 2D commands or only the scene commands.
 
-Subsets sound cheaper than they are. Every split has to be chosen for someone, kept in step with 332 commands as they change, and explained when an agent cannot find a tool that exists. The project targets models with large context windows, where the full surface fits, so the tradeoff was not worth the permanent maintenance.
+Subsets sound cheaper than they are. Every split has to be chosen for someone, kept in step with 337 commands as they change, and explained when an agent cannot find a tool that exists. The project targets models with large context windows, where the full surface fits, so the tradeoff was not worth the permanent maintenance.
 
 **Use instead:** `serve --typed=false` collapses the surface to the single `godot_run` tool, which still reaches every command by its dotted name. [What the tool surface costs](https://regiellis.github.io/godot-mcp-go/docs/context-cost) measures both settings and lists the situations each one suits.
 

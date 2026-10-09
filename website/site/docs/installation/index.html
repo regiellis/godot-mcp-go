@@ -98,6 +98,8 @@
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
 <li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-sessions" class="nav-link" data-scope-wv7whodv>Playtest sessions</a></li>
+<li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
@@ -277,7 +279,7 @@
 <div class="callout-kind">important</div>
 <div class="callout-title">4.7 is the target, 4.3 is the floor and it is beta</div>
 <p>The addon loads and serves on Godot 4.3 through 4.8. Registration is per group, so an engine that cannot compile a group skips it and lists the file under <code>unavailable_groups</code> in <code>engine.commands</code> rather than the plugin failing whole. Six APIs newer than 4.3 refuse with the version they need: <code>scene close</code> needs 4.5, and below 4.7 every close needs <code>--discard</code> because the editor cannot report which tabs hold unsaved work; <code>csg bake</code> and the AGX tonemap need 4.4; runtime error capture needs 4.5, below which <code>runtime errors</code> answers <code>capture: &quot;unavailable&quot;</code> rather than an empty list. The 3.x line is out of scope: run Godot’s own <code>--convert-3to4</code> first.</p>
-<p><strong>Builds this release was run against:</strong> the official <strong>4.3.0</strong>, <strong>4.4</strong>, <strong>4.5</strong>, and <strong>4.6</strong> stables, one headless editor per version, each registering all 330 commands with <code>unavailable_groups</code> absent and the game IPC answering; <code>4.7.1-rc</code> (<code>d6096250e</code>) and <code>4.7.2-rc</code> (<code>36a04fe52</code>); and a <code>4.8-dev</code> build from <code>master</code> (<code>eda2a482e</code>, after dev 2). On 4.8 the addon runs unmodified, with every command of that build registering and no parse or compile errors, and <code>engine.search</code> picks up 4.8’s <code>FuzzySearch</code> automatically. Scene serialization can differ between engine builds. Keep a version-control checkpoint before moving a project to another engine version.</p>
+<p><strong>Builds this release was run against:</strong> the official <strong>4.3</strong>, <strong>4.4.1</strong>, <strong>4.5.2</strong>, <strong>4.6.3</strong> and <strong>4.7.2</strong> stables and <strong>4.8-dev7</strong>, one headless editor per version against its own copy of the project. Each registered all 337 commands with <code>unavailable_groups</code> absent, answered on the game channel, and recorded a playtest session. On 4.8 the addon runs unmodified, and <code>engine.search</code> picks up 4.8&#39;s <code>FuzzySearch</code> automatically. Scene serialization can differ between engine builds. Keep a version-control checkpoint before moving a project to another engine version.</p>
 <p>Moving a project between versions has its own guide: <a href="/godot-mcp-go/docs/guides/porting-godot-versions">Porting between Godot versions</a>.</p>
 </div>
 </aside>

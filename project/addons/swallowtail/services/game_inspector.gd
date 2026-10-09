@@ -16,6 +16,7 @@ const PropertyParser := preload("res://addons/swallowtail/utils/property_parser.
 const ImageCapture := preload("res://addons/swallowtail/utils/image_capture.gd")
 const ExecErrors := preload("res://addons/swallowtail/utils/exec_errors.gd")
 const GameServer := preload("res://addons/swallowtail/services/game_server.gd")
+const PlaytestRecorder := preload("res://addons/swallowtail/services/playtest_recorder.gd")
 ## Loaded at RUNTIME, never preloaded: see _start_error_log.
 const GAME_ERROR_LOG_PATH := "res://addons/swallowtail/services/game_error_log.gd"
 const ERROR_CAPTURE_MIN_VERSION := "4.5"
@@ -52,6 +53,11 @@ var _request_id: String = ""
 # The direct WebSocket server, created in _ready only for a debug build with the
 # swallowtail/runtime/direct_server setting on. Null otherwise (and in every export).
 var _game_server: Node = null
+
+# The playtest session recorder (services/playtest_recorder.gd), a child created
+# in _ready. It runs beside the IPC state machine rather than inside it, so every
+# other runtime.*/input.* command keeps working while a session records.
+var _playtest: PlaytestRecorder = null
 
 # Frame capture state
 var _capture_frames_remaining: int = 0
@@ -100,6 +106,7 @@ var _moveto_keys_held: Array = []
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS  # keep responding even if paused
 	_start_error_log()
+	_start_playtest_recorder()
 	_maybe_start_direct_server()
 
 
@@ -122,6 +129,34 @@ func _start_error_log() -> void:
 		return
 	_error_log = script.new()
 	OS.call("add_logger", _error_log)
+
+
+func _start_playtest_recorder() -> void:
+	_playtest = PlaytestRecorder.new()
+	_playtest.name = "MCPPlaytestRecorder"
+	_playtest.error_log = _error_log
+	add_child(_playtest)
+
+
+## Record a game event in the current playtest session: deaths, damage, pickups,
+## anything a report should count. The one line game code adds:
+##     MCPGameInspector.playtest_event("death", {"wave": 3})
+## Returns true when the event was recorded. With no session recording it does
+## nothing and returns false, so it is safe to leave in game code permanently.
+func playtest_event(event_name: String, data: Variant = {}) -> bool:
+	return _playtest != null and _playtest.record_event(event_name, data, "game")
+
+
+## Mark a checkpoint from game code (a level loaded, a wave began). Sections in the
+## report start at each mark. A no-op returning false when nothing is recording.
+func playtest_mark(label: String) -> bool:
+	return _playtest != null and _playtest.record_mark(label)
+
+
+## Called by MCPGameInput for each event an input.* command injects.
+func playtest_note_input(data: Dictionary) -> void:
+	if _playtest != null:
+		_playtest.record_input(data)
 
 
 ## Start the in-game direct WebSocket server iff BOTH the build is a debug build
@@ -234,6 +269,11 @@ func _dispatch(command: String, params: Dictionary) -> void:
 		"await_signal": _await_signal(params)
 		"get_runtime_errors": _get_runtime_errors(params)
 		"assert_node_state": _assert_node_state(params)
+		"playtest_start": _respond(_playtest.cmd_start(params))
+		"playtest_mark": _respond(_playtest.cmd_mark(params))
+		"playtest_event": _respond(_playtest.cmd_event(params))
+		"playtest_status": _respond(_playtest.cmd_status(params))
+		"playtest_stop": _respond(_playtest.cmd_stop(params))
 		_: _respond({"error": "Unknown command: %s" % command})
 
 

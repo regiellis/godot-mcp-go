@@ -16,6 +16,7 @@ const MAX_QUEUED_EVENTS := 512
 var _queue: Array = []        # pending sequence events
 var _frame_delay: int = 1     # frames between sequence events
 var _frames_waited: int = 0
+var _inspector: Node = null    # MCPGameInspector, looked up once for playtest input records
 
 
 func _ready() -> void:
@@ -102,6 +103,13 @@ func _inject(data: Dictionary) -> void:
 		vp.push_input(event, true)
 	else:
 		Input.parse_input_event(event)
+	# A recording playtest session timestamps each injected event here, on the
+	# frame it actually reaches the game, for both transports. Looked up lazily:
+	# autoload order decides which of the two is in the tree first.
+	if _inspector == null:
+		_inspector = get_node_or_null("/root/MCPGameInspector")
+	if _inspector != null and _inspector.has_method("playtest_note_input"):
+		_inspector.playtest_note_input(data)
 
 
 func _create_event(data: Dictionary) -> InputEvent:

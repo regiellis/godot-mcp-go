@@ -293,8 +293,8 @@ target project, including when you supply `--port`. Dry run checks structure and
 method availability; it does not validate parameters, scene state, or assertions.
 The editor still validates each command's parameters when that step runs.
 
-Each step accepts `method`, an optional `params` object, and optional `expect`
-assertions. Expectation keys are JSON pointers into the result, such as `/valid`
+Each step takes `method` and optional `params`, `expect`, `assert`, `capture`, and
+`wait_until`. Expectation keys are JSON pointers into the result, such as `/valid`
 or `/nodes/0/name`. Values must match exactly. A missing field fails even when
 the expected value is `null`. An empty pointer checks the whole result.
 
@@ -306,11 +306,76 @@ use the global `--errors json` for structured errors there.
 
 The runner stops on the first failure. `--continue-on-error` allows later steps
 after command or assertion failures; connection loss, timeouts, and cancellation
-always stop execution. Completed changes remain in place. There is no automatic
-retry or rollback. `--timeout` applies to each call, and Ctrl+C cancels the current
-request and stops later steps. Plans accept UTF-8 JSON with an optional BOM,
-up to 4 MiB and 1,000 steps. Use `--file -` to read stdin. Retained results are
-limited to 64 MiB; save large captures to files through their command options.
+always stop execution. Completed changes remain in place, and nothing is rolled
+back. Only `wait_until` repeats a call. `--timeout` applies to each call, and
+Ctrl+C cancels the current request and stops later steps. Plans accept UTF-8 JSON
+with an optional BOM, up to 4 MiB and 1,000 steps. Use `--file -` to read stdin.
+Retained results are limited to 64 MiB; save large captures to files through
+their command options.
+
+### Capture values and assert on them
+
+This plan reads a label's text in the editor, plays the scene, and waits until
+the running game shows the same text:
+
+```json
+{
+  "steps": [
+    {"method": "scene.open", "params": {"path": "res://main.tscn"}},
+    {"method": "node.get", "params": {"node_path": "Label", "property": "text"},
+     "capture": {"title": "/properties/text"},
+     "assert": [{"path": "/properties/text", "op": "contains", "value": "Godot"}]},
+    {"method": "scene.play", "params": {"mode": "current"}},
+    {"method": "runtime.get", "params": {"node_path": "Label", "properties": ["text"]},
+     "wait_until": {"timeout_ms": 30000, "interval_ms": 250},
+     "assert": [{"path": "/properties/text", "op": "eq", "value": "{{title}}"}]},
+    {"method": "scene.stop"}
+  ]
+}
+```
+
+`capture` maps a name to a JSON pointer and stores that value once the step
+passes. Later `params` and assertion values use it as `{{title}}`. A string that
+is exactly `{{title}}` takes the captured value with its JSON type, so a number
+stays a number; inside longer text the value is spliced in. A name must be
+captured by an earlier step, or the plan is refused before anything runs. Under
+`--continue-on-error`, a step whose variable was never captured is skipped with
+the reason and not called.
+
+`assert` is a list of checks, each `{"path", "op", "value"}`:
+
+| op | Passes when the value at path |
+| --- | --- |
+| `eq`, `neq` | equals, or differs from, `value` |
+| `gt`, `gte`, `lt`, `lte` | compares to `value` as a number |
+| `contains` | holds `value` as a substring, or as an array element |
+| `exists` | is present (`value: true`) or absent (`value: false`) |
+
+Add `"tolerance": 0.01` to `eq` or `neq` to compare numbers within a margin. A
+number comparison against a string or any other non-number fails the check and
+says so. A failed step lists every failed check with its path, the expected
+value, and the actual one. `expect` keeps working as the short form of `eq`.
+
+### Wait for a condition
+
+`wait_until` repeats a step until its `expect` and `assert` checks pass.
+`timeout_ms` is 1 to 600000, and `interval_ms` is 50 to 60000, 500 by default.
+Command errors are retried, apart from an unknown method or invalid params. A
+timeout fails the step as an assertion, and the report records the attempt
+count and the last failure. `--timeout` still bounds each call.
+
+### Write reports for CI
+
+```bash
+swallowtail automate --project . --file plan.json --report report.json --junit junit.xml
+```
+
+`--report` writes the same JSON document that goes to stdout. `--junit` writes
+JUnit XML with one test case per step: a failed check is a `<failure>`, and a
+command, connection, or preflight error is an `<error>`. Both files are written
+even when the run fails, including when the editor cannot be reached and stdout
+stays empty, so a CI job can upload them in every case. The exit code does not
+change.
 
 ## Handle an uncertain result
 

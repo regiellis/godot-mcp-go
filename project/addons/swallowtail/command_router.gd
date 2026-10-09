@@ -43,6 +43,7 @@ const _BUILTIN_GROUPS: Array = [
 	"res://addons/swallowtail/commands/runtime_commands.gd",
 	"res://addons/swallowtail/commands/engine_commands.gd",
 	"res://addons/swallowtail/commands/input_commands.gd",
+	"res://addons/swallowtail/commands/playtest_commands.gd",
 	"res://addons/swallowtail/commands/animation_commands.gd",
 	"res://addons/swallowtail/commands/animation_tree_commands.gd",
 	"res://addons/swallowtail/commands/tilemap_commands.gd",

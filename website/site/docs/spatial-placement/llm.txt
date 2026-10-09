@@ -65,12 +65,12 @@ swallowtail spatial raycast --from "Vector3(4,30,-6)" --to "Vector3(4,-30,-6)"
 For a cluster (a desk with a lamp, papers, and a mug), place the anchor, `spatial bounds` it, then derive each child position from the measured box, not from a guessed constant. Every piece hangs off what actually landed.
 
 ```bash
-swallowtail spatial align --node-path Lamp --to Desk --edge top --inset "Vector3(0.3, 0, 0.2)"
-swallowtail spatial distribute --node-paths '["Book1","Book2","Book3"]' --along x --spacing 0.25
+swallowtail spatial align --node-path Lamp --to Desk --axes xz --on-top
+swallowtail spatial distribute --nodes '["Book1","Book2","Book3"]' --axis x --spacing 0.25
 swallowtail spatial look_at --node-path Camera --target Desk
 ```
 
-`spatial relate` reports the spatial relationship between two nodes (above, inside, touching, the gap between them), so an agent can assert an arrangement instead of trusting it. `spatial find_in_region` lists what occupies a world box, and `spatial lint` flags geometry that floats or intersects.
+`spatial relate` compares two nodes' world boxes: the center delta and distance, which axes are centered, the gap on each axis (negative means overlap depth), and whether the boxes intersect. An agent can assert an arrangement from those numbers instead of trusting it. `spatial find_in_region` lists what occupies a world box, and `spatial lint` flags geometry that floats or intersects.
 
 ## 4. Verify numerically
 
@@ -79,8 +79,11 @@ A screenshot confirms nothing about a 0.05 m float. Read the result back and ass
 ```bash
 # did the lamp actually land on the table top?
 swallowtail spatial bounds --node-path Lamp
-swallowtail spatial relate --node-path Lamp --to Table
-# -> { "relation": "resting_on", "gap": 0.0, "overlap": false }
+swallowtail spatial relate --node-path Lamp --other Table
+# -> { "center_delta": "Vector3(0.0000, 0.7000, 0.0000)", "distance": 0.7,
+#      "centered": { "x": true, "y": false, "z": true },
+#      "gap": "Vector3(-1.1500, 0.0000, -0.7500)", "overlaps": false, ... }
+# gap.y 0, centered on x and z: resting on the top. Negative x and z gaps are plan-view overlap.
 
 # sweep the scene for floaters and interpenetration
 swallowtail spatial lint --check-floating
@@ -89,7 +92,7 @@ swallowtail spatial lint --check-floating
 
 > **Tip**
 >
-> `spatial lint --check-floating` only considers solid geometry (MeshInstance3D, CSGShape3D) and treats a piece as supported if it touches or rests just above another solid, within a 5 cm tolerance. Lights, decals, particles, and scattered MultiMesh have no "rests on a surface" meaning and are excluded, so the check does not drown in false positives.
+> `spatial lint --check-floating` only considers solid geometry (MeshInstance3D, CSGShape3D). A piece counts as supported when its box touches another solid's box, with 5 cm of contact slack, or when it sits over one with a gap of 0.5 m or less. `--float-threshold` changes that gap. Lights, decals, particles, and scattered MultiMesh have no "rests on a surface" meaning and are excluded, so the check does not drown in false positives.
 
 
 ## Why `world_aabb` is the correct bound

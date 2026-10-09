@@ -97,6 +97,8 @@
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
 <li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-sessions" class="nav-link" data-scope-wv7whodv>Playtest sessions</a></li>
+<li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
@@ -261,10 +263,12 @@
 commercial Godot C# game (decompiled), so they reflect real shipping practice rather than
 tutorials.</p>
 <blockquote>
-<p><strong>Scope / fit.</strong> The <code>swallowtail</code> CLI authors <strong>GDScript</strong> (<code>script.create</code>/<code>script.edit</code>
-write <code>.gd</code>); it does not compile C#. So this file is guidance for when you’re editing a
-C# Godot codebase directly (in the filesystem, building with <code>dotnet</code>/Godot’s build),
-not something you drive through the addon. The <code>engine.*</code> discovery commands still help.
+<p><strong>Scope / fit.</strong> The <code>csharp</code> group handles the project plumbing: <code>csharp info</code> reports the
+dotnet and .NET-editor state, <code>csharp setup</code> scaffolds the <code>.csproj</code> and <code>.sln</code>, and
+<code>csharp build</code> runs <code>dotnet build</code> and returns structured diagnostics. <code>script create</code> on a
+<code>.cs</code> path writes a <code>public partial class</code> template, and <code>script validate --path X.cs</code> builds
+and reports that file’s diagnostics. Running C# needs a Godot .NET editor build plus the
+dotnet SDK. This file covers the idioms you write inside those scripts.
 The live <code>ClassDB</code> API is identical whether you call it from C# or GDScript, so
 <code>engine class-info --class Tween</code> etc. remain your source of truth for current signatures.
 For <em>what to build</em>, <code>project-structure.md</code> and <code>deckbuilder-patterns.md</code> are

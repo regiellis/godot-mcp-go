@@ -97,6 +97,8 @@
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
 <li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-sessions" class="nav-link" data-scope-wv7whodv>Playtest sessions</a></li>
+<li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
@@ -395,8 +397,9 @@ stats), then <em>commit</em> (<code>pcg.scatter</code>):</p>
 <p>Filters: <code>--min_slope/--max_slope</code> (degrees from up, and it needs colliders so the down-ray reads
 a normal), <code>--min_height/--max_height</code> (world Y band), <code>--noise_threshold</code> (a FastNoiseLite mask for
 natural clumping/patches). <code>--emit multimesh</code> for thousands (one draw call, no node cost);
-<code>--emit scene</code> when each instance needs to be a real node. Wrap a big generation in
-<code>authoring checkpoint --action capture</code> first so you can <code>restore</code> if you don’t like the seed.</p>
+<code>--emit scene</code> when each instance needs to be a real node. Each run lands as one node named by
+<code>--name</code>, so <code>node delete --node-path Rocks</code> clears it before you try another seed.
+<code>authoring checkpoint</code> records transforms only and cannot remove what a generation added.</p>
 <h2 id="ship-it-performance-env-art--tech-art-not-level-design">Ship-it performance (env-art / tech-art, <strong>not</strong> level design)<a class="heading-anchor" aria-hidden="" tabindex="-1" data-search-ignore="all" href="#ship-it-performance-env-art--tech-art-not-level-design">#</a></h2>
 <p>The optimization layer sits here rather than in level design (<code>level-design.md</code> draws that
 line). Do it last, once the look is locked.</p>

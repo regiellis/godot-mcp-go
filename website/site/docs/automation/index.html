@@ -98,6 +98,8 @@
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
 <li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-sessions" class="nav-link" data-scope-wv7whodv>Playtest sessions</a></li>
+<li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
@@ -514,7 +516,7 @@ field when using live validation as an automation gate. The local <code>check</c
 <p>Use <code>swallowtail automate</code> to run editor commands in sequence and check their results.
 Save a plan as <code>plan.json</code>:</p>
 <div class="expressive-code">
-<figure class="frame"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span></div></div><div class="ec-line"><div class="code"><span class="indent">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;steps&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: [</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">{</span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;engine.version&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;expect&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;/version/major&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#79B8FF;--1:#005CC5">4</span><span style="--0:#E1E4E8;--1:#24292E">}},</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">{</span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;scene.validate&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;expect&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;/valid&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#79B8FF;--1:#005CC5">true</span><span style="--0:#E1E4E8;--1:#24292E">}},</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">    </span></span><span style="--0:#E1E4E8;--1:#24292E">{</span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">: </span><span style="--0:#9ECBFF;--1:#032F62">&quot;scene.save&quot;</span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span class="indent"><span style="--0:#E1E4E8;--1:#24292E">  </span></span><span style="--0:#E1E4E8;--1:#24292E">]</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;steps&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> [</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">    {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;engine.version&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;expect&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;/version/major&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">4</span><span style="--0:#E1E4E8;--1:#24292E">}},</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">    {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;scene.validate&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;expect&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;/valid&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">true</span><span style="--0:#E1E4E8;--1:#24292E">}},</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">    {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;scene.save&quot;</span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">  ]</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
 <div aria-live="polite">
 </div>
 <button title="Copy to clipboard" data-copied="Copied!"><div>
@@ -529,27 +531,88 @@ Save a plan as <code>plan.json</code>:</p>
 </div>
 </button></div>
 </figure></div>
-<p>The runner checks the entire plan’s structure and method availability before
+<p>The runner checks the entire plan&#39;s structure and method availability before
 executing its steps. It also confirms that the answering editor serves your
 target project, including when you supply <code>--port</code>. Dry run checks structure and
 method availability; it does not validate parameters, scene state, or assertions.
-The editor still validates each command’s parameters when that step runs.</p>
-<p>Each step accepts <code>method</code>, an optional <code>params</code> object, and optional <code>expect</code>
-assertions. Expectation keys are JSON pointers into the result, such as <code>/valid</code>
+The editor still validates each command&#39;s parameters when that step runs.</p>
+<p>Each step takes <code>method</code> and optional <code>params</code>, <code>expect</code>, <code>assert</code>, <code>capture</code>, and
+<code>wait_until</code>. Expectation keys are JSON pointers into the result, such as <code>/valid</code>
 or <code>/nodes/0/name</code>. Values must match exactly. A missing field fails even when
 the expected value is <code>null</code>. An empty pointer checks the whole result.</p>
-<p>Output is one JSON report with each step’s index, method, duration, result or
+<p>Output is one JSON report with each step&#39;s index, method, duration, result or
 error, and status: <code>passed</code>, <code>failed</code>, <code>skipped</code>, or <code>validated</code> for a dry run.
 Exit code 0 means all checks passed, 1 means execution or preflight failed, and
 2 means the input or configuration was invalid. Setup failures go to stderr;
 use the global <code>--errors json</code> for structured errors there.</p>
 <p>The runner stops on the first failure. <code>--continue-on-error</code> allows later steps
 after command or assertion failures; connection loss, timeouts, and cancellation
-always stop execution. Completed changes remain in place. There is no automatic
-retry or rollback. <code>--timeout</code> applies to each call, and Ctrl+C cancels the current
-request and stops later steps. Plans accept UTF-8 JSON with an optional BOM,
-up to 4 MiB and 1,000 steps. Use <code>--file -</code> to read stdin. Retained results are
-limited to 64 MiB; save large captures to files through their command options.</p>
+always stop execution. Completed changes remain in place, and nothing is rolled
+back. Only <code>wait_until</code> repeats a call. <code>--timeout</code> applies to each call, and
+Ctrl+C cancels the current request and stops later steps. Plans accept UTF-8 JSON
+with an optional BOM, up to 4 MiB and 1,000 steps. Use <code>--file -</code> to read stdin.
+Retained results are limited to 64 MiB; save large captures to files through
+their command options.</p>
+<h3 id="capture-values-and-assert-on-them">Capture values and assert on them<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#capture-values-and-assert-on-them">#</a></h3>
+<p>This plan reads a label&#39;s text in the editor, plays the scene, and waits until
+the running game shows the same text:</p>
+<div class="expressive-code">
+<figure class="frame"><figcaption class="header"></figcaption><pre data-language="json"><code><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">{</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">  </span><span style="--0:#79B8FF;--1:#005CC5">&quot;steps&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> [</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">    {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;scene.open&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;params&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;path&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;res://main.tscn&quot;</span><span style="--0:#E1E4E8;--1:#24292E">}},</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">    {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;node.get&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;params&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;node_path&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;Label&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;property&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;text&quot;</span><span style="--0:#E1E4E8;--1:#24292E">},</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">     </span><span style="--0:#79B8FF;--1:#005CC5">&quot;capture&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;title&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;/properties/text&quot;</span><span style="--0:#E1E4E8;--1:#24292E">},</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">     </span><span style="--0:#79B8FF;--1:#005CC5">&quot;assert&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> [{</span><span style="--0:#79B8FF;--1:#005CC5">&quot;path&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;/properties/text&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;op&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;contains&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;value&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;Godot&quot;</span><span style="--0:#E1E4E8;--1:#24292E">}]},</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">    {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;scene.play&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;params&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;mode&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;current&quot;</span><span style="--0:#E1E4E8;--1:#24292E">}},</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">    {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;runtime.get&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;params&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;node_path&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;Label&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;properties&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> [</span><span style="--0:#9ECBFF;--1:#032F62">&quot;text&quot;</span><span style="--0:#E1E4E8;--1:#24292E">]},</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">     </span><span style="--0:#79B8FF;--1:#005CC5">&quot;wait_until&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;timeout_ms&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">30000</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;interval_ms&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">250</span><span style="--0:#E1E4E8;--1:#24292E">},</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">     </span><span style="--0:#79B8FF;--1:#005CC5">&quot;assert&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> [{</span><span style="--0:#79B8FF;--1:#005CC5">&quot;path&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;/properties/text&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;op&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;eq&quot;</span><span style="--0:#E1E4E8;--1:#24292E">, </span><span style="--0:#79B8FF;--1:#005CC5">&quot;value&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;{{title}}&quot;</span><span style="--0:#E1E4E8;--1:#24292E">}]},</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">    {</span><span style="--0:#79B8FF;--1:#005CC5">&quot;method&quot;</span><span style="--0:#E1E4E8;--1:#24292E">:</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">&quot;scene.stop&quot;</span><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">  ]</span></div></div><div class="ec-line"><div class="code"><span style="--0:#E1E4E8;--1:#24292E">}</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>capture</code> maps a name to a JSON pointer and stores that value once the step
+passes. Later <code>params</code> and assertion values use it as <code>{{title}}</code>. A string that
+is exactly <code>{{title}}</code> takes the captured value with its JSON type, so a number
+stays a number; inside longer text the value is spliced in. A name must be
+captured by an earlier step, or the plan is refused before anything runs. Under
+<code>--continue-on-error</code>, a step whose variable was never captured is skipped with
+the reason and not called.</p>
+<p><code>assert</code> is a list of checks, each <code>{&quot;path&quot;, &quot;op&quot;, &quot;value&quot;}</code>:</p>
+<table>
+<thead>
+<tr>
+<th>op</th><th>Passes when the value at path</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>eq</code>, <code>neq</code></td><td>equals, or differs from, <code>value</code></td></tr>
+<tr>
+<td><code>gt</code>, <code>gte</code>, <code>lt</code>, <code>lte</code></td><td>compares to <code>value</code> as a number</td></tr>
+<tr>
+<td><code>contains</code></td><td>holds <code>value</code> as a substring, or as an array element</td></tr>
+<tr>
+<td><code>exists</code></td><td>is present (<code>value: true</code>) or absent (<code>value: false</code>)</td></tr>
+</tbody>
+</table>
+<p>Add <code>&quot;tolerance&quot;: 0.01</code> to <code>eq</code> or <code>neq</code> to compare numbers within a margin. A
+number comparison against a string or any other non-number fails the check and
+says so. A failed step lists every failed check with its path, the expected
+value, and the actual one. <code>expect</code> keeps working as the short form of <code>eq</code>.</p>
+<h3 id="wait-for-a-condition">Wait for a condition<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#wait-for-a-condition">#</a></h3>
+<p><code>wait_until</code> repeats a step until its <code>expect</code> and <code>assert</code> checks pass.
+<code>timeout_ms</code> is 1 to 600000, and <code>interval_ms</code> is 50 to 60000, 500 by default.
+Command errors are retried, apart from an unknown method or invalid params. A
+timeout fails the step as an assertion, and the report records the attempt
+count and the last failure. <code>--timeout</code> still bounds each call.</p>
+<h3 id="write-reports-for-ci">Write reports for CI<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#write-reports-for-ci">#</a></h3>
+<div class="expressive-code">
+<figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">automate</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--project</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">.</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--file</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">plan.json</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--report</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">report.json</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--junit</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">junit.xml</span></div></div></code></pre><div class="copy">
+<div aria-live="polite">
+</div>
+<button title="Copy to clipboard" data-copied="Copied!"><div>
+</div>
+</button></div>
+</figure></div>
+<p><code>--report</code> writes the same JSON document that goes to stdout. <code>--junit</code> writes
+JUnit XML with one test case per step: a failed check is a <code>&lt;failure&gt;</code>, and a
+command, connection, or preflight error is an <code>&lt;error&gt;</code>. Both files are written
+even when the run fails, including when the editor cannot be reached and stdout
+stays empty, so a CI job can upload them in every case. The exit code does not
+change.</p>
 <h2 id="handle-an-uncertain-result">Handle an uncertain result<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#handle-an-uncertain-result">#</a></h2>
 <p>With <code>--errors json</code>, transport failures distinguish a connection that could not
 send the request (<code>outcome: &quot;not_sent&quot;</code>) from a lost response after delivery was
@@ -591,6 +654,12 @@ stop at their next cancellation boundary; completed effects remain.</p>
 <a href="#read-parameters-from-json" data-toc="read-parameters-from-json" data-scope-p33bl5ka>Read parameters from JSON</a></li>
 <li class="toc-item depth-2" data-scope-p33bl5ka>
 <a href="#run-a-command-plan" data-toc="run-a-command-plan" data-scope-p33bl5ka>Run a command plan</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#capture-values-and-assert-on-them" data-toc="capture-values-and-assert-on-them" data-scope-p33bl5ka>Capture values and assert on them</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#wait-for-a-condition" data-toc="wait-for-a-condition" data-scope-p33bl5ka>Wait for a condition</a></li>
+<li class="toc-item depth-3" data-scope-p33bl5ka>
+<a href="#write-reports-for-ci" data-toc="write-reports-for-ci" data-scope-p33bl5ka>Write reports for CI</a></li>
 <li class="toc-item depth-2" data-scope-p33bl5ka>
 <a href="#handle-an-uncertain-result" data-toc="handle-an-uncertain-result" data-scope-p33bl5ka>Handle an uncertain result</a></li>
 </ul>

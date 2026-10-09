@@ -190,11 +190,11 @@ const serverInstructions = "Drives a running Godot editor via the swallowtail ad
 	"then derive the next piece from that. node.set position is LOCAL to the parent, so anchor across objects via global_position/global_transform. " +
 	"Seat objects on surfaces with a downward raycast (works at edit time against CSG use_collision; via the game's physics at runtime) rather than computing heights; " +
 	"face with Node3D.look_at, never hand-computed Euler. Verify by reading bounds/positions back, not by trusting one screenshot. " +
-	"Godot is +Y up, -Z forward, right-handed, meters. Editor mutations are undoable; runtime.*/input.* need a scene playing (scene.play), " +
+	"Godot is +Y up, -Z forward, right-handed, meters. Editor mutations are undoable; runtime.*/input.*/playtest.* need a scene playing (scene.play), " +
 	"or set game:true to drive a standalone running debug-build game directly instead of the editor."
 
-// gamePropDesc documents the `game` routing property on runtime.*/input.* typed
-// tools and the godot_run tool.
+// gamePropDesc documents the `game` routing property on the game-side typed
+// tools (runtime.*, input.*, playtest.*) and the godot_run tool.
 const gamePropDesc = "Route to a standalone debug-build game's direct server instead of the editor (requires swallowtail/runtime/direct_server)."
 
 // godotRunTool is the always-present generic escape hatch: it reaches any method
@@ -208,10 +208,10 @@ var godotRunTool = map[string]any{
 		"This is the generic escape hatch: `method` is \"<group>.<command>\" and `params` mirror the command's parameters, so it reaches EVERY method, " +
 		"including commands without a typed tool and project-local commands. When the editor was reachable at list time, first-class per-command tools " +
 		"(node_add, scene_tree, runtime_eval, …) are offered too; prefer one of those when it fits. " +
-		"Set `game`:true to route a runtime.*/input.* method to a standalone debug-build game's direct server instead of the editor. " +
+		"Set `game`:true to route a runtime.*/input.*/playtest.* method to a standalone debug-build game's direct server instead of the editor. " +
 		"Groups: project scene node script csharp editor runtime engine input animation anim_tree tilemap theme shader particles scene3d physics navigation audio input_map resource analysis batch profiling export test android (and more). " +
 		"Discover the live API with method \"engine.search\" {query} or \"engine.class_info\" {class}; \"engine.commands\" {group?} lists this server's own methods, and calling an unknown method returns the same list. " +
-		"Editor mutations are undoable. `runtime.*`/`input.*` require a scene to be playing (method \"scene.play\") or game:true. " +
+		"Editor mutations are undoable. `runtime.*`/`input.*`/`playtest.*` require a scene to be playing (method \"scene.play\") or game:true. " +
 		"Placing 3D geometry: anchor to realized bounds and read them back (node.get global_position / get_aabb via run_script), " +
 		"raycast to seat on surfaces, and verify numerically. Never trust one screenshot. " +
 		"Requires the Godot editor open with the plugin enabled.",
@@ -338,9 +338,23 @@ func buildTypedTools(docs map[string]commandDoc) ([]map[string]any, map[string]s
 	return tools, nameToMethod
 }
 
+// gameRoutedPrefixes are the groups the in-game direct server answers, so their
+// typed tools carry the optional `game` routing bool. Keep in step with
+// game_server.gd's RUNTIME_MAP and INPUT_METHODS.
+var gameRoutedPrefixes = []string{"runtime.", "input.", "playtest."}
+
+func gameRouted(method string) bool {
+	for _, p := range gameRoutedPrefixes {
+		if strings.HasPrefix(method, p) {
+			return true
+		}
+	}
+	return false
+}
+
 // buildTool builds one typed tool descriptor from a command's param docs.
-// runtime.*/input.* methods get an extra optional `game` boolean for routing to
-// a standalone game's direct server.
+// Game-side methods (gameRouted) get an extra optional `game` boolean for
+// routing to a standalone game's direct server.
 func buildTool(name, method string, doc commandDoc) map[string]any {
 	props := make(map[string]any, len(doc.Params)+1)
 	required := make([]string, 0, len(doc.Params))
@@ -360,7 +374,7 @@ func buildTool(name, method string, doc commandDoc) map[string]any {
 			required = append(required, p.Name)
 		}
 	}
-	if strings.HasPrefix(method, "runtime.") || strings.HasPrefix(method, "input.") {
+	if gameRouted(method) {
 		props["game"] = map[string]any{"type": "boolean", "description": gamePropDesc}
 	}
 	return map[string]any{
@@ -521,7 +535,7 @@ func (s *mcpServer) toolsCall(msg rpcMsg) {
 				return
 			}
 		}
-		// The `game` routing flag is injected into runtime.*/input.* schemas; pull
+		// The `game` routing flag is injected into game-side tool schemas; pull
 		// it out and strip it so the addon never sees it.
 		if g, ok := params["game"].(bool); ok {
 			isGame = g

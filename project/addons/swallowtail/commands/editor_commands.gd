@@ -4,17 +4,14 @@ extends "res://addons/swallowtail/commands/base_command.gd"
 ## Editor introspection and control: errors, output log, screenshots, running
 ## ad-hoc @tool scripts, filesystem reload, signals, and the 3D editor camera.
 
-## Benign engine-internal lines (not from the user's project) that the scene
-## save / progress UI paths emit. editor.errors filters these by default so they
-## don't masquerade as real errors; pass include_noise=true to keep them.
+## Benign engine-internal lines (not from the user's project). editor.errors
+## filters these by default so they don't masquerade as real errors; pass
+## include_noise=true to keep them. The headless dummy renderer has no texture
+## for the scene-save thumbnail. ProgressDialog complaints are deliberately not
+## here: scene.save used to cause them by saving inside a deferred call, and
+## anything that still does is a bug to see, not noise.
 const _NOISE: PackedStringArray = [
-	"ProgressDialog::task_step",
 	"Parameter \"t\" is null",
-	# 4.7.2 spells the save-path progress-dialog complaints differently: one
-	# scene.save deterministically emits six of these (progress_dialog.cpp
-	# 196/231/254), found by the 2026-08-19 eval smoke run.
-	"Do not use progress dialog (task)",
-	"\"!tasks.has(p_task)\" is true",
 ]
 
 

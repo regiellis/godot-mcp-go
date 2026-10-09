@@ -133,7 +133,13 @@ func TestBuildToolTypeMappingAndRequired(t *testing.T) {
 
 func TestBuildToolGamePropertyInjection(t *testing.T) {
 	docs := cannedDocs()
-	for _, method := range []string{"runtime.eval", "input.action"} {
+	// The recorder answers on the game's direct server too, so playtest.* is
+	// routed like runtime.*/input.*.
+	docs["playtest.mark"] = commandDoc{
+		Description: "Mark a checkpoint.",
+		Params:      []paramDoc{{Name: "label", Type: "String", Required: true, Desc: "checkpoint label"}},
+	}
+	for _, method := range []string{"runtime.eval", "input.action", "playtest.mark"} {
 		tool := buildTool(strings.ReplaceAll(method, ".", "_"), method, docs[method])
 		g, ok := propsOf(tool)["game"].(map[string]any)
 		if !ok {

@@ -26,7 +26,7 @@ import (
 // cliVersion is reported to MCP clients in the initialize handshake. Keep it in
 // step with the addon's plugin.cfg version and the CHANGELOG heading at release
 // time; the addon reads its own from plugin.cfg, so this is the only literal.
-const cliVersion = "1.1.0"
+const cliVersion = "1.2.0"
 
 func main() {
 	if strings.EqualFold(strings.TrimSuffix(filepath.Base(os.Args[0]), ".exe"), "godot-mcp") && ui.IsTerminal(os.Stdout) && ui.IsTerminal(os.Stderr) {
@@ -42,7 +42,7 @@ func main() {
 	port := flag.Int("port", 0, "addon WebSocket port (0 = env SWALLOWTAIL_PORT, then discovery file, then default 9080)")
 	timeout := flag.Duration("timeout", 30*time.Second, "request timeout")
 	format := flag.String("format", "", "result format for the <group> <command> path: pretty (tables/color, the terminal default), json (the piped default), tsv, or ndjson; env SWALLOWTAIL_FORMAT applies when the flag is unset")
-	game := flag.Bool("game", false, "route runtime.*/input.* to the running game's direct server (no editor); port resolves via --port, SWALLOWTAIL_GAME_PORT, the game discovery file, then 9200")
+	game := flag.Bool("game", false, "route runtime.*/input.*/playtest.* to the running game's direct server (no editor); port resolves via --port, SWALLOWTAIL_GAME_PORT, the game discovery file, then 9200")
 	version := flag.Bool("version", false, "print the CLI version and exit")
 	flag.StringVar(&cliErrorFormat, "errors", "text", "editor-command stderr: text or json (global flag)")
 	flag.Usage = usage
@@ -104,6 +104,7 @@ func main() {
 		"doctor":         runDoctor,
 		"automate":       runAutomate,
 		"qa":             runQA,
+		"playtest":       runPlaytest,
 		"version":        runVersion,
 	}
 	if fn, ok := localSubs[args[0]]; ok && !routesToAddon(args[0], args[1:]) {
@@ -113,15 +114,16 @@ func main() {
 		}
 		rest := args[1:]
 		if cliProjectRoot != "" && args[0] != "__complete" && args[0] != "completion" && args[0] != "version" {
-			if args[0] == "upgrade" {
-				if len(rest) > 0 && slices.Contains(upgradeCompletionFlags[rest[0]], "--project") {
+			// upgrade and playtest take a command word first, and --project belongs
+			// to that command's own flag set, so it goes in after the word.
+			if nested, ok := nestedCompletionFlags[args[0]]; ok {
+				if len(rest) > 0 && slices.Contains(nested[rest[0]], "--project") {
 					rest = append([]string{rest[0], "--project", cliProjectRoot}, rest[1:]...)
 				}
 			} else if !slices.Contains(localCompletionFlags[args[0]], "--project") {
 				emitCLIError("usage", "this subcommand does not accept --project; use its own help", nil)
 				os.Exit(2)
-			}
-			if args[0] != "upgrade" {
+			} else {
 				rest = append([]string{"--project", cliProjectRoot}, rest...)
 			}
 		}
@@ -333,6 +335,8 @@ var shadowedAddonCommands = map[string][]string{
 	"export": {"list_presets", "project", "info"},
 	"import": {"info", "set", "reimport"},
 	"test":   {"run_scenario", "assert_node_state", "assert_screen_text", "run_stress_test", "report"},
+	// Recording runs in the game; report and compare read the files it writes.
+	"playtest": {"start", "mark", "event", "status", "stop"},
 }
 
 // routesToAddon reports whether an invocation of a local subcommand's name is
@@ -758,6 +762,7 @@ func usage() {
 		{"doctor", "environment preflight: binary, project, addon, port, editor, dotnet"},
 		{"automate", "run a JSON command plan with preflight checks, assertions, and step reports"},
 		{"qa", "release QA runs, GDScript scenarios, frame baselines, and branded PDF reports"},
+		{"playtest", "report on or compare recorded play sessions (playtest start/mark/event/status/stop reach the game)"},
 		{"version", "print the CLI version (--version does the same)"},
 		{"completion", "generate Bash or PowerShell shell completion"},
 		{"help", "help all, or help <group> [<command>] (live catalog, or project cache offline)"},

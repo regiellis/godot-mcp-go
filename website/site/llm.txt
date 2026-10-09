@@ -56,6 +56,7 @@ Godot automation for your terminal, scripts and connected tools.
 - What's not supported: https://regiellis.github.io/godot-mcp-go/docs/not-supported/llm.txt
 - Why Swallowtail exists: https://regiellis.github.io/godot-mcp-go/docs/on-ai/llm.txt
 - Playtest loop: https://regiellis.github.io/godot-mcp-go/docs/playtest-loop/llm.txt
+- Playtest sessions: https://regiellis.github.io/godot-mcp-go/docs/playtest-sessions/llm.txt
 - Terminal quickstart: https://regiellis.github.io/godot-mcp-go/docs/quickstart/llm.txt
 - Samples: https://regiellis.github.io/godot-mcp-go/docs/samples/llm.txt
 - Spatial placement: https://regiellis.github.io/godot-mcp-go/docs/spatial-placement/llm.txt

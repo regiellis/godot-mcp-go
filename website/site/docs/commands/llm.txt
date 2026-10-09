@@ -1,6 +1,6 @@
 # Command groups
 
-The 50 command groups, how invocation works, and how the wire coerces values.
+The 51 command groups, how invocation works, and how the wire coerces values.
 
 Invocation is `swallowtail <group> <command> [--flag value …]`. Command and flag names accept kebab- or snake-case (`node set-anchor` becomes `node.set_anchor`). Values that start with `[` or `{` are parsed as JSON. On error the CLI prints the JSON-RPC code, message, and any suggestions to stderr.
 
@@ -17,7 +17,7 @@ Invocation is `swallowtail <group> <command> [--flag value …]`. Command and fl
 | **Core editing** | `project` `scene` `node` `script` `csharp` `editor` `debug` `engine` `fs` |
 | **3D placement + authoring** | `spatial` `material` `csg` `gridmap` `mesh` `authoring` `scene3d` |
 | **Procedural** | `scatter` `pcg` `wfc` |
-| **Art + runtime** | `lighting` `path` `camera` `scene2d` `runtime` `input` `particles` `shader` |
+| **Art + runtime** | `lighting` `path` `camera` `scene2d` `runtime` `input` `playtest` `particles` `shader` |
 | **Animation** | `animation` `anim_tree` `skeleton` |
 | **World + systems** | `tilemap` `navigation` `physics` `audio` `input_map` `resource` `multiplayer` |
 | **Project ops** | `theme` `ui` `localization` `import` `export` `android` `analysis` `batch` `profiling` `test` `doc` `cleanup` |
@@ -33,7 +33,7 @@ swallowtail help all                               # the entire catalog, grouped
 swallowtail engine commands --group node --docs    # the same, as JSON
 ```
 
-Every one of the 332 commands carries param docs, so `<group> <command> --help` prints a real table rather than a generic hint. `engine commands` is the JSON form: a flat `methods` list plus a `groups` map of group → command names, with `--group` to narrow and `--docs` to attach the param docs. Without an editor, help can use this project's saved catalog and reports its timestamp. An uncached project needs a live editor for addon help. See [shell completion and offline help](https://regiellis.github.io/godot-mcp-go/docs/automation#shell-completion-and-offline-help).
+Every one of the 337 commands carries param docs, so `<group> <command> --help` prints a real table rather than a generic hint. `engine commands` is the JSON form: a flat `methods` list plus a `groups` map of group → command names, with `--group` to narrow and `--docs` to attach the param docs. Without an editor, help can use this project's saved catalog and reports its timestamp. An uncached project needs a live editor for addon help. See [shell completion and offline help](https://regiellis.github.io/godot-mcp-go/docs/automation#shell-completion-and-offline-help).
 
 Use global `--project DIR` to select a project from another directory. Use
 `--params-file FILE` (or `-` for stdin) before the group to read a JSON parameter

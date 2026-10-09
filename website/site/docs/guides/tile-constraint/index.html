@@ -97,6 +97,8 @@
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
 <li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-sessions" class="nav-link" data-scope-wv7whodv>Playtest sessions</a></li>
+<li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
@@ -421,7 +423,7 @@
 <li>
 <strong>Organic</strong>: <code>stalberg_grid</code> for the layout, <code>mesh deform_lattice</code> to fit modules to irregular cells.</li>
 </ol>
-<p>Wrap risky runs in <code>authoring checkpoint --action capture</code> so a bad seed is one <code>restore</code> away.</p>
+<p>To discard a bad seed, run again with another <code>--seed</code> over the same cells, or <code>gridmap clear</code> to start over. <code>authoring checkpoint</code> records node transforms, not GridMap cells, so its <code>restore</code> cannot undo a run.</p>
 </article>
 <nav class="pager" aria-label="Pagination" data-scope-ccykbmgk>
 <a class="pager-link prev" href="/godot-mcp-go/docs/guides/lighting-2d" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Previous</span><span class="pager-label" data-scope-ccykbmgk>2D lighting</span></a><a class="pager-link next" href="/godot-mcp-go/docs/guides/level-design" data-scope-ccykbmgk><span class="pager-dir" data-scope-ccykbmgk>Next <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="pager-label" data-scope-ccykbmgk>Level design</span></a></nav>

@@ -15,7 +15,7 @@ import (
 
 var localCompletionFlags = map[string][]string{
 	"qa":             {},
-	"automate":       {"--file", "--project", "--port", "--timeout", "--dry-run", "--continue-on-error"},
+	"automate":       {"--file", "--project", "--port", "--timeout", "--dry-run", "--continue-on-error", "--report", "--junit"},
 	"create":         {"--enable", "--force", "--install", "--name", "--path"},
 	"install":        {"--enable", "--force", "--from", "--project", "--skill", "--skill-from"},
 	"migrate":        {"--project", "--apply", "--rollback", "--from"},
@@ -29,6 +29,7 @@ var localCompletionFlags = map[string][]string{
 	"import":         {"--godot", "--json", "--project", "--timeout"},
 	"export":         {"--debug", "--godot", "--json", "--out", "--pack", "--patch", "--patches", "--preset", "--project", "--timeout"},
 	"upgrade":        {},
+	"playtest":       {},
 	"status":         {"--all", "--port", "--project"},
 	"doctor":         {"--json", "--project"},
 	"dashboard":      {"--addon-port", "--port", "--project"},
@@ -41,6 +42,18 @@ var upgradeCompletionFlags = map[string][]string{
 	"open":      {"--godot", "--json", "--project", "--timeout"},
 	"fix":       {"--category", "--dry-run", "--godot", "--json", "--project", "--scenario", "--timeout"},
 	"verify":    {"--frames", "--godot", "--json", "--project", "--scenario", "--threshold", "--timeout"},
+}
+
+var playtestCompletionFlags = map[string][]string{
+	"report":  {"--format", "--latest", "--out", "--project", "--target-fps"},
+	"compare": {"--format", "--latest", "--out", "--project", "--target-fps"},
+}
+
+// nestedCompletionFlags holds the local subcommands that take a command word
+// before their flags, keyed by subcommand then word.
+var nestedCompletionFlags = map[string]map[string][]string{
+	"upgrade":  upgradeCompletionFlags,
+	"playtest": playtestCompletionFlags,
 }
 
 var qaCompletionFlags = map[string][]string{
@@ -152,6 +165,20 @@ func completionCandidates(words []string, c cliCatalog) []string {
 				all = append(all, sortedKeys(upgradeCompletionFlags)...)
 			} else {
 				all = append(all, upgradeCompletionFlags[words[1]]...)
+			}
+			all = append(all, "--help")
+		} else if group == "playtest" {
+			// The addon's recording commands and the local report commands share
+			// the group name, so both halves are offered.
+			if len(words) == 2 {
+				all = append(all, groups[group]...)
+				all = append(all, sortedKeys(playtestCompletionFlags)...)
+			} else if local, ok := playtestCompletionFlags[words[1]]; ok {
+				all = append(all, local...)
+			} else if d, ok := c.Docs["playtest."+strings.ReplaceAll(words[1], "-", "_")]; ok {
+				for _, p := range d.Params {
+					all = append(all, "--"+p.Name)
+				}
 			}
 			all = append(all, "--help")
 		} else if group == "completion" {

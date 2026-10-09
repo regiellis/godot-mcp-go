@@ -2,11 +2,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Command groups · Swallowtail</title><meta name="description" content="The 50 command groups, how invocation works, and how the wire coerces values.">
+<title>Command groups · Swallowtail</title><meta name="description" content="The 51 command groups, how invocation works, and how the wire coerces values.">
 <link rel="icon" type="image/png" href="/godot-mcp-go/brand/swallowtail-butler.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Command groups · Swallowtail">
-<meta property="og:description" content="The 50 command groups, how invocation works, and how the wire coerces values.">
+<meta property="og:description" content="The 51 command groups, how invocation works, and how the wire coerces values.">
 <meta property="og:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://regiellis.github.io/godot-mcp-go/brand/swallowtail-og.png">
@@ -97,6 +97,8 @@
 <a href="/godot-mcp-go/docs/spatial-placement" class="nav-link" data-scope-wv7whodv>Spatial placement<span class="nav-badge" data-scope-wv7whodv>deep</span></a></li>
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
+<li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-sessions" class="nav-link" data-scope-wv7whodv>Playtest sessions</a></li>
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
 <li data-scope-wv7whodv>
@@ -256,7 +258,7 @@
 <script defer src="/godot-mcp-go/assets/copy-page.js"></script></div>
 <header class="page-head" data-scope-ccykbmgk>
 <h1 data-scope-ccykbmgk>Command groups</h1>
-<p class="page-desc" data-scope-ccykbmgk>The 50 command groups, how invocation works, and how the wire coerces values.</p>
+<p class="page-desc" data-scope-ccykbmgk>The 51 command groups, how invocation works, and how the wire coerces values.</p>
 </header>
 <p>Invocation is <code>swallowtail &lt;group&gt; &lt;command&gt; [--flag value …]</code>. Command and flag names accept kebab- or snake-case (<code>node set-anchor</code> becomes <code>node.set_anchor</code>). Values that start with <code>[</code> or <code>{</code> are parsed as JSON. On error the CLI prints the JSON-RPC code, message, and any suggestions to stderr.</p>
 <aside class="callout" data-type="tip" role="note">
@@ -280,7 +282,7 @@
 <tr>
 <td><strong>Procedural</strong></td><td><code>scatter</code> <code>pcg</code> <code>wfc</code></td></tr>
 <tr>
-<td><strong>Art + runtime</strong></td><td><code>lighting</code> <code>path</code> <code>camera</code> <code>scene2d</code> <code>runtime</code> <code>input</code> <code>particles</code> <code>shader</code></td></tr>
+<td><strong>Art + runtime</strong></td><td><code>lighting</code> <code>path</code> <code>camera</code> <code>scene2d</code> <code>runtime</code> <code>input</code> <code>playtest</code> <code>particles</code> <code>shader</code></td></tr>
 <tr>
 <td><strong>Animation</strong></td><td><code>animation</code> <code>anim_tree</code> <code>skeleton</code></td></tr>
 <tr>
@@ -301,7 +303,7 @@
 </div>
 </button></div>
 </figure></div>
-<p>Every one of the 332 commands carries param docs, so <code>&lt;group&gt; &lt;command&gt; --help</code> prints a real table rather than a generic hint. <code>engine commands</code> is the JSON form: a flat <code>methods</code> list plus a <code>groups</code> map of group → command names, with <code>--group</code> to narrow and <code>--docs</code> to attach the param docs. Without an editor, help can use this project’s saved catalog and reports its timestamp. An uncached project needs a live editor for addon help. See <a href="/godot-mcp-go/docs/automation#shell-completion-and-offline-help">shell completion and offline help</a>.</p>
+<p>Every one of the 337 commands carries param docs, so <code>&lt;group&gt; &lt;command&gt; --help</code> prints a real table rather than a generic hint. <code>engine commands</code> is the JSON form: a flat <code>methods</code> list plus a <code>groups</code> map of group → command names, with <code>--group</code> to narrow and <code>--docs</code> to attach the param docs. Without an editor, help can use this project’s saved catalog and reports its timestamp. An uncached project needs a live editor for addon help. See <a href="/godot-mcp-go/docs/automation#shell-completion-and-offline-help">shell completion and offline help</a>.</p>
 <p>Use global <code>--project DIR</code> to select a project from another directory. Use
 <code>--params-file FILE</code> (or <code>-</code> for stdin) before the group to read a JSON parameter
 object. Inline parameters override its keys. See <a href="/godot-mcp-go/docs/automation">Scripting and CI</a>.</p>
