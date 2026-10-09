@@ -60,7 +60,7 @@ const INSTRUCTIONS := "This endpoint drives a running Godot editor (4.7+) throug
 	"Discover before you act. Your training may predate this build, so confirm a class, property, or method against it with engine_search or engine_class_info instead of guessing; engine_commands lists every method. " + \
 	"Placing 3D objects: anchor one piece, read its REAL world bounds back (node_get global_position, or get_aabb via global_transform), then derive neighbours from that. A node's position is LOCAL to its parent, so span objects via global_transform. " + \
 	"Seat things on surfaces with a downward raycast and face with look_at rather than hand-computing heights or Euler angles; verify by reading positions back, not by trusting one screenshot. " + \
-	"Godot is +Y up, -Z forward, right-handed, meters. Editor edits are undoable; runtime_* and input_* need a scene playing (scene_play)."
+	"Godot is +Y up, -Z forward, right-handed, meters. Editor edits are undoable; runtime_*, input_* and playtest_* need a scene playing (scene_play)."
 
 var _tcp := TCPServer.new()
 var _conns: Array = []  # each: {peer, buf: PackedByteArray, idle: float, busy: bool, dead: bool}
@@ -541,13 +541,13 @@ func _godot_run_tool() -> Dictionary:
 		"description": "Run any swallowtail command against the running Godot editor (4.7+) and return its JSON result. " + \
 			"`method` is \"<group>.<command>\" (e.g. node.add, engine.search) and `params` mirrors that command's parameters, so it reaches EVERY method, including commands without a typed tool and project-local commands. " + \
 			"Discover the live API with method \"engine.search\" {query} or \"engine.class_info\" {class}; \"engine.commands\" {group?} lists this server's own methods. " + \
-			"Editor mutations are undoable; runtime.*/input.* require a scene to be playing (method \"scene.play\").",
+			"Editor mutations are undoable; runtime.*/input.*/playtest.* require a scene to be playing (method \"scene.play\").",
 		"inputSchema": {
 			"type": "object",
 			"properties": {
 				"method": {"type": "string", "description": "<group>.<command>, e.g. node.add or engine.search"},
 				"params": {"type": "object", "description": "command parameters"},
-				"game": {"type": "boolean", "description": "Route a runtime.*/input.* method to a standalone debug-build game's direct server instead of the editor (accepted for parity; the in-editor endpoint brokers to the game either way)."},
+				"game": {"type": "boolean", "description": "Route a runtime.*/input.*/playtest.* method to a standalone debug-build game's direct server instead of the editor (accepted for parity; the in-editor endpoint brokers to the game either way)."},
 			},
 			"required": ["method"],
 		},

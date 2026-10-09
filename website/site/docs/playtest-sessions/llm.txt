@@ -1,0 +1,89 @@
+# Playtest sessions
+
+Record a play-through in the running game, then read the report and compare runs.
+
+A playtest session records each frame's time, the engine counters, and every input, checkpoint, game event, and runtime error, each with a timestamp. Recording runs inside the game. Reading a session is local: `playtest report` and `playtest compare` read the saved file and need no editor.
+
+## Record a session
+
+```bash
+swallowtail scene play
+swallowtail playtest start --name reach-lighthouse
+swallowtail playtest mark --label approach
+swallowtail input tap --keycode KEY_W
+swallowtail playtest event --name boss_seen --data '{"hp": 400}'
+swallowtail playtest status
+swallowtail playtest stop
+swallowtail scene stop
+```
+
+`playtest start` measures every frame's time and samples the engine counters every 30 frames and on each spike frame. Change the interval with `--sample-every N`, from 1 to 3600. `playtest status` reads the live counters while the session runs.
+
+Each `playtest mark` starts a report section. Mark the same label again on a retry, and the report shows the second visit as its own section.
+
+`playtest stop` writes one JSON file under the game's `user://swallowtail-playtests/` and returns its absolute path. Run it before `scene stop`: stopping the game from the editor ends its process, and the session goes with it. A game that quits on its own still writes its session. One session records at a time, so a second `playtest start` returns `-32009`.
+
+## Report game events
+
+The engine has no idea what a death or a pickup is, so difficulty numbers come from your game. Add one line where your game decides the fact:
+
+```gdscript
+MCPGameInspector.playtest_event("death", {"wave": wave})
+MCPGameInspector.playtest_mark("boss")
+```
+
+Both calls return `false` and do nothing when no session is recording, so the lines can stay in place between sessions. `playtest event` posts the same fact from the terminal. Event data is a JSON object of up to 4 KiB.
+
+## Read the report
+
+```bash
+swallowtail playtest report --latest
+swallowtail playtest report session.json --format json --out report.json
+```
+
+`--latest` reads the newest session in the game's user-data directory. Run it inside the project, or pass `--project DIR`. The report is Markdown unless you ask for `--format json`, and `--out FILE` writes it to a file.
+
+The report opens with findings. Each one names a number and a place to look:
+
+- spikes that keep following the same input or event
+- a texture or memory jump on a spike frame
+- static memory, orphan nodes, or the node count climbing across a minute or more
+- a section whose p95 frame time stands above the rest
+- events bunched into one section, and sections entered more than once
+- runtime errors raised while recording
+
+The tables follow: frame-time percentiles (p50, p95, p99), the worst frame, the 1% and 0.1% lows, each spike with the input or event in the second before it, every counter at start, end, and peak with a slope per minute, per-section numbers, event counts, and input rate.
+
+Frame time is the wall-clock time between frames, so vsync and frame pacing count. A spike is a frame at least twice the median and 8 ms over it. `--target-fps` sets the frame budget the findings measure against, 60 by default.
+
+## Compare two runs
+
+Change one thing, record the same route again, then compare:
+
+```bash
+swallowtail playtest compare --latest
+swallowtail playtest compare before.json after.json --format json
+```
+
+`compare --latest` diffs the two newest sessions. Each metric gets a verdict: `improved`, `regressed`, `unchanged`, or `changed` for a metric with no better direction, such as input rate. A metric changes only past 5% of its old value and its own floor.
+
+Short runs leave some metrics `ungraded`. p95 frame time needs 200 frames in each session; p99, the worst frame, and the 1% low need 1,000; the memory slope needs a minute. A frame-time change of 50% or more is graded on any run, since jitter never moves a tail that far. Record a minute or more before you trust a smaller change.
+
+Differences in how the two sessions ran (headless, window size, vsync, GPU, engine version) are listed above the table, since each one moves frame times.
+
+## Record without the editor
+
+With the [direct-to-player channel](/godot-mcp-go/docs/playtest-loop#direct-to-player-channel) enabled, a debug build records the same way:
+
+```bash
+swallowtail --game playtest start --name ci-route
+swallowtail --game playtest stop
+```
+
+Over MCP, the `playtest_*` tools take the same `game` flag as the `runtime_*` and `input_*` tools.
+
+## Limits
+
+- Difficulty numbers exist only where your game reports events. Findings are recommendations. The report never edits your game.
+- A headless run's frame times are not what a player sees. The session records `headless`, and the report flags it.
+- A session keeps up to 216,000 frame times (an hour at 60 fps), 20,000 counter samples, 10,000 events, 20,000 inputs, 1,000 checkpoints, and 1,000 errors. Past a limit it keeps recording, sets `truncated`, and counts what it dropped.

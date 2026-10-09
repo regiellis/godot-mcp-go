@@ -98,6 +98,8 @@
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
 <li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-sessions" class="nav-link" data-scope-wv7whodv>Playtest sessions</a></li>
+<li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
@@ -267,7 +269,7 @@
 <p><strong>Use instead:</strong> <code>shader create</code> for code-first <code>.gdshader</code> work, which reports a compile result you can act on. For graph construction, <code>editor run-script</code> reaches the whole <code>VisualShader</code> API directly, and <code>VisualShader.get_code()</code> returns the generated shader source, which is the one reliable way to confirm a graph is wired as intended.</p>
 <h2 id="per-domain-tool-subsets">Per-domain tool subsets<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#per-domain-tool-subsets">#</a></h2>
 <p>The MCP tool surface is all typed tools or one generic tool. There is no curated middle setting that exposes, say, only the 2D commands or only the scene commands.</p>
-<p>Subsets sound cheaper than they are. Every split has to be chosen for someone, kept in step with 332 commands as they change, and explained when an agent cannot find a tool that exists. The project targets models with large context windows, where the full surface fits, so the tradeoff was not worth the permanent maintenance.</p>
+<p>Subsets sound cheaper than they are. Every split has to be chosen for someone, kept in step with 337 commands as they change, and explained when an agent cannot find a tool that exists. The project targets models with large context windows, where the full surface fits, so the tradeoff was not worth the permanent maintenance.</p>
 <p><strong>Use instead:</strong> <code>serve --typed=false</code> collapses the surface to the single <code>godot_run</code> tool, which still reaches every command by its dotted name. <a href="/godot-mcp-go/docs/context-cost">What the tool surface costs</a> measures both settings and lists the situations each one suits.</p>
 <h2 id="driving-an-editor-on-another-machine">Driving an editor on another machine<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#driving-an-editor-on-another-machine">#</a></h2>
 <p>Both servers bind <code>127.0.0.1</code> and nothing else. There is no setting to bind a routable address, and none is planned.</p>

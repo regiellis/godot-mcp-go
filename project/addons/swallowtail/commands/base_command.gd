@@ -335,6 +335,85 @@ func game_timeout_error(timeout_sec: float) -> Dictionary:
 		{"suggestion": "Ensure the game is running with the MCPGameInspector autoload active"})
 
 
+## Send one command to the running game's MCPGameInspector over the file IPC and
+## return its answer as a success()/error() envelope. The whole editor half of the
+## game hop: playing check, on-disk autoload check, request id, tolerant read,
+## stale-reply drop, and the break-aware timeout. runtime.* and playtest.* both go
+## through here, so a fix to the hop lands on every group that crosses it.
+func send_game_command(command: String, params: Dictionary, timeout_sec: float = 5.0) -> Dictionary:
+	if not EditorInterface.is_playing_scene():
+		return error(-32000, "No scene is currently playing", {"suggestion": "Use scene.play first"})
+	# Answer in microseconds from the on-disk project.godot rather than spending the
+	# whole timeout to then guess at this exact cause.
+	var no_autoload := game_autoload_error("MCPGameInspector")
+	if not no_autoload.is_empty():
+		return no_autoload
+
+	var user_dir := get_game_user_dir()
+	var request_path := user_dir + "/mcp_game_request"
+	var response_path := user_dir + "/mcp_game_response"
+
+	if FileAccess.file_exists(response_path):
+		DirAccess.remove_absolute(response_path)
+
+	var request_id := next_game_request_id()
+	var req := FileAccess.open(request_path, FileAccess.WRITE)
+	if req == null:
+		return error_internal("Could not create game request file at %s" % request_path)
+	req.store_string(JSON.stringify({"command": command, "params": params, "_id": request_id}))
+	req.close()
+
+	var attempts := int(timeout_sec / 0.1)
+	var text := ""
+	var read_attempts := 1
+	var unreadable := false
+	while attempts > 0:
+		await get_tree().create_timer(0.1).timeout
+		if FileAccess.file_exists(response_path):
+			# The response file can be locked for an instant after the game renames
+			# it into place, so the read retries briefly.
+			var read: Array = await read_game_response(response_path)
+			DirAccess.remove_absolute(response_path)
+			read_attempts = int(read[1])
+			var body := String(read[0])
+			if body.strip_edges().is_empty():
+				unreadable = true
+				break
+			# A response carrying a different id answers an EARLIER request the game
+			# finished late. It is not this call's answer, so drop it and keep waiting.
+			if is_stale_game_response(body, request_id):
+				attempts -= 1
+				continue
+			text = body
+			break
+		if not EditorInterface.is_playing_scene():
+			if FileAccess.file_exists(request_path):
+				DirAccess.remove_absolute(request_path)
+			return error(-32000, "Game stopped during command execution")
+		attempts -= 1
+
+	if unreadable:
+		return error_internal("Could not read game response file after %d attempts (%s)" % [read_attempts, response_path])
+	if text.is_empty():
+		if FileAccess.file_exists(request_path):
+			DirAccess.remove_absolute(request_path)
+		return game_timeout_error(timeout_sec)
+
+	var parsed = JSON.parse_string(text)
+	if not parsed is Dictionary:
+		return error_internal("Invalid response JSON from game")
+	(parsed as Dictionary).erase("_id")
+	if parsed.has("error"):
+		# The game may name the wire code and attach data (runtime.eval's aborted
+		# snippet carries its partial output and the captured errors).
+		var code := int(parsed.get("error_code", -32000))
+		var data: Variant = parsed.get("error_data", {})
+		return error(code, str(parsed["error"]), data if data is Dictionary else {})
+	if read_attempts > 1:
+		(parsed as Dictionary)["response_read_attempts"] = read_attempts
+	return success(parsed)
+
+
 ## Resolve a global class_name (an addon/project script class) to its Script, or
 ## null. Lets node/resource commands use third-party addon types by name.
 func find_script_class(class_name_str: String) -> Script:

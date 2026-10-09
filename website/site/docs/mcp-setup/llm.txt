@@ -6,9 +6,9 @@ Run swallowtail as an MCP server so Claude, Cursor, VS Code, or Codex can drive 
 
 ## Two tool modes
 
-> **The typed list costs about 52,000 tokens**
+> **The typed list costs about 56,000 tokens**
 >
-> The full typed surface measures ~332 tools and ~52,000 tokens of schemas, sized for big-context frontier models, which carry it comfortably with prompt caching. The single-tool mode measures ~470 tokens. Measurements, per-group breakdown, and the reasoning behind the default: [What the tool surface costs](https://regiellis.github.io/godot-mcp-go/docs/context-cost).
+> The full typed surface measures ~338 tools and ~56,000 tokens of schemas, sized for big-context frontier models, which carry it comfortably with prompt caching. The single-tool mode measures ~490 tokens. Measurements, per-group breakdown, and the reasoning behind the default: [What the tool surface costs](https://regiellis.github.io/godot-mcp-go/docs/context-cost).
 
 By default, `serve` exposes each documented command as a typed MCP tool, such as
 `node_add`, with required parameters and a description. Definitions come from the
@@ -20,7 +20,7 @@ its parameters:
 {"method": "node.add", "params": {"type": "Node2D", "name": "Player"}}
 ```
 
-For clients that cap the number of tools, run `serve --typed=false` to expose only `godot_run`. One tool still reaches all 332 registered commands while keeping the model's context lean: the model discovers the live 4.7 API with `engine.search` / `engine.class_info`, then acts, instead of carrying every tool schema into the session. Both modes are deliberate: typed for schema-guided calls, single-tool for context economy.
+For clients that cap the number of tools, run `serve --typed=false` to expose only `godot_run`. One tool still reaches all 337 registered commands while keeping the model's context lean: the model discovers the live 4.7 API with `engine.search` / `engine.class_info`, then acts, instead of carrying every tool schema into the session. Both modes are deliberate: typed for schema-guided calls, single-tool for context economy.
 
 > **Tip**
 >

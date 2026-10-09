@@ -118,7 +118,7 @@ func _open(params: Dictionary) -> Dictionary:
 	# live edited instance (it does not reload from disk), so calling it again
 	# only risks desyncing editor state. Make it idempotent unless force=true.
 	if was_active and not force:
-		return success({"path": normalized, "opened": false, "already_active": true})
+		return _open_result(normalized, false, true, true, false)
 
 	# force=true on an open scene reloads from disk, discarding unsaved edits.
 	# reload_scene_from_path does NOT change which tab is current, so a scene that
@@ -132,13 +132,27 @@ func _open(params: Dictionary) -> Dictionary:
 		var reload_refusal := _open_failure(normalized)
 		if not reload_refusal.is_empty():
 			return reload_refusal
-		return success({"path": normalized, "opened": true, "reloaded": true, "already_active": was_active})
+		return _open_result(normalized, true, was_active, true, true)
 
 	EditorInterface.open_scene_from_path(normalized)
 	var refusal := _open_failure(normalized)
 	if not refusal.is_empty():
 		return refusal
-	return success({"path": normalized, "opened": true, "was_already_open": was_open})
+	return _open_result(normalized, true, was_active, was_open, false)
+
+
+## Every scene.open success carries the same keys, so a plan can assert on any
+## of them whatever state the editor was in. `active` is always true on success;
+## `opened` says whether this call switched tabs.
+func _open_result(path: String, opened: bool, already_active: bool, was_already_open: bool, reloaded: bool) -> Dictionary:
+	return success({
+		"path": path,
+		"active": true,
+		"opened": opened,
+		"already_active": already_active,
+		"was_already_open": was_already_open,
+		"reloaded": reloaded,
+	})
 
 
 ## Refuse an open that did not land, or {} when it did.

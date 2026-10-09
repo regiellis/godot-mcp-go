@@ -98,6 +98,8 @@
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/playtest-loop" class="nav-link" data-scope-wv7whodv>Playtest loop</a></li>
 <li data-scope-wv7whodv>
+<a href="/godot-mcp-go/docs/playtest-sessions" class="nav-link" data-scope-wv7whodv>Playtest sessions</a></li>
+<li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/game-qa" class="nav-link" data-scope-wv7whodv>Game QA and reports<span class="nav-badge" data-scope-wv7whodv>beta</span></a></li>
 <li data-scope-wv7whodv>
 <a href="/godot-mcp-go/docs/dueling-dice-qa" class="nav-link" data-scope-wv7whodv>Dueling Dice QA case study</a></li>
@@ -259,7 +261,7 @@
 <p class="page-desc" data-scope-ccykbmgk>Every command is driven against a live editor, and a full game build precedes each release. The build gate exists because the per-command checks missed twelve real bugs.</p>
 </header>
 <p>The release gate asks a broader question than whether each command works: can an agent that did not build the tool complete real work through it? That makes testing part of the product contract. The interface must carry a project across discovery, authoring, play, diagnosis, repair, and verification without requiring you to fill gaps in the command interface.</p>
-<p>Every one of the 332 commands is exercised against a running editor when it is added or changed, and the result is read back rather than trusted: <code>node get</code> after <code>node set</code>, <code>scene tree</code> after a structural change, a screenshot when the question is visual. The whole sweep re-runs whenever command registration or the shared helpers change, because tool bugs cluster there.</p>
+<p>Every one of the 337 commands is exercised against a running editor when it is added or changed, and the result is read back rather than trusted: <code>node get</code> after <code>node set</code>, <code>scene tree</code> after a structural change, a screenshot when the question is visual. The whole sweep re-runs whenever command registration or the shared helpers change, because tool bugs cluster there.</p>
 <p>That check ran clean for six releases. Then one night of real use found twelve bugs it had never seen. So there are now two checks.</p>
 <h2 id="every-command-driven-live">Every command, driven live<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#every-command-driven-live">#</a></h2>
 <p>The per-command sweep catches contract bugs: a parameter that doesn’t coerce, a result that misreports, an undo step that doesn’t undo. It is fast, it localizes a failure to one command, and it runs constantly during development.</p>

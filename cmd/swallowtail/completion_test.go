@@ -22,6 +22,8 @@ func TestCompletionCandidates(t *testing.T) {
 		{[]string{"qa", "report", "--ass"}, "--assessment"},
 		{[]string{"qa", "attest", "--det"}, "--detail"},
 		{[]string{"qa", "compare", "--tol"}, "--tolerance-percent"},
+		{[]string{"automate", "--rep"}, "--report"},
+		{[]string{"automate", "--ju"}, "--junit"},
 	} {
 		if got := completionCandidates(tc.words, c); !slices.Contains(got, tc.want) {
 			t.Fatal(tc, got)
