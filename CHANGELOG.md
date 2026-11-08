@@ -6,6 +6,15 @@ follow [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Fixed
+
+- **`csharp setup` scaffolds a project that builds on Godot 4.8**. The `.csproj` always targeted `net8.0`, and GodotSharp 4.8 ships for `net10.0` only, so restore failed with NU1202. The target framework now follows the SDK version: `net10.0` from 4.8, `net8.0` for 4.3 to 4.7. C# on 4.8 needs the .NET 10 SDK.
+- **The default SDK version resolves on official dev, beta and RC builds**. The engine reports its status as `beta2`, while NuGet publishes `Godot.NET.Sdk` as `4.8.0-beta.2`, so the scaffold named a version that does not exist and the first build failed with MSB4236. The default now uses NuGet's spelling.
+
+### Verified
+
+- **Godot 4.8 beta 2** (`cafc17a19`). Every command registers, and the game round trip, the HTTP endpoint, scene saving and edit-time raycasts behave as they do on 4.7.2.
+
 ## [1.2.0] - 2026-10-08
 
 ### Added

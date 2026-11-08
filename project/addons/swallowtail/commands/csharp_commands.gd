@@ -47,8 +47,9 @@ func _info(_params: Dictionary) -> Dictionary:
 
 
 ## Scaffold a `<Name>.csproj` + `<Name>.sln` at the project root (Godot.NET.Sdk,
-## net8.0), set dotnet/project/assembly_name, and rescan. <Name> is the sanitized
-## project name. Refuses to overwrite existing files without --force (-32009).
+## net8.0 before 4.8, net10.0 from 4.8), set dotnet/project/assembly_name, and
+## rescan. <Name> is the sanitized project name. Refuses to overwrite existing
+## files without --force (-32009).
 func _setup(params: Dictionary) -> Dictionary:
 	var raw_name := ""
 	if ProjectSettings.has_setting("application/config/name"):
@@ -56,15 +57,11 @@ func _setup(params: Dictionary) -> Dictionary:
 	var project_name := _sanitize_name(raw_name)
 
 	var vi := Engine.get_version_info()
-	var default_sdk := "%d.%d.%d" % [int(vi.get("major", 0)), int(vi.get("minor", 0)), int(vi.get("patch", 0))]
-	# Non-stable engines publish their SDK with the status suffix (e.g. 4.7.2-rc,
-	# matching the nupkgs a source build generates); stable releases drop it.
-	var vstatus := String(vi.get("status", ""))
-	if not vstatus.is_empty() and vstatus != "stable":
-		default_sdk += "-" + vstatus
+	var default_sdk := _default_sdk_version(vi)
 	var sdk_version := optional_string(params, "sdk_version", default_sdk)
 	if sdk_version.is_empty():
 		sdk_version = default_sdk
+	var target_framework := _target_framework(sdk_version, vi)
 
 	var force := optional_bool(params, "force", false)
 	var csproj_path := "res://%s.csproj" % project_name
@@ -89,7 +86,7 @@ func _setup(params: Dictionary) -> Dictionary:
 			)
 
 	var created: Array = []
-	var wr: Variant = _write_file(csproj_path, _csproj_content(project_name, sdk_version))
+	var wr: Variant = _write_file(csproj_path, _csproj_content(project_name, sdk_version, target_framework))
 	if wr != null:
 		return wr
 	created.append(csproj_path)
@@ -109,8 +106,40 @@ func _setup(params: Dictionary) -> Dictionary:
 		"sln": sln_path,
 		"assembly_name": project_name,
 		"sdk_version": sdk_version,
+		"target_framework": target_framework,
 		"created": created,
 	})
+
+
+## The Godot.NET.Sdk version matching this engine. Official prereleases report
+## status "beta2" but publish to NuGet as 4.8.0-beta.2. A source build reports a
+## bare "rc", and its generated nupkgs are 4.7.2-rc. A stable drops the suffix.
+static func _default_sdk_version(vi: Dictionary) -> String:
+	var version := "%d.%d.%d" % [int(vi.get("major", 0)), int(vi.get("minor", 0)), int(vi.get("patch", 0))]
+	var status := String(vi.get("status", ""))
+	if status.is_empty() or status == "stable":
+		return version
+	var re := RegEx.new()
+	re.compile("^(dev|alpha|beta|rc)(\\d+)$")
+	var m: RegExMatch = re.search(status)
+	if m != null:
+		return "%s-%s.%s" % [version, m.get_string(1), m.get_string(2)]
+	return version + "-" + status
+
+
+## GodotSharp 4.8 ships lib/net10.0 only, so a net8.0 project fails restore with
+## NU1202. Versions 4.3 to 4.7 ship net8.0. Keyed on the SDK version the csproj
+## names, since a caller may override it, and on the engine's own otherwise.
+static func _target_framework(sdk_version: String, vi: Dictionary) -> String:
+	var major := int(vi.get("major", 0))
+	var minor := int(vi.get("minor", 0))
+	var parts := sdk_version.split("-")[0].split(".")
+	if parts.size() >= 2 and parts[0].is_valid_int() and parts[1].is_valid_int():
+		major = parts[0].to_int()
+		minor = parts[1].to_int()
+	if major > 4 or (major == 4 and minor >= 8):
+		return "net10.0"
+	return "net8.0"
 
 
 ## Build the C# project with `dotnet build` WITHOUT blocking the editor main
@@ -321,11 +350,11 @@ func _sanitize_name(raw: String) -> String:
 	return sanitized
 
 
-func _csproj_content(project_name: String, sdk_version: String) -> String:
+func _csproj_content(project_name: String, sdk_version: String, target_framework: String) -> String:
 	var lines: PackedStringArray = [
 		"<Project Sdk=\"Godot.NET.Sdk/%s\">" % sdk_version,
 		"  <PropertyGroup>",
-		"    <TargetFramework>net8.0</TargetFramework>",
+		"    <TargetFramework>%s</TargetFramework>" % target_framework,
 		"    <EnableDynamicLoading>true</EnableDynamicLoading>",
 		"    <RootNamespace>%s</RootNamespace>" % project_name,
 		"  </PropertyGroup>",
@@ -404,9 +433,9 @@ func get_command_docs() -> Dictionary:
 			"description": "Report the C# toolchain state: the dotnet CLI (presence/version), whether this is a .NET editor build, any csproj/sln at the root, and the configured assembly name. Read-only.",
 		},
 		"csharp.setup": {
-			"description": "Scaffold <Name>.csproj + <Name>.sln (Godot.NET.Sdk, net8.0) from the sanitized project name, set dotnet/project/assembly_name, and rescan. Refuses to overwrite existing files without --force.",
+			"description": "Scaffold <Name>.csproj + <Name>.sln (Godot.NET.Sdk, targeting net8.0 before 4.8 and net10.0 from 4.8) from the sanitized project name, set dotnet/project/assembly_name, and rescan. Refuses to overwrite existing files without --force.",
 			"params": [
-				doc_param("sdk_version", "String", false, "Godot.NET.Sdk version (default the engine's major.minor.patch[-status]; override when a build's self-reported version has no published/local nupkg)."),
+				doc_param("sdk_version", "String", false, "Godot.NET.Sdk version (default the engine's major.minor.patch plus NuGet's prerelease suffix, such as 4.8.0-beta.2). Override it when a build's self-reported version has no published or local nupkg. The target framework follows this version."),
 				doc_param("force", "bool", false, "Overwrite existing csproj/sln."),
 			],
 		},

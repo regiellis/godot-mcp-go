@@ -7,7 +7,7 @@ The `csharp` group plus C#-aware `script` commands drive a C# Godot project end 
 
 > **Requirements**
 >
-> Running C# needs a **Godot .NET editor build** (the ".NET" download, not the standard one) and the **.NET SDK** (`dotnet` on PATH, 8.0+). The addon itself is GDScript and runs in any editor, but only a .NET editor can load and attach `.cs` scripts.
+> Running C# needs a **Godot .NET editor build** (the ".NET" download, not the standard one) and the **.NET SDK** (`dotnet` on PATH: 8.0 or newer for Godot 4.3 to 4.7, 10.0 or newer for 4.8). The addon itself is GDScript and runs in any editor, but only a .NET editor can load and attach `.cs` scripts.
 
 
 ## 1. Check the toolchain, then scaffold
@@ -20,7 +20,7 @@ swallowtail csharp setup
 # -> writes <Name>.csproj + <Name>.sln, sets the assembly name
 ```
 
-`csharp.setup` derives `<Name>` from the project name, targets `Godot.NET.Sdk` on `net8.0`, and refuses to overwrite existing files without `--force`. The SDK version defaults to the running engine's version; on a custom or prerelease engine whose exact SDK isn't published, pass the one that matches your build:
+`csharp.setup` derives `<Name>` from the project name, targets `Godot.NET.Sdk` on `net8.0` (`net10.0` from Godot 4.8), and refuses to overwrite existing files without `--force`. The SDK version defaults to the running engine's version, spelled the way NuGet publishes it (`4.8.0-beta.2` for a beta). On a custom engine whose exact SDK isn't published, pass the one that matches your build:
 
 ```bash
 swallowtail csharp setup --force --sdk-version 4.7.2-rc

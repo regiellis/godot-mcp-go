@@ -265,7 +265,7 @@
 <span class="callout-mascot" aria-hidden="true"><img src="/godot-mcp-go/brand/callouts/important.webp" width="152" height="152" alt="" loading="lazy" decoding="async"></span><div class="callout-body">
 <div class="callout-kind">important</div>
 <div class="callout-title">Requirements</div>
-<p>Running C# needs a <strong>Godot .NET editor build</strong> (the ”.NET” download, not the standard one) and the <strong>.NET SDK</strong> (<code>dotnet</code> on PATH, 8.0+). The addon itself is GDScript and runs in any editor, but only a .NET editor can load and attach <code>.cs</code> scripts.</p>
+<p>Running C# needs a <strong>Godot .NET editor build</strong> (the ”.NET” download, not the standard one) and the <strong>.NET SDK</strong> (<code>dotnet</code> on PATH: 8.0 or newer for Godot 4.3 to 4.7, 10.0 or newer for 4.8). The addon itself is GDScript and runs in any editor, but only a .NET editor can load and attach <code>.cs</code> scripts.</p>
 </div>
 </aside>
 <h2 id="1-check-the-toolchain-then-scaffold">1. Check the toolchain, then scaffold<a class="heading-anchor" aria-hidden="true" tabindex="-1" data-search-ignore="all" href="#1-check-the-toolchain-then-scaffold">#</a></h2>
@@ -279,7 +279,7 @@
 </div>
 </button></div>
 </figure></div>
-<p><code>csharp.setup</code> derives <code>&lt;Name&gt;</code> from the project name, targets <code>Godot.NET.Sdk</code> on <code>net8.0</code>, and refuses to overwrite existing files without <code>--force</code>. The SDK version defaults to the running engine’s version; on a custom or prerelease engine whose exact SDK isn’t published, pass the one that matches your build:</p>
+<p><code>csharp.setup</code> derives <code>&lt;Name&gt;</code> from the project name, targets <code>Godot.NET.Sdk</code> on <code>net8.0</code> (<code>net10.0</code> from Godot 4.8), and refuses to overwrite existing files without <code>--force</code>. The SDK version defaults to the running engine’s version, spelled the way NuGet publishes it (<code>4.8.0-beta.2</code> for a beta). On a custom engine whose exact SDK isn’t published, pass the one that matches your build:</p>
 <div class="expressive-code">
 <figure class="frame is-terminal"><figcaption class="header"><span class="title"></span><span class="sr-only">Terminal window</span></figcaption><pre data-language="bash"><code><div class="ec-line"><div class="code"><span style="--0:#B392F0;--1:#6F42C1">swallowtail</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">csharp</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">setup</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--force</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#79B8FF;--1:#005CC5">--sdk-version</span><span style="--0:#E1E4E8;--1:#24292E"> </span><span style="--0:#9ECBFF;--1:#032F62">4.7.2-rc</span></div></div></code></pre><div class="copy">
 <div aria-live="polite">
